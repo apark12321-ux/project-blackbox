@@ -53,7 +53,7 @@ export function useKeywordSearch(category: string | null) {
     try {
       const data = await api(`/api/v1/curation/keywords/search`, {
         method: "POST",
-        body: JSON.stringify({ category, limit: 10 }),
+        body: JSON.stringify({ category_slug: category }),
       });
       const list = data.keywords || data || [];
       setKeywords(list.map((k: any) => ({
