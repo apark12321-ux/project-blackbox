@@ -2,9 +2,9 @@
  * Root Layout — 사이드바 + 상단 바 + 모드 토글
  */
 "use client";
+import { useEffect } from "react";
 import { useBlackboxStore } from "@/stores/blackbox-store";
 import Link from "next/link";
-import { usePathname } from "next/navigation";
 
 const NAV_ITEMS = [
   { href: "/create", label: "영상 제작", icon: "M4 4h16v16H4z M8 8h8 M8 12h8" },
@@ -14,6 +14,12 @@ const NAV_ITEMS = [
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { mode, setMode, reset } = useBlackboxStore();
   const pathname = usePathname();
+
+  useEffect(() => {
+    const s = document.createElement("script");
+    s.src = "https://cdn.tailwindcss.com";
+    document.head.appendChild(s);
+  }, []);
 
   return (
     <div className="flex h-screen bg-[#0a0e13] text-white">
