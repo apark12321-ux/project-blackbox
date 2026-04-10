@@ -37,7 +37,13 @@ try:
 except Exception as e:
     errors.append(f"B: {e}")
     print(f"Module B failed: {e}")
-
+try:
+    from module_b2.api.routes import router as b2_router
+    app.include_router(b2_router)
+    print("Module B-2 loaded")
+except Exception as e:
+    errors.append(f"B2: {e}")
+    print(f"Module B-2 failed: {e}")
 try:
     from module_c.api.routes import router as c_router
     app.include_router(c_router)
