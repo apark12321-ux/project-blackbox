@@ -36,7 +36,7 @@ export function useCategories() {
 
   useEffect(() => {
     api<any[]>("/api/v1/curation/categories")
-      .then((data) => setCategories(data))
+      .then((res: any) => setCategories((res.categories || res).map((c: any) => ({ id: c.slug || c.id, name: c.label_ko || c.name, icon: c.icon, cpm: c.cpm_range || c.cpm, description: c.description }))))
       .catch(() => {
         // Fallback: static categories
         setCategories([
