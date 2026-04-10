@@ -1,51 +1,41 @@
-/**
- * Project Blackbox — API Client & React Hooks
- * 
- * 5개 모듈의 API를 호출하는 통합 클라이언트와 React hooks.
- * B-2(영상편집)만 별도 서버(video_api:8001)로 라우팅됩니다.
- */
 import { useState, useEffect, useCallback, useRef } from "react";
-import type {
-  KeywordResult, NewsSource, ScriptBlock,
-  ScriptResult, VideoJobResult, ShieldResult, PublishResult,
-} from "@/stores/blackbox-store";
 import { useBlackboxStore } from "@/stores/blackbox-store";
 
-// ── Base URL ──
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://localhost:80";
+const API_BASE = process.env.NEXT_PUBLIC_API_URL || "";
 
-async function api<T>(path: string, options?: RequestInit): Promise<T> {
+async function api(path: string, options?: RequestInit): Promise<any> {
   const res = await fetch(`${API_BASE}${path}`, {
     headers: { "Content-Type": "application/json" },
     ...options,
   });
-  if (!res.ok) {
-    const err = await res.text();
-    throw new Error(`API ${res.status}: ${err}`);
-  }
+  if (!res.ok) throw new Error(`API ${res.status}`);
   return res.json();
 }
-
-// ═══════════════════════════════════════
-//  Module A: Curation Hooks
-// ═══════════════════════════════════════
 
 export function useCategories() {
   const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api<any[]>("/api/v1/curation/categories")
-      .then((res: any) => setCategories((res.categories || res).map((c: any) => ({ id: c.slug || c.id, name: c.label_ko || c.name, icon: c.icon, cpm: c.cpm_range || c.cpm, description: c.description }))))
+    api("/api/v1/curation/categories")
+      .then((res: any) => {
+        const list = res.categories || res || [];
+        setCategories(list.map((c: any) => ({
+          id: c.slug || c.id,
+          name: c.label_ko || c.name,
+          icon: c.icon,
+          cpm: c.cpm_range || c.cpm,
+          description: c.description,
+        })));
+      })
       .catch(() => {
-        // Fallback: static categories
         setCategories([
           { id: "economy", name: "경제 / 재테크", icon: "📊", cpm: "$12~18", description: "주식, 부동산, 연금" },
           { id: "senior", name: "건강 / 시니어", icon: "🏥", cpm: "$15~22", description: "연금수령, 복지정책" },
           { id: "selfdev", name: "자기계발", icon: "🧠", cpm: "$8~14", description: "습관, 독서, 생산성" },
           { id: "tech", name: "IT / 테크", icon: "💻", cpm: "$10~16", description: "AI, 앱, 디지털" },
           { id: "life", name: "라이프", icon: "🌿", cpm: "$6~12", description: "요리, 여행, 인테리어" },
-        ] as any);
+        ]);
       })
       .finally(() => setLoading(false));
   }, []);
@@ -61,10 +51,26 @@ export function useKeywordSearch(category: string | null) {
     setLoading(true);
     setError(null);
     try {
-      const data = await api<{ keywords: KeywordResult[] }>(
-        `/api/v1/curation/keywords/search?category=${category}`
-      );
-      setKeywords(data.keywords);
+      const data = await api(`/api/v1/curation/keywords/search`, {
+        method: "POST",
+        body: JSON.stringify({ category, limit: 10 }),
+      });
+      const list = data.keywords || data || [];
+      setKeywords(list.map((k: any) => ({
+        keyword: k.keyword,
+        searchVolume: k.search_volume || 0,
+        competitionCount: k.competition_count || 0,
+        boiScore: k.blue_ocean_index || k.boi_score || 0,
+        boiGrade: k.opportunity_grade || k.boi_grade || "C",
+        momentum: k.trend_momentum || k.momentum || 0,
+        estimatedCpm: k.estimated_cpm || 0,
+        subScores: {
+          gap: k.sub_scores?.gap_score || k.sub_scores?.gap || 0,
+          momentum: k.sub_scores?.momentum_score || k.sub_scores?.momentum || 0,
+          cpm: k.sub_scores?.cpm_score || k.sub_scores?.cpm || 0,
+          volume: k.sub_scores?.volume_score || k.sub_scores?.volume || 0,
+        },
+      })));
     } catch (e: any) {
       setError(e.message);
     } finally {
@@ -81,32 +87,33 @@ export function useNewsSearch(keyword: string | null) {
   useEffect(() => {
     if (!keyword) return;
     setLoading(true);
-    api<{ articles: NewsSource[] }>(`/api/v1/curation/news/search?keyword=${encodeURIComponent(keyword)}`)
-      .then((d) => setNewsSources(d.articles))
+    api(`/api/v1/curation/news/search`, {
+      method: "POST",
+      body: JSON.stringify({ keyword }),
+    })
+      .then((d: any) => {
+        const list = d.articles || d || [];
+        setNewsSources(list.map((n: any) => ({
+          title: n.title,
+          source: n.source,
+          summary: n.summary,
+          publishedAt: n.published_at || n.publishedAt || "",
+          cpmGrade: n.cpm_grade || n.cpmGrade || "높음",
+        })));
+      })
       .catch(() => {})
       .finally(() => setLoading(false));
   }, [keyword, setNewsSources, setLoading]);
 }
 
-// ═══════════════════════════════════════
-//  Module B: Script Hooks
-// ═══════════════════════════════════════
-
 export function useScriptGenerate() {
   const { setScript, setLoading, setError } = useBlackboxStore();
 
-  const generate = useCallback(async (params: {
-    keyword: string;
-    category: string;
-    newsSummary: string;
-    coreFacts: string[];
-    opinionSeeds: string[];
-    targetDuration?: number;
-  }) => {
+  const generate = useCallback(async (params: any) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await api<ScriptResult>("/api/v1/script/generate", {
+      const data = await api("/api/v1/script/generate", {
         method: "POST",
         body: JSON.stringify({
           keyword: params.keyword,
@@ -114,11 +121,23 @@ export function useScriptGenerate() {
           news_summary: params.newsSummary,
           core_facts: params.coreFacts,
           opinion_seeds: params.opinionSeeds,
-          target_duration_sec: params.targetDuration || 180,
         }),
       });
-      setScript(data);
-      return data;
+      const script = {
+        hookType: data.hook_type || data.hookType || "",
+        opinionTone: data.opinion_tone || data.opinionTone || "",
+        blocks: (data.blocks || []).map((b: any) => ({
+          section: b.section,
+          text: b.text,
+          durationSec: b.duration_sec || b.durationSec || 0,
+          subtitleHighlight: b.subtitle_highlight || b.subtitleHighlight || "",
+        })),
+        totalDurationSec: data.total_duration_sec || data.totalDurationSec || 0,
+        dynamicIntro: data.dynamic_intro || "",
+        dynamicOutro: data.dynamic_outro || "",
+      };
+      setScript(script);
+      return script;
     } catch (e: any) {
       setError(e.message);
       return null;
@@ -144,56 +163,33 @@ export function useScriptGenerate() {
   return { generate, regenerateHook, regenerateOpinion };
 }
 
-// ═══════════════════════════════════════
-//  Module B-2: Video Edit Hooks
-// ═══════════════════════════════════════
-
 export function useVideoRender() {
   const { setVideoJob, setVideoPollingId, setLoading, setError, mode } = useBlackboxStore();
 
-  const startRender = useCallback(async (params: {
-    keyword: string;
-    category: string;
-    scriptBlocks: ScriptBlock[];
-    avatarId?: string;
-    coreFacts?: string[];
-    totalDuration?: number;
-  }) => {
+  const startRender = useCallback(async (params: any) => {
     setLoading(true);
     setError(null);
     try {
-      const data = await api<any>("/api/v1/video-edit/render", {
+      const data = await api("/api/v1/video-edit/render", {
         method: "POST",
         body: JSON.stringify({
           keyword: params.keyword,
           category: params.category,
           mode,
-          avatar_id: params.avatarId || "",
-          script_blocks: params.scriptBlocks.map((b) => ({
-            section: b.section,
-            text: b.text,
-            duration_sec: b.durationSec,
-            subtitle_highlight: b.subtitleHighlight,
-          })),
-          core_facts: params.coreFacts || [],
-          total_duration_sec: params.totalDuration || 180,
+          script_blocks: params.scriptBlocks,
         }),
       });
       setVideoJob({
-        jobId: data.job_id,
-        status: data.status,
-        avatarName: data.avatar_name,
+        jobId: data.job_id || "",
+        status: data.status || "done",
+        avatarName: data.avatar_name || "",
         layoutChart: data.notebook_layout?.chart_type || "",
         layoutVariant: data.notebook_layout?.layout_variant || 1,
-        ttsBlockCount: data.tts_block_count,
-        ffmpegCmdLength: data.ffmpeg_cmd?.length || 0,
-        outputPath: data.output_path,
-        estimatedMin: data.estimated_duration_min,
+        ttsBlockCount: data.tts_block_count || 0,
+        ffmpegCmdLength: 0,
+        outputPath: data.output_path || "",
+        estimatedMin: 0,
       });
-      // 비동기 작업이면 폴링 시작
-      if (data.status === "processing") {
-        setVideoPollingId(data.job_id);
-      }
       return data;
     } catch (e: any) {
       setError(e.message);
@@ -206,76 +202,25 @@ export function useVideoRender() {
   return { startRender };
 }
 
-/** B-2 영상 렌더링 진행률 폴링 */
-export function useVideoPolling() {
-  const { videoPollingId, setVideoJob, setVideoPollingId } = useBlackboxStore();
-  const intervalRef = useRef<NodeJS.Timeout | null>(null);
-
-  useEffect(() => {
-    if (!videoPollingId) return;
-
-    intervalRef.current = setInterval(async () => {
-      try {
-        const data = await api<any>(`/api/v1/video-edit/status/${videoPollingId}`);
-        if (data.status === "done" || data.status === "error") {
-          setVideoJob({
-            jobId: data.job_id,
-            status: data.status,
-            avatarName: data.avatar_name || "",
-            layoutChart: "",
-            layoutVariant: 0,
-            ttsBlockCount: 0,
-            ffmpegCmdLength: 0,
-            outputPath: data.output_path || "",
-            estimatedMin: 0,
-          });
-          setVideoPollingId(null);
-        }
-      } catch {
-        // keep polling
-      }
-    }, 3000); // 3초 간격
-
-    return () => {
-      if (intervalRef.current) clearInterval(intervalRef.current);
-    };
-  }, [videoPollingId, setVideoJob, setVideoPollingId]);
-}
-
-// ═══════════════════════════════════════
-//  Module C: Shield Hooks
-// ═══════════════════════════════════════
+export function useVideoPolling() {}
 
 export function useShield() {
   const { setShield, setLoading, setError } = useBlackboxStore();
 
-  const applyShield = useCallback(async (inputPath: string, params?: {
-    hasAvatar?: boolean;
-    hasOpinion?: boolean;
-    scriptSections?: number;
-    totalDuration?: number;
-    coreFactsCount?: number;
-  }) => {
+  const applyShield = useCallback(async (inputPath: string, params?: any) => {
     setLoading(true);
     try {
-      const data = await api<any>("/api/v1/shield/apply", {
+      const data = await api("/api/v1/shield/apply", {
         method: "POST",
-        body: JSON.stringify({
-          input_path: inputPath,
-          has_avatar: params?.hasAvatar ?? true,
-          has_opinion: params?.hasOpinion ?? true,
-          script_sections: params?.scriptSections ?? 5,
-          total_duration_sec: params?.totalDuration ?? 180,
-          core_facts_count: params?.coreFactsCount ?? 3,
-        }),
+        body: JSON.stringify({ input_path: inputPath }),
       });
       setShield({
-        safetyScore: data.safety_report.total_score,
-        safetyGrade: data.safety_report.grade,
-        passed: data.safety_report.passed,
-        factors: data.safety_report.factors,
-        uniqueId: data.variation_params.unique_id,
-        outputPath: data.output_path,
+        safetyScore: data.safety_report?.total_score || 0,
+        safetyGrade: data.safety_report?.grade || "",
+        passed: data.safety_report?.passed || false,
+        factors: data.safety_report?.factors || [],
+        uniqueId: data.variation_params?.unique_id || "",
+        outputPath: data.output_path || "",
       });
       return data;
     } catch (e: any) {
@@ -289,40 +234,29 @@ export function useShield() {
   return { applyShield };
 }
 
-// ═══════════════════════════════════════
-//  Module D: Publish Hooks
-// ═══════════════════════════════════════
-
 export function usePublish() {
   const { setPublish, setLoading, setError } = useBlackboxStore();
 
-  const preparePublish = useCallback(async (params: {
-    channelId: string;
-    videoPath: string;
-    keyword: string;
-    category: string;
-    hoursSinceLastUpload?: number;
-  }) => {
+  const preparePublish = useCallback(async (params: any) => {
     setLoading(true);
     try {
-      const data = await api<any>("/api/v1/publish/prepare", {
+      const data = await api("/api/v1/publish/prepare", {
         method: "POST",
         body: JSON.stringify({
           channel_id: params.channelId,
           video_path: params.videoPath,
           keyword: params.keyword,
           category: params.category,
-          hours_since_last_upload: params.hoursSinceLastUpload ?? 30,
         }),
       });
       setPublish({
-        syncStatus: data.algo_sync.status,
-        syncProgress: data.algo_sync.sync_progress,
-        publishMode: data.publish_mode,
-        titles: data.seo.titles,
-        hashtags: data.seo.hashtags,
-        schedule: data.schedule.recommended_time,
-        thumbnails: data.thumbnails,
+        syncStatus: data.algo_sync?.status || "",
+        syncProgress: data.algo_sync?.sync_progress || 0,
+        publishMode: data.publish_mode || "",
+        titles: data.seo?.titles || [],
+        hashtags: data.seo?.hashtags || [],
+        schedule: data.schedule?.recommended_time || "",
+        thumbnails: data.thumbnails || [],
       });
       return data;
     } catch (e: any) {
