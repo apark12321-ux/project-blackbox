@@ -1,0 +1,19 @@
+FROM python:3.12-slim
+
+WORKDIR /app
+
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    ffmpeg curl && \
+    rm -rf /var/lib/apt/lists/*
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY module_a/ module_a/
+COPY module_b/ module_b/
+COPY module_c/ module_c/
+COPY module_d/ module_d/
+COPY infra/ infra/
+
+EXPOSE 8000
+CMD ["uvicorn", "infra.app_main:app", "--host", "0.0.0.0", "--port", "8000", "--workers", "4"]
