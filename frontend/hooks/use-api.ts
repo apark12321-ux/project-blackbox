@@ -35,7 +35,7 @@ export function useCategories() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api<any[]>("/api/v1/categories")
+    api<any[]>("/api/v1/curation/categories")
       .then((data) => setCategories(data))
       .catch(() => {
         // Fallback: static categories
@@ -62,7 +62,7 @@ export function useKeywordSearch(category: string | null) {
     setError(null);
     try {
       const data = await api<{ keywords: KeywordResult[] }>(
-        `/api/v1/keywords/search?category=${category}`
+        `/api/v1/curation/keywords/search?category=${category}`
       );
       setKeywords(data.keywords);
     } catch (e: any) {
@@ -81,7 +81,7 @@ export function useNewsSearch(keyword: string | null) {
   useEffect(() => {
     if (!keyword) return;
     setLoading(true);
-    api<{ articles: NewsSource[] }>(`/api/v1/news/search?keyword=${encodeURIComponent(keyword)}`)
+    api<{ articles: NewsSource[] }>(`/api/v1/curation/news/search?keyword=${encodeURIComponent(keyword)}`)
       .then((d) => setNewsSources(d.articles))
       .catch(() => {})
       .finally(() => setLoading(false));
