@@ -42,3 +42,4 @@ cd frontend && npm install && npm run dev
 - ElevenLabs API Key (Module B-2)
 - HeyGen API Key (Module B-2)
 - YouTube OAuth Client ID/Secret (Module D)
+
