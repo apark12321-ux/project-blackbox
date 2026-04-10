@@ -3,6 +3,7 @@
  * 6단계 파이프라인을 단계별로 렌더링합니다.
  */
 "use client";
+import { useEffect } from "react";
 import { useBlackboxStore } from "@/stores/blackbox-store";
 import {
   useCategories, useKeywordSearch, useNewsSearch,
@@ -36,7 +37,17 @@ export default function CreatePage() {
 
   // Video polling for async rendering
   useVideoPolling();
-
+  useEffect(() => {
+    if (step === 3 && selectedNews && selectedKeyword && selectedCategory && !script) {
+      generateScript({
+        keyword: selectedKeyword.keyword,
+        category: selectedCategory.id,
+        newsSummary: selectedNews.summary,
+        coreFacts: [selectedNews.title],
+        opinionSeeds: [],
+      });
+    }
+  }, [step, selectedNews]);
   // ── Step transition handlers ──
   const handleNewsSelect = async () => {
     if (!selectedKeyword || !selectedNews) return;
