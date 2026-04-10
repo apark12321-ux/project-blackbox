@@ -108,7 +108,7 @@ export function NewsPicker({ news }: { news: NewsSource[] }) {
         return (
           <button
             key={i}
-            onClick={() => selectNews(n)}
+            onClick={() => { selectNews(n); setTimeout(() => handleNewsSelect(), 100); }}
             className={`p-3 rounded-xl border text-left flex flex-col gap-1.5 transition-all
               ${sel ? "border-blue-500/50 bg-blue-500/5" : "border-white/10 hover:border-white/15"}
             `}
