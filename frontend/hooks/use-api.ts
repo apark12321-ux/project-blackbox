@@ -31,12 +31,12 @@ async function api<T>(path: string, options?: RequestInit): Promise<T> {
 // ═══════════════════════════════════════
 
 export function useCategories() {
-  const [categories, setCategories] = useState([]);
+  const [categories, setCategories] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    api("/api/v1/categories")
-      .then(setCategories)
+    api<any[]>("/api/v1/categories")
+      .then((data) => setCategories(data))
       .catch(() => {
         // Fallback: static categories
         setCategories([
