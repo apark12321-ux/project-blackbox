@@ -15,7 +15,7 @@ from module_a.schemas.api_schemas import (
     SubScoresResponse, FactorWeightsResponse,
     NewsSearchRequest, NewsListResponse, NewsArticleResponse,
     CurationResultRequest, CurationResultResponse,
-    BOICalculateRequest, BOICalculateResponse,
+    BOICalculateResponse,
 )
 from module_a.core.blue_ocean import (
     analyze_keyword_v2, rank_keywords_v2,
