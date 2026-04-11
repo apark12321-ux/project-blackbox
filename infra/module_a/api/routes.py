@@ -47,60 +47,111 @@ async def _fetch_youtube_data(keyword: str, api_key: str) -> dict:
     try:
         import httpx
         async with httpx.AsyncClient(timeout=10) as client:
+            # 1) Search API로 경쟁도(총 결과 수) + 영상 ID 수집
             resp = await client.get(
                 "https://www.googleapis.com/youtube/v3/search",
-                params={"part": "snippet", "q": keyword, "type": "video",
-                        "maxResults": 5, "regionCode": "KR", "relevanceLanguage": "ko",
-                        "key": api_key}
+                params={
+                    "part": "snippet",
+                    "q": keyword,
+                    "type": "video",
+                    "maxResults": 5,
+                    "regionCode": "KR",
+                    "relevanceLanguage": "ko",
+                    "key": api_key,
+                }
             )
-            if resp.status_code == 200:
-                data = resp.json()
-                total = data.get("pageInfo", {}).get("totalResults", 0)
-                items = data.get("items", [])
-                video_ids = [i["id"]["videoId"] for i in items if "videoId" in i.get("id", {})]
 
-                search_volume = random.randint(15000, 90000)
-                if video_ids:
-                    stats = await client.get(
-                        "https://www.googleapis.com/youtube/v3/videos",
-                        params={"part": "statistics", "id": ",".join(video_ids[:5]), "key": api_key}
-                    )
-                    if stats.status_code == 200:
-                        vids = stats.json().get("items", [])
-                        views = [int(v["statistics"].get("viewCount", 0)) for v in vids]
-                        if views:
-                            search_volume = max(int(sum(views) / len(views) * 0.12), 8000)
+            if resp.status_code != 200:
+                logger.warning(f"[YouTube] Search API {resp.status_code} for '{keyword}': {resp.text[:200]}")
+                return None
 
-                return {"competition": min(total, 500), "search_volume": search_volume}
-            else:
-                logger.warning(f"YouTube API {resp.status_code}: {resp.text[:100]}")
+            data = resp.json()
+            total = data.get("pageInfo", {}).get("totalResults", 0)
+            items = data.get("items", [])
+            video_ids = [i["id"]["videoId"] for i in items if "videoId" in i.get("id", {})]
+
+            logger.info(f"[YouTube] '{keyword}' => totalResults={total}, videos={len(video_ids)}")
+
+            # 2) Videos API로 조회수 수집 → 검색량 추정
+            search_volume = random.randint(15000, 90000)
+            if video_ids:
+                stats_resp = await client.get(
+                    "https://www.googleapis.com/youtube/v3/videos",
+                    params={
+                        "part": "statistics",
+                        "id": ",".join(video_ids[:5]),
+                        "key": api_key,
+                    }
+                )
+                if stats_resp.status_code == 200:
+                    vids = stats_resp.json().get("items", [])
+                    views = [int(v["statistics"].get("viewCount", 0)) for v in vids]
+                    if views:
+                        avg_views = sum(views) / len(views)
+                        search_volume = max(int(avg_views * 0.12), 8000)
+                        logger.info(f"[YouTube] '{keyword}' => avg_views={avg_views:.0f}, est_volume={search_volume}")
+                else:
+                    logger.warning(f"[YouTube] Videos API {stats_resp.status_code} for '{keyword}'")
+
+            return {
+                "competition": min(total, 500),
+                "search_volume": search_volume,
+                "source": "youtube_api",
+            }
+
     except Exception as e:
-        logger.warning(f"YouTube API error for '{keyword}': {e}")
+        logger.warning(f"[YouTube] Exception for '{keyword}': {type(e).__name__}: {e}")
+        return None
 
-    return {"competition": random.randint(5, 60), "search_volume": random.randint(15000, 100000)}
+
+async def _get_fallback_data(keyword: str) -> dict:
+    """YouTube API 실패 시 랜덤 데이터 생성"""
+    return {
+        "competition": random.randint(5, 60),
+        "search_volume": random.randint(15000, 100000),
+        "source": "fallback",
+    }
 
 
 async def _get_keywords(category: str) -> list[dict]:
-    """키워드 데이터 수집 (YouTube API 우선, 실패시 랜덤)"""
-    api_key = os.getenv("YOUTUBE_API_KEY", "")
+    """키워드 데이터 수집 (YouTube API 우선, 실패시 fallback)"""
+    api_key = os.getenv("YOUTUBE_API_KEY", "").strip()
     seeds = CATEGORY_SEEDS.get(category, CATEGORY_SEEDS["economy"])
 
-    tasks = [_fetch_youtube_data(s, api_key) if api_key else asyncio.coroutine(lambda s=s: {"competition": random.randint(5, 60), "search_volume": random.randint(15000, 100000)})() for s in seeds]
+    logger.info(f"[Keywords] category='{category}', seeds={len(seeds)}, api_key={'SET' if api_key else 'MISSING'}")
 
-    try:
-        yt_results = await asyncio.gather(*tasks, return_exceptions=True)
-    except Exception:
+    # YouTube API 호출 또는 fallback
+    if api_key:
+        tasks = [_fetch_youtube_data(s, api_key) for s in seeds]
+        try:
+            yt_results = await asyncio.gather(*tasks, return_exceptions=True)
+        except Exception as e:
+            logger.error(f"[Keywords] gather failed: {e}")
+            yt_results = [None] * len(seeds)
+    else:
+        logger.warning("[Keywords] YOUTUBE_API_KEY is missing! Using fallback data.")
         yt_results = [None] * len(seeds)
 
+    # 결과 조합
+    api_success = 0
+    fallback_count = 0
     results = []
+
     for seed, yt in zip(seeds, yt_results):
+        # 실패한 경우 fallback
         if isinstance(yt, Exception) or yt is None:
-            yt = {"competition": random.randint(5, 60), "search_volume": random.randint(15000, 100000)}
+            yt = await _get_fallback_data(seed)
+            fallback_count += 1
+        else:
+            api_success += 1
 
         momentum = round(random.uniform(-0.3, 0.9), 3)
         trend = "up" if momentum > 0.2 else "down" if momentum < -0.1 else "stable"
         base = yt["search_volume"] // 7
-        daily = [int(base * (1 + (i * 0.06 if trend == "up" else -i * 0.04 if trend == "down" else random.uniform(-0.02, 0.02)))) for i in range(7)]
+        daily = [
+            int(base * (1 + (i * 0.06 if trend == "up" else -i * 0.04 if trend == "down" else random.uniform(-0.02, 0.02))))
+            for i in range(7)
+        ]
 
         results.append({
             "keyword": seed,
@@ -109,13 +160,18 @@ async def _get_keywords(category: str) -> list[dict]:
             "trend": trend,
             "momentum": momentum,
             "daily": daily,
+            "source": yt.get("source", "unknown"),
         })
+
+    logger.info(f"[Keywords] Done: api_success={api_success}, fallback={fallback_count}")
     return results
 
 
 async def _get_news(keyword: str) -> list[NewsArticleResponse]:
     """뉴스 수집 (News API 우선, 실패시 생성)"""
-    api_key = os.getenv("NEWS_API_KEY", "")
+    api_key = os.getenv("NEWS_API_KEY", "").strip()
+
+    logger.info(f"[News] keyword='{keyword}', api_key={'SET' if api_key else 'MISSING'}")
 
     if api_key:
         try:
@@ -123,11 +179,20 @@ async def _get_news(keyword: str) -> list[NewsArticleResponse]:
             async with httpx.AsyncClient(timeout=10) as client:
                 resp = await client.get(
                     "https://newsapi.org/v2/everything",
-                    params={"q": keyword, "sortBy": "relevancy", "pageSize": 5, "apiKey": api_key}
+                    params={
+                        "q": keyword,
+                        "sortBy": "relevancy",
+                        "pageSize": 5,
+                        "language": "ko",
+                        "apiKey": api_key,
+                    }
                 )
+                logger.info(f"[News] API response: {resp.status_code}")
+
                 if resp.status_code == 200:
                     articles = resp.json().get("articles", [])
                     if articles:
+                        logger.info(f"[News] Got {len(articles)} real articles for '{keyword}'")
                         return [
                             NewsArticleResponse(
                                 id=i + 1,
@@ -142,10 +207,15 @@ async def _get_news(keyword: str) -> list[NewsArticleResponse]:
                             )
                             for i, a in enumerate(articles[:3])
                         ]
+                    else:
+                        logger.warning(f"[News] No articles found for '{keyword}'")
+                else:
+                    logger.warning(f"[News] API error {resp.status_code}: {resp.text[:200]}")
         except Exception as e:
-            logger.warning(f"News API error: {e}")
+            logger.warning(f"[News] Exception: {type(e).__name__}: {e}")
 
     # Fallback
+    logger.info(f"[News] Using fallback news for '{keyword}'")
     return [
         NewsArticleResponse(id=1, title=f"[속보] {keyword} — 전문가가 분석한 핵심 포인트",
             source_name="한국경제", source_url="", published_at=datetime.utcnow(), time_ago="2시간 전",
@@ -171,6 +241,8 @@ async def list_categories():
 
 @router.post("/keywords/search", response_model=KeywordListResponse)
 async def search_keywords(request: KeywordSearchRequest):
+    logger.info(f"[API] keywords/search called: category={request.category_slug}")
+
     data = await _get_keywords(request.category_slug)
 
     analyses = []
@@ -184,6 +256,8 @@ async def search_keywords(request: KeywordSearchRequest):
         analyses.append(a)
 
     analyses = rank_keywords_v2(analyses)[:request.max_results]
+
+    logger.info(f"[API] keywords/search result: {len(analyses)} keywords, sources={[d.get('source','?') for d in data[:3]]}")
 
     return KeywordListResponse(
         category=request.category_slug, total_count=len(analyses),
@@ -206,6 +280,7 @@ async def search_keywords(request: KeywordSearchRequest):
 
 @router.post("/news/search", response_model=NewsListResponse)
 async def search_news(request: NewsSearchRequest):
+    logger.info(f"[API] news/search called: keyword={request.keyword}")
     articles = await _get_news(request.keyword)
     return NewsListResponse(keyword=request.keyword, total_count=len(articles), articles=articles)
 
