@@ -4,6 +4,7 @@ RUN apt-get update && apt-get install -y ffmpeg fonts-nanum && rm -rf /var/lib/a
 
 WORKDIR /app
 COPY . .
+RUN pip install Pillow
 RUN pip install -r requirements.txt
 
 EXPOSE 8080
