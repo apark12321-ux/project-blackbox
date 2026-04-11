@@ -5,11 +5,10 @@ Project Blackbox — Module D: FastAPI 엔드포인트
 from datetime import datetime, timedelta
 from typing import Optional
 from fastapi import APIRouter, Query
-from pydantic import BaseModel, Field
 
 from module_d.core.publisher import (
-    AlgoSyncPublisher, check_algo_sync, generate_seo_metadata,
-    recommend_upload_time, generate_thumbnail_variants,
+    AlgoSyncPublisher, check_algo_sync, recommend_upload_time,
+    generate_thumbnail_variants, _generate_hashtags, _fallback_titles,
     SyncStatus,
 )
 
@@ -17,6 +16,11 @@ router = APIRouter(prefix="/api/v1/publish", tags=["Module D: Algo-Sync Publishe
 
 _publisher = AlgoSyncPublisher()
 
+
+class PublishRequest:
+    pass
+
+from pydantic import BaseModel, Field
 
 class PublishRequest(BaseModel):
     channel_id: str
@@ -26,19 +30,21 @@ class PublishRequest(BaseModel):
     hours_since_last_upload: Optional[float] = None
     news_title: str = ""
     opinion_tone: str = ""
+    total_duration_sec: float = 180
 
 
 @router.post("/prepare")
 async def prepare_publish(req: PublishRequest):
-    """배포 준비 — Algo-Sync + SEO + 스케줄 + 썸네일"""
+    """배포 준비 — Algo-Sync + Gemini SEO + 스케줄 + 썸네일"""
     last = None
     if req.hours_since_last_upload is not None:
         last = datetime.utcnow() - timedelta(hours=req.hours_since_last_upload)
 
-    result = _publisher.prepare_publish(
+    result = await _publisher.prepare_publish_async(
         channel_id=req.channel_id, video_path=req.video_path,
         keyword=req.keyword, category=req.category,
         last_upload_at=last, news_title=req.news_title,
+        total_duration_sec=req.total_duration_sec,
     )
 
     return {
@@ -75,7 +81,6 @@ async def algo_sync_check(
     channel_id: str,
     hours_since_last: Optional[float] = Query(default=None),
 ):
-    """Algo-Sync 상태 단독 조회"""
     last = None
     if hours_since_last is not None:
         last = datetime.utcnow() - timedelta(hours=hours_since_last)
@@ -89,13 +94,13 @@ async def algo_sync_check(
 
 @router.get("/seo/generate")
 async def seo_generate(keyword: str, category: str = "economy"):
-    """SEO 메타데이터 단독 생성"""
-    seo = generate_seo_metadata(keyword, category)
-    return {"titles": seo.titles, "hashtags": seo.hashtags, "description": seo.description, "disclaimer": seo.disclaimer}
+    from module_d.core.publisher import generate_seo_metadata
+    seo = await generate_seo_metadata(keyword, category)
+    return {"titles": seo.titles, "hashtags": seo.hashtags,
+            "description": seo.description, "disclaimer": seo.disclaimer}
 
 
 @router.get("/schedule/recommend")
 async def schedule_recommend(category: str = "economy"):
-    """프라임 타임 추천"""
     s = recommend_upload_time(category)
     return {"recommended_time": s.recommended_time, "reason": s.reason, "best_days": s.best_days}
