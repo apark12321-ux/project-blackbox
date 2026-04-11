@@ -1,20 +1,19 @@
 "use client";
 import { useBlackboxStore } from "@/stores/blackbox-store";
+import type { ActivePage } from "@/stores/blackbox-store";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 
-const MODULES = [
-  { id: 1, key: "curation", label: "큐레이션", icon: "◈", subtitle: "카테고리 · 키워드 · 소스" },
-  { id: 2, key: "script", label: "스크립트", icon: "◆", subtitle: "하이브리드 서사 엔진" },
-  { id: 3, key: "video", label: "영상편집", icon: "▶", subtitle: "AI 영상 제작" },
-  { id: 4, key: "deploy", label: "실드&배포", icon: "◉", subtitle: "보안 · 동기화 · 퍼블리시" },
+const MODULES: { key: ActivePage; id: number; label: string; icon: string; subtitle: string; minStep: number }[] = [
+  { key: "curation", id: 1, label: "큐레이션", icon: "◈", subtitle: "카테고리 · 키워드 · 소스", minStep: 0 },
+  { key: "script", id: 2, label: "스크립트", icon: "◆", subtitle: "하이브리드 서사 엔진", minStep: 3 },
+  { key: "video", id: 3, label: "영상편집", icon: "▶", subtitle: "AI 영상 제작", minStep: 4 },
+  { key: "deploy", id: 4, label: "실드&배포", icon: "◉", subtitle: "보안 · 동기화 · 퍼블리시", minStep: 5 },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const { mode, setMode, step, reset } = useBlackboxStore();
+  const { mode, setMode, step, activePage, setActivePage, reset } = useBlackboxStore();
   const pathname = usePathname();
-
-  const completedCount = Math.min(step, 4);
 
   return (
     <div className="flex h-screen bg-[#09090b] text-white">
@@ -53,53 +52,51 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
           <div className="flex flex-col gap-1">
             {MODULES.map((mod) => {
-              const isActive = step >= mod.id && step < mod.id + 1 || (mod.id === 4 && step >= 4);
-              const isCompleted = step > mod.id;
-              // For curation, it's active when step is 0,1,2; script when 3; video when 4; deploy when 5
-              const moduleActive =
-                (mod.key === "curation" && step <= 2) ||
-                (mod.key === "script" && step === 3) ||
-                (mod.key === "video" && step === 4) ||
-                (mod.key === "deploy" && step >= 5);
-              const moduleDone =
+              const isActive = activePage === mod.key;
+              const isUnlocked = step >= mod.minStep;
+              const isDone =
                 (mod.key === "curation" && step >= 3) ||
                 (mod.key === "script" && step >= 4) ||
                 (mod.key === "video" && step >= 5) ||
-                (mod.key === "deploy" && step >= 6);
+                (mod.key === "deploy" && step >= 5 && !!useBlackboxStore.getState().publish);
 
               return (
-                <div key={mod.key}
-                  className={`flex items-center gap-3 px-3 py-3 rounded-xl relative transition-all duration-200
-                    ${moduleActive ? "" : "hover:bg-white/[0.02] cursor-default"}`}
-                  style={moduleActive ? {
+                <button
+                  key={mod.key}
+                  onClick={() => { if (isUnlocked) setActivePage(mod.key); }}
+                  disabled={!isUnlocked}
+                  className={`flex items-center gap-3 px-3 py-3 rounded-xl relative transition-all duration-200 w-full text-left
+                    ${!isUnlocked ? "opacity-30 cursor-not-allowed" : "cursor-pointer"}
+                    ${!isActive && isUnlocked ? "hover:bg-white/[0.02]" : ""}`}
+                  style={isActive ? {
                     background: "linear-gradient(90deg, rgba(212,175,55,0.12), rgba(212,175,55,0.03))"
                   } : {}}>
 
                   {/* Active indicator bar */}
-                  {moduleActive && (
+                  {isActive && (
                     <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-sm"
                       style={{ background: "linear-gradient(180deg, #d4af37, #f0d060)", boxShadow: "0 0 10px rgba(212,175,55,0.4)" }} />
                   )}
 
                   {/* Icon */}
                   <div className={`w-9 h-9 rounded-lg flex items-center justify-center text-[14px] font-bold shrink-0 transition-all duration-200
-                    ${moduleActive
+                    ${isActive
                       ? "text-[#09090b]"
-                      : moduleDone
+                      : isDone
                         ? "text-[#22c55e] border border-[#22c55e]/20"
                         : "text-white/25 border border-white/[0.06]"}`}
-                    style={moduleActive
+                    style={isActive
                       ? { background: "linear-gradient(135deg, #d4af37, #c4a030)" }
-                      : moduleDone
+                      : isDone
                         ? { background: "rgba(34,197,94,0.1)" }
                         : { background: "rgba(255,255,255,0.03)" }}>
-                    {moduleDone && !moduleActive ? "✓" : mod.icon}
+                    {isDone && !isActive ? "✓" : mod.icon}
                   </div>
 
                   {/* Label */}
                   <div className="min-w-0 flex-1">
                     <div className={`text-[13px] transition-colors duration-200
-                      ${moduleActive ? "font-bold text-[#d4af37]" : "font-medium text-white/70"}`}>
+                      ${isActive ? "font-bold text-[#d4af37]" : "font-medium text-white/70"}`}>
                       {mod.label}
                     </div>
                     <div className="text-[10px] text-white/20 truncate mt-0.5">{mod.subtitle}</div>
@@ -107,11 +104,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
                   {/* Step number */}
                   <div className={`text-[10px] font-semibold opacity-50
-                    ${moduleActive ? "text-[#d4af37]" : "text-white/30"}`}
+                    ${isActive ? "text-[#d4af37]" : "text-white/30"}`}
                     style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                     0{mod.id}
                   </div>
-                </div>
+                </button>
               );
             })}
           </div>
@@ -124,7 +121,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               style={{ fontFamily: "'JetBrains Mono', monospace" }}>PROGRESS</span>
             <span className="text-[12px] font-bold text-[#d4af37]"
               style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-              {Math.min(Math.floor(step / 1.5), 4)}/4
+              {[step >= 3, step >= 4, step >= 5, step >= 5].filter(Boolean).length}/4
             </span>
           </div>
           <div className="h-1 rounded bg-white/[0.06] overflow-hidden mb-4">
