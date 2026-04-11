@@ -4,7 +4,7 @@ import { useBlackboxStore } from "@/stores/blackbox-store";
 import { useCategories, useKeywordSearch, useNewsSearch, useScriptGenerate, useVideoRender, useShield, usePublish } from "@/hooks/use-api";
 
 /* ═══════════════════════════════════════════════════
-   Section Header Component
+   Shared Components
    ═══════════════════════════════════════════════════ */
 const SectionTitle = ({ children, color = "#d4af37" }: { children: string; color?: string }) => (
   <div className="flex items-center gap-2.5 mb-5">
@@ -20,10 +20,38 @@ const Badge = ({ children, color = "#d4af37" }: { children: React.ReactNode; col
   </span>
 );
 
+const PageHeader = ({ step, icon, title, subtitle }: { step: number; icon: string; title: string; subtitle: string }) => (
+  <div className="px-8 pt-7 pb-5 border-b border-white/[0.04]"
+    style={{ background: "linear-gradient(180deg, rgba(212,175,55,0.03) 0%, transparent 100%)" }}>
+    <div className="flex items-center gap-3 mb-1">
+      <div className="w-9 h-9 rounded-lg flex items-center justify-center text-[14px] font-bold text-[#09090b]"
+        style={{ background: "linear-gradient(135deg, #d4af37, #c4a030)" }}>{icon}</div>
+      <div>
+        <div className="text-[10px] font-semibold tracking-[0.15em] text-[#d4af37] uppercase"
+          style={{ fontFamily: "'JetBrains Mono', monospace" }}>STEP 0{step}</div>
+        <h1 className="text-[22px] font-extrabold"
+          style={{ fontFamily: "'Outfit', 'Noto Sans KR', sans-serif" }}>{title}</h1>
+      </div>
+    </div>
+    <p className="text-[12px] text-white/25 ml-12">{subtitle}</p>
+  </div>
+);
+
+const NextStepButton = ({ onClick, label, color = "#22c55e" }: { onClick: () => void; label: string; color?: string }) => (
+  <button onClick={onClick}
+    className="w-full py-4 rounded-xl text-[15px] font-semibold transition-all hover:-translate-y-0.5 mt-6"
+    style={{
+      background: `linear-gradient(135deg, ${color}18, ${color}0a)`,
+      border: `1px solid ${color}30`, color
+    }}>
+    {label}
+  </button>
+);
+
 /* ═══════════════════════════════════════════════════
-   Module A: Curation (Steps 0-2)
+   PAGE 1: Module A — Curation (step 0~2)
    ═══════════════════════════════════════════════════ */
-const CurationModule = () => {
+const CurationPage = () => {
   const store = useBlackboxStore();
   const { step, selectedCategory, selectCategory, keywords, selectedKeyword, selectKeyword, newsSources, selectedNews, selectNews } = store;
   const { categories } = useCategories();
@@ -33,23 +61,7 @@ const CurationModule = () => {
 
   return (
     <div className="animate-fadeUp">
-      {/* Page Header */}
-      <div className="px-8 pt-7 pb-5 border-b border-white/[0.04]"
-        style={{ background: "linear-gradient(180deg, rgba(212,175,55,0.03) 0%, transparent 100%)" }}>
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center text-[14px] font-bold text-[#09090b]"
-            style={{ background: "linear-gradient(135deg, #d4af37, #c4a030)" }}>◈</div>
-          <div>
-            <div className="text-[10px] font-semibold tracking-[0.15em] text-[#d4af37] uppercase"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}>STEP 01</div>
-            <h1 className="text-[22px] font-extrabold"
-              style={{ fontFamily: "'Outfit', 'Noto Sans KR', sans-serif" }}>
-              모듈 A: 지능형 큐레이션 엔진
-            </h1>
-          </div>
-        </div>
-        <p className="text-[12px] text-white/25 ml-12">카테고리 선택 → 키워드 분석 → 뉴스 소스 큐레이션</p>
-      </div>
+      <PageHeader step={1} icon="◈" title="모듈 A: 지능형 큐레이션 엔진" subtitle="카테고리 선택 → 키워드 분석 → 뉴스 소스 큐레이션" />
 
       <div className="p-8 space-y-8">
         {/* Categories */}
@@ -58,15 +70,14 @@ const CurationModule = () => {
           <div className="flex gap-2.5 flex-wrap">
             {categories.map((c: any) => (
               <button key={c.id} onClick={() => selectCategory(c)}
-                className={`px-5 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-200 flex items-center gap-2
-                  ${selectedCategory?.id === c.id
-                    ? "border-[#d4af37]/30 text-[#f0d060] font-semibold"
-                    : "border-white/[0.06] text-white/40 hover:border-white/[0.12] hover:text-white/60"}`}
+                className="px-5 py-2.5 rounded-xl text-[14px] font-medium transition-all duration-200 flex items-center gap-2"
                 style={{
                   border: `1px solid ${selectedCategory?.id === c.id ? "rgba(212,175,55,0.3)" : "rgba(255,255,255,0.06)"}`,
                   background: selectedCategory?.id === c.id
                     ? "linear-gradient(135deg, rgba(212,175,55,0.15), rgba(212,175,55,0.05))"
                     : "rgba(255,255,255,0.02)",
+                  color: selectedCategory?.id === c.id ? "#f0d060" : "rgba(255,255,255,0.4)",
+                  fontWeight: selectedCategory?.id === c.id ? 600 : 400,
                   boxShadow: selectedCategory?.id === c.id ? "0 4px 20px rgba(212,175,55,0.08)" : "none",
                 }}>
                 <span className="text-[17px]">{c.icon}</span>
@@ -88,7 +99,6 @@ const CurationModule = () => {
             </div>
 
             <div className="rounded-2xl border border-white/[0.06] overflow-hidden" style={{ background: "rgba(255,255,255,0.015)" }}>
-              {/* Table header */}
               <div className="grid gap-3 px-6 py-3 border-b border-white/[0.06] text-[10px] font-semibold text-white/20 uppercase tracking-[0.08em]"
                 style={{ gridTemplateColumns: "40px 1fr 70px 70px 80px 50px", fontFamily: "'JetBrains Mono', monospace" }}>
                 <span>#</span><span>Keyword</span><span className="text-right">BOI</span>
@@ -132,17 +142,14 @@ const CurationModule = () => {
           </section>
         )}
 
-        {/* News Feed */}
+        {/* News */}
         {step >= 2 && newsSources.length > 0 && (
           <section className="animate-fadeUp">
             <SectionTitle color="#22c55e">Curated News Source Feed</SectionTitle>
             <div className="flex flex-col gap-3">
               {newsSources.slice(0, 4).map((n: any, i: number) => (
                 <button key={i} onClick={() => selectNews(n)}
-                  className={`w-full text-left p-5 rounded-2xl transition-all duration-200
-                    ${selectedNews?.title === n.title
-                      ? "border-[#d4af37]/25"
-                      : "border-white/[0.06] hover:border-white/[0.1] hover:-translate-y-0.5"}`}
+                  className="w-full text-left p-5 rounded-2xl transition-all duration-200"
                   style={{
                     border: `1px solid ${selectedNews?.title === n.title ? "rgba(212,175,55,0.25)" : "rgba(255,255,255,0.06)"}`,
                     background: selectedNews?.title === n.title ? "rgba(212,175,55,0.05)" : "rgba(255,255,255,0.015)",
@@ -163,11 +170,11 @@ const CurationModule = () => {
 };
 
 /* ═══════════════════════════════════════════════════
-   Module B: Script (Step 3)
+   PAGE 2: Module B — Script (step 3)
    ═══════════════════════════════════════════════════ */
-const ScriptModule = () => {
+const ScriptPage = () => {
   const store = useBlackboxStore();
-  const { script, mode, setMode, isLoading, step, selectedKeyword, selectedCategory } = store;
+  const { script, mode, setMode, isLoading, selectedKeyword, selectedCategory } = store;
   const { startRender } = useVideoRender();
 
   const sectionColors: Record<string, { bg: string; color: string; label: string }> = {
@@ -189,27 +196,12 @@ const ScriptModule = () => {
 
   return (
     <div className="animate-fadeUp">
-      <div className="px-8 pt-7 pb-5 border-b border-white/[0.04]"
-        style={{ background: "linear-gradient(180deg, rgba(212,175,55,0.03) 0%, transparent 100%)" }}>
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center text-[14px] font-bold text-[#09090b]"
-            style={{ background: "linear-gradient(135deg, #d4af37, #c4a030)" }}>◆</div>
-          <div>
-            <div className="text-[10px] font-semibold tracking-[0.15em] text-[#d4af37] uppercase"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}>STEP 02</div>
-            <h1 className="text-[22px] font-extrabold"
-              style={{ fontFamily: "'Outfit', 'Noto Sans KR', sans-serif" }}>
-              모듈 B: 하이브리드 서사 엔진
-            </h1>
-          </div>
-        </div>
-        <p className="text-[12px] text-white/25 ml-12">AI 스크립트 자동 생성 · 섹션별 시간 배분 · 후킹 전략</p>
-      </div>
+      <PageHeader step={2} icon="◆" title="모듈 B: 하이브리드 서사 엔진" subtitle="AI 스크립트 자동 생성 · 섹션별 시간 배분 · 후킹 전략" />
 
       <div className="p-8">
         {script ? (
-          <div className="space-y-5">
-            <div className="flex items-center gap-2.5 mb-5">
+          <div className="space-y-4">
+            <div className="flex items-center gap-3 mb-6">
               <SectionTitle>스크립트 멀티어</SectionTitle>
               <Badge>총 {script.totalDurationSec}초</Badge>
             </div>
@@ -235,7 +227,7 @@ const ScriptModule = () => {
             })}
 
             {/* Controls */}
-            <div className="flex items-center gap-5 p-5 rounded-2xl border border-white/[0.06] mt-6"
+            <div className="flex items-center gap-5 p-5 rounded-2xl border border-white/[0.06] mt-4"
               style={{ background: "rgba(255,255,255,0.015)" }}>
               <div className="flex items-center gap-2">
                 <span className="text-[13px] text-white/40">Senior Mode</span>
@@ -258,16 +250,7 @@ const ScriptModule = () => {
               </div>
             </div>
 
-            {step === 3 && (
-              <button onClick={goToVideo}
-                className="w-full py-4 rounded-xl text-[15px] font-semibold transition-all hover:-translate-y-0.5"
-                style={{
-                  background: "linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.05))",
-                  border: "1px solid rgba(34,197,94,0.2)", color: "#22c55e"
-                }}>
-                영상 편집 진행 →
-              </button>
-            )}
+            <NextStepButton onClick={goToVideo} label="영상 편집 진행 →" />
           </div>
         ) : (
           <div className="flex items-center justify-center h-64 text-white/10 text-[15px]">
@@ -280,38 +263,13 @@ const ScriptModule = () => {
 };
 
 /* ═══════════════════════════════════════════════════
-   Module B2: Video (Step 4)
+   PAGE 3: Module B2 — Video (step 4)
    ═══════════════════════════════════════════════════ */
-const VideoModule = () => {
+const VideoPage = () => {
   const store = useBlackboxStore();
-  const { script, selectedKeyword, selectedCategory, mode, videoJob, isLoading } = store;
-  const [generating, setGenerating] = useState(false);
-  const [progress, setProgress] = useState(0);
+  const { script, selectedKeyword, selectedCategory, mode, videoJob } = store;
   const { applyShield } = useShield();
   const { preparePublish } = usePublish();
-
-  const handleGenerate = async () => {
-    if (!script || !selectedKeyword || !selectedCategory) return;
-    setGenerating(true);
-    setProgress(0);
-    const interval = setInterval(() => {
-      setProgress(p => { if (p >= 95) { clearInterval(interval); return 95; } return p + Math.random() * 3 + 1; });
-    }, 300);
-    try {
-      const API = process.env.NEXT_PUBLIC_API_URL || "";
-      const res = await fetch(API + "/api/v1/video/generate-real", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          keyword: selectedKeyword.keyword, category: selectedCategory.id, mode,
-          script_blocks: script.blocks.map((b: any) => ({ text: b.text, section: b.section, duration_sec: b.durationSec }))
-        })
-      });
-      const data = await res.json();
-      clearInterval(interval);
-      setProgress(100);
-      if (data.download_url) window.open(API + data.download_url, "_blank");
-    } catch (e) { console.error(e); clearInterval(interval); } finally { setGenerating(false); }
-  };
 
   const goToShield = async () => {
     if (!videoJob) return;
@@ -327,22 +285,7 @@ const VideoModule = () => {
 
   return (
     <div className="animate-fadeUp">
-      <div className="px-8 pt-7 pb-5 border-b border-white/[0.04]"
-        style={{ background: "linear-gradient(180deg, rgba(212,175,55,0.03) 0%, transparent 100%)" }}>
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center text-[14px] font-bold text-[#09090b]"
-            style={{ background: "linear-gradient(135deg, #d4af37, #c4a030)" }}>▶</div>
-          <div>
-            <div className="text-[10px] font-semibold tracking-[0.15em] text-[#d4af37] uppercase"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}>STEP 03</div>
-            <h1 className="text-[22px] font-extrabold"
-              style={{ fontFamily: "'Outfit', 'Noto Sans KR', sans-serif" }}>
-              모듈 B2: AI 영상 제작
-            </h1>
-          </div>
-        </div>
-        <p className="text-[12px] text-white/25 ml-12">Pillow + FFmpeg + ElevenLabs TTS 기반 MP4 생성</p>
-      </div>
+      <PageHeader step={3} icon="▶" title="모듈 B2: AI 영상 제작" subtitle="Pillow + FFmpeg + ElevenLabs TTS 기반 MP4 생성" />
 
       <div className="p-8">
         <div className="grid grid-cols-2 gap-6">
@@ -354,9 +297,7 @@ const VideoModule = () => {
               <div className="absolute inset-0"
                 style={{ background: "radial-gradient(ellipse at 30% 40%, rgba(212,175,55,0.06) 0%, transparent 60%)" }} />
               <div className="w-14 h-14 rounded-full flex items-center justify-center text-xl text-[#d4af37] cursor-pointer z-10"
-                style={{ background: "rgba(212,175,55,0.12)", border: "2px solid rgba(212,175,55,0.25)" }}>
-                ▶
-              </div>
+                style={{ background: "rgba(212,175,55,0.12)", border: "2px solid rgba(212,175,55,0.25)" }}>▶</div>
               <span className="text-[12px] text-white/20 z-10" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
                 Preview available after generation
               </span>
@@ -385,48 +326,26 @@ const VideoModule = () => {
           </div>
         </div>
 
-        {/* Generation Bar */}
+        {/* Video Render Status */}
         <div className="mt-6 p-6 rounded-2xl border border-white/[0.06]" style={{ background: "rgba(255,255,255,0.015)" }}>
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex items-center justify-between">
             <div>
-              <h3 className="text-[16px] font-bold">영상 생성</h3>
+              <h3 className="text-[16px] font-bold">영상 편집 결과</h3>
               <p className="text-[12px] text-white/20 mt-1">
-                {generating ? (progress >= 100 ? "생성 완료!" : "Pillow + FFmpeg + ElevenLabs TTS 처리 중...") : "준비되면 생성 버튼을 눌러주세요"}
+                {videoJob ? "영상 편집이 완료되었습니다" : "영상 편집 처리 중..."}
               </p>
             </div>
-            <button onClick={handleGenerate} disabled={generating && progress < 100 || !script}
-              className="px-7 py-3 rounded-xl text-[14px] font-bold transition-all disabled:opacity-30"
-              style={{
-                background: generating && progress < 100
-                  ? "rgba(255,255,255,0.05)" : "linear-gradient(135deg, #d4af37, #c4a030)",
-                color: generating && progress < 100 ? "rgba(255,255,255,0.3)" : "#09090b",
-                cursor: generating && progress < 100 ? "not-allowed" : "pointer",
-              }}>
-              {progress >= 100 ? "✓ 완료" : generating ? "생성 중..." : "Generate MP4"}
-            </button>
+            {videoJob && (
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-[#22c55e]" style={{ boxShadow: "0 0 8px rgba(34,197,94,0.4)" }} />
+                <span className="text-[13px] text-[#22c55e] font-semibold">완료</span>
+              </div>
+            )}
           </div>
-          {generating && (
-            <div className="h-1.5 rounded bg-white/[0.06] overflow-hidden">
-              <div className="h-full rounded transition-all duration-300"
-                style={{
-                  width: `${Math.min(progress, 100)}%`,
-                  background: progress >= 100
-                    ? "linear-gradient(90deg, #22c55e, #16a34a)"
-                    : "linear-gradient(90deg, #d4af37, #f0d060)"
-                }} />
-            </div>
-          )}
         </div>
 
         {videoJob && (
-          <button onClick={goToShield}
-            className="w-full mt-5 py-4 rounded-xl text-[15px] font-semibold transition-all hover:-translate-y-0.5"
-            style={{
-              background: "linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.05))",
-              border: "1px solid rgba(245,158,11,0.2)", color: "#f59e0b"
-            }}>
-            실드 분석 시작 →
-          </button>
+          <NextStepButton onClick={goToShield} label="실드 분석 시작 →" color="#f59e0b" />
         )}
       </div>
     </div>
@@ -434,9 +353,10 @@ const VideoModule = () => {
 };
 
 /* ═══════════════════════════════════════════════════
-   Module C+D: Shield & Deploy (Step 5)
+   PAGE 4: Module C+D — Shield & Deploy (step 5+)
+   Create Video 버튼은 이 최종 페이지에만 존재
    ═══════════════════════════════════════════════════ */
-const DeployModule = () => {
+const DeployPage = () => {
   const store = useBlackboxStore();
   const { shield, publish, script, selectedKeyword, selectedCategory, mode } = store;
   const [generating, setGenerating] = useState(false);
@@ -460,26 +380,11 @@ const DeployModule = () => {
 
   return (
     <div className="animate-fadeUp">
-      <div className="px-8 pt-7 pb-5 border-b border-white/[0.04]"
-        style={{ background: "linear-gradient(180deg, rgba(212,175,55,0.03) 0%, transparent 100%)" }}>
-        <div className="flex items-center gap-3 mb-1">
-          <div className="w-9 h-9 rounded-lg flex items-center justify-center text-[14px] font-bold text-[#09090b]"
-            style={{ background: "linear-gradient(135deg, #d4af37, #c4a030)" }}>◉</div>
-          <div>
-            <div className="text-[10px] font-semibold tracking-[0.15em] text-[#d4af37] uppercase"
-              style={{ fontFamily: "'JetBrains Mono', monospace" }}>STEP 04</div>
-            <h1 className="text-[22px] font-extrabold"
-              style={{ fontFamily: "'Outfit', 'Noto Sans KR', sans-serif" }}>
-              모듈 C+D: 실드 & 배포
-            </h1>
-          </div>
-        </div>
-        <p className="text-[12px] text-white/25 ml-12">알고리즘 보안 · Algo-Sync · SEO 최적화 · 퍼블리시</p>
-      </div>
+      <PageHeader step={4} icon="◉" title="모듈 C+D: 실드 & 배포" subtitle="알고리즘 보안 · Algo-Sync · SEO 최적화 · 퍼블리시" />
 
       <div className="p-8">
         <div className="grid grid-cols-2 gap-6">
-          {/* Shield */}
+          {/* ═══ Shield ═══ */}
           <div>
             <SectionTitle color="#22c55e">알고리즘 보안 실드</SectionTitle>
 
@@ -503,7 +408,6 @@ const DeployModule = () => {
                   ))}
                 </div>
 
-                {/* Score */}
                 <div className="rounded-2xl border border-white/[0.06] p-7 text-center"
                   style={{ background: "rgba(255,255,255,0.015)" }}>
                   <div className="text-[11px] text-white/20 mb-2 tracking-[0.1em]"
@@ -520,11 +424,11 @@ const DeployModule = () => {
                 </div>
               </>
             ) : (
-              <div className="flex items-center justify-center h-48 text-white/10 text-[14px]">실드 분석 대기 중...</div>
+              <div className="flex items-center justify-center h-48 text-white/10 text-[14px]">실드 분석 처리 중...</div>
             )}
           </div>
 
-          {/* Deploy */}
+          {/* ═══ Deploy ═══ */}
           <div>
             <SectionTitle color="#f59e0b">알고리즘 동기화 배포</SectionTitle>
 
@@ -583,8 +487,8 @@ const DeployModule = () => {
                   <div className="text-[14px] text-white/50">프라임 타임에 추천 사항 참고</div>
                 </div>
 
-                {/* Actions */}
-                <div className="grid grid-cols-2 gap-3">
+                {/* ★ Create Video 버튼 — 이 최종 페이지에만 1개 */}
+                <div className="grid grid-cols-2 gap-3 pt-2">
                   <button className="py-4 rounded-xl text-[15px] font-semibold text-white/40 border border-white/[0.06] hover:border-white/[0.12] transition-all"
                     style={{ background: "rgba(255,255,255,0.02)" }}>
                     Publish
@@ -596,12 +500,12 @@ const DeployModule = () => {
                       color: "#09090b",
                       boxShadow: "0 4px 20px rgba(212,175,55,0.2)"
                     }}>
-                    {generating ? "생성중..." : "Download"}
+                    {generating ? "생성중..." : "Create Video & Download"}
                   </button>
                 </div>
               </div>
             ) : (
-              <div className="flex items-center justify-center h-48 text-white/10 text-[14px]">실드 분석 후 배포가 준비됩니다</div>
+              <div className="flex items-center justify-center h-48 text-white/10 text-[14px]">배포 정보 준비 중...</div>
             )}
           </div>
         </div>
@@ -611,14 +515,14 @@ const DeployModule = () => {
 };
 
 /* ═══════════════════════════════════════════════════
-   Main Page — Renders current module based on step
+   MAIN — step 값에 따라 페이지 1개만 렌더링
    ═══════════════════════════════════════════════════ */
 export default function CreatePage() {
   const store = useBlackboxStore();
   const { step, selectedNews, selectedKeyword, selectedCategory, script, isLoading } = store;
   const { generate } = useScriptGenerate();
 
-  // Auto-generate script when news selected
+  // Auto-generate script when news is selected
   useEffect(() => {
     if (step === 3 && selectedNews && selectedKeyword && selectedCategory && !script && !isLoading) {
       generate({
@@ -631,21 +535,21 @@ export default function CreatePage() {
     }
   }, [step, selectedNews]);
 
-  // Render the active module based on pipeline step
-  const renderModule = () => {
-    if (step <= 2) return <CurationModule />;
-    if (step === 3) return <ScriptModule />;
-    if (step === 4) return <VideoModule />;
-    return <DeployModule />;
+  // ★ 핵심: step에 따라 딱 1개 페이지만 보여줌
+  const renderCurrentPage = () => {
+    if (step <= 2) return <CurationPage />;   // 큐레이션
+    if (step === 3) return <ScriptPage />;     // 스크립트
+    if (step === 4) return <VideoPage />;      // 영상편집
+    return <DeployPage />;                     // 실드&배포 (최종)
   };
 
   return (
     <div className="min-h-full">
-      {renderModule()}
+      {renderCurrentPage()}
 
       {/* Bottom Status Bar */}
       <div className="sticky bottom-0 left-0 right-0 h-11 border-t border-white/[0.04] flex items-center px-8 gap-2"
-        style={{ background: "rgba(9,9,11,0.9)", backdropFilter: "blur(12px)" }}>
+        style={{ background: "rgba(9,9,11,0.92)", backdropFilter: "blur(12px)" }}>
         {[
           { label: "카테고리", done: step >= 1 },
           { label: "키워드", done: step >= 2 },
