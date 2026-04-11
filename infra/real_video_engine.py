@@ -281,15 +281,21 @@ def _silent(p, d):
                     "-t", str(d), "-c:a", "aac", p], capture_output=True, timeout=30)
 
 
-def gen_srt(blocks, path, pause=0.3):
+def gen_srt(blocks, path, pause=0.3, total_audio_dur=0):
     lines, cur = [], 0.0
+    # 전체 텍스트 길이 대비 실제 오디오 비율로 보정
+    total_text_len = sum(len(b["text"]) for b in blocks)
+    total_est = sum(b.get("duration_sec", len(b["text"]) / 4.5) for b in blocks) + pause * len(blocks)
+    ratio = total_audio_dur / total_est if total_audio_dur > 0 and total_est > 0 else 1.0
+
     for i, b in enumerate(blocks, 1):
-        s, d = cur, b.get("duration_sec", len(b["text"]) / 4.5)
+        s = cur
+        d = b.get("duration_sec", len(b["text"]) / 4.5) * ratio
         text = b["text"]
         if len(text) > 40:
             text = text[:40] + "..."
         lines += [str(i), f"{_ts(s)} --> {_ts(s+d)}", text, ""]
-        cur = s + d + pause
+        cur = s + d + pause * ratio
     with open(path, "w", encoding="utf-8") as f: f.write("\n".join(lines))
     return path
 
@@ -382,7 +388,7 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal"):
 
         # 3. SRT
         srt = os.path.join(job_dir, "subs.srt")
-        gen_srt(script_blocks, srt, pause)
+        gen_srt(script_blocks, srt, pause, adur)
 
         # 4. BGM
         bgm = os.path.join(job_dir, "bgm.m4a")
