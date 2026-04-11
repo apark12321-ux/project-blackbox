@@ -1,17 +1,18 @@
 """
-Project Blackbox — 영상 생성 엔진 v9
+Project Blackbox — 영상 생성 엔진 v10
 ═══════════════════════════════════════
-- 섹션별 배경 슬라이드 (Hook/Body/Opinion 각각 다른 비주얼)
-- ElevenLabs TTS (최적화된 음성)
-- 자막: FontSize=11, 2줄 줄바꿈(20자), 블록별 실제 TTS 싱크
-- 페이드 전환 효과
-- 향상된 BGM
+유튜브 수익화 정책 준수:
+- 블록마다 다른 비주얼 (반복 콘텐츠 회피)
+- Pexels 배경 이미지 + Pillow 인포그래픽 오버레이
+- 8가지 레이아웃 랜덤 적용
+- 블록별 TTS 싱크, 자막 FontSize=11
 """
 import os
 import uuid
 import subprocess
 import logging
 import random
+import hashlib
 from dataclasses import dataclass
 
 logger = logging.getLogger(__name__)
@@ -32,10 +33,6 @@ class RealVideoResult:
     error: str = ""
 
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  폰트
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 def _find_font():
     for p in ["/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf",
               "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
@@ -46,209 +43,317 @@ def _find_font():
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  섹션별 배경 슬라이드 생성
+#  Pexels 배경 이미지 다운로드
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-def _create_slide(path, slide_type, keyword, category, block_text="", block_index=0, total_blocks=1):
-    """섹션 타입별 다른 디자인의 슬라이드 생성"""
+CATEGORY_SEARCH_TERMS = {
+    "economy": ["finance graph", "stock market", "business meeting", "money investment", "bank building", "office desk", "calculator budget", "gold coins"],
+    "senior": ["elderly health", "retirement happy", "medical checkup", "walking park senior", "healthy food", "family generation", "pension savings", "morning exercise"],
+    "selfdev": ["reading book", "morning routine", "productivity desk", "journal writing", "meditation calm", "running sunrise", "study focus", "goal planning"],
+    "tech": ["artificial intelligence", "coding laptop", "robot technology", "smartphone app", "digital innovation", "cloud computing", "circuit board", "futuristic city"],
+    "life": ["cooking kitchen", "home interior", "travel landscape", "camping nature", "coffee cafe", "yoga wellness", "garden plant", "minimalist room"],
+}
+
+
+async def _fetch_pexels_image(query: str, save_path: str) -> str:
+    """Pexels API로 고품질 배경 이미지 다운로드"""
+    api_key = os.getenv("PEXELS_API_KEY", "").strip()
+    if not api_key:
+        return ""
+
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=15) as client:
+            # 검색
+            resp = await client.get(
+                "https://api.pexels.com/v1/search",
+                headers={"Authorization": api_key},
+                params={"query": query, "per_page": 5, "orientation": "landscape", "size": "large"}
+            )
+            if resp.status_code != 200:
+                logger.warning(f"[Pexels] Search {resp.status_code}: {resp.text[:100]}")
+                return ""
+
+            photos = resp.json().get("photos", [])
+            if not photos:
+                logger.warning(f"[Pexels] No photos for '{query}'")
+                return ""
+
+            # 랜덤 선택 (매번 다른 이미지)
+            photo = random.choice(photos)
+            img_url = photo.get("src", {}).get("landscape", "") or photo.get("src", {}).get("large", "")
+            if not img_url:
+                return ""
+
+            # 다운로드
+            img_resp = await client.get(img_url)
+            if img_resp.status_code == 200:
+                with open(save_path, "wb") as f:
+                    f.write(img_resp.content)
+                logger.info(f"[Pexels] Downloaded: '{query}' → {save_path}")
+                return save_path
+
+    except Exception as e:
+        logger.warning(f"[Pexels] Error: {e}")
+    return ""
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  8가지 인포그래픽 레이아웃
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+def _overlay_infographic(img, draw, font_func, layout_type, keyword, block_text, block_index, total_blocks, category):
+    """배경 위에 반투명 인포그래픽 오버레이"""
+    W, H = 1920, 1080
+
+    cat_map = {"economy": "경제 / 재테크", "senior": "건강 / 시니어",
+               "selfdev": "자기계발", "tech": "IT / 테크", "life": "라이프스타일"}
+    cat_label = cat_map.get(category, category)
+
+    # 공통: 어두운 오버레이 (배경 이미지 위에 가독성 확보)
+    from PIL import Image
+    overlay = Image.new("RGBA", (W, H), (0, 0, 0, 0))
+    from PIL import ImageDraw as ID2
+    od = ID2.Draw(overlay)
+
+    if layout_type == 0:
+        # ═══ 레이아웃 0: 좌측 패널 + 우측 배경 ═══
+        od.rectangle([0, 0, 700, H], fill=(10, 14, 20, 220))
+        od.rectangle([700, 0, 703, H], fill=(212, 175, 55, 150))
+        img.paste(Image.alpha_composite(Image.new("RGBA", (W, H), (0,0,0,0)), overlay), (0, 0), overlay)
+        draw.text((40, 40), "PROJECT BLACKBOX", fill=(212, 175, 55), font=font_func(20))
+        draw.text((40, 75), keyword, fill=(240, 235, 220), font=font_func(36))
+        draw.text((40, 125), cat_label, fill=(180, 160, 100), font=font_func(16))
+        draw.text((40, 170), f"SECTION {block_index+1} OF {total_blocks}", fill=(120, 110, 90), font=font_func(12))
+        # 텍스트 프리뷰
+        y = 220
+        for j in range(0, min(len(block_text), 180), 22):
+            draw.text((40, y), block_text[j:j+22], fill=(190, 185, 175), font=font_func(16))
+            y += 30
+
+    elif layout_type == 1:
+        # ═══ 레이아웃 1: 하단 와이드 패널 ═══
+        od.rectangle([0, H-320, W, H], fill=(10, 14, 20, 230))
+        od.rectangle([0, H-320, W, H-317], fill=(45, 128, 255, 180))
+        img.paste(Image.alpha_composite(Image.new("RGBA", (W, H), (0,0,0,0)), overlay), (0, 0), overlay)
+        draw.text((60, H-300), keyword, fill=(240, 235, 220), font=font_func(34))
+        draw.text((60, H-255), f"{cat_label}  ·  Section {block_index+1}/{total_blocks}", fill=(120, 140, 170), font=font_func(14))
+        y = H - 220
+        for j in range(0, min(len(block_text), 150), 45):
+            draw.text((60, y), block_text[j:j+45], fill=(180, 190, 200), font=font_func(15))
+            y += 26
+        draw.text((60, H-50), "PROJECT BLACKBOX", fill=(45, 128, 255), font=font_func(13))
+
+    elif layout_type == 2:
+        # ═══ 레이아웃 2: 중앙 카드 ═══
+        cx, cy, cw, ch = 360, 200, 1200, 680
+        od.rounded_rectangle([cx, cy, cx+cw, cy+ch], radius=20, fill=(12, 16, 24, 230))
+        od.rectangle([cx, cy, cx+cw, cy+3], fill=(212, 175, 55, 200))
+        img.paste(Image.alpha_composite(Image.new("RGBA", (W, H), (0,0,0,0)), overlay), (0, 0), overlay)
+        draw.text((cx+40, cy+30), "PROJECT BLACKBOX", fill=(212, 175, 55), font=font_func(16))
+        draw.text((cx+40, cy+65), keyword, fill=(235, 230, 215), font=font_func(38))
+        draw.text((cx+40, cy+120), f"{cat_label}  |  분석 {block_index+1}/{total_blocks}", fill=(130, 120, 100), font=font_func(14))
+        draw.rectangle([cx+40, cy+150, cx+cw-40, cy+151], fill=(50, 55, 70))
+        y = cy + 175
+        for j in range(0, min(len(block_text), 250), 35):
+            draw.text((cx+40, y), block_text[j:j+35], fill=(185, 190, 200), font=font_func(17))
+            y += 32
+            if y > cy + ch - 60:
+                break
+
+    elif layout_type == 3:
+        # ═══ 레이아웃 3: 우측 패널 + BOI 차트 ═══
+        od.rectangle([W-650, 0, W, H], fill=(10, 14, 20, 225))
+        od.rectangle([W-653, 0, W-650, H], fill=(26, 173, 107, 150))
+        img.paste(Image.alpha_composite(Image.new("RGBA", (W, H), (0,0,0,0)), overlay), (0, 0), overlay)
+        px = W - 620
+        draw.text((px, 40), "BLACKBOX ANALYSIS", fill=(26, 173, 107), font=font_func(16))
+        draw.text((px, 75), keyword, fill=(235, 235, 225), font=font_func(30))
+        # Mini BOI 바
+        labels = ["Gap", "Mom", "CPM", "Vol"]
+        colors = [(45,128,255), (26,173,107), (124,107,221), (229,166,32)]
+        vals = [random.uniform(2.5, 5.0) for _ in range(4)]
+        by = 140
+        for lb, col, v in zip(labels, colors, vals):
+            bw = int((v / 5.0) * 400)
+            draw.rectangle([px, by, px+400, by+18], fill=(30, 35, 45))
+            draw.rectangle([px, by, px+bw, by+18], fill=col)
+            draw.text((px+410, by), f"{v:.1f}", fill=(200, 200, 200), font=font_func(12))
+            draw.text((px-50, by+1), lb, fill=(120, 130, 150), font=font_func(11))
+            by += 32
+        # 텍스트
+        y = by + 30
+        for j in range(0, min(len(block_text), 200), 25):
+            draw.text((px, y), block_text[j:j+25], fill=(180, 185, 195), font=font_func(15))
+            y += 28
+
+    elif layout_type == 4:
+        # ═══ 레이아웃 4: 전체 어두운 오버레이 + 큰 타이포 ═══
+        od.rectangle([0, 0, W, H], fill=(8, 10, 16, 190))
+        img.paste(Image.alpha_composite(Image.new("RGBA", (W, H), (0,0,0,0)), overlay), (0, 0), overlay)
+        draw.text((80, 80), keyword, fill=(212, 175, 55), font=font_func(50))
+        draw.rectangle([80, 150, 400, 153], fill=(212, 175, 55))
+        draw.text((80, 175), f"{cat_label}  ·  Part {block_index+1}", fill=(150, 140, 110), font=font_func(18))
+        y = 240
+        for j in range(0, min(len(block_text), 300), 40):
+            draw.text((80, y), block_text[j:j+40], fill=(200, 200, 210), font=font_func(18))
+            y += 34
+        draw.text((80, H-60), "PROJECT BLACKBOX  |  AI-Powered Analysis", fill=(80, 90, 110), font=font_func(13))
+
+    elif layout_type == 5:
+        # ═══ 레이아웃 5: 2컬럼 분할 ═══
+        od.rectangle([0, 0, W//2, H], fill=(10, 14, 20, 210))
+        img.paste(Image.alpha_composite(Image.new("RGBA", (W, H), (0,0,0,0)), overlay), (0, 0), overlay)
+        draw.text((50, 50), "PROJECT BLACKBOX", fill=(45, 128, 255), font=font_func(18))
+        draw.text((50, 90), keyword, fill=(230, 230, 235), font=font_func(32))
+        draw.text((50, 140), f"Section {block_index+1} / {total_blocks}", fill=(100, 120, 150), font=font_func(14))
+        draw.rectangle([50, 170, W//2-50, 171], fill=(45, 128, 255, 80))
+        y = 195
+        for j in range(0, min(len(block_text), 250), 22):
+            draw.text((50, y), block_text[j:j+22], fill=(185, 195, 210), font=font_func(16))
+            y += 28
+
+    elif layout_type == 6:
+        # ═══ 레이아웃 6: 상단 배너 + 하단 데이터 ═══
+        od.rectangle([0, 0, W, 180], fill=(10, 14, 20, 230))
+        od.rectangle([0, H-250, W, H], fill=(10, 14, 20, 220))
+        od.rectangle([0, 180, W, 183], fill=(229, 166, 32, 150))
+        img.paste(Image.alpha_composite(Image.new("RGBA", (W, H), (0,0,0,0)), overlay), (0, 0), overlay)
+        draw.text((60, 30), "PROJECT BLACKBOX", fill=(229, 166, 32), font=font_func(22))
+        draw.text((60, 70), keyword, fill=(240, 235, 220), font=font_func(40))
+        draw.text((60, 130), f"{cat_label}  |  Analysis {block_index+1}/{total_blocks}", fill=(140, 130, 100), font=font_func(14))
+        # 하단 텍스트
+        y = H - 230
+        for j in range(0, min(len(block_text), 200), 50):
+            draw.text((60, y), block_text[j:j+50], fill=(190, 195, 205), font=font_func(16))
+            y += 28
+
+    elif layout_type == 7:
+        # ═══ 레이아웃 7: 대각선 분할 ═══
+        # 왼쪽 삼각형 어둡게
+        for row in range(H):
+            end_x = int((1 - row / H) * W * 0.6)
+            if end_x > 0:
+                od.rectangle([0, row, end_x, row+1], fill=(10, 14, 20, 200))
+        img.paste(Image.alpha_composite(Image.new("RGBA", (W, H), (0,0,0,0)), overlay), (0, 0), overlay)
+        draw.text((60, 60), "BLACKBOX", fill=(212, 175, 55), font=font_func(24))
+        draw.text((60, 100), keyword, fill=(235, 230, 215), font=font_func(36))
+        draw.text((60, 155), f"Part {block_index+1}  ·  {cat_label}", fill=(150, 140, 110), font=font_func(14))
+        y = 210
+        for j in range(0, min(len(block_text), 160), 20):
+            draw.text((60, y), block_text[j:j+20], fill=(190, 190, 200), font=font_func(16))
+            y += 28
+
+
+async def create_block_slide(save_path, keyword, category, block, block_index, total_blocks):
+    """블록별 고유 슬라이드 생성 (Pexels 배경 + 인포그래픽 오버레이)"""
     try:
         from PIL import Image, ImageDraw, ImageFont
     except ImportError:
         return ""
 
     fp = _find_font()
-    if not fp:
-        return ""
-
     W, H = 1920, 1080
-    img = Image.new("RGB", (W, H))
-    draw = ImageDraw.Draw(img)
 
-    def font(sz):
+    def font_func(sz):
+        if not fp:
+            return ImageFont.load_default()
         try:
             return ImageFont.truetype(fp, sz)
         except Exception:
             return ImageFont.load_default()
 
-    cat_map = {"economy": "경제 / 재테크", "senior": "건강 / 시니어",
-               "selfdev": "자기계발", "tech": "IT / 테크", "life": "라이프스타일"}
-    cat_label = cat_map.get(category, category)
+    section = block.get("section", "body")
+    block_text = block.get("text", "")
 
-    if slide_type == "hook":
-        # ═══ Hook 슬라이드: 임팩트 있는 어두운 배경 + 큰 키워드 ═══
-        # 그라데이션 배경
+    # 카테고리별 검색어 선택 (블록마다 다른 검색어)
+    terms = CATEGORY_SEARCH_TERMS.get(category, CATEGORY_SEARCH_TERMS["tech"])
+    search_term = terms[block_index % len(terms)]
+
+    # Pexels 배경 다운로드 시도
+    bg_path = save_path.replace(".png", "_bg.jpg")
+    bg_downloaded = await _fetch_pexels_image(search_term, bg_path)
+
+    if bg_downloaded and os.path.exists(bg_downloaded):
+        # Pexels 이미지를 배경으로 사용
+        bg_img = Image.open(bg_downloaded).convert("RGBA")
+        bg_img = bg_img.resize((W, H), Image.LANCZOS)
+    else:
+        # Pexels 실패 시 그라데이션 배경 생성
+        bg_img = Image.new("RGBA", (W, H))
+        d = ImageDraw.Draw(bg_img)
+        # 섹션별 다른 색상 그라데이션
+        color_sets = [
+            ((8, 12, 25), (15, 25, 45)),      # 딥블루
+            ((10, 18, 12), (20, 35, 25)),      # 딥그린
+            ((18, 12, 8), (35, 22, 15)),       # 딥브라운
+            ((12, 8, 18), (25, 15, 35)),       # 딥퍼플
+            ((8, 15, 18), (15, 30, 38)),       # 딥틸
+        ]
+        c1, c2 = color_sets[block_index % len(color_sets)]
         for y in range(H):
-            r = int(8 + (y / H) * 12)
-            g = int(10 + (y / H) * 15)
-            b = int(20 + (y / H) * 25)
-            draw.line([(0, y), (W, y)], fill=(r, g, b))
+            r = int(c1[0] + (c2[0] - c1[0]) * y / H)
+            g = int(c1[1] + (c2[1] - c1[1]) * y / H)
+            b = int(c1[2] + (c2[2] - c1[2]) * y / H)
+            d.line([(0, y), (W, y)], fill=(r, g, b, 255))
 
-        # 상단 골드 액센트 라인
-        draw.rectangle([0, 0, W, 3], fill=(212, 175, 55))
+    # 인포그래픽 오버레이 (8가지 레이아웃 중 랜덤)
+    layout_type = block_index % 8
+    draw = ImageDraw.Draw(bg_img)
+    _overlay_infographic(bg_img, draw, font_func, layout_type, keyword, block_text, block_index, total_blocks, category)
 
-        # 중앙 키워드 (크게)
-        f_kw = font(52)
-        bbox = draw.textbbox((0, 0), keyword, font=f_kw)
-        tw = bbox[2] - bbox[0]
-        kx = (W - tw) // 2
-        ky = H // 2 - 60
-        # 글로우 효과 (뒤에 반투명)
-        for ox, oy in [(-2, -2), (2, -2), (-2, 2), (2, 2)]:
-            draw.text((kx + ox, ky + oy), keyword, fill=(212, 175, 55, 60), font=f_kw)
-        draw.text((kx, ky), keyword, fill=(240, 220, 130), font=f_kw)
+    # RGB로 변환 후 저장
+    final = bg_img.convert("RGB")
+    final.save(save_path, "PNG", quality=95)
+    logger.info(f"[Slide] Block {block_index}: layout={layout_type}, bg={'pexels' if bg_downloaded else 'gradient'}")
+    return save_path
 
-        # 카테고리 태그
-        f_cat = font(18)
-        cbbox = draw.textbbox((0, 0), cat_label, font=f_cat)
-        cw = cbbox[2] - cbbox[0]
-        cx = (W - cw) // 2
-        draw.rounded_rectangle([cx - 16, ky + 75, cx + cw + 16, ky + 105], radius=6, fill=(212, 175, 55, 50))
-        draw.text((cx, ky + 78), cat_label, fill=(212, 175, 55), font=f_cat)
 
-        # 하단 브랜딩
-        draw.rectangle([0, H - 45, W, H], fill=(10, 12, 18))
-        draw.text((30, H - 35), "PROJECT BLACKBOX", fill=(212, 175, 55), font=font(14))
-        draw.text((W - 250, H - 35), "Powered by AI Engine v9", fill=(80, 90, 110), font=font(12))
+# 호환성 유지
+def create_notebook_bg(path, keyword, category, blocks):
+    import asyncio
+    try:
+        loop = asyncio.get_event_loop()
+        if loop.is_running():
+            # 이미 실행 중인 루프에서는 동기 fallback
+            return _create_gradient_bg(path, keyword, category, blocks)
+    except Exception:
+        pass
+    return _create_gradient_bg(path, keyword, category, blocks)
 
-    elif slide_type == "body":
-        # ═══ Body 슬라이드: 분석 대시보드 스타일 ═══
-        # 배경
-        for y in range(H):
-            v = int(10 + (y / H) * 8)
-            draw.line([(0, y), (W, y)], fill=(v, v + 2, v + 6))
 
-        # 상단 바
-        draw.rectangle([0, 0, W, 60], fill=(12, 15, 22))
-        draw.rectangle([0, 60, W, 61], fill=(45, 128, 255, 80))
-        draw.text((30, 16), "PROJECT BLACKBOX", fill=(45, 128, 255), font=font(18))
-        draw.text((W - 320, 20), f"NotebookLM Analysis — {cat_label}", fill=(100, 115, 140), font=font(14))
-
-        # 키워드 표시
-        f_title = font(32)
-        draw.text((80, 90), keyword, fill=(220, 225, 235), font=f_title)
-
-        # 진행 표시
-        progress_text = f"Section {block_index + 1} / {total_blocks}"
-        draw.text((W - 200, 95), progress_text, fill=(100, 115, 140), font=font(14))
-
-        # 좌측: BOI 차트
-        chart_x, chart_y = 80, 160
-        draw.text((chart_x, chart_y), "Blue Ocean Index (BOI v2)", fill=(100, 115, 140), font=font(14))
-        chart_y += 30
-
-        labels = ["Gap", "Momentum", "CPM", "Volume"]
-        colors = [(45, 128, 255), (26, 173, 107), (124, 107, 221), (229, 166, 32)]
-        values = [round(random.uniform(2.8, 5.0), 1) for _ in range(4)]
-
-        bar_w, max_h = 140, 250
-        for i, (label, col, val) in enumerate(zip(labels, colors, values)):
-            x = chart_x + i * (bar_w + 20)
-            h = int((val / 5.0) * max_h)
-            y_bottom = chart_y + max_h
-            y_top = y_bottom - h
-            # 바 그림자
-            draw.rectangle([x + 2, y_top + 2, x + bar_w + 2, y_bottom + 2], fill=(5, 5, 10))
-            draw.rectangle([x, y_top, x + bar_w, y_bottom], fill=col)
-            # 값
-            vt = str(val)
-            vbbox = draw.textbbox((0, 0), vt, font=font(16))
-            vw = vbbox[2] - vbbox[0]
-            draw.text((x + (bar_w - vw) // 2, y_top - 24), vt, fill=(220, 225, 235), font=font(16))
-            # 라벨
-            lbbox = draw.textbbox((0, 0), label, font=font(11))
-            lw = lbbox[2] - lbbox[0]
-            draw.text((x + (bar_w - lw) // 2, y_bottom + 8), label, fill=(80, 90, 110), font=font(11))
-
-        # 우측: 블록 텍스트 미리보기
-        panel_x = 780
-        draw.rectangle([panel_x, 160, W - 50, H - 120], fill=(14, 17, 26), outline=(30, 40, 60))
-        draw.rectangle([panel_x, 160, W - 50, 161], fill=(45, 128, 255))
-        draw.text((panel_x + 20, 175), "Script Preview", fill=(100, 115, 140), font=font(13))
-
-        # 텍스트 줄바꿈 표시
-        preview = block_text[:200] if block_text else ""
-        y_pos = 210
-        line_len = 28
-        for j in range(0, len(preview), line_len):
-            line = preview[j:j + line_len]
-            draw.text((panel_x + 20, y_pos), line, fill=(170, 180, 200), font=font(15))
-            y_pos += 28
-            if y_pos > H - 180:
-                break
-
-        # BOI 종합
-        boi_total = round(sum(values) / 4 * 0.95, 2)
-        grade = "A" if boi_total >= 4.0 else "B" if boi_total >= 3.0 else "C"
-        grade_col = (26, 173, 107) if grade == "A" else (229, 166, 32) if grade == "B" else (200, 80, 80)
-        boi_y = chart_y + max_h + 45
-        draw.text((chart_x, boi_y), "종합 BOI:", fill=(100, 115, 140), font=font(16))
-        draw.text((chart_x + 100, boi_y), f"{boi_total}", fill=(220, 225, 235), font=font(22))
-        draw.rounded_rectangle([chart_x + 185, boi_y, chart_x + 220, boi_y + 26], radius=4, fill=grade_col)
-        gbbox = draw.textbbox((0, 0), grade, font=font(14))
-        gw = gbbox[2] - gbbox[0]
-        draw.text((chart_x + 202 - gw // 2, boi_y + 4), grade, fill=(255, 255, 255), font=font(14))
-
-        # CPM 박스
-        cpm = round(random.uniform(12, 24), 2)
-        cpm_y = boi_y + 50
-        draw.rectangle([chart_x, cpm_y, chart_x + 300, cpm_y + 50], fill=(18, 24, 35))
-        draw.rectangle([chart_x, cpm_y, chart_x + 300, cpm_y + 1], fill=(45, 128, 255))
-        draw.text((chart_x + 12, cpm_y + 8), "예상 CPM", fill=(100, 115, 140), font=font(12))
-        draw.text((chart_x + 12, cpm_y + 26), f"${cpm}", fill=(26, 173, 107), font=font(18))
-
-        # 하단 바
-        draw.rectangle([0, H - 45, W, H], fill=(10, 12, 18))
-        draw.text((30, H - 35), "Powered by Project Blackbox AI  |  Gemini + ElevenLabs", fill=(50, 60, 80), font=font(12))
-        draw.rounded_rectangle([W - 180, H - 38, W - 30, H - 12], radius=10, fill=(26, 173, 107))
-        draw.text((W - 160, H - 35), "Senior Mode", fill=(255, 255, 255), font=font(12))
-
-    elif slide_type == "opinion":
-        # ═══ Opinion 슬라이드: 따뜻한 톤 ═══
-        for y in range(H):
-            r = int(15 + (y / H) * 10)
-            g = int(12 + (y / H) * 8)
-            b = int(10 + (y / H) * 5)
-            draw.line([(0, y), (W, y)], fill=(r, g, b))
-
-        draw.rectangle([0, 0, W, 3], fill=(229, 166, 32))
-
-        # 상단
-        draw.text((60, 30), "PROJECT BLACKBOX", fill=(229, 166, 32), font=font(16))
-        draw.text((W - 250, 34), "Opinion Injector™", fill=(180, 150, 80), font=font(14))
-
-        # 중앙
-        draw.text((W // 2 - 80, H // 2 - 100), "OPINION", fill=(229, 166, 32, 40), font=font(60))
-
-        f_kw = font(28)
-        bbox = draw.textbbox((0, 0), keyword, font=f_kw)
-        tw = bbox[2] - bbox[0]
-        draw.text(((W - tw) // 2, H // 2 - 20), keyword, fill=(220, 200, 150), font=f_kw)
-
-        draw.text(((W - 160) // 2, H // 2 + 30), "— 블랙박스의 견해 —", fill=(150, 130, 80), font=font(16))
-
-        # 하단
-        draw.rectangle([0, H - 45, W, H], fill=(12, 10, 8))
-        draw.text((30, H - 35), "이 견해는 AI 분석 기반이며, 투자 권유가 아닙니다.", fill=(80, 70, 50), font=font(11))
-
+def _create_gradient_bg(path, keyword, category, blocks):
+    try:
+        from PIL import Image, ImageDraw, ImageFont
+    except ImportError:
+        return ""
+    fp = _find_font()
+    if not fp:
+        return ""
+    W, H = 1920, 1080
+    img = Image.new("RGB", (W, H), (10, 14, 19))
+    d = ImageDraw.Draw(img)
+    for y in range(H):
+        d.line([(0,y),(W,y)], fill=(int(8+y/H*12), int(10+y/H*15), int(20+y/H*25)))
+    try:
+        f = ImageFont.truetype(fp, 36)
+        bbox = d.textbbox((0,0), keyword, font=f)
+        tw = bbox[2]-bbox[0]
+        d.text(((W-tw)//2, H//2-30), keyword, fill=(212,175,55), font=f)
+    except Exception:
+        pass
     img.save(path, "PNG")
     return path
 
 
-def create_notebook_bg(path, keyword, category, blocks):
-    """메인 배경 이미지 (호환성 유지)"""
-    return _create_slide(path, "body", keyword, category,
-                         block_text=blocks[0].get("text", "") if blocks else "",
-                         block_index=0, total_blocks=len(blocks))
-
-
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  이미지 → 영상 (줌 효과 포함)
+#  이미지 → 영상
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def img_to_video(img, out, dur):
     cmd = ["ffmpeg", "-y", "-loop", "1", "-i", img,
            "-vf", (f"scale=2000:1125,zoompan=z='min(zoom+0.0002,1.06)':"
-                   f"d={int(dur * 24)}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':"
+                   f"d={int(dur*24)}:x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)':"
                    f"s=1920x1080:fps=24"),
            "-t", str(dur), "-c:v", "libx264", "-preset", "fast", "-crf", "23",
            "-pix_fmt", "yuv420p", out]
@@ -272,80 +377,14 @@ def plain_bg(out, dur):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  섹션별 영상 클립 생성 + 페이드 전환
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-def _create_section_clips(blocks, block_durations, job_dir, keyword, category, pause):
-    """각 블록별 슬라이드 영상 생성"""
-    clip_paths = []
-    total_blocks = len(blocks)
-
-    for i, (b, dur) in enumerate(zip(blocks, block_durations)):
-        section = b.get("section", "body")
-        slide_type = "hook" if section == "hook" else "opinion" if section == "opinion" else "body"
-
-        slide_path = os.path.join(job_dir, f"slide_{i}.png")
-        clip_path = os.path.join(job_dir, f"clip_{i}.mp4")
-
-        _create_slide(slide_path, slide_type, keyword, category,
-                      block_text=b.get("text", ""), block_index=i, total_blocks=total_blocks)
-
-        clip_dur = dur + pause
-        if os.path.exists(slide_path):
-            img_to_video(slide_path, clip_path, clip_dur)
-        else:
-            plain_bg(clip_path, clip_dur)
-
-        if os.path.exists(clip_path):
-            clip_paths.append(clip_path)
-
-    return clip_paths
-
-
-def _concat_with_fade(clips, output, fade_dur=0.5):
-    """클립들을 페이드 전환으로 연결"""
-    if not clips:
-        return ""
-
-    if len(clips) == 1:
-        os.rename(clips[0], output)
-        return output
-
-    # ffmpeg concat with xfade
-    # 복잡한 xfade 대신 간단한 concat + 개별 fade 적용
-    list_file = os.path.join(os.path.dirname(output), "clips_list.txt")
-    with open(list_file, "w") as f:
-        for cp in clips:
-            f.write(f"file '{cp}'\n")
-
-    cmd = ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", list_file,
-           "-vf", f"fade=in:0:{int(fade_dur * 24)}",
-           "-c:v", "libx264", "-preset", "fast", "-crf", "23",
-           "-pix_fmt", "yuv420p", output]
-    try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
-        if r.returncode == 0 and os.path.exists(output):
-            return output
-    except Exception:
-        pass
-
-    # Fallback: 단순 concat
-    cmd2 = ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", list_file,
-            "-c:v", "libx264", "-preset", "ultrafast", "-pix_fmt", "yuv420p", output]
-    subprocess.run(cmd2, capture_output=True, timeout=300)
-    return output if os.path.exists(output) else ""
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  TTS (블록별 개별 생성)
+#  TTS
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def _get_audio_duration(path):
     try:
-        p = subprocess.run(
-            ["ffprobe", "-v", "quiet", "-show_entries", "format=duration",
-             "-of", "default=noprint_wrappers=1:nokey=1", path],
-            capture_output=True, text=True, timeout=10)
+        p = subprocess.run(["ffprobe", "-v", "quiet", "-show_entries", "format=duration",
+                            "-of", "default=noprint_wrappers=1:nokey=1", path],
+                           capture_output=True, text=True, timeout=10)
         if p.returncode == 0 and p.stdout.strip():
             return float(p.stdout.strip())
     except Exception:
@@ -356,32 +395,21 @@ def _get_audio_duration(path):
 async def gen_tts_single(text, path, speed=1.0):
     key = os.getenv("ELEVENLABS_API_KEY", "")
     est_dur = len(text) / (4.5 * speed)
-
     if not key:
         _silent(path, est_dur)
         return path, est_dur
-
     try:
         import httpx
         async with httpx.AsyncClient(timeout=120) as c:
             r = await c.post(
                 "https://api.elevenlabs.io/v1/text-to-speech/jBpfuIE2acCO8z3wKNLl",
                 headers={"xi-api-key": key, "Content-Type": "application/json"},
-                json={
-                    "text": text,
-                    "model_id": "eleven_multilingual_v2",
-                    "voice_settings": {
-                        "stability": 0.55,           # 약간 높여 안정적인 톤
-                        "similarity_boost": 0.82,     # 자연스러운 목소리
-                        "style": 0.15,                # 약간의 스타일 표현
-                        "use_speaker_boost": True,    # 선명한 음성
-                        "speed": speed,
-                    }
-                })
+                json={"text": text, "model_id": "eleven_multilingual_v2",
+                      "voice_settings": {"stability": 0.55, "similarity_boost": 0.82,
+                                         "style": 0.15, "use_speaker_boost": True, "speed": speed}})
             r.raise_for_status()
             with open(path, "wb") as f:
                 f.write(r.content)
-
             real_dur = _get_audio_duration(path)
             return path, real_dur if real_dur > 0 else est_dur
     except Exception as e:
@@ -393,33 +421,27 @@ async def gen_tts_single(text, path, speed=1.0):
 async def gen_tts_blocks(blocks, job_dir, speed=1.0):
     block_durations = []
     block_paths = []
-
     for i, b in enumerate(blocks):
         bp = os.path.join(job_dir, f"tts_block_{i}.mp3")
         _, dur = await gen_tts_single(b["text"], bp, speed)
         block_paths.append(bp)
         block_durations.append(dur)
-        logger.info(f"[TTS] Block {i} ({b.get('section', '?')}): {dur:.1f}s")
+        logger.info(f"[TTS] Block {i}: {dur:.1f}s")
 
     combined = os.path.join(job_dir, "tts.mp3")
     if len(block_paths) == 1:
         os.rename(block_paths[0], combined)
     else:
-        list_file = os.path.join(job_dir, "tts_list.txt")
-        with open(list_file, "w") as f:
+        lf = os.path.join(job_dir, "tts_list.txt")
+        with open(lf, "w") as f:
             for bp in block_paths:
                 f.write(f"file '{bp}'\n")
-        cmd = ["ffmpeg", "-y", "-f", "concat", "-safe", "0",
-               "-i", list_file, "-c:a", "copy", combined]
-        try:
-            subprocess.run(cmd, capture_output=True, timeout=120)
-        except Exception:
-            os.rename(block_paths[0], combined)
+        subprocess.run(["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", lf, "-c:a", "copy", combined],
+                       capture_output=True, timeout=120)
 
     total_dur = _get_audio_duration(combined)
     if total_dur <= 0:
         total_dur = sum(block_durations)
-
     return combined, total_dur, block_durations
 
 
@@ -429,126 +451,81 @@ def _silent(p, d):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  SRT (블록별 실제 TTS 길이 기반)
+#  SRT
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-def _wrap_text(text, max_chars=20):
-    if len(text) <= max_chars:
-        return text
+def _wrap_text(text, mc=20):
+    if len(text) <= mc: return text
     words = text.split(" ")
-    line1, line2 = "", ""
+    l1, l2 = "", ""
     for w in words:
-        if len(line1) + len(w) + 1 <= max_chars:
-            line1 = (line1 + " " + w).strip()
+        if len(l1)+len(w)+1 <= mc: l1 = (l1+" "+w).strip()
+        else: l2 = (l2+" "+w).strip()
+    if not l2: l1, l2 = text[:mc], text[mc:mc*2]
+    if len(l2) > mc: l2 = l2[:mc]+"..."
+    return l1+"\\N"+l2
+
+def _split_chunks(text, mc=40):
+    if len(text) <= mc: return [text]
+    chunks, cur = [], ""
+    for s in text.replace(". ",".\n").replace("? ","?\n").replace("! ","!\n").split("\n"):
+        if len(cur)+len(s)+1 <= mc: cur = (cur+" "+s).strip()
         else:
-            line2 = (line2 + " " + w).strip()
-    if not line2:
-        line1 = text[:max_chars]
-        line2 = text[max_chars:max_chars * 2]
-    if len(line2) > max_chars:
-        line2 = line2[:max_chars] + "..."
-    return line1 + "\\N" + line2
-
-
-def _split_to_chunks(text, max_chars=40):
-    if len(text) <= max_chars:
-        return [text]
-    chunks = []
-    sentences = text.replace(". ", ".\n").replace("? ", "?\n").replace("! ", "!\n").split("\n")
-    current = ""
-    for sent in sentences:
-        if len(current) + len(sent) + 1 <= max_chars:
-            current = (current + " " + sent).strip()
-        else:
-            if current:
-                chunks.append(current)
-            while len(sent) > max_chars:
-                cut = sent[:max_chars].rfind(" ")
-                if cut <= 0:
-                    cut = max_chars
-                chunks.append(sent[:cut].strip())
-                sent = sent[cut:].strip()
-            current = sent
-    if current:
-        chunks.append(current)
-    return chunks if chunks else [text[:max_chars]]
-
+            if cur: chunks.append(cur)
+            while len(s) > mc:
+                c = s[:mc].rfind(" ")
+                if c <= 0: c = mc
+                chunks.append(s[:c].strip()); s = s[c:].strip()
+            cur = s
+    if cur: chunks.append(cur)
+    return chunks or [text[:mc]]
 
 def gen_srt(blocks, path, pause=0.3, block_durations=None):
-    lines = []
-    cur = 0.0
-    idx = 1
-
+    lines, cur, idx = [], 0.0, 1
     for i, b in enumerate(blocks):
-        if block_durations and i < len(block_durations):
-            block_dur = block_durations[i]
-        else:
-            block_dur = b.get("duration_sec", len(b["text"]) / 4.5)
-
-        chunks = _split_to_chunks(b["text"], max_chars=40)
-        chunk_dur = block_dur / max(len(chunks), 1)
-
+        bd = block_durations[i] if block_durations and i < len(block_durations) else b.get("duration_sec", len(b["text"])/4.5)
+        chunks = _split_chunks(b["text"])
+        cd = bd / max(len(chunks), 1)
         for chunk in chunks:
-            s = cur
-            e = cur + chunk_dur
-            wrapped = _wrap_text(chunk, max_chars=20)
-            lines += [str(idx), f"{_ts(s)} --> {_ts(e)}", wrapped, ""]
-            cur = e
-            idx += 1
+            lines += [str(idx), f"{_ts(cur)} --> {_ts(cur+cd)}", _wrap_text(chunk), ""]
+            cur += cd; idx += 1
         cur += pause
-
     with open(path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
-    logger.info(f"[SRT] {idx - 1} entries, total={cur:.1f}s")
     return path
 
-
 def _ts(s):
-    return f"{int(s // 3600):02d}:{int((s % 3600) // 60):02d}:{int(s % 60):02d},{int((s % 1) * 1000):03d}"
+    return f"{int(s//3600):02d}:{int((s%3600)//60):02d}:{int(s%60):02d},{int((s%1)*1000):03d}"
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  BGM (더 풍부한 앰비언트)
+#  BGM + 합성
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def gen_bgm(path, dur, vol=0.08):
-    # 두 개의 사인파를 합성해서 더 풍부한 앰비언트 생성
     cmd = ["ffmpeg", "-y", "-f", "lavfi", "-i",
-           (f"sine=frequency=160:duration={dur},"
-            f"tremolo=f=0.2:d=0.4,lowpass=f=2500,volume={vol * 0.7}"
-            f"[a1];sine=frequency=240:duration={dur},"
-            f"tremolo=f=0.15:d=0.3,lowpass=f=2000,volume={vol * 0.3}"
-            f"[a2];[a1][a2]amix=inputs=2:duration=first"),
+           f"sine=frequency=160:duration={dur},tremolo=f=0.2:d=0.4,lowpass=f=2500,volume={vol*0.7}[a1];"
+           f"sine=frequency=240:duration={dur},tremolo=f=0.15:d=0.3,lowpass=f=2000,volume={vol*0.3}[a2];"
+           f"[a1][a2]amix=inputs=2:duration=first",
            "-c:a", "aac", "-b:a", "96k", path]
     try:
         r = subprocess.run(cmd, capture_output=True, timeout=60)
-        if r.returncode == 0 and os.path.exists(path):
-            return path
-    except Exception:
-        pass
-
-    # Fallback: 단순 사인파
+        if r.returncode == 0 and os.path.exists(path): return path
+    except Exception: pass
     cmd2 = ["ffmpeg", "-y", "-f", "lavfi", "-i",
-            f"sine=frequency=180:duration={dur},tremolo=f=0.3:d=0.5,lowpass=f=3000,volume={vol}",
-            "-c:a", "aac", "-b:a", "64k", path]
+            f"sine=frequency=180:duration={dur},volume={vol}", "-c:a", "aac", path]
     subprocess.run(cmd2, capture_output=True, timeout=60)
     return path if os.path.exists(path) else ""
 
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  합성 (FontSize=11, 반투명 배경 자막)
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def compose(bg, audio, srt, output, bgm=""):
     ss = ("FontSize=11,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
           "BackColour=&H96000000,BorderStyle=4,Outline=0,Shadow=0,"
           "MarginV=25,MarginL=40,MarginR=40,Alignment=2")
-
     if bgm and os.path.exists(bgm):
         cmd = ["ffmpeg", "-y", "-i", bg, "-i", audio, "-i", bgm,
-               "-filter_complex",
-               f"[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=3[aout]",
-               "-vf", f"fade=in:0:24,fade=out:st={{}}:d=1,subtitles={srt}:force_style='{ss}'",
+               "-filter_complex", "[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=3[aout]",
+               "-vf", f"fade=in:0:24,subtitles={srt}:force_style='{ss}'",
                "-map", "0:v", "-map", "[aout]",
                "-c:v", "libx264", "-preset", "fast", "-crf", "23",
                "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", output]
@@ -560,12 +537,8 @@ def compose(bg, audio, srt, output, bgm=""):
                "-c:a", "aac", "-b:a", "192k", "-shortest", "-movflags", "+faststart", output]
     try:
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
-        if r.returncode == 0 and os.path.exists(output):
-            return output
-        logger.warning(f"[Compose] FFmpeg: {r.stderr[:300] if r.stderr else 'err'}")
-    except Exception as e:
-        logger.warning(f"[Compose] {e}")
-
+        if r.returncode == 0 and os.path.exists(output): return output
+    except Exception: pass
     cmd2 = ["ffmpeg", "-y", "-i", bg, "-i", audio, "-map", "0:v", "-map", "1:a",
             "-c:v", "libx264", "-preset", "ultrafast", "-c:a", "aac", "-shortest", output]
     subprocess.run(cmd2, capture_output=True, timeout=300)
@@ -573,7 +546,7 @@ def compose(bg, audio, srt, output, bgm=""):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  메인 파이프라인 v9
+#  메인 파이프라인 v10
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 async def generate_real_video(keyword, category, script_blocks, mode="normal"):
@@ -587,29 +560,41 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal"):
         bvol = 0.05 if is_sr else 0.08
         pause = 0.6 if is_sr else 0.3
 
-        logger.info(f"[Video v9] Start: keyword='{keyword}', blocks={len(script_blocks)}, mode={mode}")
+        logger.info(f"[Video v10] Start: '{keyword}', {len(script_blocks)} blocks, mode={mode}")
 
         # 1. TTS (블록별)
         audio, adur, block_durations = await gen_tts_blocks(script_blocks, job_dir, speed)
-        logger.info(f"[Video v9] TTS: {adur:.1f}s total")
-
         vdur = adur + pause * len(script_blocks) + 2
+        logger.info(f"[Video v10] TTS done: {adur:.1f}s")
 
-        # 2. 섹션별 슬라이드 영상 생성
-        clips = _create_section_clips(script_blocks, block_durations, job_dir, keyword, category, pause)
+        # 2. 블록별 고유 슬라이드 생성 (Pexels + 인포그래픽)
+        clip_paths = []
+        total_blocks = len(script_blocks)
+        for i, (b, bd) in enumerate(zip(script_blocks, block_durations)):
+            slide = os.path.join(job_dir, f"slide_{i}.png")
+            clip = os.path.join(job_dir, f"clip_{i}.mp4")
 
-        # 3. 클립 연결 (페이드 전환)
-        bg_video = os.path.join(job_dir, "bg.mp4")
-        if clips:
-            _concat_with_fade(clips, bg_video)
-        else:
-            # Fallback
-            img = os.path.join(job_dir, "notebook.png")
-            create_notebook_bg(img, keyword, category, script_blocks)
-            if os.path.exists(img):
-                img_to_video(img, bg_video, vdur)
+            await create_block_slide(slide, keyword, category, b, i, total_blocks)
+
+            clip_dur = bd + pause
+            if os.path.exists(slide):
+                img_to_video(slide, clip, clip_dur)
             else:
-                plain_bg(bg_video, vdur)
+                plain_bg(clip, clip_dur)
+
+            if os.path.exists(clip):
+                clip_paths.append(clip)
+
+        # 3. 클립 연결
+        bg_video = os.path.join(job_dir, "bg.mp4")
+        if clip_paths:
+            lf = os.path.join(job_dir, "clips.txt")
+            with open(lf, "w") as f:
+                for cp in clip_paths:
+                    f.write(f"file '{cp}'\n")
+            cmd = ["ffmpeg", "-y", "-f", "concat", "-safe", "0", "-i", lf,
+                   "-c:v", "libx264", "-preset", "fast", "-crf", "23", "-pix_fmt", "yuv420p", bg_video]
+            subprocess.run(cmd, capture_output=True, timeout=300)
 
         if not os.path.exists(bg_video):
             plain_bg(bg_video, vdur)
@@ -628,7 +613,7 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal"):
 
         if res and os.path.exists(res):
             fsize = os.path.getsize(res)
-            logger.info(f"[Video v9] Done: {fsize} bytes, {vdur:.1f}s")
+            logger.info(f"[Video v10] Done: {fsize} bytes, {vdur:.1f}s, {len(clip_paths)} slides")
             return RealVideoResult(
                 job_id=job_id, status="done", output_path=res,
                 download_url=f"/api/v1/video/download/{job_id}",
@@ -642,5 +627,5 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal"):
                 tts_audio_path=audio)
 
     except Exception as e:
-        logger.error(f"[Video v9] Failed: {e}")
+        logger.error(f"[Video v10] Failed: {e}")
         return RealVideoResult(job_id=job_id, status="error", error=str(e))
