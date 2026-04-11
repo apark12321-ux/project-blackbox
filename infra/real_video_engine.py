@@ -310,8 +310,8 @@ def gen_bgm(path, dur, vol=0.08):
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def compose(bg, audio, srt, output, bgm="", fsz=18):
-    ss = (f"FontSize={fsz},PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
-          f"BackColour=&H80000000,Outline=1,Shadow=0,MarginV=50,Alignment=2")
+    ss = (f"FontSize=14,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
+          f"BackColour=&H80000000,Outline=1,Shadow=0,MarginV=30,Alignment=2")
 
     if bgm and os.path.exists(bgm):
         cmd = ["ffmpeg", "-y", "-i", bg, "-i", audio, "-i", bgm,
