@@ -45,7 +45,7 @@ except Exception as e:
     errors.append(f"B2: {e}")
     print(f"Module B-2 failed: {e}")
 try:
-    from infra.video_routes import router as video_real_router
+    from video_routes import router as video_real_router
     app.include_router(video_real_router)
     print("Video Real API loaded")
 except Exception as e:
