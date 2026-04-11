@@ -1,5 +1,5 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useBlackboxStore } from "@/stores/blackbox-store";
 import { useCategories, useKeywordSearch, useNewsSearch, useScriptGenerate, useVideoRender, useShield, usePublish } from "@/hooks/use-api";
 import StepBar from "@/components/common/StepBar";
@@ -7,7 +7,8 @@ import { CategoryPicker, KeywordList, NewsPicker } from "@/components/curation/C
 
 export default function CreatePage() {
   const store = useBlackboxStore();
-  const { step, setStep, isLoading, selectedCategory, keywords, selectedKeyword, newsSources, selectedNews, script, videoJob, shield, publish } = store;
+  const { step, setStep, mode, isLoading, selectedCategory, keywords, selectedKeyword, newsSources, selectedNews, script, videoJob, shield, publish } = store;
+  const [generating, setGenerating] = useState(false);
 
   const { categories } = useCategories();
   const { generate } = useScriptGenerate();
@@ -51,6 +52,38 @@ export default function CreatePage() {
         keyword: selectedKeyword.keyword,
         category: selectedCategory.id,
       });
+    }
+  };
+
+  const handleGenerateAndDownload = async () => {
+    if (!script || !selectedKeyword || !selectedCategory) return;
+    setGenerating(true);
+    try {
+      const API = process.env.NEXT_PUBLIC_API_URL || "";
+      const res = await fetch(API + "/api/v1/video/generate-real", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          keyword: selectedKeyword.keyword,
+          category: selectedCategory.id,
+          mode: mode,
+          script_blocks: script.blocks.map((b: any) => ({
+            text: b.text,
+            section: b.section,
+            duration_sec: b.durationSec,
+          })),
+        }),
+      });
+      const data = await res.json();
+      if (data.download_url) {
+        window.open(API + data.download_url, "_blank");
+      } else {
+        alert("영상 생성에 실패했습니다: " + (data.error || "알 수 없는 오류"));
+      }
+    } catch (e) {
+      alert("영상 생성 중 오류가 발생했습니다");
+    } finally {
+      setGenerating(false);
     }
   };
 
@@ -173,8 +206,13 @@ export default function CreatePage() {
                 </div>
               )}
               <div className="flex gap-2">
-                <button onClick={async () => { if(!script || !selectedKeyword) return; const API = process.env.NEXT_PUBLIC_API_URL || ''; const res = await fetch(API + '/api/v1/video/generate-real', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ keyword: selectedKeyword.keyword, category: selectedCategory?.id, mode, script_blocks: script.blocks.map((b:any) => ({text:b.text, section:b.section, duration_sec:b.durationSec})) }) }); const data = await res.json(); if(data.download_url) window.open(API + data.download_url, '_blank'); }} className="flex-1 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold">영상 생성 & 다운로드</button>
-                <button onClick={() => { if(videoJob) window.open(process.env.NEXT_PUBLIC_API_URL + '/api/v1/video/download/' + videoJob.jobId, '_blank') }} className="py-3 px-5 rounded-lg border border-white/15 text-white/60 text-sm hover:bg-white/5">MP4 다운로드</button>
+                <button
+                  onClick={handleGenerateAndDownload}
+                  disabled={generating}
+                  className="flex-1 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 disabled:bg-blue-500/50 text-white text-sm font-semibold"
+                >
+                  {generating ? "영상 생성 중..." : "영상 생성 & 다운로드"}
+                </button>
               </div>
             </div>
           )}
