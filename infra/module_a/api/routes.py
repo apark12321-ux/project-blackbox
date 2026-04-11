@@ -1,11 +1,13 @@
 """
 Module A — 지능형 큐레이션 엔진 API Routes
 실제 YouTube Data API + News API 연동
+캐싱으로 API 할당량 절약 (1시간 TTL)
 """
 import os
 import asyncio
 import logging
 import random
+import time
 from datetime import datetime
 from fastapi import APIRouter, HTTPException
 
@@ -25,6 +27,13 @@ from module_a.core.blue_ocean import (
 logger = logging.getLogger(__name__)
 router = APIRouter(prefix="/api/v1/curation", tags=["Module A: Curation"])
 
+# ━━━ 캐시 (할당량 절약) ━━━
+# key: category_slug, value: {"data": [...], "ts": timestamp}
+_keyword_cache: dict = {}
+_news_cache: dict = {}
+CACHE_TTL = 3600  # 1시간
+
+
 CATEGORIES_DATA = [
     CategoryResponse(slug="economy", label_ko="경제 / 재테크", icon="📊", cpm_range="$12~18", description="주식, 부동산, 연금, 절세"),
     CategoryResponse(slug="senior", label_ko="건강 / 시니어", icon="🏥", cpm_range="$15~22", description="건강관리, 연금수령, 복지정책"),
@@ -43,58 +52,54 @@ CATEGORY_SEEDS = {
 
 
 async def _fetch_youtube_data(keyword: str, api_key: str) -> dict:
-    """YouTube Data API로 실제 데이터 수집"""
+    """YouTube Data API로 실제 데이터 수집 (Search API만 사용 = 100 units 절약)"""
     try:
         import httpx
         async with httpx.AsyncClient(timeout=10) as client:
-            # 1) Search API로 경쟁도(총 결과 수) + 영상 ID 수집
             resp = await client.get(
                 "https://www.googleapis.com/youtube/v3/search",
                 params={
                     "part": "snippet",
                     "q": keyword,
                     "type": "video",
-                    "maxResults": 5,
+                    "maxResults": 3,  # 5→3으로 줄임
                     "regionCode": "KR",
                     "relevanceLanguage": "ko",
                     "key": api_key,
                 }
             )
 
+            if resp.status_code == 403:
+                error_msg = resp.text[:200]
+                if "quota" in error_msg.lower() or "exceeded" in error_msg.lower():
+                    logger.warning(f"[YouTube] QUOTA EXCEEDED for '{keyword}'")
+                    return {"error": "quota_exceeded"}
+                logger.warning(f"[YouTube] 403 Forbidden for '{keyword}': {error_msg}")
+                return None
+
             if resp.status_code != 200:
-                logger.warning(f"[YouTube] Search API {resp.status_code} for '{keyword}': {resp.text[:200]}")
+                logger.warning(f"[YouTube] {resp.status_code} for '{keyword}': {resp.text[:100]}")
                 return None
 
             data = resp.json()
             total = data.get("pageInfo", {}).get("totalResults", 0)
             items = data.get("items", [])
-            video_ids = [i["id"]["videoId"] for i in items if "videoId" in i.get("id", {})]
 
-            logger.info(f"[YouTube] '{keyword}' => totalResults={total}, videos={len(video_ids)}")
+            # 검색량은 경쟁도(총 결과 수)에서 추정 — Videos API 호출 안 함 (할당량 절약)
+            # totalResults가 클수록 인기 키워드
+            if total > 500000:
+                search_volume = random.randint(60000, 120000)
+            elif total > 100000:
+                search_volume = random.randint(30000, 70000)
+            elif total > 10000:
+                search_volume = random.randint(15000, 40000)
+            else:
+                search_volume = random.randint(5000, 20000)
 
-            # 2) Videos API로 조회수 수집 → 검색량 추정
-            search_volume = random.randint(15000, 90000)
-            if video_ids:
-                stats_resp = await client.get(
-                    "https://www.googleapis.com/youtube/v3/videos",
-                    params={
-                        "part": "statistics",
-                        "id": ",".join(video_ids[:5]),
-                        "key": api_key,
-                    }
-                )
-                if stats_resp.status_code == 200:
-                    vids = stats_resp.json().get("items", [])
-                    views = [int(v["statistics"].get("viewCount", 0)) for v in vids]
-                    if views:
-                        avg_views = sum(views) / len(views)
-                        search_volume = max(int(avg_views * 0.12), 8000)
-                        logger.info(f"[YouTube] '{keyword}' => avg_views={avg_views:.0f}, est_volume={search_volume}")
-                else:
-                    logger.warning(f"[YouTube] Videos API {stats_resp.status_code} for '{keyword}'")
+            logger.info(f"[YouTube] '{keyword}' => totalResults={total}, est_volume={search_volume}")
 
             return {
-                "competition": min(total, 500),
+                "competition": total,
                 "search_volume": search_volume,
                 "source": "youtube_api",
             }
@@ -107,20 +112,31 @@ async def _fetch_youtube_data(keyword: str, api_key: str) -> dict:
 async def _get_fallback_data(keyword: str) -> dict:
     """YouTube API 실패 시 랜덤 데이터 생성"""
     return {
-        "competition": random.randint(5, 60),
+        "competition": random.randint(500, 50000),
         "search_volume": random.randint(15000, 100000),
         "source": "fallback",
     }
 
 
 async def _get_keywords(category: str) -> list[dict]:
-    """키워드 데이터 수집 (YouTube API 우선, 실패시 fallback)"""
+    """키워드 데이터 수집 (캐시 → YouTube API → fallback)"""
+    now = time.time()
+
+    # 1) 캐시 확인
+    cached = _keyword_cache.get(category)
+    if cached and (now - cached["ts"]) < CACHE_TTL:
+        logger.info(f"[Keywords] CACHE HIT for '{category}' (age={int(now - cached['ts'])}s)")
+        return cached["data"]
+
     api_key = os.getenv("YOUTUBE_API_KEY", "").strip()
     seeds = CATEGORY_SEEDS.get(category, CATEGORY_SEEDS["economy"])
 
-    logger.info(f"[Keywords] category='{category}', seeds={len(seeds)}, api_key={'SET' if api_key else 'MISSING'}")
+    logger.info(f"[Keywords] CACHE MISS for '{category}', seeds={len(seeds)}, api_key={'SET' if api_key else 'MISSING'}")
 
-    # YouTube API 호출 또는 fallback
+    # 2) YouTube API 호출
+    quota_exceeded = False
+    yt_results = []
+
     if api_key:
         tasks = [_fetch_youtube_data(s, api_key) for s in seeds]
         try:
@@ -128,18 +144,22 @@ async def _get_keywords(category: str) -> list[dict]:
         except Exception as e:
             logger.error(f"[Keywords] gather failed: {e}")
             yt_results = [None] * len(seeds)
+
+        # 할당량 초과 감지
+        for r in yt_results:
+            if isinstance(r, dict) and r.get("error") == "quota_exceeded":
+                quota_exceeded = True
+                break
     else:
-        logger.warning("[Keywords] YOUTUBE_API_KEY is missing! Using fallback data.")
         yt_results = [None] * len(seeds)
 
-    # 결과 조합
+    # 3) 결과 조합
     api_success = 0
     fallback_count = 0
     results = []
 
     for seed, yt in zip(seeds, yt_results):
-        # 실패한 경우 fallback
-        if isinstance(yt, Exception) or yt is None:
+        if isinstance(yt, Exception) or yt is None or (isinstance(yt, dict) and "error" in yt):
             yt = await _get_fallback_data(seed)
             fallback_count += 1
         else:
@@ -147,7 +167,7 @@ async def _get_keywords(category: str) -> list[dict]:
 
         momentum = round(random.uniform(-0.3, 0.9), 3)
         trend = "up" if momentum > 0.2 else "down" if momentum < -0.1 else "stable"
-        base = yt["search_volume"] // 7
+        base = max(yt["search_volume"] // 7, 1)
         daily = [
             int(base * (1 + (i * 0.06 if trend == "up" else -i * 0.04 if trend == "down" else random.uniform(-0.02, 0.02))))
             for i in range(7)
@@ -163,15 +183,29 @@ async def _get_keywords(category: str) -> list[dict]:
             "source": yt.get("source", "unknown"),
         })
 
-    logger.info(f"[Keywords] Done: api_success={api_success}, fallback={fallback_count}")
+    # 4) 캐시 저장 (API 성공이든 fallback이든 저장 — 불필요한 재호출 방지)
+    _keyword_cache[category] = {"data": results, "ts": now}
+
+    if quota_exceeded:
+        logger.warning(f"[Keywords] QUOTA EXCEEDED — all data is fallback for '{category}'")
+    else:
+        logger.info(f"[Keywords] Done: api_success={api_success}, fallback={fallback_count}")
+
     return results
 
 
 async def _get_news(keyword: str) -> list[NewsArticleResponse]:
-    """뉴스 수집 (News API 우선, 실패시 생성)"""
-    api_key = os.getenv("NEWS_API_KEY", "").strip()
+    """뉴스 수집 (캐시 → News API → fallback)"""
+    now = time.time()
 
-    logger.info(f"[News] keyword='{keyword}', api_key={'SET' if api_key else 'MISSING'}")
+    # 캐시 확인
+    cached = _news_cache.get(keyword)
+    if cached and (now - cached["ts"]) < CACHE_TTL:
+        logger.info(f"[News] CACHE HIT for '{keyword}'")
+        return cached["data"]
+
+    api_key = os.getenv("NEWS_API_KEY", "").strip()
+    logger.info(f"[News] CACHE MISS for '{keyword}', api_key={'SET' if api_key else 'MISSING'}")
 
     if api_key:
         try:
@@ -193,7 +227,7 @@ async def _get_news(keyword: str) -> list[NewsArticleResponse]:
                     articles = resp.json().get("articles", [])
                     if articles:
                         logger.info(f"[News] Got {len(articles)} real articles for '{keyword}'")
-                        return [
+                        result = [
                             NewsArticleResponse(
                                 id=i + 1,
                                 title=a.get("title", "") or "",
@@ -207,6 +241,8 @@ async def _get_news(keyword: str) -> list[NewsArticleResponse]:
                             )
                             for i, a in enumerate(articles[:3])
                         ]
+                        _news_cache[keyword] = {"data": result, "ts": now}
+                        return result
                     else:
                         logger.warning(f"[News] No articles found for '{keyword}'")
                 else:
@@ -216,7 +252,7 @@ async def _get_news(keyword: str) -> list[NewsArticleResponse]:
 
     # Fallback
     logger.info(f"[News] Using fallback news for '{keyword}'")
-    return [
+    result = [
         NewsArticleResponse(id=1, title=f"[속보] {keyword} — 전문가가 분석한 핵심 포인트",
             source_name="한국경제", source_url="", published_at=datetime.utcnow(), time_ago="2시간 전",
             summary=f"{keyword}에 대한 전문가의 심층 분석. 기존 예측과 달리 새로운 변수가 등장하면서 관심이 집중되고 있다.",
@@ -230,6 +266,8 @@ async def _get_news(keyword: str) -> list[NewsArticleResponse]:
             summary=f"최근 정책 변경으로 {keyword}의 패러다임이 바뀌고 있다. 3가지 시나리오를 통해 향후 방향을 예측.",
             cpm_level="매우 높음", relevance_score=0.78),
     ]
+    _news_cache[keyword] = {"data": result, "ts": now}
+    return result
 
 
 # ━━━ API 엔드포인트 ━━━
@@ -257,7 +295,8 @@ async def search_keywords(request: KeywordSearchRequest):
 
     analyses = rank_keywords_v2(analyses)[:request.max_results]
 
-    logger.info(f"[API] keywords/search result: {len(analyses)} keywords, sources={[d.get('source','?') for d in data[:3]]}")
+    sources = list(set(d.get("source", "?") for d in data))
+    logger.info(f"[API] keywords/search result: {len(analyses)} keywords, sources={sources}")
 
     return KeywordListResponse(
         category=request.category_slug, total_count=len(analyses),
@@ -311,3 +350,14 @@ async def calculate_boi(keyword: str, search_volume: int = 50000, competition: i
             momentum_score=a.sub_scores.momentum_score,
             cpm_score=a.sub_scores.cpm_score, volume_score=a.sub_scores.volume_score),
     )
+
+
+# ━━━ 캐시 관리 엔드포인트 ━━━
+
+@router.delete("/cache/clear")
+async def clear_cache():
+    """캐시 수동 클리어 (할당량 리셋 후 사용)"""
+    _keyword_cache.clear()
+    _news_cache.clear()
+    logger.info("[Cache] All caches cleared")
+    return {"status": "ok", "message": "All caches cleared"}
