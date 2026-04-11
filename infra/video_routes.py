@@ -33,7 +33,7 @@ class RealVideoResponse(BaseModel):
 @router.post("/generate-real", response_model=RealVideoResponse)
 async def generate_real_video_endpoint(req: RealVideoRequest):
     """실제 영상 생성 (TTS + FFmpeg)"""
-    from infra.real_video_engine import generate_real_video
+    from real_video_engine import generate_real_video
     
     result = await generate_real_video(
         keyword=req.keyword,
