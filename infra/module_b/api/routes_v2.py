@@ -4,6 +4,7 @@ Project Blackbox — Module B: FastAPI 엔드포인트 (스크립트 전용)
 
 ※ 영상 제작 관련 엔드포인트는 Module B-2 (/api/v1/video-edit/*)로 이전되었습니다.
 """
+import os
 from datetime import datetime
 from fastapi import APIRouter
 
@@ -16,7 +17,9 @@ from module_b.core.script_engine import (
 )
 
 router = APIRouter(prefix="/api/v1/script", tags=["Module B: Script Engine"])
-_engine = ScriptEngine()
+
+# ★ Gemini API 키를 환경변수에서 읽어서 전달
+_engine = ScriptEngine(gemini_api_key=os.getenv("GEMINI_API_KEY", ""))
 
 
 @router.post("/generate", response_model=ScriptResponse)
