@@ -173,8 +173,8 @@ export default function CreatePage() {
                 </div>
               )}
               <div className="flex gap-2">
-                <button className="flex-1 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold">유튜브 업로드 예약</button>
-                <button className="py-3 px-5 rounded-lg border border-white/15 text-white/60 text-sm hover:bg-white/5">MP4 다운로드</button>
+                <button onClick={async () => { if(!script || !selectedKeyword) return; const API = process.env.NEXT_PUBLIC_API_URL || ''; const res = await fetch(API + '/api/v1/video/generate-real', { method: 'POST', headers: {'Content-Type':'application/json'}, body: JSON.stringify({ keyword: selectedKeyword.keyword, category: selectedCategory?.id, mode, script_blocks: script.blocks.map((b:any) => ({text:b.text, section:b.section, duration_sec:b.durationSec})) }) }); const data = await res.json(); if(data.download_url) window.open(API + data.download_url, '_blank'); }} className="flex-1 py-3 rounded-lg bg-blue-500 hover:bg-blue-600 text-white text-sm font-semibold">영상 생성 & 다운로드</button>
+                <button onClick={() => { if(videoJob) window.open(process.env.NEXT_PUBLIC_API_URL + '/api/v1/video/download/' + videoJob.jobId, '_blank') }} className="py-3 px-5 rounded-lg border border-white/15 text-white/60 text-sm hover:bg-white/5">MP4 다운로드</button>
               </div>
             </div>
           )}
