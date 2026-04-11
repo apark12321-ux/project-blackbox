@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y ffmpeg fonts-nanum && rm -rf /var/lib/a
 WORKDIR /app
 
 # 캐시 방지 - 이 숫자를 바꾸면 아래 모든 단계가 재실행됨
-ARG CACHEBUST=3
+ARG CACHEBUST=4
 
 COPY . .
 RUN pip install Pillow
