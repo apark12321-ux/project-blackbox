@@ -4,12 +4,15 @@
  * 6단계 파이프라인 상태를 중앙 관리합니다.
  * Step 0: 카테고리 → Step 1: 키워드 → Step 2: 소스
  * Step 3: 스크립트(B) → Step 4: 영상편집(B-2) → Step 5: 실드&배포(C+D)
+ * 
+ * activePage: 현재 보고 있는 모듈 페이지 (UI 전환용, step과 독립)
  */
 import { create } from "zustand";
 
 // ── Types ──
 export type ViewMode = "normal" | "senior";
 export type PipelineStep = 0 | 1 | 2 | 3 | 4 | 5;
+export type ActivePage = "curation" | "script" | "video" | "deploy";
 
 export interface Category {
   id: string;
@@ -93,6 +96,9 @@ interface BlackboxStore {
   isLoading: boolean;
   error: string | null;
 
+  // ★ 현재 보고 있는 페이지 (사이드바 클릭으로 전환)
+  activePage: ActivePage;
+
   // Step data
   selectedCategory: Category | null;
   keywords: KeywordResult[];
@@ -112,6 +118,7 @@ interface BlackboxStore {
   setMode: (mode: ViewMode) => void;
   setLoading: (loading: boolean) => void;
   setError: (error: string | null) => void;
+  setActivePage: (page: ActivePage) => void;
 
   selectCategory: (cat: Category) => void;
   setKeywords: (kws: KeywordResult[]) => void;
@@ -132,6 +139,7 @@ const initialState = {
   mode: "normal" as ViewMode,
   isLoading: false,
   error: null,
+  activePage: "curation" as ActivePage,
   selectedCategory: null,
   keywords: [],
   selectedKeyword: null,
@@ -151,6 +159,7 @@ export const useBlackboxStore = create<BlackboxStore>((set) => ({
   setMode: (mode) => set({ mode }),
   setLoading: (isLoading) => set({ isLoading }),
   setError: (error) => set({ error }),
+  setActivePage: (activePage) => set({ activePage }),
 
   selectCategory: (cat) => set({ selectedCategory: cat, step: 1, keywords: [], selectedKeyword: null }),
   setKeywords: (keywords) => set({ keywords }),
