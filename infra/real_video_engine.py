@@ -1,9 +1,9 @@
 """
-Project Blackbox — 영상 생성 엔진 v7
+Project Blackbox — 영상 생성 엔진 v8
 ═══════════════════════════════════════
 - NotebookLM 배경 (Pillow)
 - ElevenLabs TTS
-- 자막: FontSize=14, 1줄 최대 40자, 음성 싱크 보정
+- 자막: FontSize=11, 2줄 줄바꿈(20자), 블록별 TTS 싱크
 - BGM
 """
 import os
@@ -208,15 +208,32 @@ def plain_bg(out, dur):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  TTS
+#  TTS (블록별 개별 생성 → 정확한 싱크)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-async def gen_tts(text, path, speed=1.0):
+def _get_audio_duration(path):
+    """ffprobe로 오디오 실제 길이(초) 측정"""
+    try:
+        p = subprocess.run(
+            ["ffprobe", "-v", "quiet", "-show_entries", "format=duration",
+             "-of", "default=noprint_wrappers=1:nokey=1", path],
+            capture_output=True, text=True, timeout=10)
+        if p.returncode == 0 and p.stdout.strip():
+            return float(p.stdout.strip())
+    except Exception:
+        pass
+    return 0.0
+
+
+async def gen_tts_single(text, path, speed=1.0):
+    """단일 텍스트 블록에 대한 TTS 생성"""
     key = os.getenv("ELEVENLABS_API_KEY", "")
-    dur = len(text) / (4.5 * speed)
+    est_dur = len(text) / (4.5 * speed)
+
     if not key:
-        _silent(path, dur)
-        return path, dur
+        _silent(path, est_dur)
+        return path, est_dur
+
     try:
         import httpx
         async with httpx.AsyncClient(timeout=120) as c:
@@ -228,19 +245,53 @@ async def gen_tts(text, path, speed=1.0):
             r.raise_for_status()
             with open(path, "wb") as f:
                 f.write(r.content)
-            try:
-                p = subprocess.run(["ffprobe", "-v", "quiet", "-show_entries", "format=duration",
-                                    "-of", "default=noprint_wrappers=1:nokey=1", path],
-                                   capture_output=True, text=True, timeout=10)
-                if p.returncode == 0 and p.stdout.strip():
-                    dur = float(p.stdout.strip())
-            except Exception:
-                pass
-            return path, dur
+
+            real_dur = _get_audio_duration(path)
+            if real_dur > 0:
+                return path, real_dur
+            return path, est_dur
     except Exception as e:
-        logger.error(f"TTS: {e}")
-        _silent(path, dur)
-        return path, dur
+        logger.error(f"TTS single block: {e}")
+        _silent(path, est_dur)
+        return path, est_dur
+
+
+async def gen_tts_blocks(blocks, job_dir, speed=1.0):
+    """블록별 TTS 생성 → 개별 길이 측정 → 하나로 합침"""
+    block_durations = []
+    block_paths = []
+
+    for i, b in enumerate(blocks):
+        bp = os.path.join(job_dir, f"tts_block_{i}.mp3")
+        _, dur = await gen_tts_single(b["text"], bp, speed)
+        block_paths.append(bp)
+        block_durations.append(dur)
+        logger.info(f"[TTS] Block {i} ({b.get('section','?')}): {dur:.1f}s")
+
+    # 블록들을 하나의 오디오로 연결
+    combined = os.path.join(job_dir, "tts.mp3")
+    if len(block_paths) == 1:
+        os.rename(block_paths[0], combined)
+    else:
+        # ffmpeg concat
+        list_file = os.path.join(job_dir, "tts_list.txt")
+        with open(list_file, "w") as f:
+            for bp in block_paths:
+                f.write(f"file '{bp}'\n")
+
+        cmd = ["ffmpeg", "-y", "-f", "concat", "-safe", "0",
+               "-i", list_file, "-c:a", "copy", combined]
+        try:
+            subprocess.run(cmd, capture_output=True, timeout=120)
+        except Exception:
+            # fallback: 첫 번째 블록만 사용
+            os.rename(block_paths[0], combined)
+
+    total_dur = _get_audio_duration(combined)
+    if total_dur <= 0:
+        total_dur = sum(block_durations)
+
+    return combined, total_dur, block_durations
 
 
 def _silent(p, d):
@@ -249,26 +300,100 @@ def _silent(p, d):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  SRT (1줄, 40자 제한, 음성 싱크 보정)
+#  SRT (블록별 실제 TTS 길이 기반 싱크)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-def gen_srt(blocks, path, pause=0.3, total_audio_dur=0):
+def _wrap_text(text, max_chars=20):
+    """긴 텍스트를 max_chars 단위로 줄바꿈 (최대 2줄)"""
+    if len(text) <= max_chars:
+        return text
+    # 공백 기준으로 줄바꿈 시도
+    words = text.split(" ")
+    line1 = ""
+    line2 = ""
+    for w in words:
+        if len(line1) + len(w) + 1 <= max_chars:
+            line1 = (line1 + " " + w).strip()
+        else:
+            line2 = (line2 + " " + w).strip()
+
+    if not line2:
+        # 공백이 없는 경우 강제 분할
+        line1 = text[:max_chars]
+        line2 = text[max_chars:max_chars * 2]
+
+    # 2줄 초과분 자르기
+    if len(line2) > max_chars:
+        line2 = line2[:max_chars] + "..."
+
+    return line1 + "\\N" + line2
+
+
+def gen_srt(blocks, path, pause=0.3, block_durations=None):
+    """블록별 실제 TTS 길이를 기반으로 정확한 SRT 생성"""
     lines = []
     cur = 0.0
-    total_est = sum(b.get("duration_sec", len(b["text"]) / 4.5) for b in blocks) + pause * len(blocks)
-    ratio = total_audio_dur / total_est if total_audio_dur > 0 and total_est > 0 else 1.0
+    idx = 1
 
-    for i, b in enumerate(blocks, 1):
-        s = cur
-        d = b.get("duration_sec", len(b["text"]) / 4.5) * ratio
+    for i, b in enumerate(blocks):
+        # 실제 TTS 길이 사용 (없으면 추정)
+        if block_durations and i < len(block_durations):
+            block_dur = block_durations[i]
+        else:
+            block_dur = b.get("duration_sec", len(b["text"]) / 4.5)
+
         text = b["text"]
-        if len(text) > 40:
-            text = text[:40] + "..."
-        lines += [str(i), f"{_ts(s)} --> {_ts(s + d)}", text, ""]
-        cur = s + d + pause * ratio
+
+        # 긴 텍스트는 여러 자막 청크로 분할
+        chunks = _split_to_chunks(text, max_chars=40)
+        chunk_dur = block_dur / max(len(chunks), 1)
+
+        for chunk in chunks:
+            s = cur
+            e = cur + chunk_dur
+            wrapped = _wrap_text(chunk, max_chars=20)
+            lines += [str(idx), f"{_ts(s)} --> {_ts(e)}", wrapped, ""]
+            cur = e
+            idx += 1
+
+        cur += pause  # 블록 간 간격
+
     with open(path, "w", encoding="utf-8") as f:
         f.write("\n".join(lines))
+
+    logger.info(f"[SRT] Generated {idx - 1} subtitle entries, total={cur:.1f}s")
     return path
+
+
+def _split_to_chunks(text, max_chars=40):
+    """텍스트를 max_chars 이하 청크로 분할"""
+    if len(text) <= max_chars:
+        return [text]
+
+    chunks = []
+    sentences = text.replace(". ", ".\n").replace("? ", "?\n").replace("! ", "!\n").split("\n")
+
+    current = ""
+    for sent in sentences:
+        if len(current) + len(sent) + 1 <= max_chars:
+            current = (current + " " + sent).strip()
+        else:
+            if current:
+                chunks.append(current)
+            # 문장 자체가 너무 긴 경우
+            while len(sent) > max_chars:
+                # 공백 기준으로 자르기
+                cut = sent[:max_chars].rfind(" ")
+                if cut <= 0:
+                    cut = max_chars
+                chunks.append(sent[:cut].strip())
+                sent = sent[cut:].strip()
+            current = sent
+
+    if current:
+        chunks.append(current)
+
+    return chunks if chunks else [text[:max_chars]]
 
 
 def _ts(s):
@@ -291,12 +416,16 @@ def gen_bgm(path, dur, vol=0.08):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  합성 (자막 FontSize=14, 1줄)
+#  합성 (자막 FontSize=11, 깔끔한 스타일)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def compose(bg, audio, srt, output, bgm=""):
-    ss = ("FontSize=14,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
-          "BackColour=&H80000000,Outline=1,Shadow=0,MarginV=30,Alignment=2")
+    # FontSize=11 (이전 14에서 축소)
+    # MarginV=25 (하단 여백)
+    # BorderStyle=4 (배경 박스)
+    ss = ("FontSize=11,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
+          "BackColour=&H96000000,BorderStyle=4,Outline=0,Shadow=0,"
+          "MarginV=25,MarginL=40,MarginR=40,Alignment=2")
 
     if bgm and os.path.exists(bgm):
         cmd = ["ffmpeg", "-y", "-i", bg, "-i", audio, "-i", bgm,
@@ -315,10 +444,12 @@ def compose(bg, audio, srt, output, bgm=""):
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=300)
         if r.returncode == 0 and os.path.exists(output):
             return output
-    except Exception:
-        pass
+        else:
+            logger.warning(f"[Compose] FFmpeg error: {r.stderr[:300] if r.stderr else 'unknown'}")
+    except Exception as e:
+        logger.warning(f"[Compose] Exception: {e}")
 
-    # fallback
+    # fallback (자막 없이)
     cmd2 = ["ffmpeg", "-y", "-i", bg, "-i", audio, "-map", "0:v", "-map", "1:a",
             "-c:v", "libx264", "-preset", "ultrafast", "-c:a", "aac", "-shortest", output]
     subprocess.run(cmd2, capture_output=True, timeout=300)
@@ -326,7 +457,7 @@ def compose(bg, audio, srt, output, bgm=""):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  메인 파이프라인
+#  메인 파이프라인 (v8)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 async def generate_real_video(keyword, category, script_blocks, mode="normal"):
@@ -340,14 +471,14 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal"):
         bvol = 0.05 if is_sr else 0.08
         pause = 0.6 if is_sr else 0.3
 
-        full = " ".join(b["text"] for b in script_blocks)
         est = sum(b.get("duration_sec", len(b["text"]) / 4.5) for b in script_blocks)
         est += pause * len(script_blocks) + 2
 
-        # 1. TTS
-        audio = os.path.join(job_dir, "tts.mp3")
-        audio, adur = await gen_tts(full, audio, speed)
+        # 1. TTS (블록별 개별 생성 → 정확한 싱크)
+        logger.info(f"[Video] Starting TTS for {len(script_blocks)} blocks")
+        audio, adur, block_durations = await gen_tts_blocks(script_blocks, job_dir, speed)
         vdur = max(est, adur + 1)
+        logger.info(f"[Video] TTS done: total={adur:.1f}s, blocks={[round(d,1) for d in block_durations]}")
 
         # 2. NotebookLM 배경
         img = os.path.join(job_dir, "notebook.png")
@@ -360,9 +491,9 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal"):
         if not os.path.exists(bg_video):
             plain_bg(bg_video, vdur)
 
-        # 3. SRT (음성 길이로 싱크 보정)
+        # 3. SRT (블록별 실제 TTS 길이 사용 → 정확한 싱크!)
         srt = os.path.join(job_dir, "subs.srt")
-        gen_srt(script_blocks, srt, pause, adur)
+        gen_srt(script_blocks, srt, pause, block_durations)
 
         # 4. BGM
         bgm = os.path.join(job_dir, "bgm.m4a")
@@ -373,11 +504,13 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal"):
         res = compose(bg_video, audio, srt, out, bgm)
 
         if res and os.path.exists(res):
+            fsize = os.path.getsize(res)
+            logger.info(f"[Video] Done: {res} ({fsize} bytes, {vdur:.1f}s)")
             return RealVideoResult(
                 job_id=job_id, status="done", output_path=res,
                 download_url=f"/api/v1/video/download/{job_id}",
                 duration_sec=round(vdur, 1),
-                file_size_bytes=os.path.getsize(res),
+                file_size_bytes=fsize,
                 tts_audio_path=audio, subtitle_path=srt)
         else:
             return RealVideoResult(
