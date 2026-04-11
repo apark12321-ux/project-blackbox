@@ -285,7 +285,10 @@ def gen_srt(blocks, path, pause=0.3):
     lines, cur = [], 0.0
     for i, b in enumerate(blocks, 1):
         s, d = cur, b.get("duration_sec", len(b["text"]) / 4.5)
-        lines += [str(i), f"{_ts(s)} --> {_ts(s+d)}", b["text"], ""]
+        text = b["text"]
+        if len(text) > 40:
+            text = text[:40] + "..."
+        lines += [str(i), f"{_ts(s)} --> {_ts(s+d)}", text, ""]
         cur = s + d + pause
     with open(path, "w", encoding="utf-8") as f: f.write("\n".join(lines))
     return path
