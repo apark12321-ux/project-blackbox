@@ -126,3 +126,21 @@ body {
   background: linear-gradient(180deg, #1a1d23, #12141a);
   color: rgba(255,255,255,0.7);
 }
+
+/* ═══ MOBILE ═══ */
+.safe-bottom {
+  padding-bottom: env(safe-area-inset-bottom, 0px);
+}
+
+/* Hide scrollbar on mobile tab overflow */
+@media (max-width: 767px) {
+  .overflow-x-auto::-webkit-scrollbar { display: none; }
+  .overflow-x-auto { -ms-overflow-style: none; scrollbar-width: none; }
+}
+
+/* Responsive text truncation */
+@media (max-width: 640px) {
+  .line-clamp-2 {
+    -webkit-line-clamp: 1;
+  }
+}
