@@ -40,12 +40,12 @@ function CurationPage(){
   const togNews=(a:any)=>{const c=store.selectedNews;store.setSelectedNews(c.find((n:any)=>n.id===a.id)?c.filter((n:any)=>n.id!==a.id):[...c,a]);};
 
   return(
-    <div className="flex h-full">
+    <div className="flex flex-col md:flex-row h-full">
       {/* LEFT */}
-      <div className="w-[540px] shrink-0 border-r flex flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
-        <div className="p-7 border-b" style={{borderColor:"var(--border)"}}>
-          <h2 className="text-[20px] font-extrabold text-[#4b5563] mb-5">카테고리 선택</h2>
-          <div className="grid grid-cols-2 gap-3">
+      <div className="w-full md:w-[540px] shrink-0 border-b md:border-b-0 md:border-r flex flex-col max-h-[50vh] md:max-h-full overflow-y-auto" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
+        <div className="p-4 md:p-7 border-b" style={{borderColor:"var(--border)"}}>
+          <h2 className="text-[16px] md:text-[16px] md:text-[20px] font-extrabold text-[#4b5563] mb-3 md:mb-5">카테고리 선택</h2>
+          <div className="grid grid-cols-2 gap-2 md:gap-3">
             {cats.map(cat=>{
               const on=store.category===cat.slug;
               return(
@@ -69,7 +69,7 @@ function CurationPage(){
         {/* Keywords */}
         <div className="flex-1 overflow-y-auto p-7">
           <div className="flex items-center justify-between mb-5">
-            <h2 className="text-[20px] font-extrabold text-[#4b5563]">황금 키워드</h2>
+            <h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">황금 키워드</h2>
             {store.keywords.length>0&&<span className="text-[14px] text-[#d1d5db] font-bold">{store.keywords.length}개</span>}
           </div>
 
@@ -116,9 +116,9 @@ function CurationPage(){
       </div>
 
       {/* RIGHT: News */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="p-7 border-b flex items-center justify-between" style={{borderColor:"var(--border)"}}>
-          <h2 className="text-[20px] font-extrabold text-[#4b5563]">뉴스 소스 피드</h2>
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <div className="p-4 md:p-7 border-b flex items-center justify-between" style={{borderColor:"var(--border)"}}>
+          <h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">뉴스 소스 피드</h2>
           {store.selectedNews.length>0&&<span className="text-[15px] font-bold text-[#34d399] px-4 py-1.5 rounded-xl" style={{background:"rgba(52,211,153,0.08)"}}>{store.selectedNews.length}개 선택</span>}
         </div>
         <div className="flex-1 overflow-y-auto p-7">
@@ -159,7 +159,7 @@ function CurationPage(){
           ):<Empty icon="📰" text="키워드를 선택하면 뉴스가 표시됩니다" />}
         </div>
         {store.selectedNews.length>0&&(
-          <div className="p-6 border-t" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
+          <div className="p-4 md:p-6 border-t" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
             <button onClick={()=>{store.setStep(3);store.setActivePage("script");}}
               className="w-full py-4 rounded-2xl text-[18px] font-extrabold text-white transition-all hover:brightness-110 active:scale-[0.99] anim-pulse"
               style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)",boxShadow:"0 8px 40px rgba(212,175,55,0.3)"}}>
@@ -212,12 +212,12 @@ function ScriptPage(){
   };
 
   return(
-    <div className="flex h-full">
-      <div className="flex-1 flex flex-col overflow-hidden">
+    <div className="flex flex-col md:flex-row h-full">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
         {/* Header with view toggle */}
-        <div className="p-7 border-b flex items-center justify-between" style={{borderColor:"var(--border)"}}>
+        <div className="p-4 md:p-7 border-b flex items-center justify-between" style={{borderColor:"var(--border)"}}>
           <div className="flex items-center gap-5">
-            <h2 className="text-[20px] font-extrabold text-[#4b5563]">AI 스크립트</h2>
+            <h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">AI 스크립트</h2>
             {store.script&&(
               <div className="flex rounded-xl overflow-hidden border" style={{borderColor:"var(--border)"}}>
                 <button onClick={()=>setView("blocks")}
@@ -249,7 +249,7 @@ function ScriptPage(){
             <div className="space-y-4">
               {store.script.dynamic_intro&&<div className="p-5 rounded-2xl text-[14px] text-[#c49a1a]/50 italic border border-[#c49a1a]/10" style={{background:"rgba(212,175,55,0.03)"}}>🎬 인트로: {store.script.dynamic_intro}</div>}
               {store.script.blocks.map((b:any,i:number)=>(
-                <div key={i} className="p-6 rounded-2xl border group anim-fade-up" style={{borderColor:"var(--border)",background:"var(--bg-card)",animationDelay:`${i*60}ms`}}>
+                <div key={i} className="p-4 md:p-6 rounded-2xl border group anim-fade-up" style={{borderColor:"var(--border)",background:"var(--bg-card)",animationDelay:`${i*60}ms`}}>
                   <div className="flex items-center justify-between mb-3">
                     <div className="flex items-center gap-3">
                       <span className="text-[12px] font-bold text-[#c49a1a]/35 uppercase tracking-widest">{b.section||`BLOCK ${String(i+1).padStart(2,"0")}`}</span>
@@ -315,7 +315,7 @@ function ScriptPage(){
 
                           {/* 텍스트 */}
                           <p className={`leading-[2.2] whitespace-pre-wrap ${
-                            isHook?"text-[18px] font-bold text-[#1a1d23]":
+                            isHook?"text-[14px] md:text-[18px] font-bold text-[#1a1d23]":
                             isOpinion?"text-[16px] text-[#a78bfa]/70 italic border-l-2 border-[#a78bfa]/20 pl-5":
                             isCta?"text-[15px] text-[#34d399]/60":
                             "text-[16px] text-[#374151]"
@@ -356,8 +356,8 @@ function ScriptPage(){
       </div>
 
       {/* Right tools panel */}
-      <div className="w-[340px] shrink-0 border-l flex flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
-        <div className="p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[20px] font-extrabold text-[#4b5563]">도구</h2></div>
+      <div className="w-full md:w-[340px] shrink-0 border-t md:border-t-0 md:border-l flex flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
+        <div className="p-4 md:p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">도구</h2></div>
         <div className="flex-1 overflow-y-auto p-6 space-y-3">
           <TBtn icon="🔄" label="전체 재생성" desc="같은 소스로 새로 작성" onClick={gen} disabled={ld||!store.selectedKeyword}/>
           <TBtn icon="📝" label="분량 추가" desc="3문단 추가" onClick={ext} disabled={ld||!store.script}/>
@@ -377,7 +377,7 @@ function ScriptPage(){
             </div>
           )}
         </div>
-        {store.script&&<div className="p-6 border-t" style={{borderColor:"var(--border)"}}><GoldBtn onClick={()=>{store.setStep(4);store.setActivePage("video");}}>영상 제작 →</GoldBtn></div>}
+        {store.script&&<div className="p-4 md:p-6 border-t" style={{borderColor:"var(--border)"}}><GoldBtn onClick={()=>{store.setStep(4);store.setActivePage("video");}}>영상 제작 →</GoldBtn></div>}
       </div>
     </div>
   );
@@ -408,10 +408,10 @@ function VideoPage(){
   const maxDur=Math.max(...storyboard.map((s:any)=>s.dur),1);
 
   return(
-    <div className="flex h-full">
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="p-7 border-b flex items-center justify-between" style={{borderColor:"var(--border)"}}>
-          <h2 className="text-[20px] font-extrabold text-[#4b5563]">영상 제작</h2>
+    <div className="flex flex-col md:flex-row h-full">
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        <div className="p-4 md:p-7 border-b flex items-center justify-between" style={{borderColor:"var(--border)"}}>
+          <h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">영상 제작</h2>
           {store.script&&!store.video&&!ld&&(
             <span className="text-[13px] text-[#9ca3af]">스토리보드 프리뷰</span>
           )}
@@ -421,7 +421,7 @@ function VideoPage(){
 
           {/* 렌더링 중 */}
           {ld?<div className="flex flex-col items-center justify-center py-20 gap-6">
-            <div className="w-[440px] p-8 rounded-2xl relative overflow-hidden" style={{background:"var(--bg-card)",border:"1px solid var(--border)",boxShadow:"0 8px 32px rgba(0,0,0,0.08)"}}>
+            <div className="w-full max-w-[440px] p-5 md:p-8 rounded-2xl relative overflow-hidden" style={{background:"var(--bg-card)",border:"1px solid var(--border)",boxShadow:"0 8px 32px rgba(0,0,0,0.08)"}}>
               {/* 상단 shimmer 라인 */}
               <div className="absolute top-0 left-0 right-0 h-[3px]" style={{background:"linear-gradient(90deg,#c49a1a,#e8c84a,#c49a1a)",backgroundSize:"200% 100%",animation:"shimmer 2s linear infinite"}}/>
               <div className="flex items-center justify-between mb-5">
@@ -487,7 +487,7 @@ function VideoPage(){
 
           /* 영상 완료 */
           :store.video?<div className="flex flex-col items-center justify-center py-12 gap-6">
-            <div className="w-[680px] h-[380px] rounded-2xl border-2 flex items-center justify-center" style={{borderColor:"var(--border)",background:"#000"}}><span className="text-[64px]">🎬</span></div>
+            <div className="w-full max-w-[680px] aspect-video rounded-2xl border-2 flex items-center justify-center" style={{borderColor:"var(--border)",background:"#000"}}><span className="text-[64px]">🎬</span></div>
             <div className="flex items-center gap-6 text-[15px] text-[#9ca3af]">
               <span>⏱ {store.video.duration_sec?.toFixed(1)||"-"}s</span>
               <span>📦 {store.video.file_size_bytes?`${(store.video.file_size_bytes/1024/1024).toFixed(1)}MB`:"-"}</span>
@@ -524,7 +524,7 @@ function VideoPage(){
             </div>
 
             {/* 타임라인 바 차트 */}
-            <div className="p-6 rounded-2xl border anim-fade-up" style={{borderColor:"var(--border)",background:"var(--bg-card)",animationDelay:"100ms"}}>
+            <div className="p-4 md:p-6 rounded-2xl border anim-fade-up" style={{borderColor:"var(--border)",background:"var(--bg-card)",animationDelay:"100ms"}}>
               <h3 className="text-[15px] font-bold text-[#6b7280] mb-5">블록별 타임라인</h3>
               <div className="space-y-3">
                 {storyboard.map((s:any,i:number)=>(
@@ -564,7 +564,7 @@ function VideoPage(){
             {/* 큰 생성 버튼 */}
             <div className="text-center anim-fade-up" style={{animationDelay:"400ms"}}>
               <button onClick={gen} disabled={ld}
-                className="px-16 py-5 rounded-2xl text-[20px] font-extrabold text-white transition-all hover:brightness-110 active:scale-[0.98] anim-pulse"
+                className="px-16 py-5 rounded-2xl text-[16px] md:text-[20px] font-extrabold text-white transition-all hover:brightness-110 active:scale-[0.98] anim-pulse"
                 style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)",boxShadow:"0 8px 40px rgba(212,175,55,0.3)"}}>
                 🎬 영상 생성 시작
               </button>
@@ -577,8 +577,8 @@ function VideoPage(){
       </div>
 
       {/* 우측 설정 */}
-      <div className="w-[340px] shrink-0 border-l flex flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
-        <div className="p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[20px] font-extrabold text-[#4b5563]">설정</h2></div>
+      <div className="w-full md:w-[340px] shrink-0 border-t md:border-t-0 md:border-l flex flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
+        <div className="p-4 md:p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">설정</h2></div>
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
           <div className="flex items-center justify-between"><span className="text-[15px] text-[#6b7280]">시니어 모드</span><Tog on={store.mode==="senior"} fn={()=>store.setMode(store.mode==="senior"?"normal":"senior")}/></div>
           <div className="h-px" style={{background:"var(--border)"}}/>
@@ -596,7 +596,7 @@ function VideoPage(){
             </div>
           )}
         </div>
-        <div className="p-6 border-t" style={{borderColor:"var(--border)"}}>
+        <div className="p-4 md:p-6 border-t" style={{borderColor:"var(--border)"}}>
           {!store.video
             ?<GoldBtn onClick={gen} disabled={ld||!store.script}>🎬 영상 생성</GoldBtn>
             :<GoldBtn onClick={()=>store.setActivePage("deploy")}>실드 & 배포 →</GoldBtn>}
@@ -629,10 +629,10 @@ function DeployPage(){
   const restartAll=()=>{store.reset();store.setActivePage("curation");};
 
   return(
-    <div className="flex h-full">
+    <div className="flex flex-col md:flex-row h-full">
       {/* Shield */}
       <div className="flex-1 border-r flex flex-col" style={{borderColor:"var(--border)"}}>
-        <div className="p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[20px] font-extrabold text-[#4b5563]">알고리즘 실드</h2></div>
+        <div className="p-4 md:p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">알고리즘 실드</h2></div>
         <div className="flex-1 overflow-y-auto p-8">
           {err&&<ErrBox>{err}</ErrBox>}
           {sL?<Spinner className="mt-24"/>:store.shield?(
@@ -640,7 +640,7 @@ function DeployPage(){
               <div className="flex items-center gap-12">
                 <div className="text-center anim-score">
                   <div className="text-[80px] font-black leading-none" style={{color:sc(s),fontFamily:"'Plus Jakarta Sans',sans-serif"}}>{Math.round(s)}</div>
-                  <div className="text-[18px] font-bold mt-2" style={{color:sc(s)}}>{store.shield.grade}</div>
+                  <div className="text-[14px] md:text-[18px] font-bold mt-2" style={{color:sc(s)}}>{store.shield.grade}</div>
                   <div className="text-[13px] text-[#9ca3af] mt-1">{passed?"✓ 수익화 안전":"⚠ 개선 필요"}</div>
                 </div>
                 <div className="flex-1">
@@ -659,7 +659,7 @@ function DeployPage(){
 
               {/* ★ 점수 미달 시 경고 + 재작업 버튼 */}
               {!passed&&(
-                <div className="p-6 rounded-2xl border border-[#f87171]/20 anim-fade-up" style={{background:"rgba(248,113,113,0.04)"}}>
+                <div className="p-4 md:p-6 rounded-2xl border border-[#f87171]/20 anim-fade-up" style={{background:"rgba(248,113,113,0.04)"}}>
                   <div className="flex items-center gap-3 mb-3">
                     <span className="text-[24px]">🚫</span>
                     <div>
@@ -708,20 +708,20 @@ function DeployPage(){
 
       {/* Publish */}
       <div className="flex-1 flex flex-col">
-        <div className="p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[20px] font-extrabold text-[#4b5563]">배포 관리</h2></div>
+        <div className="p-4 md:p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">배포 관리</h2></div>
         <div className="flex-1 overflow-y-auto p-8 space-y-6">
-          <div className="p-6 rounded-2xl border" style={{borderColor:"var(--border)",background:"var(--bg-card)"}}>
+          <div className="p-4 md:p-6 rounded-2xl border" style={{borderColor:"var(--border)",background:"var(--bg-card)"}}>
             <div className="flex items-center justify-between mb-4"><span className="text-[16px] font-bold text-[#4b5563]">SEO 최적화</span>{!seo&&<button onClick={doSeo} disabled={soL||!store.selectedKeyword} className="text-[14px] px-4 py-2 rounded-xl text-[#c49a1a] font-bold disabled:opacity-30" style={{background:"rgba(212,175,55,0.08)"}}>{soL?"생성 중...":"Gemini SEO"}</button>}</div>
             {seo?<div className="space-y-3">{seo.title&&<p className="text-[17px] text-[#1f2937] font-bold">{seo.title}</p>}{seo.description&&<p className="text-[14px] text-[#9ca3af] leading-relaxed">{seo.description}</p>}{seo.tags&&<div className="flex flex-wrap gap-2 mt-3">{(Array.isArray(seo.tags)?seo.tags:[]).slice(0,10).map((t:string,i:number)=><span key={i} className="text-[12px] px-2.5 py-1 rounded-xl bg-[#f3f4f6] text-[#9ca3af] border" style={{borderColor:"var(--border)"}}>{t}</span>)}</div>}</div>:<p className="text-[14px] text-[#d1d5db]">SEO 메타데이터를 생성하세요</p>}
           </div>
-          <div className="p-6 rounded-2xl border" style={{borderColor:"var(--border)",background:"var(--bg-card)"}}>
+          <div className="p-4 md:p-6 rounded-2xl border" style={{borderColor:"var(--border)",background:"var(--bg-card)"}}>
             <span className="text-[16px] font-bold text-[#4b5563]">스케줄 추천</span>
             {sch?<div className="mt-3">{sch.recommended_time&&<p className="text-[18px] text-[#c49a1a] font-bold">⏰ {sch.recommended_time}</p>}{sch.reason&&<p className="text-[14px] text-[#9ca3af] mt-1">{sch.reason}</p>}</div>:<p className="text-[14px] text-[#d1d5db] mt-2">로딩 중...</p>}
           </div>
 
           {/* ★ 점수에 따라 다운로드 영역 변경 */}
           {passed?(
-            <div className="p-6 rounded-2xl grad-border relative overflow-hidden" style={{background:"rgba(52,211,153,0.03)"}}>
+            <div className="p-4 md:p-6 rounded-2xl grad-border relative overflow-hidden" style={{background:"rgba(52,211,153,0.03)"}}>
               <div className="absolute inset-0 noise"/>
               <div className="flex items-center gap-3 mb-2 relative z-10">
                 <span className="text-[24px]">✅</span>
@@ -731,7 +731,7 @@ function DeployPage(){
               {store.video?.download_url&&<a href={store.video.download_url.startsWith("http")?store.video.download_url:`${API}${store.video.download_url}`} target="_blank" rel="noopener noreferrer" className="block mt-4 p-4 rounded-xl text-center text-[16px] font-bold text-white relative z-10" style={{background:"linear-gradient(135deg,#34d399,#6ee7b7)",boxShadow:"0 4px 20px rgba(52,211,153,0.3)"}}>⬇ MP4 다운로드</a>}
             </div>
           ):(
-            <div className="p-6 rounded-2xl border border-[#f87171]/15 relative overflow-hidden" style={{background:"rgba(248,113,113,0.03)"}}>
+            <div className="p-4 md:p-6 rounded-2xl border border-[#f87171]/15 relative overflow-hidden" style={{background:"rgba(248,113,113,0.03)"}}>
               <div className="flex items-center gap-3 mb-2">
                 <span className="text-[24px]">⛔</span>
                 <p className="text-[17px] font-bold text-[#f87171]">다운로드 차단</p>
@@ -746,7 +746,7 @@ function DeployPage(){
         </div>
 
         {/* 하단 버튼 — 점수에 따라 변경 */}
-        <div className="p-6 border-t flex gap-4" style={{borderColor:"var(--border)"}}>
+        <div className="p-4 md:p-6 border-t flex gap-4" style={{borderColor:"var(--border)"}}>
           {passed?(
             <>
               <button className="flex-1 py-3.5 rounded-2xl text-[15px] font-bold border text-[#6b7280] hover:text-[#4b5563]" style={{borderColor:"var(--border)"}}>Publish</button>
