@@ -29,10 +29,12 @@ function CurationPage(){
 
   const pickCat=async(slug:string)=>{
     store.setCategory(slug);store.setStep(1);setLd(true);setErr(null);
+    store.setNews([]);store.setSelectedNews([]);store.setSelectedKeyword(null);store.setScript(null);store.setVideo(null);store.setShield(null);
     try{const r=await fetch(`${API}/api/v1/curation/keywords/search`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({category_slug:slug,max_results:10,sort_by:"blue_ocean"})});if(!r.ok)throw new Error(`실패(${r.status})`);store.setKeywords((await r.json()).keywords||[]);try{const b=await fetch(`${API}/api/v1/curation/benchmarks/${slug}`);if(b.ok)store.setBenchmarks(await b.json());}catch{}}catch(e:any){setErr(e.message);}finally{setLd(false);}
   };
   const pickKw=async(kw:any)=>{
     store.setSelectedKeyword(kw.keyword);store.setStep(2);setNld(true);setErr(null);
+    store.setNews([]);store.setSelectedNews([]);store.setScript(null);store.setVideo(null);store.setShield(null);
     try{const r=await fetch(`${API}/api/v1/curation/news/search`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keyword:kw.keyword,days_back:7,max_results:10})});if(!r.ok)throw new Error("뉴스 로드 실패");store.setNews((await r.json()).articles||[]);}catch(e:any){setErr(e.message);}finally{setNld(false);}
   };
   const togNews=(a:any)=>{const c=store.selectedNews;store.setSelectedNews(c.find((n:any)=>n.id===a.id)?c.filter((n:any)=>n.id!==a.id):[...c,a]);};
