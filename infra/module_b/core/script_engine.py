@@ -326,7 +326,7 @@ JSON 배열만 (마크다운 없이):
         logger.info(f"[Gemini v3] Sending request: {len(prompt)} chars prompt")
 
         resp = await self.client.post(
-            "https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-pro:generateContent",
+            "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
             params={"key": self.gemini_key},
             json={"contents": [{"parts": [{"text": prompt}]}],
                   "generationConfig": {"temperature": 0.7, "maxOutputTokens": 8192}},
