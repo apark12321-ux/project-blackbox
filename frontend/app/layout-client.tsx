@@ -21,9 +21,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <nav className="w-[100px] shrink-0 flex flex-col items-center border-r py-6 gap-3 sidebar-dark"
         style={{ borderColor: "rgba(255,255,255,0.06)" }}>
         <Link href="/" onClick={reset}
-          className="w-14 h-14 rounded-2xl flex items-center justify-center text-[16px] font-black mb-6"
-          style={{ background: "linear-gradient(135deg,#d4af37,#b8941e)", color: "#09090b", boxShadow: "0 4px 20px rgba(212,175,55,0.3)" }}>
-          PB
+          className="w-14 h-14 rounded-2xl flex items-center justify-center text-[18px] font-black mb-6 text-white"
+          style={{ background: "linear-gradient(135deg,#c49a1a,#e8c84a)", boxShadow: "0 4px 20px rgba(196,154,26,0.3)" }}>
+          CR
         </Link>
 
         {NAV.map((item) => {
@@ -53,10 +53,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col overflow-hidden">
         <header className="h-14 border-b flex items-center px-7 gap-5 shrink-0"
           style={{ borderColor: "var(--border)", background: "var(--bg-secondary)" }}>
-          <div className="flex items-center gap-2.5">
-            <span className="text-[15px] font-extrabold tracking-wide text-[#1a1d23]" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>Cre</span>
-            <span className="text-[15px] font-extrabold tracking-widest"
-              style={{fontFamily:"'Plus Jakarta Sans',sans-serif",background:"linear-gradient(90deg,#c49a1a,#e8c84a)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>ato</span>
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[14px] font-black text-white" style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)",boxShadow:"0 2px 8px rgba(196,154,26,0.3)"}}>C</div>
+            <span className="text-[18px] font-black tracking-tight" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
+              <span className="text-[#1a1d23]">Cre</span><span style={{background:"linear-gradient(90deg,#c49a1a,#e8c84a)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>ato</span>
+            </span>
           </div>
           <div className="h-5 w-px bg-white/[0.06] mx-1" />
           <h1 className="text-[15px] font-bold text-[#4b5563]">
