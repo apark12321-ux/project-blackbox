@@ -16,10 +16,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen text-white" style={{ background: "var(--bg-primary)" }}>
       {/* ═══ Sidebar ═══ */}
-      <nav className="w-[72px] shrink-0 flex flex-col items-center border-r py-5 gap-2"
+      <nav className="w-[100px] shrink-0 flex flex-col items-center border-r py-6 gap-3"
         style={{ borderColor: "var(--border)", background: "linear-gradient(180deg,#0a0c14,#080a10)" }}>
         <Link href="/" onClick={reset}
-          className="w-12 h-12 rounded-2xl flex items-center justify-center text-[14px] font-black mb-6"
+          className="w-14 h-14 rounded-2xl flex items-center justify-center text-[16px] font-black mb-6"
           style={{ background: "linear-gradient(135deg,#d4af37,#b8941e)", color: "#09090b", boxShadow: "0 4px 20px rgba(212,175,55,0.3)" }}>
           PB
         </Link>
@@ -30,20 +30,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           const done = (item.key==="curation"&&step>=3)||(item.key==="script"&&step>=4)||(item.key==="video"&&step>=5);
           return (
             <button key={item.key} onClick={() => ok && setActivePage(item.key)} disabled={!ok} title={item.label}
-              className={`w-12 h-12 rounded-2xl flex flex-col items-center justify-center gap-0.5 transition-all duration-300 relative
+              className={`w-[80px] h-[56px] rounded-2xl flex flex-col items-center justify-center gap-1 transition-all duration-300 relative
                 ${!ok?"opacity-15 cursor-not-allowed":"cursor-pointer"}
                 ${active?"":"ok"?"hover:bg-white/[0.04]":""}`}
               style={active?{background:"linear-gradient(135deg,rgba(212,175,55,0.2),rgba(212,175,55,0.06))",boxShadow:"0 0 16px rgba(212,175,55,0.1)"}:{}}>
-              {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-6 rounded-r" style={{background:"linear-gradient(180deg,#d4af37,#f0d060)"}} />}
-              <span className={`text-[18px] ${active?"text-[#d4af37]":done?"text-[#34d399]":"text-white/25"}`}>{done&&!active?"✓":item.icon}</span>
-              <span className={`text-[9px] font-bold ${active?"text-[#d4af37]":"text-white/15"}`}>{item.label.slice(0,3)}</span>
+              {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-7 rounded-r" style={{background:"linear-gradient(180deg,#d4af37,#f0d060)"}} />}
+              <span className={`text-[20px] ${active?"text-[#d4af37]":done?"text-[#34d399]":"text-white/25"}`}>{done&&!active?"✓":item.icon}</span>
+              <span className={`text-[11px] font-bold ${active?"text-[#d4af37]":"text-white/20"}`}>{item.label}</span>
             </button>
           );
         })}
 
         <div className="mt-auto flex flex-col items-center gap-3">
-          <div className="w-8 h-8 rounded-xl flex items-center justify-center text-white/20 hover:bg-white/[0.04] cursor-pointer text-[14px]">⚙</div>
-          <div className="w-2.5 h-2.5 rounded-full bg-[#34d399]" style={{boxShadow:"0 0 8px rgba(52,211,153,0.4)"}} />
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white/20 hover:bg-white/[0.04] cursor-pointer text-[16px]">⚙</div>
+          <div className="w-3 h-3 rounded-full bg-[#34d399]" style={{boxShadow:"0 0 8px rgba(52,211,153,0.4)"}} />
         </div>
       </nav>
 
