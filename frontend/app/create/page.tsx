@@ -566,6 +566,12 @@ function DeployPage(){
   const doSch=async()=>{try{const r=await fetch(`${API}/api/v1/publish/schedule/recommend?category=${encodeURIComponent(store.category||"economy")}`);if(r.ok)setSch(await r.json());}catch{}};
 
   const s=store.shield?.total_score||0;
+  const passed=store.shield?.passed||false;
+
+  // 이전 단계로 돌아가기
+  const goBackToScript=()=>{store.setVideo(null);store.setShield(null);store.setStep(3);store.setActivePage("script");};
+  const goBackToVideo=()=>{store.setVideo(null);store.setShield(null);store.setStep(4);store.setActivePage("video");};
+  const restartAll=()=>{store.reset();store.setActivePage("curation");};
 
   return(
     <div className="flex h-full">
@@ -580,13 +586,12 @@ function DeployPage(){
                 <div className="text-center anim-score">
                   <div className="text-[80px] font-black leading-none" style={{color:sc(s),fontFamily:"'Plus Jakarta Sans',sans-serif"}}>{Math.round(s)}</div>
                   <div className="text-[18px] font-bold mt-2" style={{color:sc(s)}}>{store.shield.grade}</div>
-                  <div className="text-[13px] text-white/25 mt-1">{store.shield.passed?"✓ 수익화 안전":"⚠ 개선 필요"}</div>
+                  <div className="text-[13px] text-white/25 mt-1">{passed?"✓ 수익화 안전":"⚠ 개선 필요"}</div>
                 </div>
                 <div className="flex-1">
                   <p className="text-[16px] font-bold text-white/40 mb-3">수익화 안전 등급</p>
                   <div className="h-6 rounded-full overflow-hidden relative" style={{background:"rgba(255,255,255,0.04)"}}>
                     <div className="h-full rounded-full anim-bar" style={{width:`${s}%`,background:`linear-gradient(90deg,${sc(s)},${sc(s)}88)`}}/>
-                    {/* Scale marks */}
                     <div className="absolute inset-0 flex items-center justify-between px-1">
                       {[0,25,50,75,100].map(v=><div key={v} className="w-px h-3 bg-white/5"/>)}
                     </div>
@@ -596,6 +601,37 @@ function DeployPage(){
                   </div>
                 </div>
               </div>
+
+              {/* ★ 점수 미달 시 경고 + 재작업 버튼 */}
+              {!passed&&(
+                <div className="p-6 rounded-2xl border border-[#f87171]/20 anim-fade-up" style={{background:"rgba(248,113,113,0.04)"}}>
+                  <div className="flex items-center gap-3 mb-3">
+                    <span className="text-[24px]">🚫</span>
+                    <div>
+                      <p className="text-[16px] font-bold text-[#f87171]">수익화 위험 — 이 영상은 다운로드하지 마세요</p>
+                      <p className="text-[13px] text-white/30 mt-1">Safety Score {Math.round(s)}점은 수익 창출 승인에 불리합니다. 아래 옵션으로 개선하세요.</p>
+                    </div>
+                  </div>
+                  <div className="grid grid-cols-3 gap-3 mt-4">
+                    <button onClick={goBackToScript} className="p-4 rounded-xl border text-center transition-all hover:border-white/15" style={{borderColor:"var(--border)",background:"var(--bg-card)"}}>
+                      <span className="text-[20px]">📝</span>
+                      <p className="text-[13px] font-bold text-white/60 mt-2">스크립트 수정</p>
+                      <p className="text-[10px] text-white/25 mt-1">대본 내용 개선</p>
+                    </button>
+                    <button onClick={goBackToVideo} className="p-4 rounded-xl border text-center transition-all hover:border-white/15" style={{borderColor:"var(--border)",background:"var(--bg-card)"}}>
+                      <span className="text-[20px]">🎬</span>
+                      <p className="text-[13px] font-bold text-white/60 mt-2">영상 재생성</p>
+                      <p className="text-[10px] text-white/25 mt-1">다른 비주얼로 재시도</p>
+                    </button>
+                    <button onClick={restartAll} className="p-4 rounded-xl border text-center transition-all hover:border-white/15" style={{borderColor:"var(--border)",background:"var(--bg-card)"}}>
+                      <span className="text-[20px]">🔄</span>
+                      <p className="text-[13px] font-bold text-white/60 mt-2">처음부터</p>
+                      <p className="text-[10px] text-white/25 mt-1">새 키워드로 시작</p>
+                    </button>
+                  </div>
+                </div>
+              )}
+
               {store.shield.factors&&<div className="grid grid-cols-2 gap-4">{store.shield.factors.map((f:any,i:number)=>(
                 <div key={i} className="p-5 rounded-2xl border anim-fade-up" style={{borderColor:"var(--border)",background:"var(--bg-card)",animationDelay:`${i*100}ms`}}>
                   <div className="flex items-center justify-between mb-3">
@@ -614,6 +650,7 @@ function DeployPage(){
           ):<Empty icon="◉" text="스크립트가 필요합니다"/>}
         </div>
       </div>
+
       {/* Publish */}
       <div className="flex-1 flex flex-col">
         <div className="p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[20px] font-extrabold text-white/60">배포 관리</h2></div>
@@ -626,16 +663,46 @@ function DeployPage(){
             <span className="text-[16px] font-bold text-white/55">스케줄 추천</span>
             {sch?<div className="mt-3">{sch.recommended_time&&<p className="text-[18px] text-[#d4af37] font-bold">⏰ {sch.recommended_time}</p>}{sch.reason&&<p className="text-[14px] text-white/30 mt-1">{sch.reason}</p>}</div>:<p className="text-[14px] text-white/15 mt-2">로딩 중...</p>}
           </div>
-          <div className="p-6 rounded-2xl grad-border relative overflow-hidden" style={{background:"rgba(212,175,55,0.03)"}}>
-            <div className="absolute inset-0 noise"/>
-            <p className="text-[17px] font-bold text-[#d4af37] mb-2 relative z-10">유니크 영상 출력</p>
-            <p className="text-[14px] text-white/25 relative z-10">실드 적용 완료. 로컬 다운로드 가능</p>
-            {store.video?.download_url&&<a href={store.video.download_url.startsWith("http")?store.video.download_url:`${API}${store.video.download_url}`} target="_blank" rel="noopener noreferrer" className="block mt-4 p-3 rounded-xl text-center text-[15px] font-bold text-[#d4af37] relative z-10" style={{background:"rgba(212,175,55,0.08)",border:"1px solid rgba(212,175,55,0.15)"}}>⬇ MP4 다운로드</a>}
-          </div>
+
+          {/* ★ 점수에 따라 다운로드 영역 변경 */}
+          {passed?(
+            <div className="p-6 rounded-2xl grad-border relative overflow-hidden" style={{background:"rgba(52,211,153,0.03)"}}>
+              <div className="absolute inset-0 noise"/>
+              <div className="flex items-center gap-3 mb-2 relative z-10">
+                <span className="text-[24px]">✅</span>
+                <p className="text-[17px] font-bold text-[#34d399]">수익화 안전 — 다운로드 가능</p>
+              </div>
+              <p className="text-[14px] text-white/25 relative z-10">Safety Score {Math.round(s)}점. 유튜브 수익 창출 정책에 적합합니다.</p>
+              {store.video?.download_url&&<a href={store.video.download_url.startsWith("http")?store.video.download_url:`${API}${store.video.download_url}`} target="_blank" rel="noopener noreferrer" className="block mt-4 p-4 rounded-xl text-center text-[16px] font-bold text-[#09090b] relative z-10" style={{background:"linear-gradient(135deg,#34d399,#6ee7b7)",boxShadow:"0 4px 20px rgba(52,211,153,0.3)"}}>⬇ MP4 다운로드</a>}
+            </div>
+          ):(
+            <div className="p-6 rounded-2xl border border-[#f87171]/15 relative overflow-hidden" style={{background:"rgba(248,113,113,0.03)"}}>
+              <div className="flex items-center gap-3 mb-2">
+                <span className="text-[24px]">⛔</span>
+                <p className="text-[17px] font-bold text-[#f87171]">다운로드 차단</p>
+              </div>
+              <p className="text-[14px] text-white/25">Safety Score가 70점 미만입니다. 스크립트를 수정하거나 영상을 재생성해주세요.</p>
+              <div className="flex gap-3 mt-4">
+                <button onClick={goBackToScript} className="flex-1 py-3 rounded-xl text-[14px] font-bold border text-white/50 hover:text-white/70 transition-all" style={{borderColor:"var(--border)"}}>📝 스크립트 수정</button>
+                <button onClick={goBackToVideo} className="flex-1 py-3 rounded-xl text-[14px] font-bold border text-white/50 hover:text-white/70 transition-all" style={{borderColor:"var(--border)"}}>🎬 영상 재생성</button>
+              </div>
+            </div>
+          )}
         </div>
+
+        {/* 하단 버튼 — 점수에 따라 변경 */}
         <div className="p-6 border-t flex gap-4" style={{borderColor:"var(--border)"}}>
-          <button className="flex-1 py-3.5 rounded-2xl text-[15px] font-bold border text-white/40 hover:text-white/60" style={{borderColor:"var(--border)"}}>Publish</button>
-          <button onClick={()=>{if(store.video?.download_url)window.open(store.video.download_url.startsWith("http")?store.video.download_url:`${API}${store.video.download_url}`,"_blank");}} className="flex-1 py-3.5 rounded-2xl text-[15px] font-bold text-[#09090b] hover:brightness-110" style={{background:"linear-gradient(135deg,#d4af37,#f0d060)",boxShadow:"0 6px 24px rgba(212,175,55,0.25)"}}>Download</button>
+          {passed?(
+            <>
+              <button className="flex-1 py-3.5 rounded-2xl text-[15px] font-bold border text-white/40 hover:text-white/60" style={{borderColor:"var(--border)"}}>Publish</button>
+              <button onClick={()=>{if(store.video?.download_url)window.open(store.video.download_url.startsWith("http")?store.video.download_url:`${API}${store.video.download_url}`,"_blank");}} className="flex-1 py-3.5 rounded-2xl text-[15px] font-bold text-[#09090b] hover:brightness-110" style={{background:"linear-gradient(135deg,#34d399,#6ee7b7)",boxShadow:"0 6px 24px rgba(52,211,153,0.25)"}}>✓ Download</button>
+            </>
+          ):(
+            <>
+              <button onClick={goBackToScript} className="flex-1 py-3.5 rounded-2xl text-[15px] font-bold border text-[#f59e0b] hover:bg-[#f59e0b]/5" style={{borderColor:"rgba(245,158,11,0.3)"}}>← 스크립트로 돌아가기</button>
+              <button onClick={restartAll} className="flex-1 py-3.5 rounded-2xl text-[15px] font-bold border text-white/40 hover:text-white/60" style={{borderColor:"var(--border)"}}>🔄 처음부터</button>
+            </>
+          )}
         </div>
       </div>
     </div>
