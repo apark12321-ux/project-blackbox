@@ -7,34 +7,44 @@ import { useState } from "react";
 const NAV: { key: ActivePage; icon: string; label: string; min: number }[] = [
   { key: "curation", icon: "◈", label: "큐레이션", min: 0 },
   { key: "script", icon: "◆", label: "스크립트", min: 3 },
-  { key: "video", icon: "▶", label: "영상편집", min: 4 },
-  { key: "deploy", icon: "◉", label: "실드&배포", min: 5 },
+  { key: "video", icon: "▶", label: "영상", min: 4 },
+  { key: "deploy", icon: "◉", label: "배포", min: 5 },
+];
+
+const STEPS = [
+  { key: "curation" as const, n: 1, label: "큐레이션", short: "큐레이션", color: "#6366f1" },
+  { key: "script" as const, n: 2, label: "스크립트", short: "스크립트", color: "#c49a1a" },
+  { key: "video" as const, n: 3, label: "영상", short: "영상", color: "#0ea5e9" },
+  { key: "deploy" as const, n: 4, label: "배포", short: "배포", color: "#22c55e" },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { mode, setMode, step, activePage, setActivePage, reset, profile, setProfile } = useBlackboxStore();
   const [showSettings, setShowSettings] = useState(false);
 
+  const isDone = (k: string) =>
+    (k==="curation"&&step>=3)||(k==="script"&&step>=4)||(k==="video"&&step>=5)||(k==="deploy"&&step>=6);
+
   return (
-    <div className="flex h-screen text-white" style={{ background: "var(--bg-primary)" }}>
-      {/* ═══ Sidebar ═══ */}
-      <nav className="w-[100px] shrink-0 flex flex-col items-center border-r py-6 gap-3 sidebar-dark"
+    <div className="flex flex-col md:flex-row h-screen text-white" style={{ background: "var(--bg-primary)" }}>
+
+      {/* ═══ Desktop Sidebar (md+) ═══ */}
+      <nav className="hidden md:flex w-[100px] shrink-0 flex-col items-center border-r py-6 gap-3 sidebar-dark"
         style={{ borderColor: "rgba(255,255,255,0.06)" }}>
         <Link href="/" onClick={reset}
           className="w-14 h-14 rounded-2xl flex items-center justify-center text-[18px] font-black mb-6 text-white"
           style={{ background: "linear-gradient(135deg,#c49a1a,#e8c84a)", boxShadow: "0 4px 20px rgba(196,154,26,0.3)" }}>
           CR
         </Link>
-
         {NAV.map((item) => {
           const active = activePage === item.key;
           const ok = step >= item.min;
-          const done = (item.key==="curation"&&step>=3)||(item.key==="script"&&step>=4)||(item.key==="video"&&step>=5);
+          const done = isDone(item.key);
           return (
             <button key={item.key} onClick={() => ok && setActivePage(item.key)} disabled={!ok} title={item.label}
               className={`w-[80px] h-[56px] rounded-2xl flex flex-col items-center justify-center gap-1 transition-all duration-300 relative
                 ${!ok?"opacity-15 cursor-not-allowed":"cursor-pointer"}
-                ${active?"":"ok"?"hover:bg-white/[0.04]":""}`}
+                ${active?"":"hover:bg-white/[0.04]"}`}
               style={active?{background:"linear-gradient(135deg,rgba(212,175,55,0.2),rgba(212,175,55,0.06))",boxShadow:"0 0 16px rgba(212,175,55,0.1)"}:{}}>
               {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-7 rounded-r" style={{background:"linear-gradient(180deg,#d4af37,#f0d060)"}} />}
               <span className={`text-[20px] ${active?"text-[#d4af37]":done?"text-[#34d399]":"text-white/25"}`}>{done&&!active?"✓":item.icon}</span>
@@ -42,67 +52,92 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </button>
           );
         })}
-
         <div className="mt-auto flex flex-col items-center gap-3">
           <button onClick={() => setShowSettings(true)} className="w-10 h-10 rounded-xl flex items-center justify-center text-white/20 hover:bg-white/[0.04] hover:text-white/40 cursor-pointer text-[16px] transition-all">⚙</button>
           <div className="w-3 h-3 rounded-full bg-[#34d399]" style={{boxShadow:"0 0 8px rgba(52,211,153,0.4)"}} />
         </div>
       </nav>
 
-      {/* ═══ Main ═══ */}
-      <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-14 border-b flex items-center px-7 gap-5 shrink-0"
+      {/* ═══ Main Content ═══ */}
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+
+        {/* ── Header ── */}
+        <header className="h-12 md:h-14 border-b flex items-center px-4 md:px-7 gap-2 md:gap-5 shrink-0"
           style={{ borderColor: "var(--border)", background: "var(--bg-secondary)" }}>
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[14px] font-black text-white" style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)",boxShadow:"0 2px 8px rgba(196,154,26,0.3)"}}>C</div>
-            <span className="text-[18px] font-black tracking-tight" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
+          {/* Logo */}
+          <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
+            <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg flex items-center justify-center text-[12px] md:text-[14px] font-black text-white" style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>C</div>
+            <span className="text-[16px] md:text-[18px] font-black tracking-tight hidden sm:inline" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
               <span className="text-[#1a1d23]">Cre</span><span style={{background:"linear-gradient(90deg,#c49a1a,#e8c84a)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>ato</span>
             </span>
           </div>
-          <div className="h-5 w-px bg-white/[0.06] mx-1" />
-          <div className="flex items-center gap-2">
-            {([
-              {key:"curation",n:1,label:"뉴스 큐레이션",color:"#6366f1"},
-              {key:"script",n:2,label:"AI 스크립트",color:"#c49a1a"},
-              {key:"video",n:3,label:"영상 제작",color:"#0ea5e9"},
-              {key:"deploy",n:4,label:"검수 & 배포",color:"#22c55e"},
-            ] as const).map((s)=>{
-              const active=activePage===s.key;
-              const done=(s.key==="curation"&&step>=3)||(s.key==="script"&&step>=4)||(s.key==="video"&&step>=5)||(s.key==="deploy"&&step>=6);
+
+          {/* Steps (desktop: full labels, mobile: numbers only) */}
+          <div className="hidden sm:block h-5 w-px bg-white/[0.06] mx-1" />
+          <div className="flex items-center gap-1 md:gap-2 flex-1 min-w-0 overflow-x-auto">
+            {STEPS.map((s) => {
+              const active = activePage === s.key;
+              const done = isDone(s.key);
               return (
-                <div key={s.key} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${active?"":"opacity-40"}`}
+                <div key={s.key} className={`flex items-center gap-1 md:gap-1.5 px-1.5 md:px-3 py-1 md:py-1.5 rounded-lg transition-all shrink-0 ${active?"":"opacity-40"}`}
                   style={active?{background:`${s.color}12`}:{}}>
-                  <span className="text-[11px] font-black px-1.5 py-0.5 rounded-md text-white"
-                    style={{background:active?s.color:done?"#22c55e":"#d1d5db",fontSize:"10px",lineHeight:"14px"}}>
+                  <span className="text-[9px] md:text-[11px] font-black px-1 md:px-1.5 py-0.5 rounded-md text-white"
+                    style={{background:active?s.color:done?"#22c55e":"#d1d5db",lineHeight:"14px"}}>
                     {done&&!active?"✓":`${s.n}`}
                   </span>
-                  <span className="text-[13px] font-bold" style={{color:active?s.color:"#9ca3af"}}>{s.label}</span>
+                  <span className="text-[11px] md:text-[13px] font-bold hidden sm:inline" style={{color:active?s.color:"#9ca3af"}}>{s.label}</span>
                 </div>
               );
             })}
           </div>
-          <div className="ml-auto flex items-center gap-4">
+
+          {/* Right controls */}
+          <div className="ml-auto flex items-center gap-2 md:gap-4 shrink-0">
             <div className="flex rounded-xl overflow-hidden border" style={{borderColor:"var(--border)"}}>
-              <button onClick={()=>setMode("normal")} className={`px-4 py-1.5 text-[13px] font-bold ${mode==="normal"?"text-[#c49a1a]":"text-[#9ca3af]"}`} style={mode==="normal"?{background:"rgba(196,154,26,0.08)"}:{}}>일반</button>
-              <button onClick={()=>setMode("senior")} className={`px-4 py-1.5 text-[13px] font-bold ${mode==="senior"?"text-[#c49a1a]":"text-[#9ca3af]"}`} style={mode==="senior"?{background:"rgba(196,154,26,0.08)"}:{}}>시니어</button>
+              <button onClick={()=>setMode("normal")} className={`px-2.5 md:px-4 py-1 md:py-1.5 text-[11px] md:text-[13px] font-bold ${mode==="normal"?"text-[#c49a1a]":"text-[#9ca3af]"}`} style={mode==="normal"?{background:"rgba(196,154,26,0.08)"}:{}}>일반</button>
+              <button onClick={()=>setMode("senior")} className={`px-2.5 md:px-4 py-1 md:py-1.5 text-[11px] md:text-[13px] font-bold ${mode==="senior"?"text-[#c49a1a]":"text-[#9ca3af]"}`} style={mode==="senior"?{background:"rgba(196,154,26,0.08)"}:{}}>시니어</button>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-[13px] text-[#4b5563]" style={{borderColor:"var(--border)"}}>
+            <button onClick={() => setShowSettings(true)} className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center text-[#9ca3af] hover:text-[#4b5563]">⚙</button>
+            <div className="hidden md:flex items-center gap-2 px-3 py-1.5 rounded-xl border text-[13px] text-[#4b5563]" style={{borderColor:"var(--border)"}}>
               <span>👤</span> {profile.channelName || "채널 미설정"}
             </div>
           </div>
         </header>
+
+        {/* ── Page Content ── */}
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
 
+      {/* ═══ Mobile Bottom Tab Bar ═══ */}
+      <nav className="md:hidden flex items-center justify-around border-t shrink-0 safe-bottom sidebar-dark"
+        style={{ borderColor: "rgba(255,255,255,0.06)", paddingBottom: "env(safe-area-inset-bottom)" }}>
+        {NAV.map((item) => {
+          const active = activePage === item.key;
+          const ok = step >= item.min;
+          const done = isDone(item.key);
+          return (
+            <button key={item.key} onClick={() => ok && setActivePage(item.key)} disabled={!ok}
+              className={`flex flex-col items-center justify-center gap-0.5 py-2 px-3 transition-all
+                ${!ok?"opacity-20":""}
+                ${active?"":"hover:opacity-80"}`}>
+              <span className={`text-[18px] ${active?"text-[#d4af37]":done?"text-[#34d399]":"text-white/30"}`}>
+                {done&&!active?"✓":item.icon}
+              </span>
+              <span className={`text-[10px] font-bold ${active?"text-[#d4af37]":"text-white/25"}`}>{item.label}</span>
+            </button>
+          );
+        })}
+      </nav>
+
       {/* ═══ Settings Modal ═══ */}
       {showSettings && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{background:"rgba(0,0,0,0.3)"}}>
-          <div className="w-[520px] rounded-3xl border p-8 space-y-6 shadow-xl" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center" style={{background:"rgba(0,0,0,0.3)"}}>
+          <div className="w-full md:w-[520px] max-h-[90vh] overflow-y-auto rounded-t-3xl md:rounded-3xl border p-6 md:p-8 space-y-5 md:space-y-6 shadow-xl"
+            style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
             <div className="flex items-center justify-between">
-              <h2 className="text-[22px] font-extrabold text-[#1a1d23]">채널 설정</h2>
+              <h2 className="text-[20px] md:text-[22px] font-extrabold text-[#1a1d23]">채널 설정</h2>
               <button onClick={() => setShowSettings(false)} className="text-[20px] text-[#9ca3af] hover:text-[#4b5563]">✕</button>
             </div>
-
             <div className="space-y-4">
               <div>
                 <label className="text-[13px] font-bold text-[#4b5563] block mb-2">채널 이름 *</label>
@@ -111,7 +146,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   className="w-full px-4 py-3 rounded-xl text-[15px] text-[#1a1d23] focus:outline-none focus:ring-2 focus:ring-[#c49a1a]/30"
                   style={{background:"var(--bg-elevated)",border:"1px solid var(--border)"}} />
               </div>
-
               <div>
                 <label className="text-[13px] font-bold text-[#4b5563] block mb-2">인트로 멘트</label>
                 <input value={profile.introText} onChange={e => setProfile({ introText: e.target.value })}
@@ -119,7 +153,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   className="w-full px-4 py-3 rounded-xl text-[15px] text-[#1a1d23] focus:outline-none focus:ring-2 focus:ring-[#c49a1a]/30"
                   style={{background:"var(--bg-elevated)",border:"1px solid var(--border)"}} />
               </div>
-
               <div>
                 <label className="text-[13px] font-bold text-[#4b5563] block mb-2">아웃트로 멘트</label>
                 <input value={profile.outroText} onChange={e => setProfile({ outroText: e.target.value })}
@@ -127,20 +160,17 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   className="w-full px-4 py-3 rounded-xl text-[15px] text-[#1a1d23] focus:outline-none focus:ring-2 focus:ring-[#c49a1a]/30"
                   style={{background:"var(--bg-elevated)",border:"1px solid var(--border)"}} />
               </div>
-
               <div>
                 <label className="text-[13px] font-bold text-[#4b5563] block mb-2">워터마크 텍스트</label>
                 <input value={profile.watermarkText} onChange={e => setProfile({ watermarkText: e.target.value })}
-                  placeholder="채널 이름과 동일하게 (비우면 채널명 사용)"
+                  placeholder="비우면 채널명 사용"
                   className="w-full px-4 py-3 rounded-xl text-[15px] text-[#1a1d23] focus:outline-none focus:ring-2 focus:ring-[#c49a1a]/30"
                   style={{background:"var(--bg-elevated)",border:"1px solid var(--border)"}} />
               </div>
-
               <div className="p-4 rounded-xl" style={{background:"rgba(196,154,26,0.06)",border:"1px solid rgba(196,154,26,0.12)"}}>
                 <p className="text-[12px] text-[#c49a1a]">TTS 보이스와 아바타는 추후 선택 기능이 추가됩니다.</p>
               </div>
             </div>
-
             <button onClick={() => setShowSettings(false)}
               className="w-full py-3.5 rounded-xl text-[15px] font-bold text-white"
               style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>
