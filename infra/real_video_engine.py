@@ -98,7 +98,7 @@ def _chapter_card(path,num,title,keyword):
     d.rectangle([W//2-200,H//2+40,W//2+200,H//2+44],fill=(60,180,160))
     bbox2=d.textbbox((0,0),title,font=font(44)); tw2=bbox2[2]-bbox2[0]
     d.text(((W-tw2)//2,H//2+70),title,fill=(40,50,60),font=font(44))
-    d.text((W-280,H-40),"PROJECT BLACKBOX",fill=(180,190,200),font=font(16))
+    d.text((W-280,H-40),"Creato",fill=(180,190,200),font=font(16))
     img.save(path,"PNG"); return path
 
 # ━━━ 밝은 슬라이드 ━━━
@@ -127,7 +127,7 @@ def _bright_slide(path,bg_path,keyword,text,idx,total,cat,section):
     d.rounded_rectangle([40,25,120,80],radius=10,fill=(60,180,160))
     d.text((52,28),f"{idx+1:02d}",fill=(255,255,255),font=font(34))
     # 워터마크
-    d.text((W-280,H-40),"PROJECT BLACKBOX",fill=(180,190,200),font=font(16))
+    d.text((W-280,H-40),"Creato",fill=(180,190,200),font=font(16))
     bg.save(path,"PNG"); return path
 
 # ━━━ 이미지→영상 ━━━
