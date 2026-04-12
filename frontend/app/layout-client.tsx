@@ -54,9 +54,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <header className="h-14 border-b flex items-center px-7 gap-5 shrink-0"
           style={{ borderColor: "var(--border)", background: "var(--bg-secondary)" }}>
           <div className="flex items-center gap-2.5">
-            <span className="text-[15px] font-extrabold tracking-wide text-[#1a1d23]" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>Auto</span>
+            <span className="text-[15px] font-extrabold tracking-wide text-[#1a1d23]" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>Cre</span>
             <span className="text-[15px] font-extrabold tracking-widest"
-              style={{fontFamily:"'Plus Jakarta Sans',sans-serif",background:"linear-gradient(90deg,#c49a1a,#e8c84a)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Tube</span>
+              style={{fontFamily:"'Plus Jakarta Sans',sans-serif",background:"linear-gradient(90deg,#c49a1a,#e8c84a)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>ato</span>
           </div>
           <div className="h-5 w-px bg-white/[0.06] mx-1" />
           <h1 className="text-[15px] font-bold text-[#4b5563]">
