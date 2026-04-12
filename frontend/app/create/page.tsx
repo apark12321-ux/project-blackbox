@@ -397,25 +397,150 @@ function VideoPage(){
 
   useEffect(()=>{if(store.script){fetch(`${API}/api/v1/video/preview-slides`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keyword:store.selectedKeyword,category:store.category,script_blocks:store.script.blocks})}).then(r=>r.ok?r.json():null).then(d=>{if(d?.slides)setSl(d.slides);}).catch(()=>{});}},[]);
 
+  // 스토리보드 데이터 생성
+  const storyboard=store.script?.blocks?.map((b:any,i:number)=>{
+    const secMap:{[k:string]:string}={hook:"🎯 오프닝",body:"📝 본문",opinion:"💬 의견",cta:"📢 CTA"};
+    const colorMap:{[k:string]:string}={hook:"#d4af37",body:"#60a5fa",opinion:"#a78bfa",cta:"#34d399"};
+    return{label:secMap[b.section]||"본문",color:colorMap[b.section]||"#60a5fa",dur:b.duration_sec||0,text:b.text?.slice(0,50)+"...",section:b.section};
+  })||[];
+  const totalDur=store.script?.total_duration_sec||0;
+  const totalChars=store.script?.blocks?.reduce((s:number,b:any)=>s+(b.text?.length||0),0)||0;
+  const maxDur=Math.max(...storyboard.map((s:any)=>s.dur),1);
+
   return(
     <div className="flex h-full">
       <div className="flex-1 flex flex-col overflow-hidden">
-        <div className="p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[20px] font-extrabold text-white/60">영상 미리보기</h2></div>
-        <div className="flex-1 flex items-center justify-center p-10">
-          {ld?<div className="flex flex-col items-center gap-8 w-96"><Spinner size="lg"/><div className="w-full"><div className="h-3 rounded-full overflow-hidden" style={{background:"rgba(255,255,255,0.04)"}}><div className="h-full rounded-full transition-all duration-1000 anim-bar" style={{width:`${pg}%`,background:"linear-gradient(90deg,#d4af37,#f0d060)"}}/></div><p className="text-[15px] text-white/25 text-center mt-4">{pg}% — 렌더링 중</p></div></div>
-          :store.video?<div className="text-center space-y-6"><div className="w-[680px] h-[380px] rounded-2xl border-2 flex items-center justify-center" style={{borderColor:"var(--border)",background:"#000"}}><span className="text-[64px]">🎬</span></div><div className="flex items-center gap-6 justify-center text-[15px] text-white/35"><span>⏱ {store.video.duration_sec?.toFixed(1)||"-"}s</span><span>📦 {store.video.file_size_bytes?`${(store.video.file_size_bytes/1024/1024).toFixed(1)}MB`:"-"}</span><span className="text-[#34d399] font-bold">✓ 완료</span></div>{store.video.download_url&&<a href={store.video.download_url.startsWith("http")?store.video.download_url:`${API}${store.video.download_url}`} target="_blank" rel="noopener noreferrer" className="inline-block px-8 py-3 rounded-2xl text-[16px] font-bold text-[#09090b]" style={{background:"linear-gradient(135deg,#d4af37,#f0d060)",boxShadow:"0 6px 24px rgba(212,175,55,0.3)"}}>⬇ Download MP4</a>}</div>
-          :sl.length>0?<div className="text-center space-y-5"><div className="w-[680px] h-[380px] rounded-2xl border overflow-hidden" style={{borderColor:"var(--border)",background:"#0a0a0a"}}>{sl[ci]?.image_base64?<img src={`data:image/png;base64,${sl[ci].image_base64}`} alt="" className="w-full h-full object-contain"/>:<div className="flex items-center justify-center h-full text-[16px] text-white/40 p-10">{sl[ci]?.text||""}</div>}</div><div className="flex items-center justify-center gap-5"><button onClick={()=>setCi(Math.max(0,ci-1))} className="w-11 h-11 rounded-xl border flex items-center justify-center text-[18px] text-white/30 hover:text-white/60" style={{borderColor:"var(--border)"}}>◀</button><span className="text-[15px] text-white/25 font-bold">{ci+1} / {sl.length}</span><button onClick={()=>setCi(Math.min(sl.length-1,ci+1))} className="w-11 h-11 rounded-xl border flex items-center justify-center text-[18px] text-white/30 hover:text-white/60" style={{borderColor:"var(--border)"}}>▶</button></div></div>
+        <div className="p-7 border-b flex items-center justify-between" style={{borderColor:"var(--border)"}}>
+          <h2 className="text-[20px] font-extrabold text-white/60">영상 제작</h2>
+          {store.script&&!store.video&&!ld&&(
+            <span className="text-[13px] text-white/25">스토리보드 프리뷰</span>
+          )}
+        </div>
+        <div className="flex-1 overflow-y-auto p-8">
+          {err&&<ErrBox>{err}</ErrBox>}
+
+          {/* 렌더링 중 */}
+          {ld?<div className="flex flex-col items-center justify-center py-20 gap-8">
+            <Spinner size="lg"/>
+            <div className="w-96">
+              <div className="h-3 rounded-full overflow-hidden" style={{background:"rgba(255,255,255,0.04)"}}>
+                <div className="h-full rounded-full transition-all duration-1000 anim-bar" style={{width:`${pg}%`,background:"linear-gradient(90deg,#d4af37,#f0d060)"}}/>
+              </div>
+              <p className="text-[15px] text-white/25 text-center mt-4">{pg}% — Gemini 일러스트 + TTS + FFmpeg 렌더링</p>
+            </div>
+          </div>
+
+          /* 영상 완료 */
+          :store.video?<div className="flex flex-col items-center justify-center py-12 gap-6">
+            <div className="w-[680px] h-[380px] rounded-2xl border-2 flex items-center justify-center" style={{borderColor:"var(--border)",background:"#000"}}><span className="text-[64px]">🎬</span></div>
+            <div className="flex items-center gap-6 text-[15px] text-white/35">
+              <span>⏱ {store.video.duration_sec?.toFixed(1)||"-"}s</span>
+              <span>📦 {store.video.file_size_bytes?`${(store.video.file_size_bytes/1024/1024).toFixed(1)}MB`:"-"}</span>
+              <span className="text-[#34d399] font-bold">✓ 완료</span>
+            </div>
+            {store.video.download_url&&<a href={store.video.download_url.startsWith("http")?store.video.download_url:`${API}${store.video.download_url}`} target="_blank" rel="noopener noreferrer" className="inline-block px-8 py-3 rounded-2xl text-[16px] font-bold text-[#09090b]" style={{background:"linear-gradient(135deg,#d4af37,#f0d060)",boxShadow:"0 6px 24px rgba(212,175,55,0.3)"}}>⬇ Download MP4</a>}
+          </div>
+
+          /* ★ 스토리보드 프리뷰 (스크립트 있지만 영상 미생성) */
+          :store.script?.blocks?<div className="max-w-4xl mx-auto space-y-8">
+            {/* 상단 스펙 카드 */}
+            <div className="grid grid-cols-4 gap-4 anim-fade-up">
+              <div className="p-5 rounded-2xl text-center" style={{background:"rgba(212,175,55,0.06)",border:"1px solid rgba(212,175,55,0.12)"}}>
+                <div className="text-[28px] font-black text-[#d4af37] anim-score">{Math.floor(totalDur/60)}:{String(Math.round(totalDur%60)).padStart(2,'0')}</div>
+                <div className="text-[12px] text-white/30 mt-1">예상 재생시간</div>
+              </div>
+              <div className="p-5 rounded-2xl text-center" style={{background:"rgba(96,165,250,0.06)",border:"1px solid rgba(96,165,250,0.12)"}}>
+                <div className="text-[28px] font-black text-[#60a5fa] anim-score">{totalChars.toLocaleString()}</div>
+                <div className="text-[12px] text-white/30 mt-1">총 글자수</div>
+              </div>
+              <div className="p-5 rounded-2xl text-center" style={{background:"rgba(167,139,250,0.06)",border:"1px solid rgba(167,139,250,0.12)"}}>
+                <div className="text-[28px] font-black text-[#a78bfa] anim-score">{store.script.blocks.length}</div>
+                <div className="text-[12px] text-white/30 mt-1">블록 수</div>
+              </div>
+              <div className="p-5 rounded-2xl text-center" style={{background:"rgba(52,211,153,0.06)",border:"1px solid rgba(52,211,153,0.12)"}}>
+                <div className="text-[28px] font-black text-[#34d399] anim-score">HD</div>
+                <div className="text-[12px] text-white/30 mt-1">1920×1080</div>
+              </div>
+            </div>
+
+            {/* 타임라인 바 차트 */}
+            <div className="p-6 rounded-2xl border anim-fade-up" style={{borderColor:"var(--border)",background:"var(--bg-card)",animationDelay:"100ms"}}>
+              <h3 className="text-[15px] font-bold text-white/50 mb-5">블록별 타임라인</h3>
+              <div className="space-y-3">
+                {storyboard.map((s:any,i:number)=>(
+                  <div key={i} className="flex items-center gap-4 anim-fade-up" style={{animationDelay:`${i*50+200}ms`}}>
+                    <span className="text-[11px] text-white/20 w-6 text-right font-bold">{i+1}</span>
+                    <span className="text-[11px] w-20 shrink-0 font-bold" style={{color:s.color}}>{s.label}</span>
+                    <div className="flex-1 h-7 rounded-lg overflow-hidden relative" style={{background:"rgba(255,255,255,0.03)"}}>
+                      <div className="h-full rounded-lg anim-bar flex items-center px-3" style={{width:`${Math.max(8,(s.dur/maxDur)*100)}%`,background:`${s.color}20`,borderLeft:`3px solid ${s.color}`,animationDelay:`${i*80+300}ms`}}>
+                        <span className="text-[10px] text-white/40 truncate">{s.text}</span>
+                      </div>
+                    </div>
+                    <span className="text-[11px] text-white/20 w-12 text-right font-bold">{s.dur.toFixed(0)}s</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* 영상 구성 요소 */}
+            <div className="grid grid-cols-3 gap-4 anim-fade-up" style={{animationDelay:"300ms"}}>
+              <div className="p-5 rounded-2xl border" style={{borderColor:"var(--border)",background:"var(--bg-card)"}}>
+                <span className="text-[24px]">🎨</span>
+                <h4 className="text-[14px] font-bold text-white/60 mt-2">Gemini 일러스트</h4>
+                <p className="text-[12px] text-white/25 mt-1">블록마다 AI 생성 밝은 파스텔 일러스트</p>
+              </div>
+              <div className="p-5 rounded-2xl border" style={{borderColor:"var(--border)",background:"var(--bg-card)"}}>
+                <span className="text-[24px]">🎙️</span>
+                <h4 className="text-[14px] font-bold text-white/60 mt-2">ElevenLabs TTS</h4>
+                <p className="text-[12px] text-white/25 mt-1">고품질 한국어 음성 합성, 스테레오</p>
+              </div>
+              <div className="p-5 rounded-2xl border" style={{borderColor:"var(--border)",background:"var(--bg-card)"}}>
+                <span className="text-[24px]">📑</span>
+                <h4 className="text-[14px] font-bold text-white/60 mt-2">챕터 카드</h4>
+                <p className="text-[12px] text-white/25 mt-1">번호 인포그래픽 + 핵심 키워드</p>
+              </div>
+            </div>
+
+            {/* 큰 생성 버튼 */}
+            <div className="text-center anim-fade-up" style={{animationDelay:"400ms"}}>
+              <button onClick={gen} disabled={ld}
+                className="px-16 py-5 rounded-2xl text-[20px] font-extrabold text-[#09090b] transition-all hover:brightness-110 active:scale-[0.98] anim-pulse"
+                style={{background:"linear-gradient(135deg,#d4af37,#f0d060)",boxShadow:"0 8px 40px rgba(212,175,55,0.3)"}}>
+                🎬 영상 생성 시작
+              </button>
+              <p className="text-[13px] text-white/20 mt-3">Gemini 일러스트 + TTS + FFmpeg 렌더링 (3~5분 소요)</p>
+            </div>
+          </div>
+
           :<Empty icon="▶" text="스크립트가 필요합니다"/>}
         </div>
       </div>
+
+      {/* 우측 설정 */}
       <div className="w-[340px] shrink-0 border-l flex flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
         <div className="p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[20px] font-extrabold text-white/60">설정</h2></div>
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
           <div className="flex items-center justify-between"><span className="text-[15px] text-white/50">시니어 모드</span><Tog on={store.mode==="senior"} fn={()=>store.setMode(store.mode==="senior"?"normal":"senior")}/></div>
           <div className="h-px" style={{background:"var(--border)"}}/>
-          {([["모드",store.mode],["해상도","1920×1080"],["TTS","ElevenLabs"],["배경","Pexels HD"]] as [string,string][]).map(([l,v])=><Row key={l} l={l} v={v}/>)}
+          {([["모드",store.mode],["해상도","1920×1080"],["TTS","ElevenLabs"],["일러스트","Gemini AI"],["자막","한글 24px"],["BGM","Ambient"]] as [string,string][]).map(([l,v])=><Row key={l} l={l} v={v}/>)}
+
+          {store.script&&!store.video&&(
+            <div className="mt-4 p-4 rounded-2xl border" style={{borderColor:"var(--border)",background:"var(--bg-card)"}}>
+              <p className="text-[12px] font-bold text-white/30 mb-2">예상 출력</p>
+              <div className="space-y-2">
+                <Row l="포맷" v="MP4 (H.264)"/>
+                <Row l="비트레이트" v="~2Mbps"/>
+                <Row l="오디오" v="스테레오 192k"/>
+                <Row l="소요시간" v="약 3~5분"/>
+              </div>
+            </div>
+          )}
         </div>
-        <div className="p-6 border-t" style={{borderColor:"var(--border)"}}>{!store.video?<GoldBtn onClick={gen} disabled={ld||!store.script}>영상 생성</GoldBtn>:<GoldBtn onClick={()=>store.setActivePage("deploy")}>실드 & 배포 →</GoldBtn>}</div>
+        <div className="p-6 border-t" style={{borderColor:"var(--border)"}}>
+          {!store.video
+            ?<GoldBtn onClick={gen} disabled={ld||!store.script}>🎬 영상 생성</GoldBtn>
+            :<GoldBtn onClick={()=>store.setActivePage("deploy")}>실드 & 배포 →</GoldBtn>}
+        </div>
       </div>
     </div>
   );
