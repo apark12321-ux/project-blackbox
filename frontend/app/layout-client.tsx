@@ -60,10 +60,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </div>
           <div className="h-5 w-px bg-white/[0.06] mx-1" />
           <h1 className="text-[15px] font-bold text-[#4b5563]">
-            {activePage==="curation"&&"Step 1 · 뉴스 큐레이션"}
-            {activePage==="script"&&"Step 2 · AI 스크립트"}
-            {activePage==="video"&&"Step 3 · 영상 제작"}
-            {activePage==="deploy"&&"Step 4 · 검수 & 배포"}
+            {activePage==="curation"&&"① 뉴스 큐레이션"}
+            {activePage==="script"&&"② AI 스크립트"}
+            {activePage==="video"&&"③ 영상 제작"}
+            {activePage==="deploy"&&"④ 검수 & 배포"}
           </h1>
           <div className="ml-auto flex items-center gap-4">
             <div className="flex rounded-xl overflow-hidden border" style={{borderColor:"var(--border)"}}>
