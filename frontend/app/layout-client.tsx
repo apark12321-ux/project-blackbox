@@ -54,16 +54,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <header className="h-14 border-b flex items-center px-7 gap-5 shrink-0"
           style={{ borderColor: "var(--border)", background: "var(--bg-secondary)" }}>
           <div className="flex items-center gap-2.5">
-            <span className="text-[15px] font-extrabold tracking-wide text-[#1a1d23]" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>PROJECT</span>
+            <span className="text-[15px] font-extrabold tracking-wide text-[#1a1d23]" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>Auto</span>
             <span className="text-[15px] font-extrabold tracking-widest"
-              style={{fontFamily:"'Plus Jakarta Sans',sans-serif",background:"linear-gradient(90deg,#c49a1a,#e8c84a)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>BLACKBOX</span>
+              style={{fontFamily:"'Plus Jakarta Sans',sans-serif",background:"linear-gradient(90deg,#c49a1a,#e8c84a)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Tube</span>
           </div>
           <div className="h-5 w-px bg-white/[0.06] mx-1" />
           <h1 className="text-[15px] font-bold text-[#4b5563]">
-            {activePage==="curation"&&"모듈 A: 지능형 큐레이션 (기획 단계)"}
-            {activePage==="script"&&"모듈 B: AI 스크립트 엔진"}
-            {activePage==="video"&&"모듈 B2: AI 영상 제작"}
-            {activePage==="deploy"&&"모듈 C+D: 실드 & 배포"}
+            {activePage==="curation"&&"Step 1 · 뉴스 큐레이션"}
+            {activePage==="script"&&"Step 2 · AI 스크립트"}
+            {activePage==="video"&&"Step 3 · 영상 제작"}
+            {activePage==="deploy"&&"Step 4 · 검수 & 배포"}
           </h1>
           <div className="ml-auto flex items-center gap-4">
             <div className="flex rounded-xl overflow-hidden border" style={{borderColor:"var(--border)"}}>
