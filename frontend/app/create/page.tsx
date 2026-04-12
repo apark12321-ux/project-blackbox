@@ -1,486 +1,623 @@
 "use client";
-import { useEffect, useState } from "react";
 import { useBlackboxStore } from "@/stores/blackbox-store";
-import { useCategories, useKeywordSearch, useNewsSearch, useScriptGenerate, useVideoRender, useShield, usePublish } from "@/hooks/use-api";
+import { useState, useEffect } from "react";
 
-/* ═══════════════════════════════════════════════════
-   Shared Components
-   ═══════════════════════════════════════════════════ */
-const Badge = ({ children, color = "#d4af37" }: { children: React.ReactNode; color?: string }) => (
-  <span className="text-[10px] px-2 py-0.5 rounded font-bold"
-    style={{ background: color + "18", color, fontFamily: "'JetBrains Mono', monospace" }}>
-    {children}
-  </span>
-);
+const API = process.env.NEXT_PUBLIC_API_URL || "https://project-blackbox-production.up.railway.app";
 
-const SectionLabel = ({ children }: { children: string }) => (
-  <div className="text-[11px] font-bold text-white/25 tracking-[0.12em] uppercase mb-3"
-    style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-    {children}
-  </div>
-);
+/* ═══════════════════════════════════════
+   CATEGORIES
+   ═══════════════════════════════════════ */
+const CATEGORIES = [
+  { id: "tech", label: "테크/IT", icon: "💻", desc: "AI, 반도체, 소프트웨어" },
+  { id: "finance", label: "경제/금융", icon: "📊", desc: "주식, 부동산, 암호화폐" },
+  { id: "health", label: "건강/의학", icon: "🏥", desc: "의학 발견, 건강 트렌드" },
+  { id: "science", label: "과학", icon: "🔬", desc: "우주, 물리학, 생명과학" },
+  { id: "business", label: "비즈니스", icon: "🏢", desc: "스타트업, 경영 전략" },
+  { id: "education", label: "교육", icon: "📚", desc: "학습법, 교육 트렌드" },
+  { id: "lifestyle", label: "라이프스타일", icon: "🌟", desc: "자기계발, 생산성" },
+  { id: "entertainment", label: "엔터테인먼트", icon: "🎬", desc: "영화, 게임, 문화" },
+];
 
-/* ─── Safety Gauge (SVG circle) ─── */
-const SafetyGauge = ({ score, grade }: { score: number; grade: string }) => {
-  const r = 42;
-  const c = 2 * Math.PI * r;
-  const pct = Math.min(score / 100, 1);
-  const offset = c * (1 - pct * 0.75); // 270 degree arc
-  const color = score >= 90 ? "#22c55e" : score >= 70 ? "#f59e0b" : "#ef4444";
+export default function CreatePage() {
+  const store = useBlackboxStore();
+  const { activePage } = store;
 
   return (
-    <div className="flex flex-col items-center">
-      <svg width="110" height="110" viewBox="0 0 110 110">
-        <circle cx="55" cy="55" r={r} fill="none" stroke="rgba(255,255,255,0.06)" strokeWidth="6"
-          strokeDasharray={`${c * 0.75} ${c * 0.25}`} strokeLinecap="round"
-          transform="rotate(135 55 55)" />
-        <circle cx="55" cy="55" r={r} fill="none" stroke={color} strokeWidth="6"
-          strokeDasharray={`${c * 0.75} ${c * 0.25}`} strokeDashoffset={offset} strokeLinecap="round"
-          transform="rotate(135 55 55)"
-          style={{ transition: "stroke-dashoffset 1s ease-out", filter: `drop-shadow(0 0 6px ${color}40)` }} />
-        <text x="55" y="50" textAnchor="middle" fill={color} fontSize="22" fontWeight="900"
-          style={{ fontFamily: "'Outfit', sans-serif" }}>{grade}</text>
-        <text x="55" y="68" textAnchor="middle" fill="rgba(255,255,255,0.3)" fontSize="10"
-          style={{ fontFamily: "'JetBrains Mono', monospace" }}>({score >= 90 ? "안전" : "주의"})</text>
-      </svg>
+    <div className="h-full">
+      {activePage === "curation" && <CurationModule />}
+      {activePage === "script" && <ScriptModule />}
+      {activePage === "video" && <VideoModule />}
+      {activePage === "deploy" && <DeployModule />}
     </div>
   );
-};
+}
 
-/* ═══════════════════════════════════════════════════
-   PAGE 1: 큐레이션 — 3컬럼 레이아웃
-   좌: 카테고리+필터 | 중: 키워드 테이블 | 우: 뉴스+안전등급
-   ═══════════════════════════════════════════════════ */
-const CurationPage = () => {
+/* ═══════════════════════════════════════
+   MODULE A: 큐레이션
+   ═══════════════════════════════════════ */
+function CurationModule() {
   const store = useBlackboxStore();
-  const { selectedCategory, selectCategory, keywords, selectedKeyword, selectKeyword, newsSources, selectedNews, selectNews, setActivePage } = store;
-  const { categories } = useCategories();
-  const [highCpmFilter, setHighCpmFilter] = useState(true);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [newsLoading, setNewsLoading] = useState(false);
 
-  useKeywordSearch(selectedCategory?.id || null);
-  useNewsSearch(selectedKeyword?.keyword || null);
+  // Step 1: 카테고리 선택
+  const handleCategory = async (catId: string) => {
+    store.setCategory(catId);
+    store.setStep(1);
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API}/api/v1/curation/keywords/${catId}`);
+      if (!res.ok) throw new Error(`키워드 로드 실패 (${res.status})`);
+      const data = await res.json();
+      store.setKeywords(data.keywords || []);
+      store.setStep(1);
 
-  const handleSelectNews = (news: any) => {
-    selectNews(news);
-    setTimeout(() => setActivePage("script"), 400);
+      // 벤치마킹 데이터도 가져오기
+      try {
+        const benchRes = await fetch(`${API}/api/v1/curation/benchmarks/${catId}`);
+        if (benchRes.ok) {
+          const benchData = await benchRes.json();
+          store.setBenchmarks(benchData);
+        }
+      } catch {}
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  // Step 2: 키워드 선택 → 뉴스 로드
+  const handleKeyword = async (keyword: string) => {
+    store.setSelectedKeyword(keyword);
+    store.setStep(2);
+    setNewsLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API}/api/v1/curation/news/${encodeURIComponent(keyword)}`);
+      if (!res.ok) throw new Error(`뉴스 로드 실패 (${res.status})`);
+      const data = await res.json();
+      store.setNews(data.articles || []);
+      store.setStep(2);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setNewsLoading(false);
+    }
+  };
+
+  // Step 3: 뉴스 선택 완료 → 스크립트로 이동
+  const handleNewsConfirm = () => {
+    store.setStep(3);
+    store.setActivePage("script");
+  };
+
+  const toggleNews = (article: any) => {
+    const current = store.selectedNews;
+    const exists = current.find((n: any) => n.title === article.title);
+    if (exists) {
+      store.setSelectedNews(current.filter((n: any) => n.title !== article.title));
+    } else {
+      store.setSelectedNews([...current, article]);
+    }
   };
 
   return (
-    <div className="h-full flex flex-col animate-fadeIn">
-      {/* Sub-tabs */}
-      <div className="flex items-center gap-6 px-6 border-b" style={{ borderColor: "var(--border)", height: 42 }}>
-        {["Workflow (모듈 A)", "A/B Tests", "Settings"].map((tab, i) => (
-          <button key={tab} className={`text-[12px] font-semibold h-full relative transition-colors
-            ${i === 0 ? "text-white/70" : "text-white/20 hover:text-white/40"}`}>
-            {tab}
-            {i === 0 && <div className="absolute bottom-0 left-0 right-0 h-[2px] rounded-t" style={{ background: "#d4af37" }} />}
-          </button>
+    <div className="p-6 max-w-6xl mx-auto animate-fade-in">
+      {/* Step indicator */}
+      <div className="flex items-center gap-3 mb-8">
+        {["카테고리", "키워드", "소스"].map((s, i) => (
+          <div key={s} className="flex items-center gap-2">
+            <div className={`w-7 h-7 rounded-full flex items-center justify-center text-[11px] font-bold
+              ${store.step >= i ? "text-[#09090b]" : "text-white/20 border border-white/10"}`}
+              style={store.step >= i ? { background: "linear-gradient(135deg, #d4af37, #f0d060)" } : {}}>
+              {store.step > i ? "✓" : i + 1}
+            </div>
+            <span className={`text-[12px] font-medium ${store.step >= i ? "text-white/70" : "text-white/20"}`}>{s}</span>
+            {i < 2 && <div className={`w-12 h-px ${store.step > i ? "bg-[#d4af37]/40" : "bg-white/6"}`} />}
+          </div>
         ))}
       </div>
 
-      {/* Title */}
-      <div className="px-6 pt-4 pb-3">
-        <h2 className="text-[16px] font-bold text-white/70" style={{ fontFamily: "'Outfit', 'Noto Sans KR', sans-serif" }}>
-          고객고 팍안츰 및 수익형 유화연 결과
-        </h2>
-      </div>
+      {error && (
+        <div className="mb-4 p-3 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-[13px]">
+          {error}
+        </div>
+      )}
 
       {/* 3-Column Layout */}
-      <div className="flex-1 flex gap-4 px-6 pb-5 overflow-hidden min-h-0">
+      <div className="grid grid-cols-3 gap-4" style={{ height: "calc(100vh - 160px)" }}>
 
-        {/* ═══ LEFT: Categories + Filters ═══ */}
-        <div className="w-[200px] shrink-0 flex flex-col gap-4 overflow-y-auto">
-          <div className="rounded-xl p-4 border" style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
-            <SectionLabel>카테고리 및 고CPM 큐레이션 필터</SectionLabel>
-            <div className="grid grid-cols-3 gap-2 mb-4">
-              {categories.map((c: any) => (
-                <button key={c.id} onClick={() => selectCategory(c)}
-                  className="flex flex-col items-center gap-1 py-2.5 rounded-lg transition-all text-center"
-                  style={{
-                    background: selectedCategory?.id === c.id ? "rgba(212,175,55,0.12)" : "rgba(255,255,255,0.02)",
-                    border: `1px solid ${selectedCategory?.id === c.id ? "rgba(212,175,55,0.25)" : "rgba(255,255,255,0.04)"}`,
-                  }}>
-                  <span className="text-[18px]">{c.icon}</span>
-                  <span className={`text-[10px] font-medium ${selectedCategory?.id === c.id ? "text-[#f0d060]" : "text-white/35"}`}>
-                    {c.name.length > 4 ? c.name.slice(0, 4) : c.name}
-                  </span>
+        {/* Column 1: 카테고리 */}
+        <div className="rounded-xl border p-4 overflow-y-auto" style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
+          <h3 className="text-[13px] font-bold text-white/50 mb-3 tracking-wider" style={{ fontFamily: "'JetBrains Mono', monospace" }}>STEP 01 — 카테고리</h3>
+          <div className="space-y-2">
+            {CATEGORIES.map((cat) => (
+              <button key={cat.id} onClick={() => handleCategory(cat.id)}
+                className={`w-full text-left p-3 rounded-lg border transition-all duration-200
+                  ${store.category === cat.id ? "border-[#d4af37]/40" : "border-transparent hover:border-white/[0.06]"}`}
+                style={store.category === cat.id ? { background: "rgba(212,175,55,0.08)" } : { background: "rgba(255,255,255,0.02)" }}>
+                <div className="flex items-center gap-2.5">
+                  <span className="text-[18px]">{cat.icon}</span>
+                  <div>
+                    <div className={`text-[13px] font-semibold ${store.category === cat.id ? "text-[#d4af37]" : "text-white/70"}`}>{cat.label}</div>
+                    <div className="text-[10px] text-white/25">{cat.desc}</div>
+                  </div>
+                </div>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Column 2: 키워드 */}
+        <div className="rounded-xl border p-4 overflow-y-auto" style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
+          <h3 className="text-[13px] font-bold text-white/50 mb-3 tracking-wider" style={{ fontFamily: "'JetBrains Mono', monospace" }}>STEP 02 — 키워드</h3>
+          {loading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="w-5 h-5 border-2 border-[#d4af37]/30 border-t-[#d4af37] rounded-full animate-spin" />
+            </div>
+          ) : store.keywords.length > 0 ? (
+            <div className="space-y-1.5">
+              {store.keywords.map((kw: string, i: number) => (
+                <button key={i} onClick={() => handleKeyword(kw)}
+                  className={`w-full text-left px-3 py-2.5 rounded-lg text-[13px] transition-all
+                    ${store.selectedKeyword === kw ? "text-[#d4af37] border border-[#d4af37]/30" : "text-white/60 border border-transparent hover:bg-white/[0.03]"}`}
+                  style={store.selectedKeyword === kw ? { background: "rgba(212,175,55,0.08)" } : {}}>
+                  <span className="text-white/20 mr-2 text-[10px]">{String(i + 1).padStart(2, "0")}</span>
+                  {kw}
                 </button>
               ))}
             </div>
+          ) : (
+            <div className="text-center py-12 text-white/15 text-[13px]">카테고리를 선택하세요</div>
+          )}
 
-            {/* Filters */}
-            <div className="space-y-2.5">
-              <label className="flex items-center gap-2 cursor-pointer">
-                <div className={`w-9 h-5 rounded-full relative transition-colors ${highCpmFilter ? "bg-[#d4af37]" : "bg-white/10"}`}
-                  onClick={() => setHighCpmFilter(!highCpmFilter)}>
-                  <div className="w-3.5 h-3.5 rounded-full bg-white absolute top-[3px] transition-all"
-                    style={{ left: highCpmFilter ? "18px" : "3px" }} />
-                </div>
-                <div>
-                  <div className="text-[11px] text-white/50 font-medium">고CPM 우선 큐레이션</div>
-                  <div className="text-[9px] text-[#d4af37]">(Selected)</div>
-                </div>
-              </label>
-              <label className="flex items-center gap-2.5 text-[11px] text-white/30">
-                <input type="checkbox" className="accent-[#d4af37] w-3.5 h-3.5" defaultChecked />
-                모멘텀 강화 필터
-              </label>
-              <label className="flex items-center gap-2.5 text-[11px] text-white/30">
-                <span className="text-[13px]">🔑</span>
-                미사용 키워드만 보기
-                <span className="text-[8px] text-white/15">(Exception logic)</span>
-              </label>
-              <label className="flex items-center gap-2.5 text-[11px] text-white/30">
-                <span className="text-[13px]">📋</span>
-                팩트 기반 서사 생성
-              </label>
-            </div>
-          </div>
-
-          {/* AI Engines */}
-          <div className="rounded-xl p-3 border" style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
-            <div className="flex flex-wrap gap-1.5">
-              {["Gemini 1. Pro", "ElevenLabs", "HeyGen"].map(e => (
-                <span key={e} className="text-[9px] px-2 py-1 rounded-md font-medium"
-                  style={{ background: "rgba(212,175,55,0.08)", color: "#d4af37" }}>{e}</span>
+          {/* 벤치마킹 데이터 */}
+          {store.benchmarks && (
+            <div className="mt-4 p-3 rounded-lg border" style={{ borderColor: "var(--border)", background: "rgba(212,175,55,0.04)" }}>
+              <h4 className="text-[11px] font-bold text-[#d4af37]/60 mb-2">📊 벤치마킹</h4>
+              {store.benchmarks.top_videos?.slice(0, 3).map((v: any, i: number) => (
+                <div key={i} className="text-[11px] text-white/40 mb-1 truncate">• {v.title}</div>
               ))}
             </div>
-          </div>
+          )}
         </div>
 
-        {/* ═══ CENTER: Keyword Table ═══ */}
-        <div className="flex-1 flex flex-col min-w-0 overflow-hidden">
-          <div className="rounded-xl border flex-1 flex flex-col overflow-hidden"
-            style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
-
-            {/* Table Header */}
-            <div className="px-4 pt-3 pb-2 border-b" style={{ borderColor: "var(--border)" }}>
-              <div className="flex items-center justify-between">
-                <h3 className="text-[13px] font-bold text-white/60">돈 되는 황금 키워드 리스트 (Ranked by BOI v2)</h3>
-                <div className="flex gap-2">
-                  <Badge color="#d4af37">BOI</Badge>
-                  <span className="text-[10px] text-white/20" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Volume / grade</span>
-                </div>
-              </div>
+        {/* Column 3: 뉴스 소스 */}
+        <div className="rounded-xl border p-4 overflow-y-auto" style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
+          <h3 className="text-[13px] font-bold text-white/50 mb-3 tracking-wider" style={{ fontFamily: "'JetBrains Mono', monospace" }}>STEP 03 — 소스</h3>
+          {newsLoading ? (
+            <div className="flex items-center justify-center py-12">
+              <div className="w-5 h-5 border-2 border-[#d4af37]/30 border-t-[#d4af37] rounded-full animate-spin" />
             </div>
-
-            {/* Column Headers */}
-            <div className="grid gap-2 px-4 py-2 text-[9px] font-bold text-white/20 uppercase tracking-wider border-b"
-              style={{ gridTemplateColumns: "32px 1fr 50px 65px 65px 60px 50px", borderColor: "var(--border)", fontFamily: "'JetBrains Mono', monospace" }}>
-              <span>Rank</span><span>키 큐워드</span><span className="text-center">블루오션 지수<br/>(BOI)</span>
-              <span className="text-right">검색량</span><span className="text-right">경쟁도<br/>(videos)</span>
-              <span className="text-right">모멘텀<br/>(7일 추이)</span><span className="text-center">Action</span>
-            </div>
-
-            {/* Rows */}
-            <div className="flex-1 overflow-y-auto">
-              {keywords.length > 0 ? keywords.slice(0, 12).map((k: any, i: number) => {
-                const isSelected = selectedKeyword?.keyword === k.keyword;
-                const gradeColor = k.boiGrade === "A" || k.boiGrade === "A+" ? "#22c55e"
-                  : k.boiGrade === "B" ? "#d4af37" : k.boiGrade === "F" ? "#ef4444" : "#f59e0b";
-                return (
-                  <button key={i} onClick={() => selectKeyword(k)}
-                    className={`w-full grid gap-2 px-4 py-2.5 items-center text-left transition-all duration-150 animate-fadeUp
-                      ${isSelected ? "" : "hover:bg-white/[0.015]"}`}
-                    style={{
-                      gridTemplateColumns: "32px 1fr 50px 65px 65px 60px 50px",
-                      borderBottom: "1px solid rgba(255,255,255,0.03)",
-                      background: isSelected ? "rgba(212,175,55,0.06)" : "transparent",
-                      animationDelay: `${i * 0.03}s`,
-                    }}>
-                    <span className="text-[12px] font-bold text-white/25" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{i + 1}</span>
-                    <span className={`text-[13px] font-semibold truncate ${isSelected ? "text-[#f0d060]" : "text-white/65"}`}>{k.keyword}</span>
-                    <div className="flex justify-center">
-                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded"
-                        style={{ background: gradeColor + "18", color: gradeColor }}>
-                        {k.boiGrade || "—"}
-                      </span>
-                    </div>
-                    <span className="text-right text-[12px] text-white/40" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                      {k.searchVolume ? (k.searchVolume > 1000 ? (k.searchVolume / 1000).toFixed(1) + "K" : k.searchVolume) : "—"}
-                    </span>
-                    <span className="text-right text-[12px] text-white/30" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                      {k.competitionCount ? k.competitionCount.toLocaleString() : "—"} <span className="text-[9px] text-white/15">videos</span>
-                    </span>
-                    <span className={`text-right text-[11px] font-semibold ${k.momentum > 0 ? "text-[#22c55e]" : "text-[#ef4444]"}`}
-                      style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                      {k.momentum > 0 ? "↑" : "↓"}{Math.abs(k.momentum * 100).toFixed(0)}%
-                    </span>
-                    <div className="flex justify-center">
-                      <span className="text-[10px] px-2 py-0.5 rounded border text-white/25 hover:text-[#d4af37] hover:border-[#d4af37]/30 transition-colors cursor-pointer"
-                        style={{ borderColor: "var(--border)" }}>Select</span>
-                    </div>
-                  </button>
-                );
-              }) : (
-                <div className="flex items-center justify-center h-40 text-white/10 text-[13px]">
-                  카테고리를 선택하면 키워드가 표시됩니다
-                </div>
-              )}
-            </div>
-
-            {/* Footer note */}
-            <div className="px-4 py-2 border-t text-[9px] text-white/15 text-center"
-              style={{ borderColor: "var(--border)" }}>
-              본 기획 데이터는 AI 분석 기반이며, 최종 수익성은 유튜브 알고리즘에 따라 달라질 수 있습니다.
-            </div>
-          </div>
-        </div>
-
-        {/* ═══ RIGHT: Safety + News ═══ */}
-        <div className="w-[260px] shrink-0 flex flex-col gap-4 overflow-y-auto">
-          {/* Safety Gauge */}
-          <div className="rounded-xl p-4 border text-center"
-            style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
-            <SectionLabel>수익화 안전 보장</SectionLabel>
-            <SafetyGauge score={94} grade="A+" />
-          </div>
-
-          {/* News Feed */}
-          <div className="rounded-xl border flex-1 flex flex-col overflow-hidden"
-            style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
-            <div className="px-4 pt-3 pb-2 border-b" style={{ borderColor: "var(--border)" }}>
-              <h3 className="text-[12px] font-bold text-white/50">정제된 뉴스 소스 피드 (Fact Cleansed)</h3>
-              <p className="text-[9px] text-white/20 mt-0.5">Fact Cleansing AI 분석 기반이며, 문맥의 수익성에 따라 달라질 수 있습니다.</p>
-            </div>
-
-            <div className="flex-1 overflow-y-auto p-3 space-y-2.5">
-              {newsSources.length > 0 ? newsSources.slice(0, 4).map((n: any, i: number) => {
-                const isSelected = selectedNews?.title === n.title;
-                return (
-                  <button key={i} onClick={() => handleSelectNews(n)}
-                    className="w-full text-left p-3 rounded-lg transition-all duration-200 animate-fadeUp"
-                    style={{
-                      background: isSelected ? "rgba(212,175,55,0.06)" : "rgba(255,255,255,0.015)",
-                      border: `1px solid ${isSelected ? "rgba(212,175,55,0.2)" : "rgba(255,255,255,0.04)"}`,
-                      animationDelay: `${i * 0.06}s`,
-                    }}>
-                    <p className="text-[12px] text-white/55 font-medium leading-relaxed line-clamp-2 mb-2">{n.title}</p>
-                    <div className="flex items-center justify-between">
-                      <div className="flex items-center gap-1.5">
-                        <span className="text-[9px] text-white/20">🔵 {n.source}</span>
-                        <span className="text-[9px] text-white/15">💬 3</span>
-                        <span className="text-[9px] text-white/15">🖼 4</span>
+          ) : store.news.length > 0 ? (
+            <>
+              <div className="space-y-2 mb-4">
+                {store.news.map((article: any, i: number) => {
+                  const isSelected = store.selectedNews.some((n: any) => n.title === article.title);
+                  return (
+                    <button key={i} onClick={() => toggleNews(article)}
+                      className={`w-full text-left p-3 rounded-lg border transition-all
+                        ${isSelected ? "border-[#22c55e]/40" : "border-transparent hover:border-white/[0.06]"}`}
+                      style={isSelected ? { background: "rgba(34,197,94,0.06)" } : { background: "rgba(255,255,255,0.02)" }}>
+                      <div className="flex items-start gap-2">
+                        <span className={`text-[14px] mt-0.5 ${isSelected ? "text-[#22c55e]" : "text-white/15"}`}>
+                          {isSelected ? "✓" : "○"}
+                        </span>
+                        <div>
+                          <div className={`text-[12px] font-medium leading-snug ${isSelected ? "text-white/80" : "text-white/50"}`}>
+                            {article.title}
+                          </div>
+                          <div className="text-[10px] text-white/20 mt-1">{article.source?.name || "Unknown"}</div>
+                        </div>
                       </div>
-                      <Badge color="#22c55e">${(12 + Math.random() * 10).toFixed(1)} CPM</Badge>
-                    </div>
-                  </button>
-                );
-              }) : (
-                <div className="flex items-center justify-center h-24 text-white/10 text-[11px]">
-                  키워드를 선택하면 뉴스가 표시됩니다
-                </div>
-              )}
-            </div>
-
-            {/* Bottom label */}
-            <div className="px-4 py-2.5 border-t" style={{ borderColor: "var(--border)" }}>
-              <div className="flex items-center justify-center gap-1.5">
-                <span className="text-[10px] text-white/20">→</span>
-                <span className="text-[10px] font-bold text-[#d4af37]/60">(모듈 B) 서사 및 제작 엔진으로 전달</span>
+                    </button>
+                  );
+                })}
               </div>
-            </div>
-          </div>
+              {store.selectedNews.length > 0 && (
+                <button onClick={handleNewsConfirm}
+                  className="w-full py-2.5 rounded-lg text-[13px] font-bold text-[#09090b] transition-all hover:brightness-110"
+                  style={{ background: "linear-gradient(135deg, #d4af37, #f0d060)", boxShadow: "0 4px 16px rgba(212,175,55,0.3)" }}>
+                  AI 스크립트 생성 →  ({store.selectedNews.length}개 소스)
+                </button>
+              )}
+            </>
+          ) : (
+            <div className="text-center py-12 text-white/15 text-[13px]">키워드를 선택하세요</div>
+          )}
         </div>
       </div>
     </div>
   );
-};
+}
 
-/* ═══════════════════════════════════════════════════
-   PAGE 2: 스크립트
-   ═══════════════════════════════════════════════════ */
-const ScriptPage = () => {
+/* ═══════════════════════════════════════
+   MODULE B: 스크립트
+   ═══════════════════════════════════════ */
+function ScriptModule() {
   const store = useBlackboxStore();
-  const { script, mode, setMode, isLoading, selectedKeyword, selectedCategory, selectedNews, setActivePage } = store;
-  const { generate } = useScriptGenerate();
-  const { startRender } = useVideoRender();
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (selectedNews && selectedKeyword && selectedCategory && !script && !isLoading) {
-      generate({
-        keyword: selectedKeyword.keyword, category: selectedCategory.id,
-        newsSummary: selectedNews.summary, coreFacts: [selectedNews.title], opinionSeeds: []
-      });
+    if (!store.script && store.selectedKeyword && store.selectedNews.length > 0) {
+      generateScript();
     }
-  }, [selectedNews]);
+  }, []);
 
-  const colors: Record<string, { bg: string; color: string; label: string }> = {
-    hook: { bg: "rgba(245,158,11,0.1)", color: "#f59e0b", label: "Hook Logic" },
-    body: { bg: "rgba(34,197,94,0.1)", color: "#22c55e", label: "Body" },
-    opinion: { bg: "rgba(239,68,68,0.1)", color: "#ef4444", label: "Opinion Injector" },
+  const generateScript = async () => {
+    setLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API}/api/v1/script/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          keyword: store.selectedKeyword,
+          category: store.category,
+          news_articles: store.selectedNews,
+          benchmarks: store.benchmarks,
+        }),
+      });
+      if (!res.ok) throw new Error(`스크립트 생성 실패 (${res.status})`);
+      const data = await res.json();
+      store.setScript(data);
+      store.setStep(4);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
+    }
   };
 
-  const goToVideo = async () => {
-    if (!script || !selectedKeyword || !selectedCategory) return;
+  const handleExtend = async () => {
+    if (!store.script) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`${API}/api/v1/script/extend`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ script: store.script }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        store.setScript(data);
+      }
+    } catch {} finally { setLoading(false); }
+  };
+
+  const handleRewrite = async () => {
+    if (!store.script) return;
+    setLoading(true);
+    try {
+      const res = await fetch(`${API}/api/v1/script/rewrite`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ script: store.script }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        store.setScript(data);
+      }
+    } catch {} finally { setLoading(false); }
+  };
+
+  const goToVideo = () => {
     store.setStep(4);
-    setActivePage("video");
-    await startRender({
-      keyword: selectedKeyword.keyword, category: selectedCategory.id,
-      scriptBlocks: script.blocks.map((b: any) => ({ section: b.section, text: b.text, duration_sec: b.durationSec, subtitle_highlight: b.subtitleHighlight }))
-    });
+    store.setActivePage("video");
   };
 
   return (
-    <div className="h-full flex flex-col animate-fadeIn">
-      <div className="flex items-center gap-6 px-6 border-b" style={{ borderColor: "var(--border)", height: 42 }}>
-        <button className="text-[12px] font-semibold h-full text-white/70 relative">
-          Workflow (모듈 B)
-          <div className="absolute bottom-0 left-0 right-0 h-[2px] rounded-t" style={{ background: "#d4af37" }} />
-        </button>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-6">
-        {script ? (
-          <div className="max-w-4xl mx-auto space-y-4">
-            <div className="flex items-center justify-between mb-2">
-              <h2 className="text-[15px] font-bold text-white/60">스크립트 멀티어 구성</h2>
-              <div className="flex items-center gap-3">
-                <Badge>총 {script.totalDurationSec}초</Badge>
-                <span className="text-[10px] text-white/20" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                  후킹: <span className="text-[#f59e0b]">{script.hookType}</span> · 톤: <span className="text-[#06b6d4]">{script.opinionTone}</span>
-                </span>
-              </div>
-            </div>
-
-            {script.blocks.map((b: any, i: number) => {
-              const s = colors[b.section] || colors.body;
-              return (
-                <div key={i} className="rounded-xl border overflow-hidden animate-fadeUp"
-                  style={{ borderColor: "var(--border)", background: "var(--bg-card)", animationDelay: `${i * 0.07}s` }}>
-                  <div className="flex items-center justify-between px-5 py-2.5 border-b"
-                    style={{ borderColor: "var(--border)", background: "rgba(255,255,255,0.01)" }}>
-                    <span className="text-[11px] px-2.5 py-0.5 rounded font-bold" style={{ background: s.bg, color: s.color }}>{s.label}</span>
-                    <span className="text-[11px] text-white/20" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{b.durationSec}s</span>
-                  </div>
-                  <div className="px-5 py-4">
-                    <p className="text-[14px] text-white/55 leading-[1.85]">{b.text}</p>
-                  </div>
-                </div>
-              );
-            })}
-
-            {/* Controls */}
-            <div className="flex items-center gap-4 p-4 rounded-xl border"
-              style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
-              <span className="text-[12px] text-white/35">Senior Mode</span>
-              <div className={`w-9 h-5 rounded-full relative cursor-pointer ${mode === "senior" ? "bg-emerald-500" : "bg-white/10"}`}
-                onClick={() => setMode(mode === "senior" ? "normal" : "senior")}>
-                <div className="w-3.5 h-3.5 rounded-full bg-white absolute top-[3px] transition-all"
-                  style={{ left: mode === "senior" ? "18px" : "3px" }} />
-              </div>
-              <div className="w-px h-4 bg-white/[0.06]" />
-              <span className="text-[11px] text-white/25">속도: <strong className="text-white/50">{mode === "senior" ? "0.92x" : "1.0x"}</strong></span>
-              <span className="text-[11px] text-white/25">자막: <strong className="text-white/50">{mode === "senior" ? "150%" : "100%"}</strong></span>
-            </div>
-
-            <button onClick={goToVideo}
-              className="w-full py-3.5 rounded-xl text-[14px] font-semibold transition-all hover:-translate-y-0.5 mt-2"
-              style={{ background: "linear-gradient(135deg, rgba(34,197,94,0.12), rgba(34,197,94,0.04))", border: "1px solid rgba(34,197,94,0.2)", color: "#22c55e" }}>
-              영상 편집 진행 →
+    <div className="p-6 max-w-4xl mx-auto animate-fade-in">
+      <div className="flex items-center justify-between mb-6">
+        <h2 className="text-[18px] font-bold" style={{ fontFamily: "'Outfit', sans-serif" }}>
+          <span className="text-[#d4af37]">◆</span> AI 스크립트
+        </h2>
+        {store.script && (
+          <div className="flex items-center gap-2">
+            <button onClick={handleExtend} disabled={loading}
+              className="px-3 py-1.5 rounded-lg border text-[11px] font-medium text-white/50 hover:text-white/80 transition-all"
+              style={{ borderColor: "var(--border)" }}>
+              + 분량 추가
             </button>
-          </div>
-        ) : (
-          <div className="flex flex-col items-center justify-center h-64 gap-3">
-            <div className="text-white/10 text-[14px]">{isLoading ? "스크립트 생성 중..." : "큐레이션에서 뉴스를 선택해주세요"}</div>
-            {!isLoading && !selectedNews && (
-              <button onClick={() => setActivePage("curation")} className="text-[12px] text-[#d4af37] hover:underline">← 큐레이션으로 돌아가기</button>
-            )}
+            <button onClick={handleRewrite} disabled={loading}
+              className="px-3 py-1.5 rounded-lg border text-[11px] font-medium text-white/50 hover:text-white/80 transition-all"
+              style={{ borderColor: "var(--border)" }}>
+              ↻ 전체 재작성
+            </button>
+            <button onClick={generateScript} disabled={loading}
+              className="px-3 py-1.5 rounded-lg border text-[11px] font-medium text-white/50 hover:text-white/80 transition-all"
+              style={{ borderColor: "var(--border)" }}>
+              ⟳ 재생성
+            </button>
           </div>
         )}
       </div>
+
+      {error && (
+        <div className="mb-4 p-3 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-[13px]">{error}</div>
+      )}
+
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-24 gap-4">
+          <div className="w-8 h-8 border-2 border-[#d4af37]/30 border-t-[#d4af37] rounded-full animate-spin" />
+          <div className="text-[13px] text-white/30">Gemini가 대본을 작성하고 있습니다...</div>
+        </div>
+      ) : store.script ? (
+        <div className="space-y-4">
+          {/* Script metadata */}
+          <div className="flex items-center gap-4 text-[11px] text-white/30 mb-4">
+            <span>📝 {store.script.char_count?.toLocaleString() || "—"}자</span>
+            <span>⏱ 약 {store.script.estimated_duration || "—"}</span>
+            <span>📊 {store.script.blocks?.length || "—"}블록</span>
+          </div>
+
+          {/* Script blocks */}
+          {store.script.blocks?.map((block: any, i: number) => (
+            <div key={i} className="p-4 rounded-xl border group" style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[10px] font-bold text-[#d4af37]/40" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
+                  BLOCK {String(i + 1).padStart(2, "0")} — {block.type || "narration"}
+                </span>
+              </div>
+              <p className="text-[13px] text-white/70 leading-relaxed whitespace-pre-wrap">{block.text}</p>
+            </div>
+          ))}
+
+          {/* Next step */}
+          <button onClick={goToVideo}
+            className="w-full py-3 rounded-lg text-[13px] font-bold text-[#09090b] mt-4 transition-all hover:brightness-110"
+            style={{ background: "linear-gradient(135deg, #d4af37, #f0d060)", boxShadow: "0 4px 16px rgba(212,175,55,0.3)" }}>
+            영상 제작으로 →
+          </button>
+        </div>
+      ) : (
+        <div className="text-center py-24 text-white/15 text-[13px]">
+          큐레이션을 먼저 완료해주세요
+        </div>
+      )}
     </div>
   );
-};
+}
 
-/* ═══════════════════════════════════════════════════
-   PAGE 3: 영상편집
-   ═══════════════════════════════════════════════════ */
-const VideoPage = () => {
+/* ═══════════════════════════════════════
+   MODULE B2: 영상편집
+   ═══════════════════════════════════════ */
+function VideoModule() {
   const store = useBlackboxStore();
-  const { mode, videoJob, selectedKeyword, selectedCategory, setActivePage } = store;
-  const { applyShield } = useShield();
-  const { preparePublish } = usePublish();
+  const [loading, setLoading] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [error, setError] = useState<string | null>(null);
 
-  const goToShield = async () => {
-    if (!videoJob) return;
-    store.setStep(5);
-    setActivePage("deploy");
-    await applyShield(videoJob.outputPath || "/output/video.mp4");
-    if (selectedKeyword && selectedCategory) {
-      await preparePublish({ channelId: "CH001", videoPath: videoJob.outputPath || "/output/video.mp4", keyword: selectedKeyword.keyword, category: selectedCategory.id });
+  const generateVideo = async () => {
+    if (!store.script) return;
+    setLoading(true);
+    setError(null);
+    setProgress(10);
+
+    try {
+      const progressInterval = setInterval(() => {
+        setProgress((p) => Math.min(p + 5, 90));
+      }, 3000);
+
+      const res = await fetch(`${API}/api/v1/video/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          script: store.script,
+          keyword: store.selectedKeyword,
+          category: store.category,
+        }),
+      });
+
+      clearInterval(progressInterval);
+
+      if (!res.ok) throw new Error(`영상 생성 실패 (${res.status})`);
+      const data = await res.json();
+      store.setVideo(data);
+      store.setStep(5);
+      setProgress(100);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setLoading(false);
     }
   };
 
+  const goToDeploy = () => {
+    store.setActivePage("deploy");
+  };
+
   return (
-    <div className="h-full flex flex-col animate-fadeIn">
-      <div className="flex items-center gap-6 px-6 border-b" style={{ borderColor: "var(--border)", height: 42 }}>
-        <button className="text-[12px] font-semibold h-full text-white/70 relative">
-          Workflow (모듈 B2)
-          <div className="absolute bottom-0 left-0 right-0 h-[2px] rounded-t" style={{ background: "#d4af37" }} />
-        </button>
-      </div>
+    <div className="p-6 max-w-4xl mx-auto animate-fade-in">
+      <h2 className="text-[18px] font-bold mb-6" style={{ fontFamily: "'Outfit', sans-serif" }}>
+        <span className="text-[#d4af37]">▶</span> AI 영상 제작
+      </h2>
 
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 gap-5">
-          {/* Preview */}
-          <div className="rounded-xl border overflow-hidden" style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
-            <div className="px-4 py-2.5 border-b" style={{ borderColor: "var(--border)" }}>
-              <h3 className="text-[12px] font-bold text-white/50">영상 미리보기</h3>
+      {error && (
+        <div className="mb-4 p-3 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-[13px]">{error}</div>
+      )}
+
+      {loading ? (
+        <div className="flex flex-col items-center justify-center py-24 gap-6">
+          <div className="w-8 h-8 border-2 border-[#d4af37]/30 border-t-[#d4af37] rounded-full animate-spin" />
+          <div className="w-64">
+            <div className="h-1.5 rounded-full bg-white/5 overflow-hidden">
+              <div className="h-full rounded-full transition-all duration-1000" style={{ width: `${progress}%`, background: "linear-gradient(90deg, #d4af37, #f0d060)" }} />
             </div>
-            <div className="aspect-video flex items-center justify-center flex-col gap-3 relative"
-              style={{ background: "linear-gradient(135deg, #12142a, #0e1025)" }}>
-              <div className="absolute inset-0" style={{ background: "radial-gradient(ellipse at 30% 40%, rgba(212,175,55,0.04) 0%, transparent 60%)" }} />
-              <div className="w-12 h-12 rounded-full flex items-center justify-center text-lg text-[#d4af37] z-10"
-                style={{ background: "rgba(212,175,55,0.1)", border: "2px solid rgba(212,175,55,0.2)" }}>▶</div>
-              <span className="text-[10px] text-white/15 z-10" style={{ fontFamily: "'JetBrains Mono', monospace" }}>Preview after generation</span>
-            </div>
+            <div className="text-[11px] text-white/30 text-center mt-2">{progress}% — 영상 생성 중...</div>
           </div>
-
-          {/* Settings */}
-          <div className="rounded-xl border" style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
-            <div className="px-4 py-2.5 border-b" style={{ borderColor: "var(--border)" }}>
-              <h3 className="text-[12px] font-bold text-white/50">영상 설정</h3>
+        </div>
+      ) : store.video ? (
+        <div className="space-y-4">
+          <div className="p-6 rounded-xl border text-center" style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
+            <div className="text-[48px] mb-3">🎬</div>
+            <div className="text-[16px] font-bold text-white/80 mb-1">영상 생성 완료!</div>
+            <div className="text-[12px] text-white/30">
+              {store.video.duration || "—"}초 · {store.video.resolution || "1920x1080"}
             </div>
-            <div className="p-4">
-              {[
-                { label: "해상도", value: "1920 × 1080 (FHD)" },
-                { label: "음성 엔진", value: "ElevenLabs Korean" },
-                { label: "배경 스타일", value: "NotebookLM Dark" },
-                { label: "자막", value: "한국어 SRT" },
-                { label: "음성 속도", value: mode === "senior" ? "0.92x" : "1.0x" },
-              ].map((item, i) => (
-                <div key={i} className={`flex justify-between items-center py-3 ${i < 4 ? "border-b" : ""}`}
-                  style={{ borderColor: "var(--border)" }}>
-                  <span className="text-[12px] text-white/35">{item.label}</span>
-                  <span className="text-[12px] font-semibold text-white/60" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{item.value}</span>
-                </div>
-              ))}
-            </div>
+            {store.video.download_url && (
+              <a href={`${API}${store.video.download_url}`} target="_blank" rel="noopener noreferrer"
+                className="inline-block mt-4 px-4 py-2 rounded-lg text-[12px] font-bold text-[#09090b]"
+                style={{ background: "linear-gradient(135deg, #d4af37, #f0d060)" }}>
+                ⬇ 다운로드
+              </a>
+            )}
           </div>
+          <button onClick={goToDeploy}
+            className="w-full py-3 rounded-lg text-[13px] font-bold text-[#09090b] transition-all hover:brightness-110"
+            style={{ background: "linear-gradient(135deg, #d4af37, #f0d060)", boxShadow: "0 4px 16px rgba(212,175,55,0.3)" }}>
+            실드 & 배포로 →
+          </button>
+        </div>
+      ) : (
+        <div className="text-center py-24">
+          <button onClick={generateVideo} disabled={!store.script}
+            className="px-8 py-3 rounded-lg text-[14px] font-bold text-[#09090b] transition-all hover:brightness-110 disabled:opacity-30 disabled:cursor-not-allowed"
+            style={{ background: "linear-gradient(135deg, #d4af37, #f0d060)", boxShadow: "0 4px 16px rgba(212,175,55,0.3)" }}>
+            🎬 영상 생성 시작
+          </button>
+          <div className="text-[12px] text-white/20 mt-3">Pexels 배경 + 인포그래픽 + TTS 자막</div>
+        </div>
+      )}
+    </div>
+  );
+}
 
-          {/* Status */}
-          <div className="col-span-2 rounded-xl border p-4" style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-[14px] font-bold text-white/60">영상 편집 결과</h3>
-                <p className="text-[11px] text-white/20 mt-1">{videoJob ? "영상 편집 완료" : "처리 중..."}</p>
+/* ═══════════════════════════════════════
+   MODULE C+D: 실드 & 배포
+   ═══════════════════════════════════════ */
+function DeployModule() {
+  const store = useBlackboxStore();
+  const [shieldLoading, setShieldLoading] = useState(false);
+  const [seoLoading, setSeoLoading] = useState(false);
+  const [seoData, setSeoData] = useState<any>(null);
+  const [error, setError] = useState<string | null>(null);
+
+  // 실드 분석
+  const runShield = async () => {
+    if (!store.script) return;
+    setShieldLoading(true);
+    setError(null);
+    try {
+      const res = await fetch(`${API}/api/v1/shield/analyze`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ script: store.script }),
+      });
+      if (!res.ok) throw new Error(`실드 분석 실패 (${res.status})`);
+      const data = await res.json();
+      store.setShield(data);
+    } catch (e: any) {
+      setError(e.message);
+    } finally {
+      setShieldLoading(false);
+    }
+  };
+
+  // SEO 생성
+  const generateSeo = async () => {
+    if (!store.script) return;
+    setSeoLoading(true);
+    try {
+      const res = await fetch(`${API}/api/v1/publish/seo/generate`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          script: store.script,
+          keyword: store.selectedKeyword,
+          category: store.category,
+        }),
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setSeoData(data);
+      }
+    } catch {} finally { setSeoLoading(false); }
+  };
+
+  useEffect(() => {
+    if (!store.shield && store.script) runShield();
+  }, []);
+
+  const getScoreColor = (score: number) => {
+    if (score >= 80) return "#22c55e";
+    if (score >= 60) return "#f59e0b";
+    return "#ef4444";
+  };
+
+  return (
+    <div className="p-6 max-w-4xl mx-auto animate-fade-in">
+      <h2 className="text-[18px] font-bold mb-6" style={{ fontFamily: "'Outfit', sans-serif" }}>
+        <span className="text-[#d4af37]">◉</span> 알고리즘 실드 & 배포
+      </h2>
+
+      {error && (
+        <div className="mb-4 p-3 rounded-lg border border-red-500/30 bg-red-500/10 text-red-400 text-[13px]">{error}</div>
+      )}
+
+      <div className="grid grid-cols-2 gap-4">
+        {/* Shield Score */}
+        <div className="p-6 rounded-xl border" style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
+          <h3 className="text-[13px] font-bold text-white/50 mb-4">🛡 Safety Score</h3>
+          {shieldLoading ? (
+            <div className="flex items-center justify-center py-8">
+              <div className="w-6 h-6 border-2 border-[#d4af37]/30 border-t-[#d4af37] rounded-full animate-spin" />
+            </div>
+          ) : store.shield ? (
+            <div className="text-center">
+              <div className="text-[48px] font-black" style={{ color: getScoreColor(store.shield.safety_score || 0), fontFamily: "'Outfit', sans-serif" }}>
+                {store.shield.safety_score || 0}
               </div>
-              {videoJob && (
-                <div className="flex items-center gap-2">
-                  <div className="w-2.5 h-2.5 rounded-full bg-[#22c55e]" style={{ boxShadow: "0 0 8px rgba(34,197,94,0.4)" }} />
-                  <span className="text-[12px] text-[#22c55e] font-semibold">완료</span>
+              <div className="text-[12px] text-white/30 mb-4">/ 100</div>
+              {/* Score breakdown */}
+              <div className="space-y-2 text-left">
+                {store.shield.details && Object.entries(store.shield.details).map(([key, val]: [string, any]) => (
+                  <div key={key} className="flex items-center justify-between text-[11px]">
+                    <span className="text-white/40">{key}</span>
+                    <span className="text-white/60 font-mono">{typeof val === "number" ? val : String(val)}</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          ) : (
+            <div className="text-center py-8 text-white/15 text-[13px]">스크립트가 필요합니다</div>
+          )}
+        </div>
+
+        {/* SEO & Publish */}
+        <div className="p-6 rounded-xl border" style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
+          <h3 className="text-[13px] font-bold text-white/50 mb-4">🚀 SEO & 배포</h3>
+          {seoData ? (
+            <div className="space-y-3">
+              <div>
+                <label className="text-[10px] text-white/30 block mb-1">제목</label>
+                <div className="text-[13px] text-white/80 p-2 rounded-lg" style={{ background: "rgba(255,255,255,0.03)" }}>{seoData.title}</div>
+              </div>
+              <div>
+                <label className="text-[10px] text-white/30 block mb-1">설명</label>
+                <div className="text-[12px] text-white/60 p-2 rounded-lg whitespace-pre-wrap" style={{ background: "rgba(255,255,255,0.03)" }}>{seoData.description}</div>
+              </div>
+              {seoData.tags && (
+                <div>
+                  <label className="text-[10px] text-white/30 block mb-1">태그</label>
+                  <div className="flex flex-wrap gap-1">
+                    {seoData.tags.map((tag: string, i: number) => (
+                      <span key={i} className="px-2 py-0.5 rounded text-[10px] text-white/40 border" style={{ borderColor: "var(--border)" }}>{tag}</span>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
-          </div>
-
-          {videoJob && (
-            <div className="col-span-2">
-              <button onClick={goToShield}
-                className="w-full py-3.5 rounded-xl text-[14px] font-semibold transition-all hover:-translate-y-0.5"
-                style={{ background: "linear-gradient(135deg, rgba(245,158,11,0.12), rgba(245,158,11,0.04))", border: "1px solid rgba(245,158,11,0.2)", color: "#f59e0b" }}>
-                실드 분석 & 배포 준비 →
+          ) : (
+            <div className="text-center py-8">
+              <button onClick={generateSeo} disabled={seoLoading || !store.script}
+                className="px-4 py-2 rounded-lg text-[12px] font-bold text-[#09090b] disabled:opacity-30"
+                style={{ background: "linear-gradient(135deg, #d4af37, #f0d060)" }}>
+                {seoLoading ? "생성 중..." : "SEO 메타데이터 생성"}
               </button>
             </div>
           )}
@@ -488,152 +625,4 @@ const VideoPage = () => {
       </div>
     </div>
   );
-};
-
-/* ═══════════════════════════════════════════════════
-   PAGE 4: 실드 & 배포 (Create Video 최종)
-   ═══════════════════════════════════════════════════ */
-const DeployPage = () => {
-  const store = useBlackboxStore();
-  const { shield, publish, script, selectedKeyword, selectedCategory, mode } = store;
-  const [generating, setGenerating] = useState(false);
-
-  const handleGenerate = async () => {
-    if (!script || !selectedKeyword || !selectedCategory) return;
-    setGenerating(true);
-    try {
-      const API = process.env.NEXT_PUBLIC_API_URL || "";
-      const res = await fetch(API + "/api/v1/video/generate-real", {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ keyword: selectedKeyword.keyword, category: selectedCategory.id, mode,
-          script_blocks: script.blocks.map((b: any) => ({ text: b.text, section: b.section, duration_sec: b.durationSec })) })
-      });
-      const data = await res.json();
-      if (data.download_url) window.open(API + data.download_url, "_blank");
-    } catch (e) { console.error(e); } finally { setGenerating(false); }
-  };
-
-  return (
-    <div className="h-full flex flex-col animate-fadeIn">
-      <div className="flex items-center gap-6 px-6 border-b" style={{ borderColor: "var(--border)", height: 42 }}>
-        <button className="text-[12px] font-semibold h-full text-white/70 relative">
-          Workflow (모듈 C+D)
-          <div className="absolute bottom-0 left-0 right-0 h-[2px] rounded-t" style={{ background: "#d4af37" }} />
-        </button>
-      </div>
-
-      <div className="flex-1 overflow-y-auto p-6">
-        <div className="max-w-5xl mx-auto grid grid-cols-2 gap-5">
-          {/* Shield */}
-          <div className="rounded-xl border" style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
-            <div className="px-4 py-2.5 border-b" style={{ borderColor: "var(--border)" }}>
-              <h3 className="text-[12px] font-bold text-white/50">알고리즘 보안 실드</h3>
-            </div>
-            {shield ? (
-              <div className="p-4">
-                <div className="flex gap-5 items-start">
-                  <div className="flex-1 space-y-0">
-                    {shield.factors?.map((f: any, i: number) => (
-                      <div key={i} className="flex items-center justify-between py-2.5 animate-fadeUp"
-                        style={{ borderBottom: i < (shield.factors?.length || 0) - 1 ? "1px solid rgba(255,255,255,0.03)" : "none", animationDelay: `${i * 0.04}s` }}>
-                        <div className="flex items-center gap-2">
-                          <span className="text-[11px] text-white/35">Uniqueness Check</span>
-                          <span className="text-[9px] text-white/15 px-1.5 py-0.5 rounded" style={{ background: "rgba(255,255,255,0.03)" }}>[{f.name}]</span>
-                        </div>
-                        <Badge color="#22c55e">Safe</Badge>
-                      </div>
-                    ))}
-                  </div>
-                  <div className="shrink-0">
-                    <SafetyGauge score={Math.round(shield.safetyScore)} grade={shield.safetyGrade} />
-                    <div className="text-center mt-1">
-                      <span className="text-[20px] font-extrabold text-white/70" style={{ fontFamily: "'JetBrains Mono', monospace" }}>
-                        {Math.round(shield.safetyScore)}<span className="text-[11px] text-white/20">/100</span>
-                      </span>
-                    </div>
-                  </div>
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-40 text-white/10 text-[12px]">실드 분석 중...</div>
-            )}
-          </div>
-
-          {/* Deploy */}
-          <div className="rounded-xl border" style={{ borderColor: "var(--border)", background: "var(--bg-card)" }}>
-            <div className="px-4 py-2.5 border-b" style={{ borderColor: "var(--border)" }}>
-              <h3 className="text-[12px] font-bold text-white/50">알고리즘 동기화 배포</h3>
-            </div>
-            {publish ? (
-              <div className="p-4 space-y-4">
-                {/* Algo-Sync */}
-                <div>
-                  <div className="flex items-center justify-between mb-1">
-                    <span className="text-[12px] font-semibold text-white/50">Algo-Sync Check</span>
-                    <Badge color="#22c55e">동기화 전환</Badge>
-                  </div>
-                  <p className="text-[9px] text-white/15 mb-2">24시간 간격 정책 점검 모듈. 동기화 시행중</p>
-                  <div className="h-2 rounded-full bg-white/[0.05] overflow-hidden">
-                    <div className="h-full rounded-full" style={{ width: `${publish.syncProgress}%`, background: "linear-gradient(90deg, #22c55e, #4ade80)", boxShadow: "0 0 8px rgba(34,197,94,0.2)" }} />
-                  </div>
-                  <div className="text-right mt-1">
-                    <span className="text-[14px] font-bold text-[#22c55e]" style={{ fontFamily: "'JetBrains Mono', monospace" }}>{Math.round(publish.syncProgress)}%</span>
-                  </div>
-                </div>
-
-                {/* SEO */}
-                <div>
-                  <SectionLabel>SEO</SectionLabel>
-                  {publish.titles?.slice(0, 2).map((t: string, i: number) => (
-                    <div key={i} className="text-[12px] text-white/45 p-2.5 mb-1.5 rounded-lg"
-                      style={{ background: "rgba(255,255,255,0.02)", border: "1px solid rgba(255,255,255,0.03)" }}>
-                      {i + 1}. {t}
-                    </div>
-                  ))}
-                  {publish.hashtags && (
-                    <div className="flex gap-1.5 flex-wrap mt-3">
-                      {publish.hashtags.slice(0, 6).map((h: string, i: number) => (
-                        <span key={i} className="text-[10px] px-2.5 py-1 rounded-full font-medium"
-                          style={{ background: "rgba(212,175,55,0.08)", color: "#d4af37" }}>{h}</span>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              </div>
-            ) : (
-              <div className="flex items-center justify-center h-40 text-white/10 text-[12px]">배포 준비 중...</div>
-            )}
-          </div>
-
-          {/* Action Buttons — 최종 페이지에만 */}
-          <div className="col-span-2 grid grid-cols-2 gap-3">
-            <button className="py-3.5 rounded-xl text-[14px] font-semibold text-white/30 border transition-all hover:border-white/[0.12]"
-              style={{ borderColor: "var(--border)", background: "rgba(255,255,255,0.015)" }}>
-              Publish
-            </button>
-            <button onClick={handleGenerate} disabled={generating}
-              className="py-3.5 rounded-xl text-[14px] font-bold transition-all hover:-translate-y-0.5 disabled:opacity-50"
-              style={{ background: "linear-gradient(135deg, #d4af37, #c4a030)", color: "#09090b", boxShadow: "0 4px 20px rgba(212,175,55,0.2)" }}>
-              {generating ? "생성중..." : "Create Video & Download"}
-            </button>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-};
-
-/* ═══════════════════════════════════════════════════
-   MAIN — activePage로 완전 분리된 페이지 전환
-   ═══════════════════════════════════════════════════ */
-export default function CreatePage() {
-  const { activePage } = useBlackboxStore();
-
-  switch (activePage) {
-    case "curation": return <CurationPage />;
-    case "script": return <ScriptPage />;
-    case "video": return <VideoPage />;
-    case "deploy": return <DeployPage />;
-    default: return <CurationPage />;
-  }
 }
