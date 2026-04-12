@@ -51,12 +51,16 @@ function CurationPage() {
     setLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API}/api/v1/curation/keywords/${catId}`);
+      const res = await fetch(`${API}/api/v1/curation/keywords/search`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ category: catId }),
+      });
       if (!res.ok) throw new Error(`키워드 로드 실패 (${res.status})`);
       const data = await res.json();
       store.setKeywords(data.keywords || []);
       try {
-        const benchRes = await fetch(`${API}/api/v1/curation/benchmarks/${catId}`);
+        const benchRes = await fetch(`${API}/api/v1/curation/benchmarks/${catId}`, { method: "POST" });
         if (benchRes.ok) { store.setBenchmarks(await benchRes.json()); }
       } catch {}
     } catch (e: any) { setError(e.message); }
@@ -69,7 +73,11 @@ function CurationPage() {
     setNewsLoading(true);
     setError(null);
     try {
-      const res = await fetch(`${API}/api/v1/curation/news/${encodeURIComponent(keyword)}`);
+      const res = await fetch(`${API}/api/v1/curation/news/search`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ keyword }),
+      });
       if (!res.ok) throw new Error(`뉴스 로드 실패 (${res.status})`);
       const data = await res.json();
       store.setNews(data.articles || []);
@@ -415,7 +423,7 @@ function VideoPage() {
     setLoading(true); setError(null); setProgress(10);
     try {
       const iv = setInterval(() => setProgress((p) => Math.min(p + 3, 92)), 2000);
-      const res = await fetch(`${API}/api/v1/video/generate`, {
+      const res = await fetch(`${API}/api/v1/video/generate-real`, {
         method: "POST", headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ script: store.script, keyword: store.selectedKeyword, category: store.category }),
       });
@@ -573,10 +581,7 @@ function DeployPage() {
   const generateSeo = async () => {
     setSeoLoading(true);
     try {
-      const res = await fetch(`${API}/api/v1/publish/seo/generate`, {
-        method: "POST", headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ script: store.script, keyword: store.selectedKeyword, category: store.category }),
-      });
+      const res = await fetch(`${API}/api/v1/publish/seo/generate?keyword=${encodeURIComponent(store.selectedKeyword || "")}&category=${encodeURIComponent(store.category || "")}`);
       if (res.ok) setSeoData(await res.json());
     } catch {} finally { setSeoLoading(false); }
   };
