@@ -2,6 +2,7 @@
 import { useBlackboxStore } from "@/stores/blackbox-store";
 import type { ActivePage } from "@/stores/blackbox-store";
 import Link from "next/link";
+import { useState } from "react";
 
 const NAV: { key: ActivePage; icon: string; label: string; min: number }[] = [
   { key: "curation", icon: "◈", label: "큐레이션", min: 0 },
@@ -11,7 +12,8 @@ const NAV: { key: ActivePage; icon: string; label: string; min: number }[] = [
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const { mode, setMode, step, activePage, setActivePage, reset } = useBlackboxStore();
+  const { mode, setMode, step, activePage, setActivePage, reset, profile, setProfile } = useBlackboxStore();
+  const [showSettings, setShowSettings] = useState(false);
 
   return (
     <div className="flex h-screen text-white" style={{ background: "var(--bg-primary)" }}>
@@ -42,7 +44,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         })}
 
         <div className="mt-auto flex flex-col items-center gap-3">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-white/20 hover:bg-white/[0.04] cursor-pointer text-[16px]">⚙</div>
+          <button onClick={() => setShowSettings(true)} className="w-10 h-10 rounded-xl flex items-center justify-center text-white/20 hover:bg-white/[0.04] hover:text-white/40 cursor-pointer text-[16px] transition-all">⚙</button>
           <div className="w-3 h-3 rounded-full bg-[#34d399]" style={{boxShadow:"0 0 8px rgba(52,211,153,0.4)"}} />
         </div>
       </nav>
@@ -69,12 +71,68 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <button onClick={()=>setMode("senior")} className={`px-4 py-1.5 text-[13px] font-bold ${mode==="senior"?"text-[#d4af37]":"text-white/20"}`} style={mode==="senior"?{background:"rgba(212,175,55,0.12)"}:{}}>시니어</button>
             </div>
             <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-[13px] text-white/30" style={{borderColor:"var(--border)"}}>
-              <span>👤</span> 관리자 &apos;User 2026&apos;님
+              <span>👤</span> {profile.channelName || "채널 미설정"}
             </div>
           </div>
         </header>
         <main className="flex-1 overflow-y-auto">{children}</main>
       </div>
+
+      {/* ═══ Settings Modal ═══ */}
+      {showSettings && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{background:"rgba(0,0,0,0.7)"}}>
+          <div className="w-[520px] rounded-3xl border p-8 space-y-6" style={{borderColor:"var(--border)",background:"var(--bg-primary)"}}>
+            <div className="flex items-center justify-between">
+              <h2 className="text-[22px] font-extrabold text-white/80">채널 설정</h2>
+              <button onClick={() => setShowSettings(false)} className="text-[20px] text-white/30 hover:text-white/60">✕</button>
+            </div>
+
+            <div className="space-y-4">
+              <div>
+                <label className="text-[13px] font-bold text-white/40 block mb-2">채널 이름 *</label>
+                <input value={profile.channelName} onChange={e => setProfile({ channelName: e.target.value })}
+                  placeholder="예: 돈이 보이는 경제"
+                  className="w-full px-4 py-3 rounded-xl text-[15px] text-white/80 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/30"
+                  style={{background:"rgba(255,255,255,0.04)",border:"1px solid var(--border)"}} />
+              </div>
+
+              <div>
+                <label className="text-[13px] font-bold text-white/40 block mb-2">인트로 멘트</label>
+                <input value={profile.introText} onChange={e => setProfile({ introText: e.target.value })}
+                  placeholder="안녕하세요, 오늘도 핵심만 짚어드리겠습니다."
+                  className="w-full px-4 py-3 rounded-xl text-[15px] text-white/80 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/30"
+                  style={{background:"rgba(255,255,255,0.04)",border:"1px solid var(--border)"}} />
+              </div>
+
+              <div>
+                <label className="text-[13px] font-bold text-white/40 block mb-2">아웃트로 멘트</label>
+                <input value={profile.outroText} onChange={e => setProfile({ outroText: e.target.value })}
+                  placeholder="다음 영상에서 더 유익한 정보로 찾아뵙겠습니다."
+                  className="w-full px-4 py-3 rounded-xl text-[15px] text-white/80 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/30"
+                  style={{background:"rgba(255,255,255,0.04)",border:"1px solid var(--border)"}} />
+              </div>
+
+              <div>
+                <label className="text-[13px] font-bold text-white/40 block mb-2">워터마크 텍스트</label>
+                <input value={profile.watermarkText} onChange={e => setProfile({ watermarkText: e.target.value })}
+                  placeholder="채널 이름과 동일하게 (비우면 채널명 사용)"
+                  className="w-full px-4 py-3 rounded-xl text-[15px] text-white/80 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/30"
+                  style={{background:"rgba(255,255,255,0.04)",border:"1px solid var(--border)"}} />
+              </div>
+
+              <div className="p-4 rounded-xl" style={{background:"rgba(212,175,55,0.04)",border:"1px solid rgba(212,175,55,0.1)"}}>
+                <p className="text-[12px] text-[#d4af37]/50">TTS 보이스와 아바타는 추후 선택 기능이 추가됩니다.</p>
+              </div>
+            </div>
+
+            <button onClick={() => setShowSettings(false)}
+              className="w-full py-3.5 rounded-xl text-[15px] font-bold text-[#09090b]"
+              style={{background:"linear-gradient(135deg,#d4af37,#f0d060)"}}>
+              저장
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
