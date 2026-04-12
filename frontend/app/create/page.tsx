@@ -421,34 +421,68 @@ function VideoPage(){
 
           {/* 렌더링 중 */}
           {ld?<div className="flex flex-col items-center justify-center py-20 gap-6">
-            <div className="w-[420px] p-8 rounded-2xl" style={{background:"var(--bg-card)",border:"1px solid var(--border)",boxShadow:"0 4px 20px rgba(0,0,0,0.06)"}}>
-              <div className="flex items-center justify-between mb-6">
-                <span className="text-[16px] font-bold text-[#1a1d23]">영상 생성 중</span>
-                <span className="text-[14px] font-bold text-[#c49a1a]">{pg}%</span>
+            <div className="w-[440px] p-8 rounded-2xl relative overflow-hidden" style={{background:"var(--bg-card)",border:"1px solid var(--border)",boxShadow:"0 8px 32px rgba(0,0,0,0.08)"}}>
+              {/* 상단 shimmer 라인 */}
+              <div className="absolute top-0 left-0 right-0 h-[3px]" style={{background:"linear-gradient(90deg,#c49a1a,#e8c84a,#c49a1a)",backgroundSize:"200% 100%",animation:"shimmer 2s linear infinite"}}/>
+              <div className="flex items-center justify-between mb-5">
+                <div className="flex items-center gap-3">
+                  <div className="w-8 h-8 rounded-lg flex items-center justify-center" style={{background:"rgba(196,154,26,0.1)"}}>
+                    <span className="text-[16px]" style={{animation:"spin 2s linear infinite",display:"inline-block"}}>⚙</span>
+                  </div>
+                  <span className="text-[16px] font-bold text-[#1a1d23]">영상 생성 중</span>
+                </div>
+                <span className="text-[20px] font-black tabular-nums" style={{color:"#c49a1a",fontFamily:"'JetBrains Mono',monospace"}}>{pg}%</span>
               </div>
-              <div className="h-2 rounded-full overflow-hidden mb-6" style={{background:"rgba(0,0,0,0.06)"}}>
-                <div className="h-full rounded-full transition-all duration-1000" style={{width:`${pg}%`,background:"linear-gradient(90deg,#c49a1a,#e8c84a)"}}/>
+              <div className="h-2.5 rounded-full overflow-hidden mb-7 relative" style={{background:"rgba(0,0,0,0.06)"}}>
+                <div className="h-full rounded-full transition-all duration-1000 relative" style={{width:`${pg}%`,background:"linear-gradient(90deg,#c49a1a,#e8c84a)"}}>
+                  <div className="absolute inset-0 rounded-full" style={{background:"linear-gradient(90deg,transparent 0%,rgba(255,255,255,0.4) 50%,transparent 100%)",backgroundSize:"200% 100%",animation:"shimmer 1.5s linear infinite"}}/>
+                </div>
               </div>
-              <div className="space-y-3">
-                <div className="flex items-center gap-3">
-                  <span className={`text-[14px] ${pg>=5?"text-[#16a34a]":"text-[#d1d5db]"}`}>{pg>=5?"✓":"○"}</span>
-                  <span className={`text-[13px] ${pg>=5?"text-[#374151]":"text-[#9ca3af]"}`}>TTS 음성 생성</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className={`text-[14px] ${pg>=30?"text-[#16a34a]":pg>=10?"text-[#c49a1a] animate-pulse":"text-[#d1d5db]"}`}>{pg>=30?"✓":pg>=10?"◍":"○"}</span>
-                  <span className={`text-[13px] ${pg>=10?"text-[#374151]":"text-[#9ca3af]"}`}>자료화면 생성</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className={`text-[14px] ${pg>=60?"text-[#16a34a]":pg>=30?"text-[#c49a1a] animate-pulse":"text-[#d1d5db]"}`}>{pg>=60?"✓":pg>=30?"◍":"○"}</span>
-                  <span className={`text-[13px] ${pg>=30?"text-[#374151]":"text-[#9ca3af]"}`}>아바타 렌더링</span>
-                </div>
-                <div className="flex items-center gap-3">
-                  <span className={`text-[14px] ${pg>=90?"text-[#16a34a]":pg>=60?"text-[#c49a1a] animate-pulse":"text-[#d1d5db]"}`}>{pg>=90?"✓":pg>=60?"◍":"○"}</span>
-                  <span className={`text-[13px] ${pg>=60?"text-[#374151]":"text-[#9ca3af]"}`}>최종 합성</span>
-                </div>
+              <div className="space-y-1">
+                {([
+                  {label:"TTS 음성 생성",done:pg>=5,active:pg<5&&pg>=0,icon:"🎙"},
+                  {label:"자료화면 생성",done:pg>=30,active:pg>=5&&pg<30,icon:"🎨"},
+                  {label:"아바타 렌더링",done:pg>=60,active:pg>=30&&pg<60,icon:"👤"},
+                  {label:"최종 합성",done:pg>=90,active:pg>=60&&pg<90,icon:"🎬"},
+                ] as const).map((s,i)=>(
+                  <div key={i} className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-500 relative overflow-hidden`}
+                    style={s.active?{background:"rgba(196,154,26,0.06)",border:"1px solid rgba(196,154,26,0.18)",animation:"step-glow 2s ease-in-out infinite"}:s.done?{background:"rgba(22,163,74,0.04)",border:"1px solid transparent"}:{border:"1px solid transparent"}}>
+                    {s.active&&<div className="absolute inset-0 rounded-xl" style={{background:"linear-gradient(90deg,transparent,rgba(196,154,26,0.08),transparent)",backgroundSize:"200% 100%",animation:"shimmer 2s linear infinite"}}/>}
+                    <div className={`w-7 h-7 rounded-lg flex items-center justify-center text-[13px] font-bold shrink-0 transition-all duration-500 relative ${
+                      s.done?"bg-[#16a34a]/10 text-[#16a34a]":s.active?"text-[#c49a1a]":"text-[#d1d5db] bg-[#f3f4f6]"
+                    }`} style={s.active?{background:"rgba(196,154,26,0.12)",animation:"pulse-ring 1.5s ease-in-out infinite"}:{}}>
+                      {s.done?"✓":s.active?<span style={{animation:"spin 2s linear infinite",display:"inline-block"}}>{s.icon}</span>:<span className="text-[12px]">{i+1}</span>}
+                    </div>
+                    <div className="flex-1 min-w-0 relative z-[1]">
+                      <span className={`text-[14px] font-semibold transition-colors ${s.done?"text-[#374151]":s.active?"text-[#1a1d23]":"text-[#9ca3af]"}`}>{s.label}</span>
+                      {s.active&&<div className="flex items-center gap-2 mt-1.5">
+                        <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:"rgba(196,154,26,0.1)"}}>
+                          <div className="h-full rounded-full" style={{background:"linear-gradient(90deg,#c49a1a,#e8c84a)",animation:"progress-indeterminate 1.5s ease-in-out infinite"}}/>
+                        </div>
+                        <span className="text-[10px] font-bold tabular-nums shrink-0" style={{color:"#c49a1a",animation:"blink 1s ease-in-out infinite"}}>처리중</span>
+                      </div>}
+                    </div>
+                    {s.done&&<span className="text-[11px] text-[#16a34a] font-bold px-2 py-0.5 rounded-md" style={{background:"rgba(22,163,74,0.08)"}}>완료</span>}
+                    {s.active&&<div className="flex gap-1 items-center"><span className="w-1.5 h-1.5 rounded-full bg-[#c49a1a]" style={{animation:"dot-bounce 1.4s ease-in-out infinite"}} /><span className="w-1.5 h-1.5 rounded-full bg-[#c49a1a]" style={{animation:"dot-bounce 1.4s ease-in-out 0.2s infinite"}} /><span className="w-1.5 h-1.5 rounded-full bg-[#c49a1a]" style={{animation:"dot-bounce 1.4s ease-in-out 0.4s infinite"}} /></div>}
+                  </div>
+                ))}
               </div>
             </div>
-            <p className="text-[12px] text-[#9ca3af]">약 3~5분 소요됩니다</p>
+            <p className="text-[13px] text-[#9ca3af] flex items-center gap-2">
+              <span style={{animation:"blink 1.5s ease-in-out infinite"}}>●</span>
+              약 3~5분 소요됩니다
+            </p>
+            <style>{`
+              @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+              @keyframes pulse-ring{0%,100%{box-shadow:0 0 0 0 rgba(196,154,26,0.4)}50%{box-shadow:0 0 0 8px rgba(196,154,26,0)}}
+              @keyframes progress-indeterminate{0%{width:15%;margin-left:0}50%{width:60%;margin-left:20%}100%{width:15%;margin-left:85%}}
+              @keyframes blink{0%,100%{opacity:1}50%{opacity:0.3}}
+              @keyframes spin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+              @keyframes step-glow{0%,100%{box-shadow:0 0 0 0 rgba(196,154,26,0),background-color:rgba(196,154,26,0.04)}50%{box-shadow:0 0 20px rgba(196,154,26,0.08),background-color:rgba(196,154,26,0.08)}}
+              @keyframes dot-bounce{0%,80%,100%{opacity:0.3;transform:scale(0.8)}40%{opacity:1;transform:scale(1.3)}}
+              .render-step-active{animation:step-glow 2s ease-in-out infinite}
+              @keyframes step-glow{0%,100%{background:rgba(196,154,26,0.04)}50%{background:rgba(196,154,26,0.1)}}
+            `}</style>
           </div>
 
           /* 영상 완료 */
