@@ -396,28 +396,34 @@ def _avatar_pip(bg, avatar, out):
 #  5. SRT 자막
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-def _chunk(t, mc=30):
+def _chunk(t, mc=22):
+    """자막 청크 분할 — 1줄 22자 이내, 자연스러운 끊김"""
     if len(t) <= mc: return [t]
     ch, cur = [], ""
-    for s in re.split(r'(?<=[.!?]) ', t):
-        if len(cur)+len(s)+1 <= mc: cur = (cur+" "+s).strip()
+    # 문장 단위 분리
+    sentences = re.split(r'(?<=[.!?。]) ', t)
+    for s in sentences:
+        if len(cur)+len(s)+1 <= mc:
+            cur = (cur+" "+s).strip()
         else:
             if cur: ch.append(cur)
-            while len(s) > mc: ch.append(s[:mc].strip()); s = s[mc:].strip()
+            # 긴 문장은 조사/쉼표 기준 분할
+            while len(s) > mc:
+                cut = -1
+                for sep in [', ','는 ','을 ','를 ','에 ','고 ','며 ','다. ','로 ','의 ','이 ','가 ']:
+                    idx = s[:mc].rfind(sep)
+                    if idx > 4:
+                        cut = idx + len(sep) - 1
+                        break
+                if cut <= 0:
+                    # 공백 기준
+                    sp = s[:mc].rfind(' ')
+                    cut = sp if sp > 4 else mc
+                ch.append(s[:cut].strip())
+                s = s[cut:].strip()
             cur = s
     if cur: ch.append(cur)
     return ch or [t[:mc]]
-
-def _wrap(t, mc=28):
-    if len(t) <= mc: return t
-    mid = len(t)//2; best = mid
-    for o in range(min(12, mid)):
-        for p in [mid+o, mid-o]:
-            if 0 < p < len(t) and t[p] in ' ,는을를이가에서도로의하고며':
-                best = p+1; break
-        else: continue
-        break
-    return t[:best].strip()+"\\N"+t[best:].strip()
 
 def _srt(blocks, path, pause=0.3, durs=None):
     lines, cur, idx = [], 0.0, 1
@@ -425,7 +431,8 @@ def _srt(blocks, path, pause=0.3, durs=None):
         bd = durs[i] if durs and i < len(durs) else len(b["text"])/4.5
         chs = _chunk(b["text"]); cd = bd/max(len(chs),1)
         for ch in chs:
-            lines += [str(idx), f"{_ts(cur)} --> {_ts(cur+cd)}", _wrap(ch), ""]
+            # 1줄만 (줄바꿈 없음)
+            lines += [str(idx), f"{_ts(cur)} --> {_ts(cur+cd)}", ch.strip(), ""]
             cur += cd; idx += 1
         cur += pause
     with open(path, "w", encoding="utf-8") as f: f.write("\n".join(lines))
@@ -460,9 +467,9 @@ def _compose(bg, audio, srt_path, output, bgm_path=""):
     # SRT 경로 이스케이프
     srt_esc = srt_path.replace("\\","/").replace(":",r"\:")
 
-    ss = (f"FontSize=24,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
-          f"BackColour=&H99000000,BorderStyle=4,Outline=2,Shadow=1,"
-          f"MarginV=55,MarginL=100,MarginR=100,Alignment=2,Fontname={fn}")
+    ss = (f"FontSize=18,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
+          f"BackColour=&H00000000,BorderStyle=1,Outline=2,Shadow=1,"
+          f"MarginV=30,MarginL=60,MarginR=60,Alignment=2,Fontname={fn}")
     vf = f"subtitles='{srt_esc}':force_style='{ss}'"
 
     if bgm_path and os.path.exists(bgm_path):
