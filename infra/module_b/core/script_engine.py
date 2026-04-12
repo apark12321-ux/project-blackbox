@@ -294,7 +294,7 @@ class ScriptEngine:
             else:
                 news_block += f"\n【뉴스 {i}】\n{clean}\n"
 
-        prompt = f"""당신은 유튜브 정보 채널 "블랙박스"의 메인 작가입니다.
+        prompt = f"""당신은 유튜브 정보 채널의 전문 스크립트 작가입니다.
 
 【주제】 {keyword} ({cat_label})
 
@@ -318,6 +318,7 @@ class ScriptEngine:
 7. 구어체: ~인데요, ~거든요, ~하시면 됩니다
 8. 총 {target_chars}자 이상, 10~15문단, 각 150~300자
 9. 마지막 문단만 "opinion", 나머지 "body"
+10. opinion 문단에서 채널명을 절대 언급하지 말 것. 1인칭 "저는", "제 생각에는"으로 표현. 본문에서도 채널명 언급 금지.
 
 ━━━ 출력 ━━━
 JSON 배열만 (마크다운 없이):
@@ -519,9 +520,9 @@ JSON 배열만 (마크다운 없이):
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 DYNAMIC_INTROS = [
-    "안녕하세요, 블랙박스 채널입니다.",
-    "오늘도 핵심만 짚어드리는 블랙박스입니다.",
-    "여러분의 든든한 정보 파트너, 블랙박스입니다.",
+    "안녕하세요, 오늘도 핵심만 짚어드리겠습니다.",
+    "여러분의 든든한 정보 파트너가 돌아왔습니다.",
+    "안녕하세요, 오늘도 유익한 정보 준비했습니다.",
 ]
 DYNAMIC_OUTROS = [
     "오늘 영상이 도움이 되셨다면 구독과 좋아요 부탁드립니다.",
@@ -530,5 +531,3 @@ DYNAMIC_OUTROS = [
 
 def get_dynamic_intro(): return random.choice(DYNAMIC_INTROS)
 def get_dynamic_outro(): return random.choice(DYNAMIC_OUTROS)
-
-
