@@ -436,9 +436,14 @@ function VideoPage(){
             <div className="flex items-center gap-6 text-[15px] text-white/35">
               <span>⏱ {store.video.duration_sec?.toFixed(1)||"-"}s</span>
               <span>📦 {store.video.file_size_bytes?`${(store.video.file_size_bytes/1024/1024).toFixed(1)}MB`:"-"}</span>
-              <span className="text-[#34d399] font-bold">✓ 완료</span>
+              <span className="text-[#34d399] font-bold">✓ 생성 완료</span>
             </div>
-            {store.video.download_url&&<a href={store.video.download_url.startsWith("http")?store.video.download_url:`${API}${store.video.download_url}`} target="_blank" rel="noopener noreferrer" className="inline-block px-8 py-3 rounded-2xl text-[16px] font-bold text-[#09090b]" style={{background:"linear-gradient(135deg,#d4af37,#f0d060)",boxShadow:"0 6px 24px rgba(212,175,55,0.3)"}}>⬇ Download MP4</a>}
+            <p className="text-[14px] text-white/25">실드 & 배포 페이지에서 최종 다운로드가 가능합니다</p>
+            <button onClick={()=>store.setActivePage("deploy")}
+              className="px-10 py-4 rounded-2xl text-[17px] font-extrabold text-[#09090b] transition-all hover:brightness-110 active:scale-[0.98]"
+              style={{background:"linear-gradient(135deg,#d4af37,#f0d060)",boxShadow:"0 6px 24px rgba(212,175,55,0.3)"}}>
+              실드 & 배포로 이동 →
+            </button>
           </div>
 
           /* ★ 스토리보드 프리뷰 (스크립트 있지만 영상 미생성) */
