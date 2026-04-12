@@ -172,7 +172,7 @@ function CurationPage(){
 
 
 /* ═══════════════════════════════════════
-   MODULE B — Script
+   MODULE B — Script (블록 편집 + 최종 시나리오)
    ═══════════════════════════════════════ */
 function ScriptPage(){
   const store=useBlackboxStore();
@@ -180,6 +180,7 @@ function ScriptPage(){
   const[err,setErr]=useState<string|null>(null);
   const[ebi,setEbi]=useState<number|null>(null);
   const[et,setEt]=useState("");
+  const[view,setView]=useState<"blocks"|"scenario">("blocks");
 
   useEffect(()=>{if(!store.script&&store.selectedKeyword&&store.selectedNews.length>0)gen();},[]);
 
@@ -192,22 +193,58 @@ function ScriptPage(){
   const dur=store.script?.total_duration_sec||0;
   const ch=store.script?.blocks?.reduce((s:number,b:any)=>s+(b.text?.length||0),0)||0;
 
+  // 최종 시나리오: 모든 블록 텍스트를 하나의 흐름으로
+  const buildScenario=()=>{
+    if(!store.script?.blocks)return{intro:"",sections:[] as {label:string;text:string;time:string}[],outro:""};
+    const sections:{label:string;text:string;time:string}[]=[];
+    let cumTime=0;
+    for(const b of store.script.blocks){
+      const mm=Math.floor(cumTime/60);
+      const ss=Math.round(cumTime%60);
+      const timeStr=`${mm}:${String(ss).padStart(2,'0')}`;
+      const labelMap:{[k:string]:string}={hook:"오프닝 훅",body:"본문",opinion:"채널 의견",cta:"구독 유도"};
+      sections.push({label:labelMap[b.section]||b.section,text:b.text,time:timeStr});
+      cumTime+=b.duration_sec||0;
+    }
+    return{intro:store.script.dynamic_intro||"",sections,outro:store.script.dynamic_outro||""};
+  };
+
   return(
     <div className="flex h-full">
       <div className="flex-1 flex flex-col overflow-hidden">
+        {/* Header with view toggle */}
         <div className="p-7 border-b flex items-center justify-between" style={{borderColor:"var(--border)"}}>
-          <h2 className="text-[20px] font-extrabold text-white/60">AI 스크립트</h2>
+          <div className="flex items-center gap-5">
+            <h2 className="text-[20px] font-extrabold text-white/60">AI 스크립트</h2>
+            {store.script&&(
+              <div className="flex rounded-xl overflow-hidden border" style={{borderColor:"var(--border)"}}>
+                <button onClick={()=>setView("blocks")}
+                  className={`px-4 py-1.5 text-[13px] font-bold transition-all ${view==="blocks"?"text-[#d4af37]":"text-white/25 hover:text-white/40"}`}
+                  style={view==="blocks"?{background:"rgba(212,175,55,0.1)"}:{}}>
+                  블록 편집
+                </button>
+                <button onClick={()=>setView("scenario")}
+                  className={`px-4 py-1.5 text-[13px] font-bold transition-all ${view==="scenario"?"text-[#d4af37]":"text-white/25 hover:text-white/40"}`}
+                  style={view==="scenario"?{background:"rgba(212,175,55,0.1)"}:{}}>
+                  최종 시나리오
+                </button>
+              </div>
+            )}
+          </div>
           {store.script&&<div className="flex gap-4">
             <Badge label="글자" val={ch.toLocaleString()} color="#d4af37"/>
             <Badge label="시간" val={`${Math.floor(dur/60)}:${String(Math.round(dur%60)).padStart(2,'0')}`} color="#60a5fa"/>
             <Badge label="블록" val={String(store.script.blocks?.length||0)} color="#a78bfa"/>
           </div>}
         </div>
-        <div className="flex-1 overflow-y-auto p-7 space-y-4">
+
+        <div className="flex-1 overflow-y-auto p-7">
           {err&&<ErrBox>{err}</ErrBox>}
           {ld?<div className="flex flex-col items-center py-32 gap-5"><Spinner size="lg"/><span className="text-[16px] text-white/25">Gemini가 대본을 작성 중...</span></div>
-          :store.script?.blocks?(
-            <>
+
+          /* ═══ 블록 편집 뷰 ═══ */
+          :view==="blocks"&&store.script?.blocks?(
+            <div className="space-y-4">
               {store.script.dynamic_intro&&<div className="p-5 rounded-2xl text-[14px] text-[#d4af37]/50 italic border border-[#d4af37]/10" style={{background:"rgba(212,175,55,0.03)"}}>🎬 인트로: {store.script.dynamic_intro}</div>}
               {store.script.blocks.map((b:any,i:number)=>(
                 <div key={i} className="p-6 rounded-2xl border group anim-fade-up" style={{borderColor:"var(--border)",background:"var(--bg-card)",animationDelay:`${i*60}ms`}}>
@@ -226,16 +263,117 @@ function ScriptPage(){
                 </div>
               ))}
               {store.script.dynamic_outro&&<div className="p-5 rounded-2xl text-[14px] text-[#d4af37]/50 italic border border-[#d4af37]/10" style={{background:"rgba(212,175,55,0.03)"}}>🎬 아웃트로: {store.script.dynamic_outro}</div>}
-            </>
-          ):<Empty icon="◆" text="큐레이션을 먼저 완료해주세요"/>}
+            </div>
+
+          /* ═══ 최종 시나리오 뷰 ═══ */
+          ):view==="scenario"&&store.script?.blocks?(()=>{
+            const sc=buildScenario();
+            return(
+              <div className="max-w-3xl mx-auto">
+                {/* 시나리오 헤더 */}
+                <div className="text-center mb-10 anim-fade-up">
+                  <div className="inline-block px-4 py-1.5 rounded-full text-[12px] font-bold text-[#d4af37] mb-4" style={{background:"rgba(212,175,55,0.08)",border:"1px solid rgba(212,175,55,0.15)"}}>FINAL SCENARIO</div>
+                  <h1 className="text-[28px] font-extrabold text-white/90 mb-2">{store.selectedKeyword}</h1>
+                  <p className="text-[15px] text-white/30">
+                    {ch.toLocaleString()}자  ·  {Math.floor(dur/60)}분 {Math.round(dur%60)}초  ·  {store.script.blocks.length}개 섹션
+                  </p>
+                </div>
+
+                {/* 인트로 */}
+                {sc.intro&&(
+                  <div className="flex items-center gap-4 mb-8 anim-fade-up" style={{animationDelay:"100ms"}}>
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-[16px] shrink-0" style={{background:"rgba(212,175,55,0.1)",border:"1px solid rgba(212,175,55,0.2)"}}>🎬</div>
+                    <p className="text-[15px] text-[#d4af37]/60 italic">{sc.intro}</p>
+                  </div>
+                )}
+
+                {/* 시나리오 본문 — 하나의 흐름 */}
+                <div className="relative">
+                  {/* 타임라인 세로선 */}
+                  <div className="absolute left-[18px] top-0 bottom-0 w-px" style={{background:"linear-gradient(180deg,rgba(212,175,55,0.3),rgba(212,175,55,0.05))"}} />
+
+                  {sc.sections.map((s,i)=>{
+                    const isHook=s.label==="오프닝 훅";
+                    const isOpinion=s.label==="채널 의견";
+                    const isCta=s.label==="구독 유도";
+                    const dotColor=isHook?"#d4af37":isOpinion?"#a78bfa":isCta?"#34d399":"rgba(255,255,255,0.15)";
+                    return(
+                      <div key={i} className="flex gap-6 mb-8 anim-fade-up relative" style={{animationDelay:`${(i+1)*80}ms`}}>
+                        {/* 타임라인 도트 */}
+                        <div className="flex flex-col items-center shrink-0 z-10">
+                          <div className="w-[10px] h-[10px] rounded-full" style={{background:dotColor,boxShadow:`0 0 8px ${dotColor}44`}} />
+                        </div>
+
+                        <div className="flex-1 min-w-0">
+                          {/* 섹션 라벨 + 시간 */}
+                          <div className="flex items-center gap-3 mb-2">
+                            <span className={`text-[12px] font-bold uppercase tracking-wider ${isHook?"text-[#d4af37]/60":isOpinion?"text-[#a78bfa]/60":isCta?"text-[#34d399]/60":"text-white/20"}`}>{s.label}</span>
+                            <span className="text-[11px] text-white/15 font-bold">{s.time}</span>
+                          </div>
+
+                          {/* 텍스트 */}
+                          <p className={`leading-[2.2] whitespace-pre-wrap ${
+                            isHook?"text-[18px] font-bold text-white/85":
+                            isOpinion?"text-[16px] text-[#a78bfa]/70 italic border-l-2 border-[#a78bfa]/20 pl-5":
+                            isCta?"text-[15px] text-[#34d399]/60":
+                            "text-[16px] text-white/70"
+                          }`}>{s.text}</p>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+
+                {/* 아웃트로 */}
+                {sc.outro&&(
+                  <div className="flex items-center gap-4 mt-4 anim-fade-up" style={{animationDelay:`${(sc.sections.length+2)*80}ms`}}>
+                    <div className="w-10 h-10 rounded-full flex items-center justify-center text-[16px] shrink-0" style={{background:"rgba(212,175,55,0.1)",border:"1px solid rgba(212,175,55,0.2)"}}>🎬</div>
+                    <p className="text-[15px] text-[#d4af37]/60 italic">{sc.outro}</p>
+                  </div>
+                )}
+
+                {/* 하단 요약 카드 */}
+                <div className="mt-12 p-6 rounded-2xl border anim-fade-up" style={{borderColor:"var(--border)",background:"var(--bg-card)",animationDelay:`${(sc.sections.length+3)*80}ms`}}>
+                  <div className="flex items-center justify-between mb-4">
+                    <span className="text-[14px] font-bold text-white/40">시나리오 요약</span>
+                    <span className="text-[12px] text-white/20">생성 방식: {store.script.metadata?.method||"gemini"}</span>
+                  </div>
+                  <div className="grid grid-cols-4 gap-4">
+                    <SummaryCard label="총 글자수" value={`${ch.toLocaleString()}자`} color="#d4af37" />
+                    <SummaryCard label="재생 시간" value={`${Math.floor(dur/60)}분 ${Math.round(dur%60)}초`} color="#60a5fa" />
+                    <SummaryCard label="훅 타입" value={store.script.hook_type} color="#f59e0b" />
+                    <SummaryCard label="의견 톤" value={store.script.opinion_tone} color="#a78bfa" />
+                  </div>
+                </div>
+              </div>
+            );
+          })()
+
+          :!store.script?<Empty icon="◆" text="큐레이션을 먼저 완료해주세요"/>:null}
         </div>
       </div>
+
+      {/* Right tools panel */}
       <div className="w-[340px] shrink-0 border-l flex flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
         <div className="p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[20px] font-extrabold text-white/60">도구</h2></div>
         <div className="flex-1 overflow-y-auto p-6 space-y-3">
           <TBtn icon="🔄" label="전체 재생성" desc="같은 소스로 새로 작성" onClick={gen} disabled={ld||!store.selectedKeyword}/>
           <TBtn icon="📝" label="분량 추가" desc="3문단 추가" onClick={ext} disabled={ld||!store.script}/>
           <TBtn icon="✨" label="전체 재작성" desc="톤/스타일 변경" onClick={rew} disabled={ld||!store.script}/>
+          <div className="h-px my-5" style={{background:"var(--border)"}} />
+          {store.script&&(
+            <div className="p-4 rounded-2xl border" style={{borderColor:"var(--border)",background:"var(--bg-card)"}}>
+              <p className="text-[13px] font-bold text-white/30 mb-3">빠른 전환</p>
+              <div className="space-y-2">
+                <button onClick={()=>setView("blocks")} className={`w-full text-left px-4 py-3 rounded-xl text-[14px] font-bold transition-all ${view==="blocks"?"text-[#d4af37] border border-[#d4af37]/20":"text-white/40 hover:text-white/60"}`} style={view==="blocks"?{background:"rgba(212,175,55,0.06)"}:{}}>
+                  📝 블록 편집 모드
+                </button>
+                <button onClick={()=>setView("scenario")} className={`w-full text-left px-4 py-3 rounded-xl text-[14px] font-bold transition-all ${view==="scenario"?"text-[#d4af37] border border-[#d4af37]/20":"text-white/40 hover:text-white/60"}`} style={view==="scenario"?{background:"rgba(212,175,55,0.06)"}:{}}>
+                  📖 최종 시나리오
+                </button>
+              </div>
+            </div>
+          )}
         </div>
         {store.script&&<div className="p-6 border-t" style={{borderColor:"var(--border)"}}><GoldBtn onClick={()=>{store.setStep(4);store.setActivePage("video");}}>영상 제작 →</GoldBtn></div>}
       </div>
@@ -383,3 +521,4 @@ function Dchip({label,val}:{label:string;val:string}){return<div><div className=
 function Badge({label,val,color}:{label:string;val:string;color:string}){return<div className="flex items-center gap-2 px-3.5 py-1.5 rounded-xl" style={{background:`${color}12`}}><span className="text-[12px] text-white/25">{label}</span><span className="text-[14px] font-bold" style={{color}}>{val}</span></div>;}
 function Row({l,v}:{l:string;v:string}){return<div className="flex items-center justify-between"><span className="text-[14px] text-white/35">{l}</span><span className="text-[14px] text-white/55 font-bold">{v}</span></div>;}
 function Tog({on,fn}:{on:boolean;fn:()=>void}){return<button onClick={fn} className={`w-12 h-6 rounded-full relative transition-all ${on?"bg-[#d4af37]":"bg-white/10"}`}><div className={`w-5 h-5 rounded-full bg-white absolute top-0.5 transition-all ${on?"left-[26px]":"left-0.5"}`}/></button>;}
+function SummaryCard({label,value,color}:{label:string;value:string;color:string}){return<div className="p-4 rounded-xl text-center" style={{background:`${color}08`,border:`1px solid ${color}15`}}><div className="text-[11px] text-white/25 mb-1">{label}</div><div className="text-[16px] font-extrabold" style={{color}}>{value}</div></div>;}
