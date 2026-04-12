@@ -60,12 +60,27 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </span>
           </div>
           <div className="h-5 w-px bg-white/[0.06] mx-1" />
-          <h1 className="text-[15px] font-bold text-[#4b5563]">
-            {activePage==="curation"&&"① 뉴스 큐레이션"}
-            {activePage==="script"&&"② AI 스크립트"}
-            {activePage==="video"&&"③ 영상 제작"}
-            {activePage==="deploy"&&"④ 검수 & 배포"}
-          </h1>
+          <div className="flex items-center gap-2">
+            {([
+              {key:"curation",n:1,label:"뉴스 큐레이션",color:"#6366f1"},
+              {key:"script",n:2,label:"AI 스크립트",color:"#c49a1a"},
+              {key:"video",n:3,label:"영상 제작",color:"#0ea5e9"},
+              {key:"deploy",n:4,label:"검수 & 배포",color:"#22c55e"},
+            ] as const).map((s)=>{
+              const active=activePage===s.key;
+              const done=(s.key==="curation"&&step>=3)||(s.key==="script"&&step>=4)||(s.key==="video"&&step>=5)||(s.key==="deploy"&&step>=6);
+              return (
+                <div key={s.key} className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg transition-all ${active?"":"opacity-40"}`}
+                  style={active?{background:`${s.color}12`}:{}}>
+                  <span className="text-[11px] font-black px-1.5 py-0.5 rounded-md text-white"
+                    style={{background:active?s.color:done?"#22c55e":"#d1d5db",fontSize:"10px",lineHeight:"14px"}}>
+                    {done&&!active?"✓":`${s.n}`}
+                  </span>
+                  <span className="text-[13px] font-bold" style={{color:active?s.color:"#9ca3af"}}>{s.label}</span>
+                </div>
+              );
+            })}
+          </div>
           <div className="ml-auto flex items-center gap-4">
             <div className="flex rounded-xl overflow-hidden border" style={{borderColor:"var(--border)"}}>
               <button onClick={()=>setMode("normal")} className={`px-4 py-1.5 text-[13px] font-bold ${mode==="normal"?"text-[#c49a1a]":"text-[#9ca3af]"}`} style={mode==="normal"?{background:"rgba(196,154,26,0.08)"}:{}}>일반</button>
