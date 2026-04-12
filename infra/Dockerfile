@@ -5,7 +5,7 @@ RUN apt-get update && apt-get install -y ffmpeg fonts-nanum && rm -rf /var/lib/a
 WORKDIR /app
 
 # 캐시 방지 - 이 숫자를 바꾸면 아래 모든 단계가 재실행됨
-ARG CACHEBUST=5
+ARG CACHEBUST=6
 
 COPY . .
 RUN pip install Pillow
@@ -13,3 +13,4 @@ RUN pip install -r requirements.txt
 
 EXPOSE 8080
 CMD ["uvicorn", "app_main:app", "--host", "0.0.0.0", "--port", "8080"]
+
