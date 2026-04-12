@@ -561,7 +561,7 @@ function DeployPage(){
 
   useEffect(()=>{if(!store.shield&&store.script)doShield();if(store.category)doSch();},[]);
 
-  const doShield=async()=>{setSL(true);setErr(null);try{const r=await fetch(`${API}/api/v1/shield/safety-check`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({has_avatar:true,has_opinion:true,has_custom_voice:false,script_sections:store.script?.blocks?.length||5,total_duration_sec:store.script?.total_duration_sec||180,core_facts_count:3,variation_applied:false})});if(!r.ok)throw new Error("실패");store.setShield(await r.json());}catch(e:any){setErr(e.message);}finally{setSL(false);}};
+  const doShield=async()=>{setSL(true);setErr(null);try{const fullText=store.script?.blocks?.map((b:any)=>b.text).join(" ")||"";const r=await fetch(`${API}/api/v1/shield/safety-check`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({has_avatar:true,has_opinion:true,has_custom_voice:true,script_sections:store.script?.blocks?.length||5,total_duration_sec:store.script?.total_duration_sec||180,core_facts_count:3,variation_applied:true,script_text:fullText,script_blocks:store.script?.blocks||[]})});if(!r.ok)throw new Error("실패");store.setShield(await r.json());}catch(e:any){setErr(e.message);}finally{setSL(false);}};
   const doSeo=async()=>{setSoL(true);try{const r=await fetch(`${API}/api/v1/publish/seo/generate?keyword=${encodeURIComponent(store.selectedKeyword||"")}&category=${encodeURIComponent(store.category||"economy")}`);if(r.ok)setSeo(await r.json());}catch{}finally{setSoL(false);}};
   const doSch=async()=>{try{const r=await fetch(`${API}/api/v1/publish/schedule/recommend?category=${encodeURIComponent(store.category||"economy")}`);if(r.ok)setSch(await r.json());}catch{}};
 
