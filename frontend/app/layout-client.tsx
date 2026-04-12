@@ -18,8 +18,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex h-screen text-white" style={{ background: "var(--bg-primary)" }}>
       {/* ═══ Sidebar ═══ */}
-      <nav className="w-[100px] shrink-0 flex flex-col items-center border-r py-6 gap-3"
-        style={{ borderColor: "var(--border)", background: "linear-gradient(180deg,#0a0c14,#080a10)" }}>
+      <nav className="w-[100px] shrink-0 flex flex-col items-center border-r py-6 gap-3 sidebar-dark"
+        style={{ borderColor: "rgba(255,255,255,0.06)" }}>
         <Link href="/" onClick={reset}
           className="w-14 h-14 rounded-2xl flex items-center justify-center text-[16px] font-black mb-6"
           style={{ background: "linear-gradient(135deg,#d4af37,#b8941e)", color: "#09090b", boxShadow: "0 4px 20px rgba(212,175,55,0.3)" }}>
@@ -51,15 +51,15 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* ═══ Main ═══ */}
       <div className="flex-1 flex flex-col overflow-hidden">
-        <header className="h-14 border-b flex items-center px-7 gap-5 shrink-0 glass"
-          style={{ borderColor: "var(--border)" }}>
+        <header className="h-14 border-b flex items-center px-7 gap-5 shrink-0"
+          style={{ borderColor: "var(--border)", background: "var(--bg-secondary)" }}>
           <div className="flex items-center gap-2.5">
-            <span className="text-[15px] font-extrabold tracking-wide text-white/80" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>PROJECT</span>
+            <span className="text-[15px] font-extrabold tracking-wide text-[#1a1d23]" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>PROJECT</span>
             <span className="text-[15px] font-extrabold tracking-widest"
-              style={{fontFamily:"'Plus Jakarta Sans',sans-serif",background:"linear-gradient(90deg,#d4af37,#f0d060)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>BLACKBOX</span>
+              style={{fontFamily:"'Plus Jakarta Sans',sans-serif",background:"linear-gradient(90deg,#c49a1a,#e8c84a)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>BLACKBOX</span>
           </div>
           <div className="h-5 w-px bg-white/[0.06] mx-1" />
-          <h1 className="text-[15px] font-bold text-white/55">
+          <h1 className="text-[15px] font-bold text-[#4b5563]">
             {activePage==="curation"&&"모듈 A: 지능형 큐레이션 (기획 단계)"}
             {activePage==="script"&&"모듈 B: AI 스크립트 엔진"}
             {activePage==="video"&&"모듈 B2: AI 영상 제작"}
@@ -67,10 +67,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           </h1>
           <div className="ml-auto flex items-center gap-4">
             <div className="flex rounded-xl overflow-hidden border" style={{borderColor:"var(--border)"}}>
-              <button onClick={()=>setMode("normal")} className={`px-4 py-1.5 text-[13px] font-bold ${mode==="normal"?"text-[#d4af37]":"text-white/20"}`} style={mode==="normal"?{background:"rgba(212,175,55,0.12)"}:{}}>일반</button>
-              <button onClick={()=>setMode("senior")} className={`px-4 py-1.5 text-[13px] font-bold ${mode==="senior"?"text-[#d4af37]":"text-white/20"}`} style={mode==="senior"?{background:"rgba(212,175,55,0.12)"}:{}}>시니어</button>
+              <button onClick={()=>setMode("normal")} className={`px-4 py-1.5 text-[13px] font-bold ${mode==="normal"?"text-[#c49a1a]":"text-[#9ca3af]"}`} style={mode==="normal"?{background:"rgba(196,154,26,0.08)"}:{}}>일반</button>
+              <button onClick={()=>setMode("senior")} className={`px-4 py-1.5 text-[13px] font-bold ${mode==="senior"?"text-[#c49a1a]":"text-[#9ca3af]"}`} style={mode==="senior"?{background:"rgba(196,154,26,0.08)"}:{}}>시니어</button>
             </div>
-            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-[13px] text-white/30" style={{borderColor:"var(--border)"}}>
+            <div className="flex items-center gap-2 px-3 py-1.5 rounded-xl border text-[13px] text-[#4b5563]" style={{borderColor:"var(--border)"}}>
               <span>👤</span> {profile.channelName || "채널 미설정"}
             </div>
           </div>
@@ -80,54 +80,54 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* ═══ Settings Modal ═══ */}
       {showSettings && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{background:"rgba(0,0,0,0.7)"}}>
-          <div className="w-[520px] rounded-3xl border p-8 space-y-6" style={{borderColor:"var(--border)",background:"var(--bg-primary)"}}>
+        <div className="fixed inset-0 z-50 flex items-center justify-center" style={{background:"rgba(0,0,0,0.3)"}}>
+          <div className="w-[520px] rounded-3xl border p-8 space-y-6 shadow-xl" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
             <div className="flex items-center justify-between">
-              <h2 className="text-[22px] font-extrabold text-white/80">채널 설정</h2>
-              <button onClick={() => setShowSettings(false)} className="text-[20px] text-white/30 hover:text-white/60">✕</button>
+              <h2 className="text-[22px] font-extrabold text-[#1a1d23]">채널 설정</h2>
+              <button onClick={() => setShowSettings(false)} className="text-[20px] text-[#9ca3af] hover:text-[#4b5563]">✕</button>
             </div>
 
             <div className="space-y-4">
               <div>
-                <label className="text-[13px] font-bold text-white/40 block mb-2">채널 이름 *</label>
+                <label className="text-[13px] font-bold text-[#4b5563] block mb-2">채널 이름 *</label>
                 <input value={profile.channelName} onChange={e => setProfile({ channelName: e.target.value })}
                   placeholder="예: 돈이 보이는 경제"
-                  className="w-full px-4 py-3 rounded-xl text-[15px] text-white/80 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/30"
-                  style={{background:"rgba(255,255,255,0.04)",border:"1px solid var(--border)"}} />
+                  className="w-full px-4 py-3 rounded-xl text-[15px] text-[#1a1d23] focus:outline-none focus:ring-2 focus:ring-[#c49a1a]/30"
+                  style={{background:"var(--bg-elevated)",border:"1px solid var(--border)"}} />
               </div>
 
               <div>
-                <label className="text-[13px] font-bold text-white/40 block mb-2">인트로 멘트</label>
+                <label className="text-[13px] font-bold text-[#4b5563] block mb-2">인트로 멘트</label>
                 <input value={profile.introText} onChange={e => setProfile({ introText: e.target.value })}
                   placeholder="안녕하세요, 오늘도 핵심만 짚어드리겠습니다."
-                  className="w-full px-4 py-3 rounded-xl text-[15px] text-white/80 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/30"
-                  style={{background:"rgba(255,255,255,0.04)",border:"1px solid var(--border)"}} />
+                  className="w-full px-4 py-3 rounded-xl text-[15px] text-[#1a1d23] focus:outline-none focus:ring-2 focus:ring-[#c49a1a]/30"
+                  style={{background:"var(--bg-elevated)",border:"1px solid var(--border)"}} />
               </div>
 
               <div>
-                <label className="text-[13px] font-bold text-white/40 block mb-2">아웃트로 멘트</label>
+                <label className="text-[13px] font-bold text-[#4b5563] block mb-2">아웃트로 멘트</label>
                 <input value={profile.outroText} onChange={e => setProfile({ outroText: e.target.value })}
                   placeholder="다음 영상에서 더 유익한 정보로 찾아뵙겠습니다."
-                  className="w-full px-4 py-3 rounded-xl text-[15px] text-white/80 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/30"
-                  style={{background:"rgba(255,255,255,0.04)",border:"1px solid var(--border)"}} />
+                  className="w-full px-4 py-3 rounded-xl text-[15px] text-[#1a1d23] focus:outline-none focus:ring-2 focus:ring-[#c49a1a]/30"
+                  style={{background:"var(--bg-elevated)",border:"1px solid var(--border)"}} />
               </div>
 
               <div>
-                <label className="text-[13px] font-bold text-white/40 block mb-2">워터마크 텍스트</label>
+                <label className="text-[13px] font-bold text-[#4b5563] block mb-2">워터마크 텍스트</label>
                 <input value={profile.watermarkText} onChange={e => setProfile({ watermarkText: e.target.value })}
                   placeholder="채널 이름과 동일하게 (비우면 채널명 사용)"
-                  className="w-full px-4 py-3 rounded-xl text-[15px] text-white/80 focus:outline-none focus:ring-2 focus:ring-[#d4af37]/30"
-                  style={{background:"rgba(255,255,255,0.04)",border:"1px solid var(--border)"}} />
+                  className="w-full px-4 py-3 rounded-xl text-[15px] text-[#1a1d23] focus:outline-none focus:ring-2 focus:ring-[#c49a1a]/30"
+                  style={{background:"var(--bg-elevated)",border:"1px solid var(--border)"}} />
               </div>
 
-              <div className="p-4 rounded-xl" style={{background:"rgba(212,175,55,0.04)",border:"1px solid rgba(212,175,55,0.1)"}}>
-                <p className="text-[12px] text-[#d4af37]/50">TTS 보이스와 아바타는 추후 선택 기능이 추가됩니다.</p>
+              <div className="p-4 rounded-xl" style={{background:"rgba(196,154,26,0.06)",border:"1px solid rgba(196,154,26,0.12)"}}>
+                <p className="text-[12px] text-[#c49a1a]">TTS 보이스와 아바타는 추후 선택 기능이 추가됩니다.</p>
               </div>
             </div>
 
             <button onClick={() => setShowSettings(false)}
-              className="w-full py-3.5 rounded-xl text-[15px] font-bold text-[#09090b]"
-              style={{background:"linear-gradient(135deg,#d4af37,#f0d060)"}}>
+              className="w-full py-3.5 rounded-xl text-[15px] font-bold text-white"
+              style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>
               저장
             </button>
           </div>
