@@ -420,14 +420,35 @@ function VideoPage(){
           {err&&<ErrBox>{err}</ErrBox>}
 
           {/* 렌더링 중 */}
-          {ld?<div className="flex flex-col items-center justify-center py-20 gap-8">
-            <Spinner size="lg"/>
-            <div className="w-96">
-              <div className="h-3 rounded-full overflow-hidden" style={{background:"rgba(255,255,255,0.04)"}}>
-                <div className="h-full rounded-full transition-all duration-1000 anim-bar" style={{width:`${pg}%`,background:"linear-gradient(90deg,#c49a1a,#e8c84a)"}}/>
+          {ld?<div className="flex flex-col items-center justify-center py-20 gap-6">
+            <div className="w-[420px] p-8 rounded-2xl" style={{background:"var(--bg-card)",border:"1px solid var(--border)",boxShadow:"0 4px 20px rgba(0,0,0,0.06)"}}>
+              <div className="flex items-center justify-between mb-6">
+                <span className="text-[16px] font-bold text-[#1a1d23]">영상 생성 중</span>
+                <span className="text-[14px] font-bold text-[#c49a1a]">{pg}%</span>
               </div>
-              <p className="text-[15px] text-[#9ca3af] text-center mt-4">{pg}% — Gemini 일러스트 + TTS + FFmpeg 렌더링</p>
+              <div className="h-2 rounded-full overflow-hidden mb-6" style={{background:"rgba(0,0,0,0.06)"}}>
+                <div className="h-full rounded-full transition-all duration-1000" style={{width:`${pg}%`,background:"linear-gradient(90deg,#c49a1a,#e8c84a)"}}/>
+              </div>
+              <div className="space-y-3">
+                <div className="flex items-center gap-3">
+                  <span className={`text-[14px] ${pg>=5?"text-[#16a34a]":"text-[#d1d5db]"}`}>{pg>=5?"✓":"○"}</span>
+                  <span className={`text-[13px] ${pg>=5?"text-[#374151]":"text-[#9ca3af]"}`}>TTS 음성 생성</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`text-[14px] ${pg>=30?"text-[#16a34a]":pg>=10?"text-[#c49a1a] animate-pulse":"text-[#d1d5db]"}`}>{pg>=30?"✓":pg>=10?"◍":"○"}</span>
+                  <span className={`text-[13px] ${pg>=10?"text-[#374151]":"text-[#9ca3af]"}`}>자료화면 생성</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`text-[14px] ${pg>=60?"text-[#16a34a]":pg>=30?"text-[#c49a1a] animate-pulse":"text-[#d1d5db]"}`}>{pg>=60?"✓":pg>=30?"◍":"○"}</span>
+                  <span className={`text-[13px] ${pg>=30?"text-[#374151]":"text-[#9ca3af]"}`}>아바타 렌더링</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <span className={`text-[14px] ${pg>=90?"text-[#16a34a]":pg>=60?"text-[#c49a1a] animate-pulse":"text-[#d1d5db]"}`}>{pg>=90?"✓":pg>=60?"◍":"○"}</span>
+                  <span className={`text-[13px] ${pg>=60?"text-[#374151]":"text-[#9ca3af]"}`}>최종 합성</span>
+                </div>
+              </div>
             </div>
+            <p className="text-[12px] text-[#9ca3af]">약 3~5분 소요됩니다</p>
           </div>
 
           /* 영상 완료 */
