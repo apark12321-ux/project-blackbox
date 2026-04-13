@@ -417,9 +417,24 @@ function VideoPage(){
   const store=useBlackboxStore();
   const[ld,setLd]=useState(false);const[pg,setPg]=useState(0);const[err,setErr]=useState<string|null>(null);
   const[sl,setSl]=useState<any[]>([]);const[ci,setCi]=useState(0);
+  const[phase,setPhase]=useState(0);const[elapsed,setElapsed]=useState(0);
 
-  const gen=async()=>{if(!store.script)return;setLd(true);setErr(null);setPg(8);
-    try{const r=await fetch(`${API}/api/v1/video/generate-real`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keyword:store.selectedKeyword,category:store.category,mode:store.mode,script_blocks:store.script.blocks,channel_name:store.profile.channelName,watermark_text:store.profile.watermarkText||store.profile.channelName,tts_voice_id:store.profile.ttsVoiceId})});if(!r.ok)throw new Error(`실패(${r.status})`);const d=await r.json();if(d.status==="completed"||d.status==="done"||d.download_url){store.setVideo(d);store.setStep(5);setPg(100);setLd(false);}else{let p=12;const iv=setInterval(async()=>{p=Math.min(p+4,92);setPg(p);try{const r2=await fetch(`${API}/api/v1/video/status/${d.job_id}`);if(r2.ok){const d2=await r2.json();if(d2.status==="completed"||d2.status==="done"){clearInterval(iv);store.setVideo(d2);store.setStep(5);setPg(100);setLd(false);}else if(d2.status==="error"){clearInterval(iv);setErr(d2.error||"실패");setLd(false);}}}catch{}},5000);setTimeout(()=>{clearInterval(iv);setLd(false);},600000);}}catch(e:any){setErr(e.message);setLd(false);}};
+  const gen=async()=>{if(!store.script)return;setLd(true);setErr(null);setPg(0);setPhase(1);setElapsed(0);
+    const t0=Date.now();
+    const ticker=setInterval(()=>{
+      const sec=Math.floor((Date.now()-t0)/1000);setElapsed(sec);
+      if(sec<15){setPhase(1);setPg(Math.min(18,Math.floor(sec/15*18)));}
+      else if(sec<90){setPhase(2);setPg(18+Math.min(37,Math.floor((sec-15)/75*37)));}
+      else if(sec<120){setPhase(3);setPg(55+Math.min(20,Math.floor((sec-90)/30*20)));}
+      else if(sec<210){setPhase(4);setPg(75+Math.min(20,Math.floor((sec-120)/90*20)));}
+      else{setPg(Math.min(96,95));}
+    },500);
+    try{const r=await fetch(`${API}/api/v1/video/generate-real`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keyword:store.selectedKeyword,category:store.category,mode:store.mode,script_blocks:store.script.blocks,channel_name:store.profile.channelName,watermark_text:store.profile.watermarkText||store.profile.channelName,tts_voice_id:store.profile.ttsVoiceId})});
+      clearInterval(ticker);if(!r.ok)throw new Error(`실패(${r.status})`);const d=await r.json();
+      if(d.status==="completed"||d.status==="done"||d.download_url){setPhase(5);setPg(100);store.setVideo(d);store.setStep(5);setLd(false);}
+      else if(d.status==="error"){throw new Error(d.error||"실패");}
+      else{const iv=setInterval(async()=>{try{const r2=await fetch(`${API}/api/v1/video/status/${d.job_id}`);if(r2.ok){const d2=await r2.json();if(d2.status==="completed"||d2.status==="done"){clearInterval(iv);setPhase(5);setPg(100);store.setVideo(d2);store.setStep(5);setLd(false);}else if(d2.status==="error"){clearInterval(iv);setErr(d2.error||"실패");setLd(false);}}}catch{}},5000);setTimeout(()=>{clearInterval(iv);setLd(false);},600000);}
+    }catch(e:any){clearInterval(ticker);setErr(e.message);setLd(false);}};
 
   useEffect(()=>{if(store.script){fetch(`${API}/api/v1/video/preview-slides`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keyword:store.selectedKeyword,category:store.category,script_blocks:store.script.blocks})}).then(r=>r.ok?r.json():null).then(d=>{if(d?.slides)setSl(d.slides);}).catch(()=>{});}},[]);
 
@@ -471,10 +486,10 @@ function VideoPage(){
               </div>
               <div className="space-y-1">
                 {([
-                  {label:"TTS 음성 생성",done:pg>=5,active:pg<5&&pg>=0,icon:"🎙"},
-                  {label:"자료화면 생성",done:pg>=30,active:pg>=5&&pg<30,icon:"🎨"},
-                  {label:"아바타 렌더링",done:pg>=60,active:pg>=30&&pg<60,icon:"👤"},
-                  {label:"최종 합성",done:pg>=90,active:pg>=60&&pg<90,icon:"🎬"},
+                  {label:"TTS 음성 생성",done:phase>1,active:phase===1,icon:"🎙"},
+                  {label:"자료화면 생성",done:phase>2,active:phase===2,icon:"🎨"},
+                  {label:"아바타 렌더링",done:phase>3,active:phase===3,icon:"👤"},
+                  {label:"최종 합성",done:phase>4||phase===5,active:phase===4,icon:"🎬"},
                 ] as const).map((s,i)=>(
                   <div key={i} className={`flex items-center gap-3 p-3 rounded-xl transition-all duration-500 relative overflow-hidden`}
                     style={s.active?{background:"rgba(196,154,26,0.06)",border:"1px solid rgba(196,154,26,0.18)",animation:"step-glow 2s ease-in-out infinite"}:s.done?{background:"rgba(22,163,74,0.04)",border:"1px solid transparent"}:{border:"1px solid transparent"}}>
@@ -501,7 +516,7 @@ function VideoPage(){
             </div>
             <p className="text-[13px] text-[#9ca3af] flex items-center gap-2">
               <span style={{animation:"blink 1.5s ease-in-out infinite"}}>●</span>
-              약 3~5분 소요됩니다
+              {elapsed>0?`${Math.floor(elapsed/60)}:${String(elapsed%60).padStart(2,'0')} 경과`:"약 3~5분 소요됩니다"}
             </p>
             <style>{`
               @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
