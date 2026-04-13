@@ -45,6 +45,10 @@ function CurationPage(){
       <div className="w-full md:w-[540px] shrink-0 border-b md:border-b-0 md:border-r flex flex-col max-h-[50vh] md:max-h-full overflow-y-auto" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
         <div className="p-4 md:p-7 border-b" style={{borderColor:"var(--border)"}}>
           <h2 className="text-[16px] md:text-[16px] md:text-[20px] font-extrabold text-[#4b5563] mb-3 md:mb-5">카테고리 선택</h2>
+          <Guide items={[
+            {q:"$12~18 같은 금액은 뭔가요?",a:"CPM(Cost Per Mille) — 유튜브 광고 1,000회 노출당 예상 수익입니다. 예를 들어 CPM $12인 영상이 1만 조회되면 약 $120 수익이 발생합니다."},
+            {q:"어떤 카테고리가 좋나요?",a:"수익 우선이면 경제/시니어(CPM 높음), 성장 우선이면 라이프스타일/테크(검색량 많음)를 선택하세요."},
+          ]} />
           <div className="grid grid-cols-2 gap-2 md:gap-3">
             {cats.map(cat=>{
               const on=store.category===cat.slug;
@@ -72,6 +76,11 @@ function CurationPage(){
             <h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">황금 키워드</h2>
             {store.keywords.length>0&&<span className="text-[14px] text-[#d1d5db] font-bold">{store.keywords.length}개</span>}
           </div>
+          <Guide items={[
+            {q:"블루오션 등급 (A+~C)이 뭔가요?",a:"검색량은 높지만 경쟁 영상이 적은 키워드를 높은 등급으로 매깁니다. A+ = 수요는 많은데 공급이 부족한 '틈새 키워드'입니다."},
+            {q:"검색량 / 경쟁 / CPM",a:"검색량 = 월간 검색 횟수 (1K=1천, 100K=10만). 경쟁 = 이미 존재하는 유튜브 영상 수 (적을수록 기회). CPM = 이 키워드 영상의 광고 단가."},
+            {q:"추세 화살표 (▲/→/▼)",a:"최근 7일 검색 트렌드. ▲ = 상승세(기회!), → = 유지, ▼ = 하락세."},
+          ]} />
 
           {ld?<Spinner className="mt-20"/>:store.keywords.length>0?(
             <div className="space-y-3">
@@ -122,6 +131,12 @@ function CurationPage(){
           {store.selectedNews.length>0&&<span className="text-[15px] font-bold text-[#34d399] px-4 py-1.5 rounded-xl" style={{background:"rgba(52,211,153,0.08)"}}>{store.selectedNews.length}개 선택</span>}
         </div>
         <div className="flex-1 overflow-y-auto p-7">
+          <Guide items={[
+            {q:"뉴스는 어디서 가져오나요?",a:"선택한 키워드로 최근 7일간 주요 뉴스를 자동 검색합니다. Google News, 네이버 뉴스 등에서 관련도 높은 기사를 수집합니다."},
+            {q:"CPM 배지 (Premium/High/Mid)",a:"이 뉴스 주제로 영상을 만들었을 때 예상되는 광고 수익 등급입니다. Premium이 가장 높은 수익이 기대됩니다."},
+            {q:"관련도 %",a:"선택한 키워드와 이 뉴스의 내용 일치 정도입니다. 높을수록 키워드에 딱 맞는 기사입니다."},
+            {q:"뉴스를 몇 개 선택하면 좋나요?",a:"2~4개가 적당합니다. 너무 적으면 내용이 빈약하고, 너무 많으면 초점이 흐려집니다."},
+          ]} />
           {err&&<ErrBox>{err}</ErrBox>}
           {nld?<Spinner className="mt-20"/>:store.news.length>0?(
             <div className="space-y-4">
@@ -218,6 +233,12 @@ function ScriptPage(){
         <div className="p-4 md:p-7 border-b flex items-center justify-between" style={{borderColor:"var(--border)"}}>
           <div className="flex items-center gap-5">
             <h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">AI 스크립트</h2>
+            <Guide items={[
+              {q:"스크립트는 어떻게 만들어지나요?",a:"선택한 뉴스 소스를 Gemini AI가 분석하여 유튜브 영상용 대본을 자동 생성합니다. 훅(오프닝) → 본문 → 의견 → CTA(구독유도) 구조입니다."},
+              {q:"블록 편집 vs 최종 시나리오",a:"블록 편집: 각 문단별로 수정/재생성 가능. 최종 시나리오: 타임코드가 붙은 완성 대본을 한눈에 확인."},
+              {q:"재생성/분량추가/재작성 차이",a:"재생성: 같은 소스로 새로 작성. 분량추가: 기존 뒤에 3문단 추가. 재작성: 스타일/톤을 바꿔서 전체 다시 작성."},
+              {q:"목표 시간 8분인 이유",a:"유튜브 수익화에 최적인 영상 길이입니다. 8분 이상이면 영상 중간에 광고를 삽입할 수 있어 수익이 2~3배 높아집니다."},
+            ]} />
             {store.script&&(
               <div className="flex rounded-xl overflow-hidden border" style={{borderColor:"var(--border)"}}>
                 <button onClick={()=>setView("blocks")}
@@ -359,6 +380,11 @@ function ScriptPage(){
       <div className="w-full md:w-[340px] shrink-0 border-t md:border-t-0 md:border-l flex flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
         <div className="p-4 md:p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">도구</h2></div>
         <div className="flex-1 overflow-y-auto p-6 space-y-3">
+          <Guide items={[
+            {q:"스크립트 구조는?",a:"오프닝 훅(시선 끌기) → 본문(핵심 정보 전달) → 채널 의견(차별화) → CTA(구독 유도) 4단 구조로 자동 생성됩니다."},
+            {q:"블록 편집 vs 시나리오",a:"블록 편집 = 각 구간별 개별 수정/재생성. 시나리오 = 전체 대본을 타임라인으로 확인."},
+            {q:"재생성/재작성 차이?",a:"재생성 = 같은 뉴스 소스로 새로 작성. 재작성 = 톤/스타일을 바꿔서 완전히 다시 작성."},
+          ]} />
           <TBtn icon="🔄" label="전체 재생성" desc="같은 소스로 새로 작성" onClick={gen} disabled={ld||!store.selectedKeyword}/>
           <TBtn icon="📝" label="분량 추가" desc="3문단 추가" onClick={ext} disabled={ld||!store.script}/>
           <TBtn icon="✨" label="전체 재작성" desc="톤/스타일 변경" onClick={rew} disabled={ld||!store.script}/>
@@ -417,6 +443,11 @@ function VideoPage(){
           )}
         </div>
         <div className="flex-1 overflow-y-auto p-8">
+          <Guide items={[
+            {q:"영상은 어떻게 만들어지나요?",a:"① TTS 음성 생성(ElevenLabs) → ② 블록별 자료화면 생성(Gemini AI 인포그래픽 또는 Pexels 실사) → ③ 아바타 렌더링(HeyGen, 선택) → ④ FFmpeg로 최종 합성. 약 3~5분 소요됩니다."},
+            {q:"시니어 모드란?",a:"읽기 속도가 느려지고(0.92배), 자막이 커지고, BGM이 작아집니다. 50대 이상 시청자를 타겟하는 채널에 적합합니다."},
+            {q:"스토리보드는 뭔가요?",a:"영상의 구조를 미리 보여줍니다. 각 블록(오프닝/본문/의견/CTA)의 길이와 비율을 확인할 수 있습니다."},
+          ]} />
           {err&&<ErrBox>{err}</ErrBox>}
 
           {/* 렌더링 중 */}
@@ -580,6 +611,11 @@ function VideoPage(){
       <div className="w-full md:w-[340px] shrink-0 border-t md:border-t-0 md:border-l flex flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
         <div className="p-4 md:p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">설정</h2></div>
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
+          <Guide items={[
+            {q:"영상은 어떻게 만들어지나요?",a:"대본 → ElevenLabs TTS 음성 생성 → Gemini AI 자료화면/Pexels 배경 이미지 → FFmpeg로 음성+영상+자막+BGM 합성."},
+            {q:"시니어 모드란?",a:"TTS 속도를 0.92배로 느리게, 자막을 더 크게, BGM을 작게 — 시니어 시청자에 최적화된 설정입니다."},
+            {q:"소요 시간은?",a:"블록 수에 따라 3~5분. TTS 생성 → 배경 이미지 다운로드 → 클립별 렌더링 → 최종 합성 순서로 진행됩니다."},
+          ]} />
           <div className="flex items-center justify-between"><span className="text-[15px] text-[#6b7280]">시니어 모드</span><Tog on={store.mode==="senior"} fn={()=>store.setMode(store.mode==="senior"?"normal":"senior")}/></div>
           <div className="h-px" style={{background:"var(--border)"}}/>
           {([["모드",store.mode],["해상도","1920×1080"],["TTS","ElevenLabs"],["일러스트","Gemini AI"],["자막","한글 24px"],["BGM","Ambient"]] as [string,string][]).map(([l,v])=><Row key={l} l={l} v={v}/>)}
@@ -634,6 +670,12 @@ function DeployPage(){
       <div className="flex-1 border-r flex flex-col" style={{borderColor:"var(--border)"}}>
         <div className="p-4 md:p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">알고리즘 실드</h2></div>
         <div className="flex-1 overflow-y-auto p-8">
+          <Guide items={[
+            {q:"Safety Score란?",a:"유튜브 수익 창출 정책(AI 콘텐츠, 재사용, 음성 다양성 등)에 얼마나 안전한지를 0~100점으로 평가합니다. 70점 이상이면 수익화 승인 가능성이 높습니다."},
+            {q:"점수가 낮으면?",a:"스크립트에 의견/팩트를 추가하거나, 영상 길이를 늘리거나, 아바타를 활성화하면 점수가 올라갑니다. 70점 미만이면 다운로드가 차단됩니다."},
+            {q:"SEO 최적화",a:"Gemini AI가 영상 제목, 설명, 태그를 자동 생성합니다. 유튜브 검색에 잘 노출되도록 최적화됩니다."},
+            {q:"업로드 스케줄",a:"카테고리별 최적 업로드 시간을 추천합니다. 시청자가 가장 활발한 시간대에 올리면 초기 노출이 극대화됩니다."},
+          ]} />
           {err&&<ErrBox>{err}</ErrBox>}
           {sL?<Spinner className="mt-24"/>:store.shield?(
             <div className="space-y-8">
@@ -766,6 +808,27 @@ function DeployPage(){
 
 
 /* ═══ SHARED ═══ */
+function Guide({items}:{items:{q:string;a:string}[]}){
+  const[open,setOpen]=useState(false);
+  return(
+    <div className="mb-4">
+      <button onClick={()=>setOpen(!open)} className="flex items-center gap-2 text-[12px] text-[#9ca3af] hover:text-[#6b7280] transition-colors">
+        <span style={{transform:open?"rotate(90deg)":"rotate(0deg)",transition:"transform 0.2s",display:"inline-block"}}>▶</span>
+        <span className="font-bold">이 화면 사용법</span>
+      </button>
+      {open&&(
+        <div className="mt-3 p-4 rounded-xl space-y-3 text-[13px] anim-fade-up" style={{background:"rgba(196,154,26,0.04)",border:"1px solid rgba(196,154,26,0.1)"}}>
+          {items.map((item,i)=>(
+            <div key={i}>
+              <div className="font-bold text-[#c49a1a] mb-0.5">{item.q}</div>
+              <div className="text-[#6b7280] leading-relaxed">{item.a}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
 function Spinner({className="",size="md"}:{className?:string;size?:"md"|"lg"}){const s=size==="lg"?"w-14 h-14 border-[3px]":"w-8 h-8 border-2";return<div className={`flex items-center justify-center ${className}`}><div className={`${s} border-[#c49a1a]/15 border-t-[#c49a1a] rounded-full animate-spin`}/></div>;}
 function Empty({icon,text}:{icon:string;text:string}){return<div className="flex flex-col items-center justify-center py-28 text-[#e5e7eb]"><span className="text-[56px] mb-5 anim-float">{icon}</span><span className="text-[17px]">{text}</span></div>;}
 function ErrBox({children}:{children:React.ReactNode}){return<div className="mb-5 p-5 rounded-2xl border border-red-500/20 bg-red-500/5 text-red-400 text-[15px]">{children}</div>;}
