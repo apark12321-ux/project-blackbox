@@ -436,7 +436,8 @@ function VideoPage(){
       else{const iv=setInterval(async()=>{try{const r2=await fetch(`${API}/api/v1/video/status/${d.job_id}`);if(r2.ok){const d2=await r2.json();if(d2.status==="completed"||d2.status==="done"){clearInterval(iv);setPhase(5);setPg(100);store.setVideo(d2);store.setStep(5);setLd(false);}else if(d2.status==="error"){clearInterval(iv);setErr(d2.error||"실패");setLd(false);}}}catch{}},5000);setTimeout(()=>{clearInterval(iv);setLd(false);},600000);}
     }catch(e:any){clearInterval(ticker);setErr(e.message);setLd(false);}};
 
-  useEffect(()=>{if(store.script){fetch(`${API}/api/v1/video/preview-slides`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keyword:store.selectedKeyword,category:store.category,script_blocks:store.script.blocks})}).then(r=>r.ok?r.json():null).then(d=>{if(d?.slides)setSl(d.slides);}).catch(()=>{});}},[]);
+  // preview-slides는 비활성화 (영상 생성에 집중)
+  // useEffect(()=>{if(store.script){fetch(...)}},[]);
 
   // 스토리보드 데이터 생성
   const storyboard=store.script?.blocks?.map((b:any,i:number)=>{
