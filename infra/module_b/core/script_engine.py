@@ -111,7 +111,7 @@ def select_hook_type(category, prev=None):
 def generate_hook(keyword, ht):
     t = random.choice(HOOKS.get(ht, HOOKS[HookType.CURIOSITY])).format(keyword=keyword)
     return ScriptBlock(section=ScriptSection.HOOK, text=t,
-        duration_sec=round(max(4,min(8,len(t)/4.5)),1),
+        duration_sec=round(max(4,min(8,len(t)/8.0)),1),
         tts_emphasis=[keyword], subtitle_highlight=keyword)
 
 
@@ -133,7 +133,7 @@ def generate_cta(keyword):
     ]
     t = random.choice(texts)
     return ScriptBlock(section=ScriptSection.CTA, text=t,
-        duration_sec=round(len(t)/4.5,1), subtitle_highlight="구독")
+        duration_sec=round(len(t)/8.0,1), subtitle_highlight="구독")
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -272,7 +272,7 @@ class ScriptEngine:
         return self._fallback(keyword, category, news_summary, core_facts, opinion_tone, target_sec)
 
     async def _gemini(self, keyword, category, news_summary, core_facts, opinion_tone, benchmarks, target_sec):
-        target_chars = max(2500, int(target_sec * 4.5))
+        target_chars = max(2500, int(target_sec * 8.0))
         facts_text = "\n".join(f"- {f}" for f in core_facts) if core_facts else "(뉴스 요약에서 추출할 것)"
 
         cat_map = {"economy":"경제/재테크","senior":"시니어/건강","selfdev":"자기계발","tech":"IT/테크","life":"라이프스타일"}
@@ -366,7 +366,7 @@ JSON 배열만 (마크다운 없이):
             if not text: continue
             block = ScriptBlock(
                 section=ScriptSection.OPINION if p.get("section") == "opinion" else ScriptSection.BODY,
-                text=text, duration_sec=round(len(text)/4.5, 1),
+                text=text, duration_sec=round(len(text)/8.0, 1),
                 subtitle_highlight=p.get("key_phrase", ""))
             if p.get("section") == "opinion":
                 opinion_block = block
@@ -398,7 +398,7 @@ JSON 배열만 (마크다운 없이):
 
         def blk(text, hl=""):
             return ScriptBlock(section=ScriptSection.BODY, text=text,
-                duration_sec=round(len(text)/4.5, 1), subtitle_highlight=hl)
+                duration_sec=round(len(text)/8.0, 1), subtitle_highlight=hl)
 
         # ── 1. 도입 ──
         if n1_body:
@@ -511,7 +511,7 @@ JSON 배열만 (마크다운 없이):
         }
         op_text = tones.get(opinion_tone, tones[OpinionTone.CAUTIOUS])
         opinion = ScriptBlock(section=ScriptSection.OPINION, text=op_text,
-            duration_sec=round(len(op_text)/4.5, 1), subtitle_highlight="개인 의견")
+            duration_sec=round(len(op_text)/8.0, 1), subtitle_highlight="개인 의견")
 
         chars = sum(len(b.text) for b in blocks)
         logger.info(f"[Fallback v3] {len(blocks)} body, {chars} chars")
