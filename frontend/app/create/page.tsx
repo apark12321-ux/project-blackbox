@@ -40,9 +40,9 @@ function CurationPage(){
   const togNews=(a:any)=>{const c=store.selectedNews;store.setSelectedNews(c.find((n:any)=>n.id===a.id)?c.filter((n:any)=>n.id!==a.id):[...c,a]);};
 
   return(
-    <div className="flex flex-col md:flex-row h-full overflow-hidden">
+    <div className="flex flex-col md:flex-row h-full overflow-y-auto md:overflow-hidden">
       {/* LEFT */}
-      <div className="w-full md:w-[480px] shrink-0 border-b md:border-b-0 md:border-r flex flex-col overflow-y-auto md:overflow-hidden" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
+      <div className="w-full md:w-[480px] shrink-0 border-b md:border-b-0 md:border-r flex flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
         {/* Category — horizontal scroll on mobile */}
         <div className="p-2.5 md:p-4 border-b shrink-0" style={{borderColor:"var(--border)"}}>
           <div className="flex items-center justify-between mb-1.5 md:mb-2">
