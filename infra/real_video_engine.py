@@ -42,7 +42,7 @@ def _dur(p):
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 async def _tts_block(text, path, voice_id="jBpfuIE2acCO8z3wKNLl", speed=1.0):
-    key = os.getenv("ELEVENLABS_API_KEY",""); est = len(text)/(4.5*speed)
+    key = os.getenv("ELEVENLABS_API_KEY",""); est = len(text)/(8.0*speed)
     if not key: _silent(path, est); return path, est
     try:
         import httpx
@@ -509,7 +509,7 @@ def _chunk(t, mc=22):
 def _srt(blocks, path, pause=0.3, durs=None):
     lines, cur, idx = [], 0.0, 1
     for i, b in enumerate(blocks):
-        bd = durs[i] if durs and i < len(durs) else len(b["text"])/4.5
+        bd = durs[i] if durs and i < len(durs) else len(b["text"])/8.0
         chs = _chunk(b["text"]); cd = bd/max(len(chs),1)
         for ch in chs:
             # 1줄만 (줄바꿈 없음)
