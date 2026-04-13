@@ -42,28 +42,26 @@ function CurationPage(){
   return(
     <div className="flex flex-col md:flex-row h-full">
       {/* LEFT */}
-      <div className="w-full md:w-[540px] shrink-0 border-b md:border-b-0 md:border-r flex flex-col max-h-[50vh] md:max-h-full overflow-y-auto" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
-        <div className="p-4 md:p-7 border-b" style={{borderColor:"var(--border)"}}>
-          <h2 className="text-[16px] md:text-[16px] md:text-[20px] font-extrabold text-[#4b5563] mb-3 md:mb-5">카테고리 선택</h2>
-          <Guide items={[
-            {q:"$12~18 같은 금액은 뭔가요?",a:"CPM(Cost Per Mille) — 유튜브 광고 1,000회 노출당 예상 수익입니다. 예를 들어 CPM $12인 영상이 1만 조회되면 약 $120 수익이 발생합니다."},
-            {q:"어떤 카테고리가 좋나요?",a:"수익 우선이면 경제/시니어(CPM 높음), 성장 우선이면 라이프스타일/테크(검색량 많음)를 선택하세요."},
-          ]} />
-          <div className="grid grid-cols-2 gap-2 md:gap-3">
+      <div className="w-full md:w-[480px] shrink-0 border-b md:border-b-0 md:border-r flex flex-col max-h-[45vh] md:max-h-full overflow-y-auto" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
+        <div className="p-3 md:p-5 border-b" style={{borderColor:"var(--border)"}}>
+          <div className="flex items-center justify-between mb-2 md:mb-3">
+            <h2 className="text-[14px] md:text-[17px] font-extrabold text-[#4b5563]">카테고리</h2>
+            <Guide items={[
+              {q:"$12~18 같은 금액은?",a:"CPM — 유튜브 광고 1,000회 노출당 수익. CPM $12 영상이 1만 조회 시 약 $120."},
+              {q:"어떤 카테고리가 좋나요?",a:"수익 우선 → 경제/시니어(CPM 높음). 성장 우선 → 테크/라이프(검색량 많음)."},
+            ]} />
+          </div>
+          <div className="grid grid-cols-3 md:grid-cols-5 gap-1.5 md:gap-2">
             {cats.map(cat=>{
               const on=store.category===cat.slug;
               return(
                 <button key={cat.slug} onClick={()=>pickCat(cat.slug)}
-                  className={`flex items-center gap-4 p-4 rounded-2xl border transition-all duration-300 group relative overflow-hidden
-                    ${on?"border-[#c49a1a]/40 glow-gold":"border-[#e5e7eb] hover:border-[#d1d5db]"}`}
-                  style={on?{background:"rgba(212,175,55,0.06)"}:{background:"var(--bg-card)"}}>
-                  {/* Subtle gradient bg on hover */}
-                  <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500" style={{background:"linear-gradient(135deg,rgba(212,175,55,0.03),transparent)"}} />
-                  <span className="text-[28px] relative z-10 group-hover:scale-110 transition-transform duration-300">{cat.icon}</span>
-                  <div className="relative z-10 text-left">
-                    <div className={`text-[16px] font-bold ${on?"text-[#c49a1a]":"text-[#1f2937]"}`}>{cat.label_ko}</div>
-                    <div className="text-[13px] text-[#9ca3af] font-semibold tracking-wide">{cat.cpm_range}</div>
-                  </div>
+                  className={`flex flex-col items-center gap-1 p-2.5 md:p-3 rounded-xl border transition-all duration-200
+                    ${on?"border-[#c49a1a]/50":"border-transparent hover:border-[#e5e7eb]"}`}
+                  style={on?{background:"rgba(212,175,55,0.08)"}:{}}>
+                  <span className="text-[22px] md:text-[26px]">{cat.icon}</span>
+                  <span className={`text-[11px] md:text-[12px] font-bold leading-tight text-center ${on?"text-[#c49a1a]":"text-[#6b7280]"}`}>{cat.label_ko.split(' / ')[0]}</span>
+                  <span className="text-[9px] md:text-[10px] text-[#b0b5bf] font-semibold">{cat.cpm_range}</span>
                 </button>
               );
             })}
@@ -71,50 +69,51 @@ function CurationPage(){
         </div>
 
         {/* Keywords */}
-        <div className="flex-1 overflow-y-auto p-7">
-          <div className="flex items-center justify-between mb-5">
-            <h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">황금 키워드</h2>
-            {store.keywords.length>0&&<span className="text-[14px] text-[#d1d5db] font-bold">{store.keywords.length}개</span>}
+        <div className="flex-1 overflow-y-auto p-3 md:p-5">
+          <div className="flex items-center justify-between mb-2 md:mb-3">
+            <h2 className="text-[14px] md:text-[17px] font-extrabold text-[#4b5563]">황금 키워드</h2>
+            <div className="flex items-center gap-2">
+              {store.keywords.length>0&&<span className="text-[11px] text-[#b0b5bf] font-bold">{store.keywords.length}개</span>}
+              <Guide items={[
+                {q:"블루오션 등급 (A+~C)?",a:"검색량 대비 경쟁이 적은 키워드가 높은 등급. A+ = 수요 많고 공급 부족한 틈새."},
+                {q:"검색량 / 경쟁 / CPM",a:"검색량 = 월간 검색수. 경쟁 = 기존 유튜브 영상 수. CPM = 예상 광고 단가."},
+                {q:"추세 ▲→▼",a:"최근 7일 검색 트렌드. ▲ 상승, → 유지, ▼ 하락."},
+              ]} />
+            </div>
           </div>
-          <Guide items={[
-            {q:"블루오션 등급 (A+~C)이 뭔가요?",a:"검색량은 높지만 경쟁 영상이 적은 키워드를 높은 등급으로 매깁니다. A+ = 수요는 많은데 공급이 부족한 '틈새 키워드'입니다."},
-            {q:"검색량 / 경쟁 / CPM",a:"검색량 = 월간 검색 횟수 (1K=1천, 100K=10만). 경쟁 = 이미 존재하는 유튜브 영상 수 (적을수록 기회). CPM = 이 키워드 영상의 광고 단가."},
-            {q:"추세 화살표 (▲/→/▼)",a:"최근 7일 검색 트렌드. ▲ = 상승세(기회!), → = 유지, ▼ = 하락세."},
-          ]} />
 
-          {ld?<Spinner className="mt-20"/>:store.keywords.length>0?(
-            <div className="space-y-3">
+          {ld?<Spinner className="mt-12"/>:store.keywords.length>0?(
+            <div className="space-y-1.5 md:space-y-2">
               {store.keywords.map((kw:any,i:number)=>{
                 const on=store.selectedKeyword===kw.keyword;
                 const g=boi(kw.blue_ocean_index||0);
                 const m=mom(kw.trend_momentum||0);
                 return(
                   <div key={i} onClick={()=>pickKw(kw)}
-                    className={`p-5 rounded-2xl border cursor-pointer transition-all duration-300 anim-fade-up relative overflow-hidden
-                      ${on?"border-[#c49a1a]/30 glow-gold":"border-white/[0.03] hover:border-[#d1d5db]"}`}
-                    style={{animationDelay:`${i*70}ms`,...(on?{background:"rgba(212,175,55,0.04)"}:{background:"var(--bg-card)"})}}>
-                    {/* Shimmer effect on selected */}
-                    {on&&<div className="absolute inset-0" style={{background:"linear-gradient(90deg,transparent,rgba(212,175,55,0.03),transparent)",backgroundSize:"200% 100%",animation:"gradientFlow 3s ease infinite"}} />}
+                    className={`p-3 md:p-4 rounded-xl border cursor-pointer transition-all duration-200 anim-fade-up
+                      ${on?"border-[#c49a1a]/30 glow-gold":"border-[#f0f1f3] hover:border-[#d1d5db]"}`}
+                    style={{animationDelay:`${i*50}ms`,...(on?{background:"rgba(212,175,55,0.04)"}:{background:"var(--bg-card)"})}}>
 
-                    <div className="flex items-center gap-4 mb-4 relative z-10">
-                      <span className="text-[14px] text-[#d1d5db] font-bold w-7 text-center">{i+1}</span>
-                      <span className={`text-[18px] font-extrabold flex-1 ${on?"text-[#c49a1a]":"text-[#1a1d23]"}`}>{kw.keyword}</span>
-                      <span className="text-[15px] font-black px-3 py-1.5 rounded-xl" style={{color:g.c,background:g.bg,boxShadow:on?`0 0 12px ${g.c}33`:"none"}}>{g.g}</span>
+                    {/* Top row: rank + keyword + grade */}
+                    <div className="flex items-center gap-2 md:gap-3 mb-2">
+                      <span className="text-[11px] md:text-[12px] text-[#c0c5ce] font-bold w-5 text-center shrink-0">{i+1}</span>
+                      <span className={`text-[14px] md:text-[16px] font-extrabold flex-1 truncate ${on?"text-[#c49a1a]":"text-[#1a1d23]"}`}>{kw.keyword}</span>
+                      <span className="text-[11px] md:text-[13px] font-black px-2 py-1 rounded-lg shrink-0" style={{color:g.c,background:g.bg}}>{g.g}</span>
                     </div>
 
-                    {/* BOI Progress Bar */}
-                    <div className="ml-11 mb-3 relative z-10">
-                      <div className="h-2 rounded-full overflow-hidden" style={{background:"rgba(255,255,255,0.04)"}}>
-                        <div className="h-full rounded-full anim-bar" style={{width:`${Math.min(100,(kw.blue_ocean_index/5)*100)}%`,background:`linear-gradient(90deg,${g.c},${g.c}88)`,animationDelay:`${i*100+300}ms`}} />
+                    {/* BOI bar */}
+                    <div className="ml-7 mb-2">
+                      <div className="h-1.5 rounded-full overflow-hidden" style={{background:"rgba(0,0,0,0.04)"}}>
+                        <div className="h-full rounded-full anim-bar" style={{width:`${Math.min(100,(kw.blue_ocean_index/5)*100)}%`,background:g.c,animationDelay:`${i*80+200}ms`}} />
                       </div>
                     </div>
 
-                    {/* Data chips */}
-                    <div className="flex items-center gap-5 ml-11 relative z-10">
-                      <Dchip label="검색량" val={fv(kw.search_volume||0)} />
-                      <Dchip label="경쟁" val={String(kw.competition_count||0)} />
-                      <Dchip label="CPM" val={kw.estimated_cpm?`$${kw.estimated_cpm.toFixed(0)}`:"-"} />
-                      <span className="text-[15px] font-extrabold ml-auto" style={{color:m.c}}>{m.i}</span>
+                    {/* Data row */}
+                    <div className="flex items-center gap-3 md:gap-4 ml-7 text-[10px] md:text-[12px]">
+                      <span className="text-[#9ca3af]">검색 <b className="text-[#6b7280]">{fv(kw.search_volume||0)}</b></span>
+                      <span className="text-[#9ca3af]">경쟁 <b className="text-[#6b7280]">{kw.competition_count||0}</b></span>
+                      <span className="text-[#9ca3af]">CPM <b className="text-[#6b7280]">{kw.estimated_cpm?`$${kw.estimated_cpm.toFixed(0)}`:"-"}</b></span>
+                      <span className="text-[13px] font-bold ml-auto" style={{color:m.c}}>{m.i}</span>
                     </div>
                   </div>
                 );
