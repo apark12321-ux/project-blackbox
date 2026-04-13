@@ -34,7 +34,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <Link href="/" onClick={reset}
           className="w-14 h-14 rounded-2xl flex items-center justify-center text-[18px] font-black mb-6 text-white"
           style={{ background: "linear-gradient(135deg,#c49a1a,#e8c84a)", boxShadow: "0 4px 20px rgba(196,154,26,0.3)" }}>
-          CR
+          AM
         </Link>
         {NAV.map((item) => {
           const active = activePage === item.key;
@@ -66,9 +66,9 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           style={{ borderColor: "var(--border)", background: "var(--bg-secondary)" }}>
           {/* Logo */}
           <div className="flex items-center gap-1.5 md:gap-2 shrink-0">
-            <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg flex items-center justify-center text-[12px] md:text-[14px] font-black text-white" style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>C</div>
+            <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg flex items-center justify-center text-[12px] md:text-[14px] font-black text-white" style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>A</div>
             <span className="text-[16px] md:text-[18px] font-black tracking-tight hidden sm:inline" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
-              <span className="text-[#1a1d23]">Cre</span><span style={{background:"linear-gradient(90deg,#c49a1a,#e8c84a)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>ato</span>
+              <span className="text-[#1a1d23]">Algo</span><span style={{background:"linear-gradient(90deg,#c49a1a,#e8c84a)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Maker</span>
             </span>
           </div>
 
