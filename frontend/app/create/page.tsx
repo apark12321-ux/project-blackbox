@@ -35,6 +35,8 @@ function CurationPage(){
   const pickKw=async(kw:any)=>{
     store.setSelectedKeyword(kw.keyword);store.setStep(2);setNld(true);setErr(null);
     store.setNews([]);store.setSelectedNews([]);store.setScript(null);store.setVideo(null);store.setShield(null);
+    // 모바일: 뉴스 영역으로 자동 스크롤
+    setTimeout(()=>{document.getElementById("news-section")?.scrollIntoView({behavior:"smooth"});},300);
     try{const r=await fetch(`${API}/api/v1/curation/news/search`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keyword:kw.keyword,days_back:7,max_results:10})});if(!r.ok)throw new Error("뉴스 로드 실패");store.setNews((await r.json()).articles||[]);}catch(e:any){setErr(e.message);}finally{setNld(false);}
   };
   const togNews=(a:any)=>{const c=store.selectedNews;store.setSelectedNews(c.find((n:any)=>n.id===a.id)?c.filter((n:any)=>n.id!==a.id):[...c,a]);};
@@ -125,9 +127,9 @@ function CurationPage(){
       </div>
 
       {/* RIGHT: News */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        <div className="p-4 md:p-7 border-b flex items-center justify-between" style={{borderColor:"var(--border)"}}>
-          <h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">뉴스 소스 피드</h2>
+      <div id="news-section" className="flex-1 flex flex-col min-h-[60vh] md:min-h-0 md:overflow-hidden min-w-0">
+        <div className="p-3 md:p-7 border-b flex items-center justify-between" style={{borderColor:"var(--border)"}}>
+          <h2 className="text-[14px] md:text-[20px] font-extrabold text-[#4b5563]">뉴스 소스 피드</h2>
           {store.selectedNews.length>0&&<span className="text-[15px] font-bold text-[#34d399] px-4 py-1.5 rounded-xl" style={{background:"rgba(52,211,153,0.08)"}}>{store.selectedNews.length}개 선택</span>}
         </div>
         <div className="flex-1 overflow-y-auto p-7">
