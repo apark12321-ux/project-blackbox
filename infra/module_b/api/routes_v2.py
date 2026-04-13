@@ -206,7 +206,7 @@ JSON 배열만 반환:
             for p in new_paragraphs:
                 text = p.get("text", "").strip()
                 if text:
-                    new_blocks.append({"section": "body", "text": text, "duration_sec": round(len(text) / 4.5, 1), "subtitle_highlight": p.get("key_phrase", "")})
+                    new_blocks.append({"section": "body", "text": text, "duration_sec": round(len(text) / 8.0, 1), "subtitle_highlight": p.get("key_phrase", "")})
 
             blocks = req.current_blocks.copy()
             insert_index = len(blocks)
