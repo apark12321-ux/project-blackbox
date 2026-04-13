@@ -229,8 +229,8 @@ function ScriptPage(){
   };
 
   return(
-    <div className="flex flex-col md:flex-row h-full">
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+    <div className="flex flex-col md:flex-row h-full overflow-y-auto md:overflow-hidden">
+      <div className="flex-1 flex flex-col md:overflow-hidden min-w-0 min-h-[50vh] md:min-h-0">
         {/* Header with view toggle */}
         <div className="p-4 md:p-7 border-b flex items-center justify-between" style={{borderColor:"var(--border)"}}>
           <div className="flex items-center gap-5">
@@ -379,7 +379,7 @@ function ScriptPage(){
       </div>
 
       {/* Right tools panel */}
-      <div className="w-full md:w-[340px] shrink-0 border-t md:border-t-0 md:border-l flex flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
+      <div className="w-full md:w-[340px] shrink-0 border-t md:border-t-0 md:border-l flex flex-col min-h-[40vh] md:min-h-0" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
         <div className="p-4 md:p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">도구</h2></div>
         <div className="flex-1 overflow-y-auto p-6 space-y-3">
           <Guide items={[
@@ -452,8 +452,8 @@ function VideoPage(){
   const maxDur=Math.max(...storyboard.map((s:any)=>s.dur),1);
 
   return(
-    <div className="flex flex-col md:flex-row h-full">
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+    <div className="flex flex-col md:flex-row h-full overflow-y-auto md:overflow-hidden">
+      <div className="flex-1 flex flex-col md:overflow-hidden min-w-0 min-h-[50vh] md:min-h-0">
         <div className="p-4 md:p-7 border-b flex items-center justify-between" style={{borderColor:"var(--border)"}}>
           <h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">영상 제작</h2>
           {store.script&&!store.video&&!ld&&(
@@ -626,7 +626,7 @@ function VideoPage(){
       </div>
 
       {/* 우측 설정 */}
-      <div className="w-full md:w-[340px] shrink-0 border-t md:border-t-0 md:border-l flex flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
+      <div className="w-full md:w-[340px] shrink-0 border-t md:border-t-0 md:border-l flex flex-col min-h-[40vh] md:min-h-0" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
         <div className="p-4 md:p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">설정</h2></div>
         <div className="flex-1 overflow-y-auto p-6 space-y-5">
           <Guide items={[
@@ -683,7 +683,7 @@ function DeployPage(){
   const restartAll=()=>{store.reset();store.setActivePage("curation");};
 
   return(
-    <div className="flex flex-col md:flex-row h-full">
+    <div className="flex flex-col md:flex-row h-full overflow-y-auto md:overflow-hidden">
       {/* Shield */}
       <div className="flex-1 border-r flex flex-col" style={{borderColor:"var(--border)"}}>
         <div className="p-4 md:p-7 border-b" style={{borderColor:"var(--border)"}}><h2 className="text-[16px] md:text-[20px] font-extrabold text-[#4b5563]">알고리즘 실드</h2></div>
