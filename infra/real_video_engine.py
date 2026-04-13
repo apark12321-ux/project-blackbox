@@ -82,7 +82,7 @@ async def _tts_all(blocks, jd, speed=1.0, voice_id="jBpfuIE2acCO8z3wKNLl"):
 
 def _silent(p, d):
     subprocess.run(["ffmpeg","-y","-f","lavfi","-i",f"anullsrc=r=44100:cl=stereo",
-                    "-t",str(d),"-c:a","aac","-b:a","128k",p], capture_output=True, timeout=30)
+                    "-t",str(d),"-c:a","libmp3lame","-b:a","128k",p], capture_output=True, timeout=30)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -140,10 +140,10 @@ async def _gemini_visual(keyword, text, idx, total, category, section, path):
 
     try:
         import httpx
-        # gemini-2.0-flash-exp 이미지 생성
+        # gemini-2.5-flash-image (Nano Banana) — 이미지 생성 지원 모델
         async with httpx.AsyncClient(timeout=60) as c:
             r = await c.post(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash-exp:generateContent",
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent",
                 params={"key": key},
                 json={
                     "contents": [{"parts": [{"text": prompt}]}],
@@ -332,9 +332,30 @@ async def _heygen(full_text, jd):
             logger.info(f"[HeyGen] Using avatar: {aid} ({aname}), total={len(avatars)}")
 
         # 2. 영상 생성 요청
-        # 텍스트 5000자 제한, TTS는 ElevenLabs에서 처리하므로 audio_url 방식도 고려
         script_text = full_text[:4800]
         async with httpx.AsyncClient(timeout=60) as c:
+            # 먼저 사용 가능한 음성 목록 조회
+            voice_id = ""
+            try:
+                vr = await c.get("https://api.heygen.com/v2/voices",headers={"X-Api-Key":key})
+                if vr.status_code == 200:
+                    voices = vr.json().get("data",{}).get("voices",[])
+                    # 한국어 음성 찾기
+                    for v in voices:
+                        if "korean" in v.get("language","").lower() or "ko" in v.get("language","").lower():
+                            voice_id = v.get("voice_id","")
+                            logger.info(f"[HeyGen] Korean voice: {voice_id} ({v.get('name','')})")
+                            break
+                    if not voice_id and voices:
+                        voice_id = voices[0].get("voice_id","")
+                        logger.info(f"[HeyGen] Fallback voice: {voice_id}")
+            except Exception as ve:
+                logger.warning(f"[HeyGen] Voice list error: {ve}")
+
+            if not voice_id:
+                logger.error("[HeyGen] No voice_id available")
+                return ""
+
             payload = {
                 "video_inputs": [{
                     "character": {
@@ -345,6 +366,7 @@ async def _heygen(full_text, jd):
                     "voice": {
                         "type": "text",
                         "input_text": script_text,
+                        "voice_id": voice_id,
                     },
                     "background": {
                         "type": "color",
