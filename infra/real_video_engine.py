@@ -1,5 +1,5 @@
 """
-Creato — 영상 생성 엔진 v16
+AlgoMaker — 영상 생성 엔진 v16
 ═══════════════════════════════════════
 v15 → v16 고도화:
 1. Recursive Source: 이전 블록 결과를 다음 블록 생성 시 참조 → 일관된 화풍
@@ -293,7 +293,7 @@ def _add_bar(img_path, keyword, idx, total, out_path):
     d.rectangle([0,0,1920,60], fill=(0,0,0,140))
     d.text((24,12), f"STEP {idx+1}/{total}", fill=(196,154,26), font=font(14))
     d.text((140,8), keyword, fill=(255,255,255,220), font=font(24))
-    d.text((1780,14), "Creato", fill=(255,255,255,60), font=font(12))
+    d.text((1780,14), "AlgoMaker", fill=(255,255,255,60), font=font(12))
     for y in range(960,1080):
         a = int((y-960)/120 * 190)
         d.rectangle([0,y,1920,y+1], fill=(0,0,0,a))
