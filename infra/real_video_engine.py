@@ -1,12 +1,12 @@
 """
-Creato — 영상 생성 엔진 v15
+Creato — 영상 생성 엔진 v16
 ═══════════════════════════════════════
-배경 전략:
-  1순위: Gemini 2.0 Flash → 인포그래픽/차트/비교표/다이어그램 자료화면
-  2순위: Pexels 실사 사진 (Gemini 실패 시)
-  3순위: Pillow 그라디언트 (전부 실패 시)
-
-자막: FFmpeg SRT 렌더링 (하단 표시, 배경과 분리)
+v15 → v16 고도화:
+1. Recursive Source: 이전 블록 결과를 다음 블록 생성 시 참조 → 일관된 화풍
+2. Style Sheet: 영상 전체 스타일을 첫 프롬프트에서 정의 → 모든 블록에 강제 적용
+3. Batch Processing: 블록을 5개씩 배치 처리 → AI 과부하 방지
+4. 자막: 1줄 22자, FontSize=18, 외곽선, 하단 고정
+5. TTS: CPS 8.0 기준
 """
 import os, uuid, subprocess, logging, random, re, asyncio, shutil, base64, json
 from dataclasses import dataclass
@@ -86,61 +86,108 @@ def _silent(p, d):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  2. Gemini 인포그래픽 자료화면 (1순위)
+#  2. Style Sheet (영상 전체 스타일 정의)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-# 블록 섹션별 시각화 유형
+def _build_style_sheet(keyword, category, blocks):
+    """영상 전체에 적용할 Global Style Sheet 생성"""
+    cat_styles = {
+        "economy": "금융/비즈니스 테마. 네이비+골드 색조. 차트와 그래프 중심. 정장을 입은 전문가 분위기.",
+        "senior": "따뜻한 파스텔 톤. 민트+크림 색조. 부드러운 곡선. 건강/복지 아이콘. 큰 글씨.",
+        "selfdev": "밝고 에너지 넘치는. 오렌지+화이트. 체크리스트와 목표 달성 아이콘. 깔끔한 미니멀.",
+        "tech": "다크 테마 + 네온 악센트. 사이버펑크 느낌. 회로/코드 패턴. 블루+퍼플 그라디언트.",
+        "life": "자연스러운 어스톤. 그린+베이지. 손그림 스타일 아이콘. 따뜻하고 친근한 분위기.",
+    }
+    # 전체 대본 핵심 키워드 추출
+    all_text = " ".join(b.get("text","")[:50] for b in blocks[:5])
+    return {
+        "theme": cat_styles.get(category, cat_styles["tech"]),
+        "keyword": keyword,
+        "palette": _get_palette(category),
+        "summary": all_text[:200],
+        "total_blocks": len(blocks),
+    }
+
+def _get_palette(category):
+    palettes = {
+        "economy": {"bg":"#FAFBFE","accent1":"#2D5F8A","accent2":"#D4A537","accent3":"#1B3A5C","text":"#1E293B"},
+        "senior": {"bg":"#F8FCFA","accent1":"#3ECDA5","accent2":"#FFB74D","accent3":"#5BA88C","text":"#2D3748"},
+        "selfdev": {"bg":"#FFFAF5","accent1":"#E8735A","accent2":"#4A90D9","accent3":"#F5A623","text":"#1A202C"},
+        "tech": {"bg":"#0F1729","accent1":"#6C5CE7","accent2":"#00D2FF","accent3":"#A29BFE","text":"#E2E8F0"},
+        "life": {"bg":"#F9FAF5","accent1":"#6B8E5B","accent2":"#D4A574","accent3":"#8FB573","text":"#2D3B2E"},
+    }
+    return palettes.get(category, palettes["tech"])
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  3. Gemini 인포그래픽 (Recursive Source)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
 _VIS_TYPE = {
-    "hook": "핵심 수치/통계를 큰 숫자로 강조한 타이틀 카드. 주제와 관련된 아이콘 3개 배치. 시선을 사로잡는 대비 구도.",
+    "hook": "타이틀 카드 — 큰 제목과 핵심 수치를 강렬하게. 주제 아이콘 3개 배치.",
     "body": [
-        "좌우 비교표 — 두 가지 옵션/시나리오를 나란히 비교. 각 항목에 아이콘+수치 포함. 컬러로 장단점 구분.",
-        "막대/원형 차트 인포그래픽 — 핵심 데이터를 막대그래프나 도넛차트로 시각화. 수치 라벨 표시.",
-        "타임라인 다이어그램 — 시간순 3~5단계 흐름. 연도/기간 표시. 각 단계에 아이콘과 한줄 설명.",
-        "체크리스트 카드 — 핵심 포인트 4~5개를 체크 아이콘과 함께 카드형으로 정리. 중요도 색상 구분.",
-        "프로세스 플로우 — 단계별 흐름을 화살표로 연결. 각 단계를 원형/사각형 노드로 표현. 순서 번호 포함.",
-        "피라미드/계층 구조 — 상위에서 하위로 계층 표현. 각 층에 핵심 키워드와 아이콘.",
-        "SWOT/매트릭스 — 2×2 격자로 4가지 관점 정리. 각 칸에 색상+아이콘+핵심 내용.",
+        "좌우 비교표 — 두 가지를 나란히 비교. 아이콘+수치. 컬러로 장단점 구분.",
+        "막대/도넛 차트 — 핵심 데이터를 시각화. 수치 라벨 포함.",
+        "타임라인 — 3~5단계 시간순 흐름. 각 단계에 아이콘+한줄 설명.",
+        "체크리스트 카드 — 핵심 포인트 4~5개. 체크 아이콘. 중요도 색상 구분.",
+        "프로세스 플로우 — 단계별 흐름을 화살표로 연결.",
+        "피라미드 구조 — 상위→하위 계층. 각 층에 키워드+아이콘.",
+        "2×2 매트릭스 — 4가지 관점 정리. 각 칸에 색상+아이콘.",
     ],
-    "opinion": "인용/강조 카드 — 핵심 메시지를 큰 따옴표와 함께 중앙 배치. 관련 통계 수치 1~2개 보조 표시.",
-    "cta": "요약 카드 — 영상 핵심 내용 3줄 요약 + 관련 아이콘. 깔끔한 마무리 구도.",
+    "opinion": "인용 카드 — 핵심 메시지를 큰 따옴표와 함께 강조.",
+    "cta": "요약 카드 — 영상 핵심 3줄 요약 + 구독 유도 아이콘.",
 }
 
-async def _gemini_visual(keyword, text, idx, total, category, section, path):
-    """Gemini로 인포그래픽 자료화면 이미지 생성"""
+async def _gemini_visual(keyword, text, idx, total, category, section, path,
+                          style_sheet=None, prev_descriptions=None):
+    """Gemini로 인포그래픽 생성 — Style Sheet + Recursive Source 적용"""
     key = os.getenv("GEMINI_API_KEY","").strip()
-    if not key:
-        logger.info("[Gemini] No API key")
-        return ""
+    if not key: return ""
 
-    # 시각화 유형 결정
-    if section == "body":
-        vis = _VIS_TYPE["body"][idx % len(_VIS_TYPE["body"])]
-    else:
-        vis = _VIS_TYPE.get(section, _VIS_TYPE["body"][0])
-
-    # 블록 텍스트에서 핵심 데이터 추출 (Gemini에 전달)
+    vis = _VIS_TYPE["body"][idx % len(_VIS_TYPE["body"])] if section == "body" else _VIS_TYPE.get(section, _VIS_TYPE["body"][0])
     core = text[:200] if text else keyword
+    pal = style_sheet.get("palette", {}) if style_sheet else _get_palette(category)
+
+    # ★ Recursive Source: 이전 블록들의 시각적 설명을 참조
+    prev_context = ""
+    if prev_descriptions:
+        prev_context = (
+            "\n\nPREVIOUS SLIDES (maintain visual consistency with these):\n"
+            + "\n".join(f"- Slide {i+1}: {desc}" for i, desc in enumerate(prev_descriptions[-3:]))
+            + "\nIMPORTANT: Use the SAME color palette, icon style, and layout language as previous slides.\n"
+        )
+
+    # ★ Global Style Sheet
+    style_context = ""
+    if style_sheet:
+        style_context = f"\nGLOBAL STYLE: {style_sheet.get('theme','')}\n"
 
     prompt = (
-        f"Create a professional Korean YouTube infographic visual.\n\n"
+        f"Create a professional Korean YouTube infographic visual (Slide {idx+1}/{total}).\n\n"
         f"TOPIC: {keyword}\n"
-        f"CONTENT TO VISUALIZE:\n{core}\n\n"
+        f"CONTENT:\n{core}\n\n"
         f"VISUAL TYPE: {vis}\n\n"
-        f"DESIGN RULES:\n"
-        f"- Use data visualization: charts, graphs, comparison tables, diagrams, flowcharts\n"
-        f"- Include actual numbers/statistics extracted from the content\n"
-        f"- Color scheme: white background with accent colors (mint #3ECDA5, blue #4A90D9, coral #E8735A, gold #D4A537)\n"
-        f"- Flat design, clean layout, modern infographic style\n"
-        f"- Korean text for labels and key points\n"
-        f"- 16:9 aspect ratio (1920x1080)\n"
-        f"- NO photos, NO realistic images — only vector-style graphics, icons, charts\n"
-        f"- Professional quality like top Korean YouTube education channels\n"
-        f"- Bottom 15% should be relatively empty (subtitle area)\n"
+        f"COLOR PALETTE (MUST USE EXACTLY):\n"
+        f"- Background: {pal.get('bg','#FAFBFE')}\n"
+        f"- Primary accent: {pal.get('accent1','#4A90D9')}\n"
+        f"- Secondary accent: {pal.get('accent2','#D4A537')}\n"
+        f"- Tertiary: {pal.get('accent3','#6B8E5B')}\n"
+        f"- Text color: {pal.get('text','#1E293B')}\n"
+        f"{style_context}"
+        f"{prev_context}"
+        f"\nDESIGN RULES:\n"
+        f"- Data visualization: charts, graphs, tables, diagrams\n"
+        f"- Include numbers/statistics from the content\n"
+        f"- Flat design, clean layout, modern infographic\n"
+        f"- Korean text for labels\n"
+        f"- 16:9 (1920x1080)\n"
+        f"- NO photos — only vector graphics, icons, charts\n"
+        f"- Bottom 15% empty (subtitle area)\n"
+        f"- MUST maintain visual consistency across all slides\n"
     )
 
     try:
         import httpx
-        # gemini-2.5-flash-image (Nano Banana) — 이미지 생성 지원 모델
         async with httpx.AsyncClient(timeout=60) as c:
             r = await c.post(
                 "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent",
@@ -153,51 +200,49 @@ async def _gemini_visual(keyword, text, idx, total, category, section, path):
                 logger.warning(f"[Gemini] HTTP {r.status_code}: {r.text[:200]}")
                 return ""
             data = r.json()
+            # 이미지 + 텍스트 설명 추출
+            description = ""
             for part in data.get("candidates",[{}])[0].get("content",{}).get("parts",[]):
+                if "text" in part:
+                    description = part["text"][:150]
                 if "inlineData" in part:
                     img_data = part["inlineData"].get("data","")
                     if img_data:
                         with open(path, "wb") as f:
                             f.write(base64.b64decode(img_data))
-                        sz = os.path.getsize(path)
-                        logger.info(f"[Gemini] ✓ Block {idx} ({section}): {sz/1024:.0f}KB")
-                        return path
-            logger.warning(f"[Gemini] No image in response for block {idx}")
+                        logger.info(f"[Gemini] ✓ Block {idx} ({section})")
+                        return path, description
+            logger.warning(f"[Gemini] No image for block {idx}")
     except Exception as e:
         logger.warning(f"[Gemini] {e}")
     return ""
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  2b. Pexels 폴백 (2순위)
+#  3b. Pexels 폴백 + 그라디언트 폴백
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 _KR_EN = {
-    "주식":"stock market trading screen","부동산":"real estate city aerial",
-    "투자":"investment growth chart","연금":"retirement pension elderly",
-    "절세":"tax savings calculator","재테크":"financial planning wealth",
-    "건강":"healthy lifestyle wellness","운동":"exercise fitness gym",
-    "식단":"healthy food nutrition","수면":"sleeping bedroom peaceful",
-    "AI":"artificial intelligence technology","인공지능":"AI robot futuristic",
-    "코딩":"coding programming laptop","자기계발":"personal growth motivation",
-    "독서":"reading books library","경제":"economy business analytics",
-    "금융":"finance banking modern","반도체":"semiconductor chip factory",
-    "전기차":"electric car charging","금리":"interest rate bank",
-    "창업":"startup entrepreneur office","여행":"travel landscape beautiful",
+    "주식":"stock market trading","부동산":"real estate aerial","투자":"investment growth",
+    "연금":"retirement pension","절세":"tax calculator","재테크":"financial planning",
+    "건강":"healthy wellness","운동":"exercise fitness","식단":"healthy food",
+    "AI":"artificial intelligence","인공지능":"AI technology","코딩":"coding laptop",
+    "자기계발":"personal growth","독서":"reading library","경제":"economy analytics",
+    "금융":"finance banking","반도체":"semiconductor chip","전기차":"electric vehicle",
+    "금리":"interest rate bank","창업":"startup business","여행":"travel landscape",
 }
 
 _CAT_TERMS = {
-    "economy":["finance analytics dashboard","stock market trading","business meeting boardroom",
-               "bank modern architecture","economy growth graph","corporate office skyline",
-               "digital payment technology","real estate aerial city"],
-    "senior": ["elderly couple garden happy","retirement nature peaceful","medical checkup doctor",
-               "healthy meal preparation","family generations together","wellness yoga exercise"],
-    "selfdev":["reading book sunrise coffee","running fitness outdoor","productivity workspace clean",
-               "meditation nature calm","mountain summit achievement","study library focused"],
-    "tech":   ["artificial intelligence lab","coding developer screen","server datacenter modern",
-               "smartphone technology future","robot automation factory","virtual reality innovation"],
-    "life":   ["cooking gourmet kitchen","interior design modern","travel beach sunset tropical",
-               "coffee cafe atmosphere","yoga wellness outdoor","garden botanical peaceful"],
+    "economy":["finance analytics","stock market","business meeting","corporate skyline",
+               "digital payment","real estate city","trading monitors","economy chart"],
+    "senior": ["elderly happy garden","retirement peaceful","medical doctor","healthy meal",
+               "family generations","wellness yoga","community active","sunrise nature"],
+    "selfdev":["reading sunrise","running fitness","workspace clean","meditation calm",
+               "mountain summit","study library","planning goals","morning routine"],
+    "tech":   ["AI neural network","coding developer","server datacenter","smartphone future",
+               "robot automation","virtual reality","circuit board","drone technology"],
+    "life":   ["cooking gourmet","interior minimalist","travel tropical","coffee cafe",
+               "yoga outdoor","garden botanical","photography creative","music cozy"],
 }
 
 _used_ids = set()
@@ -216,19 +261,14 @@ async def _pexels(query, save_path):
             if not photos: return ""
             avail = [p for p in photos if p.get("id") not in _used_ids]
             if not avail: avail = photos
-            photo = random.choice(avail)
-            _used_ids.add(photo.get("id"))
-            url = (photo.get("src",{}).get("landscape","") or
-                   photo.get("src",{}).get("large2x","") or
-                   photo.get("src",{}).get("large",""))
+            photo = random.choice(avail); _used_ids.add(photo.get("id"))
+            url = photo.get("src",{}).get("landscape","") or photo.get("src",{}).get("large2x","")
             if not url: return ""
             img = await c.get(url)
             if img.status_code == 200:
                 with open(save_path,"wb") as f: f.write(img.content)
-                logger.info(f"[Pexels] ✓ '{query}'")
                 return save_path
-    except Exception as e:
-        logger.warning(f"[Pexels] {e}")
+    except: pass
     return ""
 
 def _pexels_query(text, category, idx):
@@ -237,13 +277,7 @@ def _pexels_query(text, category, idx):
     terms = _CAT_TERMS.get(category, _CAT_TERMS["tech"])
     return terms[idx % len(terms)]
 
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  2c. 슬라이드 후처리
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
 def _add_bar(img_path, keyword, idx, total, out_path):
-    """이미지 위 상단 키워드 바 + 하단 자막 그라디언트"""
     try:
         from PIL import Image, ImageDraw, ImageFont
     except: return img_path
@@ -252,29 +286,22 @@ def _add_bar(img_path, keyword, idx, total, out_path):
         if not fp: return ImageFont.load_default()
         try: return ImageFont.truetype(fp, sz)
         except: return ImageFont.load_default()
-
     img = Image.open(img_path).convert("RGBA")
     img = img.resize((1920,1080), Image.LANCZOS)
     ov = Image.new("RGBA",(1920,1080),(0,0,0,0))
     d = ImageDraw.Draw(ov)
-
-    # 상단 바
     d.rectangle([0,0,1920,60], fill=(0,0,0,140))
     d.text((24,12), f"STEP {idx+1}/{total}", fill=(196,154,26), font=font(14))
     d.text((140,8), keyword, fill=(255,255,255,220), font=font(24))
     d.text((1780,14), "Creato", fill=(255,255,255,60), font=font(12))
-
-    # 하단 그라디언트
     for y in range(960,1080):
         a = int((y-960)/120 * 190)
         d.rectangle([0,y,1920,y+1], fill=(0,0,0,a))
-
     img = Image.alpha_composite(img, ov)
     img.convert("RGB").save(out_path, "PNG", quality=95)
     return out_path
 
 def _gradient_slide(path, keyword, idx, total):
-    """최후 폴백: 그라디언트"""
     try:
         from PIL import Image, ImageDraw, ImageFont
     except: return ""
@@ -289,152 +316,91 @@ def _gradient_slide(path, keyword, idx, total):
     img = Image.new("RGB",(1920,1080))
     d = ImageDraw.Draw(img)
     for y in range(1080):
-        r=int(c1[0]+(c2[0]-c1[0])*y/1080)
-        g=int(c1[1]+(c2[1]-c1[1])*y/1080)
-        b=int(c1[2]+(c2[2]-c1[2])*y/1080)
-        d.line([(0,y),(1920,y)], fill=(r,g,b))
+        d.line([(0,y),(1920,y)], fill=(
+            int(c1[0]+(c2[0]-c1[0])*y/1080),
+            int(c1[1]+(c2[1]-c1[1])*y/1080),
+            int(c1[2]+(c2[2]-c1[2])*y/1080)))
     try:
         f=font(48); bbox=d.textbbox((0,0),keyword,font=f); tw=bbox[2]-bbox[0]
         d.text(((1920-tw)//2,480),keyword,fill=(196,154,26),font=f)
-        d.text(((1920-180)//2,548),f"STEP {idx+1} / {total}",fill=(180,180,190),font=font(18))
+        d.text(((1920-180)//2,548),f"STEP {idx+1}/{total}",fill=(180,180,190),font=font(18))
     except: pass
-    d.text((1750,1040),"Creato",fill=(100,100,110),font=font(14))
     img.save(path,"PNG",quality=95)
     return path
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  3. HeyGen 아바타
+#  4. HeyGen 아바타
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 async def _heygen(full_text, jd):
     key = os.getenv("HEYGEN_API_KEY","").strip()
-    if not key:
-        logger.info("[HeyGen] No API key, skipping avatar")
-        return ""
+    if not key: return ""
     try:
         import httpx
-        logger.info(f"[HeyGen] Starting avatar generation...")
-
-        # 1. 아바타 목록 조회
         async with httpx.AsyncClient(timeout=30) as c:
             r = await c.get("https://api.heygen.com/v2/avatars",headers={"X-Api-Key":key})
             if r.status_code != 200:
-                logger.error(f"[HeyGen] List avatars failed: HTTP {r.status_code} — {r.text[:300]}")
+                logger.error(f"[HeyGen] Avatars: {r.status_code} {r.text[:200]}")
                 return ""
-            avatar_data = r.json().get("data",{})
-            avatars = avatar_data.get("avatars",[])
-            if not avatars:
-                logger.error(f"[HeyGen] No avatars found. Response: {r.text[:300]}")
-                return ""
+            avatars = r.json().get("data",{}).get("avatars",[])
+            if not avatars: return ""
             aid = avatars[0].get("avatar_id","")
-            aname = avatars[0].get("avatar_name","unknown")
-            logger.info(f"[HeyGen] Using avatar: {aid} ({aname}), total={len(avatars)}")
+            logger.info(f"[HeyGen] Avatar: {aid}")
 
-        # 2. 영상 생성 요청
-        script_text = full_text[:4800]
         async with httpx.AsyncClient(timeout=60) as c:
-            # 먼저 사용 가능한 음성 목록 조회
             voice_id = ""
             try:
                 vr = await c.get("https://api.heygen.com/v2/voices",headers={"X-Api-Key":key})
                 if vr.status_code == 200:
-                    voices = vr.json().get("data",{}).get("voices",[])
-                    # 한국어 음성 찾기
-                    for v in voices:
-                        if "korean" in v.get("language","").lower() or "ko" in v.get("language","").lower():
-                            voice_id = v.get("voice_id","")
-                            logger.info(f"[HeyGen] Korean voice: {voice_id} ({v.get('name','')})")
-                            break
-                    if not voice_id and voices:
-                        voice_id = voices[0].get("voice_id","")
-                        logger.info(f"[HeyGen] Fallback voice: {voice_id}")
-            except Exception as ve:
-                logger.warning(f"[HeyGen] Voice list error: {ve}")
+                    for v in vr.json().get("data",{}).get("voices",[]):
+                        if "ko" in v.get("language","").lower():
+                            voice_id = v.get("voice_id",""); break
+                    if not voice_id:
+                        voices = vr.json().get("data",{}).get("voices",[])
+                        if voices: voice_id = voices[0].get("voice_id","")
+            except: pass
+            if not voice_id: return ""
 
-            if not voice_id:
-                logger.error("[HeyGen] No voice_id available")
-                return ""
-
-            payload = {
-                "video_inputs": [{
-                    "character": {
-                        "type": "avatar",
-                        "avatar_id": aid,
-                        "avatar_style": "normal"
-                    },
-                    "voice": {
-                        "type": "text",
-                        "input_text": script_text,
-                        "voice_id": voice_id,
-                    },
-                    "background": {
-                        "type": "color",
-                        "value": "#00FF00"
-                    }
-                }],
-                "dimension": {"width": 540, "height": 960},
-            }
-            logger.info(f"[HeyGen] Requesting video... text={len(script_text)} chars")
             r = await c.post("https://api.heygen.com/v2/video/generate",
                 headers={"X-Api-Key":key,"Content-Type":"application/json"},
-                json=payload)
+                json={"video_inputs":[{
+                    "character":{"type":"avatar","avatar_id":aid,"avatar_style":"normal"},
+                    "voice":{"type":"text","input_text":full_text[:4800],"voice_id":voice_id},
+                    "background":{"type":"color","value":"#00FF00"}
+                }],"dimension":{"width":540,"height":960}})
             if r.status_code != 200:
-                logger.error(f"[HeyGen] Generate failed: HTTP {r.status_code} — {r.text[:500]}")
+                logger.error(f"[HeyGen] Generate: {r.status_code} {r.text[:300]}")
                 return ""
-            resp = r.json()
-            vid = resp.get("data",{}).get("video_id","")
-            if not vid:
-                logger.error(f"[HeyGen] No video_id in response: {resp}")
-                return ""
-            logger.info(f"[HeyGen] Video requested: {vid}")
+            vid = r.json().get("data",{}).get("video_id","")
+            if not vid: return ""
 
-        # 3. 폴링 (최대 10분)
-        ap = os.path.join(jd, "avatar.mp4")
+        ap = os.path.join(jd,"avatar.mp4")
         async with httpx.AsyncClient(timeout=60) as c:
             for attempt in range(60):
                 await asyncio.sleep(10)
                 try:
-                    r = await c.get(
-                        f"https://api.heygen.com/v1/video_status.get?video_id={vid}",
+                    r = await c.get(f"https://api.heygen.com/v1/video_status.get?video_id={vid}",
                         headers={"X-Api-Key":key})
-                except Exception as poll_err:
-                    logger.warning(f"[HeyGen] Poll error: {poll_err}")
-                    continue
-                if r.status_code != 200:
-                    logger.warning(f"[HeyGen] Poll HTTP {r.status_code}")
-                    continue
-                data = r.json().get("data",{})
-                status = data.get("status","")
-                if attempt % 6 == 0:  # 매 1분마다 로그
-                    logger.info(f"[HeyGen] Poll #{attempt}: status={status}")
-                if status == "completed":
-                    video_url = data.get("video_url","")
-                    if video_url:
-                        dl = await c.get(video_url)
-                        if dl.status_code == 200:
-                            with open(ap,"wb") as f: f.write(dl.content)
-                            sz = os.path.getsize(ap)
-                            logger.info(f"[HeyGen] ✓ Avatar downloaded: {sz/1024:.0f}KB")
-                            return ap
-                        else:
-                            logger.error(f"[HeyGen] Download failed: HTTP {dl.status_code}")
-                    else:
-                        logger.error(f"[HeyGen] Completed but no video_url: {data}")
-                    return ""
-                elif status == "failed":
-                    err = data.get("error","") or data.get("message","")
-                    logger.error(f"[HeyGen] Failed: {err}")
-                    return ""
-        logger.error("[HeyGen] Timeout after 10 min")
+                    if r.status_code != 200: continue
+                    d = r.json().get("data",{})
+                    if d.get("status") == "completed":
+                        url = d.get("video_url","")
+                        if url:
+                            dl = await c.get(url)
+                            if dl.status_code == 200:
+                                with open(ap,"wb") as f: f.write(dl.content)
+                                return ap
+                        return ""
+                    elif d.get("status") == "failed": return ""
+                except: continue
         return ""
     except Exception as e:
-        logger.error(f"[HeyGen] Exception: {e}")
-        return ""
+        logger.error(f"[HeyGen] {e}"); return ""
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  4. FFmpeg 유틸
+#  5. FFmpeg
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def _img_to_clip(img, out, dur, idx=0):
@@ -455,7 +421,7 @@ def _img_to_clip(img, out, dur, idx=0):
         if r.returncode == 0 and os.path.exists(out): return out
     except: pass
     subprocess.run(["ffmpeg","-y","-loop","1","-i",img,"-t",str(dur),
-        "-vf",f"scale=1920:1080,fade=in:0:8,fade=out:st={max(0,dur-0.4)}:d=8",
+        "-vf",f"scale=1920:1080,fade=in:0:8",
         "-c:v","libx264","-preset","fast","-crf","20","-pix_fmt","yuv420p",out],
         capture_output=True, timeout=120)
     return out if os.path.exists(out) else ""
@@ -474,34 +440,25 @@ def _avatar_pip(bg, avatar, out):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  5. SRT 자막
+#  6. SRT 자막 (1줄 22자, 조사 기준 분할)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def _chunk(t, mc=22):
-    """자막 청크 분할 — 1줄 22자 이내, 자연스러운 끊김"""
     if len(t) <= mc: return [t]
     ch, cur = [], ""
-    # 문장 단위 분리
-    sentences = re.split(r'(?<=[.!?。]) ', t)
-    for s in sentences:
-        if len(cur)+len(s)+1 <= mc:
-            cur = (cur+" "+s).strip()
+    for s in re.split(r'(?<=[.!?。]) ', t):
+        if len(cur)+len(s)+1 <= mc: cur = (cur+" "+s).strip()
         else:
             if cur: ch.append(cur)
-            # 긴 문장은 조사/쉼표 기준 분할
             while len(s) > mc:
                 cut = -1
                 for sep in [', ','는 ','을 ','를 ','에 ','고 ','며 ','다. ','로 ','의 ','이 ','가 ']:
                     idx = s[:mc].rfind(sep)
-                    if idx > 4:
-                        cut = idx + len(sep) - 1
-                        break
+                    if idx > 4: cut = idx + len(sep) - 1; break
                 if cut <= 0:
-                    # 공백 기준
                     sp = s[:mc].rfind(' ')
                     cut = sp if sp > 4 else mc
-                ch.append(s[:cut].strip())
-                s = s[cut:].strip()
+                ch.append(s[:cut].strip()); s = s[cut:].strip()
             cur = s
     if cur: ch.append(cur)
     return ch or [t[:mc]]
@@ -512,7 +469,6 @@ def _srt(blocks, path, pause=0.3, durs=None):
         bd = durs[i] if durs and i < len(durs) else len(b["text"])/8.0
         chs = _chunk(b["text"]); cd = bd/max(len(chs),1)
         for ch in chs:
-            # 1줄만 (줄바꿈 없음)
             lines += [str(idx), f"{_ts(cur)} --> {_ts(cur+cd)}", ch.strip(), ""]
             cur += cd; idx += 1
         cur += pause
@@ -523,7 +479,7 @@ def _ts(s): return f"{int(s//3600):02d}:{int((s%3600)//60):02d}:{int(s%60):02d},
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  6. 최종 합성
+#  7. 최종 합성
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def _bgm(path, dur, vol=0.05):
@@ -541,13 +497,9 @@ def _bgm(path, dur, vol=0.05):
     return path if os.path.exists(path) else ""
 
 def _compose(bg, audio, srt_path, output, bgm_path=""):
-    """최종: 배경 + TTS + SRT + BGM"""
     fp = _font()
     fn = "NanumGothicBold" if fp and "NanumGothicBold" in fp else "NanumGothic"
-
-    # SRT 경로 이스케이프
     srt_esc = srt_path.replace("\\","/").replace(":",r"\:")
-
     ss = (f"FontSize=18,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
           f"BackColour=&H00000000,BorderStyle=1,Outline=2,Shadow=1,"
           f"MarginV=30,MarginL=60,MarginR=60,Alignment=2,Fontname={fn}")
@@ -576,7 +528,6 @@ def _compose(bg, audio, srt_path, output, bgm_path=""):
         logger.error(f"[Compose] {e}")
 
     # fallback
-    logger.warning("[Compose] fallback: no subtitles")
     subprocess.run(["ffmpeg","-y","-i",bg,"-i",audio,"-map","0:v","-map","1:a",
         "-c:v","libx264","-preset","fast","-crf","20",
         "-c:a","aac","-b:a","192k","-ac","2","-shortest",
@@ -585,8 +536,10 @@ def _compose(bg, audio, srt_path, output, bgm_path=""):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  메인 파이프라인 v15
+#  메인 파이프라인 v16
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+BATCH_SIZE = 5  # 배치 처리 단위
 
 async def generate_real_video(keyword, category, script_blocks, mode="normal",
                                channel_name="", watermark_text="", tts_voice_id=""):
@@ -602,48 +555,75 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
         pause = 0.5 if is_sr else 0.3
         voice = tts_voice_id or "jBpfuIE2acCO8z3wKNLl"
 
-        logger.info(f"[V15] Start: '{keyword}', {len(script_blocks)} blocks, mode={mode}")
+        logger.info(f"[V16] Start: '{keyword}', {len(script_blocks)} blocks, mode={mode}")
 
         # ── Step 1: TTS ──
         audio, adur, bdurs = await _tts_all(script_blocks, jd, speed, voice)
-        logger.info(f"[V15] TTS: {adur:.1f}s")
+        logger.info(f"[V16] TTS: {adur:.1f}s")
 
-        # ── Step 2: 블록별 자료화면 생성 ──
+        # ── Step 2: Style Sheet 생성 ──
+        style = _build_style_sheet(keyword, category, script_blocks)
+        logger.info(f"[V16] Style: {style['theme'][:50]}")
+
+        # ── Step 3: 블록별 자료화면 (Recursive Source + Batch) ──
         clips = []
         total = len(script_blocks)
-        for i, (b, bd) in enumerate(zip(script_blocks, bdurs)):
-            clip_dur = bd + pause
-            text = b.get("text","")
-            sec = b.get("section","body")
-            slide = os.path.join(jd, f"slide_{i}.png")
-            src = "none"
+        prev_descs = []  # ★ 이전 블록들의 시각적 설명 누적
 
-            # 1순위: Gemini 인포그래픽
-            gem_path = os.path.join(jd, f"gem_{i}.png")
-            got = await _gemini_visual(keyword, text, i, total, category, sec, gem_path)
-            if got and os.path.exists(got):
-                _add_bar(got, keyword, i, total, slide)
-                src = "gemini"
-            else:
-                # 2순위: Pexels
-                pex_path = os.path.join(jd, f"pex_{i}.jpg")
-                query = _pexels_query(text, category, i)
-                got2 = await _pexels(query, pex_path)
-                if got2 and os.path.exists(got2):
-                    _add_bar(got2, keyword, i, total, slide)
-                    src = f"pexels({query})"
-                else:
-                    # 3순위: 그라디언트
-                    _gradient_slide(slide, keyword, i, total)
-                    src = "gradient"
+        for batch_start in range(0, total, BATCH_SIZE):
+            batch_end = min(batch_start + BATCH_SIZE, total)
+            logger.info(f"[V16] Batch {batch_start+1}~{batch_end}/{total}")
 
-            logger.info(f"[V15] Block {i}/{total}: {src}")
+            for i in range(batch_start, batch_end):
+                b, bd = script_blocks[i], bdurs[i]
+                clip_dur = bd + pause
+                text = b.get("text","")
+                sec = b.get("section","body")
+                slide = os.path.join(jd, f"slide_{i}.png")
+                src = "none"
 
-            # 이미지 → 클립
-            clip = os.path.join(jd, f"clip_{i}.mp4")
-            _img_to_clip(slide, clip, clip_dur, idx=i)
-            if os.path.exists(clip):
-                clips.append(clip)
+                # 1순위: Gemini (with Recursive Source)
+                gem_path = os.path.join(jd, f"gem_{i}.png")
+                result = await _gemini_visual(
+                    keyword, text, i, total, category, sec, gem_path,
+                    style_sheet=style, prev_descriptions=prev_descs)
+
+                if result and isinstance(result, tuple):
+                    got, desc = result
+                    if got and os.path.exists(got):
+                        _add_bar(got, keyword, i, total, slide)
+                        prev_descs.append(desc or f"Block {i+1}: {sec} style infographic")
+                        src = "gemini"
+                elif result and os.path.exists(str(result)):
+                    _add_bar(str(result), keyword, i, total, slide)
+                    prev_descs.append(f"Block {i+1}: {sec} infographic")
+                    src = "gemini"
+
+                if src == "none":
+                    # 2순위: Pexels
+                    pex_path = os.path.join(jd, f"pex_{i}.jpg")
+                    query = _pexels_query(text, category, i)
+                    got2 = await _pexels(query, pex_path)
+                    if got2 and os.path.exists(got2):
+                        _add_bar(got2, keyword, i, total, slide)
+                        prev_descs.append(f"Block {i+1}: photo of {query}")
+                        src = f"pexels"
+                    else:
+                        # 3순위: 그라디언트
+                        _gradient_slide(slide, keyword, i, total)
+                        prev_descs.append(f"Block {i+1}: gradient background")
+                        src = "gradient"
+
+                logger.info(f"[V16] Block {i+1}/{total}: {src}")
+
+                # 이미지 → 클립
+                clip = os.path.join(jd, f"clip_{i}.mp4")
+                _img_to_clip(slide, clip, clip_dur, idx=i)
+                if os.path.exists(clip): clips.append(clip)
+
+            # ★ 배치 간 짧은 대기 (AI 과부하 방지)
+            if batch_end < total:
+                await asyncio.sleep(1)
 
         # 클립 연결
         bg = os.path.join(jd, "bg.mp4")
@@ -655,34 +635,31 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
                 "-c:v","libx264","-preset","medium","-crf","18",
                 "-pix_fmt","yuv420p","-movflags","+faststart",bg],
                 capture_output=True, timeout=600)
-        logger.info(f"[V15] Clips: {len(clips)}")
+        logger.info(f"[V16] Clips: {len(clips)}")
 
-        # ── Step 3: HeyGen ──
+        # ── Step 4: HeyGen ──
         full = " ".join(b.get("text","") for b in script_blocks)
         avp = await _heygen(full, jd)
         has_av = bool(avp and os.path.exists(avp))
-        logger.info(f"[V15] Avatar: {'OK' if has_av else 'Skip'}")
-
         if has_av:
             pip = os.path.join(jd, "bg_pip.mp4")
             if _avatar_pip(bg, avp, pip): bg = pip
 
-        # ── Step 4: SRT ──
+        # ── Step 5: SRT ──
         srt = os.path.join(jd, "subs.srt")
         _srt(script_blocks, srt, pause, bdurs)
 
-        # ── Step 5: BGM ──
+        # ── Step 6: BGM + 합성 ──
         vdur = adur + pause*total + 2
         bgm = os.path.join(jd, "bgm.m4a")
         _bgm(bgm, vdur, 0.04 if is_sr else 0.05)
 
-        # ── Step 6: 합성 ──
         out = os.path.join(jd, f"creato_{job_id}_final.mp4")
         res = _compose(bg, audio, srt, out, bgm)
 
         if res and os.path.exists(res):
             fs = os.path.getsize(res); rd = _dur(res) or vdur
-            logger.info(f"[V15] ✓ {fs/1024/1024:.1f}MB, {rd:.1f}s")
+            logger.info(f"[V16] ✓ {fs/1024/1024:.1f}MB, {rd:.1f}s, {len(clips)} slides")
             return RealVideoResult(
                 job_id=job_id, status="done", output_path=res,
                 download_url=f"/api/v1/video/download/{job_id}",
@@ -695,7 +672,7 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
             tts_audio_path=audio)
 
     except Exception as e:
-        logger.error(f"[V15] Failed: {e}")
+        logger.error(f"[V16] Failed: {e}")
         return RealVideoResult(job_id=job_id, status="error", error=str(e))
 
 
