@@ -309,47 +309,106 @@ def _gradient_slide(path, keyword, idx, total):
 
 async def _heygen(full_text, jd):
     key = os.getenv("HEYGEN_API_KEY","").strip()
-    if not key: return ""
+    if not key:
+        logger.info("[HeyGen] No API key, skipping avatar")
+        return ""
     try:
         import httpx
+        logger.info(f"[HeyGen] Starting avatar generation...")
+
+        # 1. 아바타 목록 조회
         async with httpx.AsyncClient(timeout=30) as c:
             r = await c.get("https://api.heygen.com/v2/avatars",headers={"X-Api-Key":key})
-            if r.status_code != 200: return ""
-            avatars = r.json().get("data",{}).get("avatars",[])
-            if not avatars: return ""
+            if r.status_code != 200:
+                logger.error(f"[HeyGen] List avatars failed: HTTP {r.status_code} — {r.text[:300]}")
+                return ""
+            avatar_data = r.json().get("data",{})
+            avatars = avatar_data.get("avatars",[])
+            if not avatars:
+                logger.error(f"[HeyGen] No avatars found. Response: {r.text[:300]}")
+                return ""
             aid = avatars[0].get("avatar_id","")
+            aname = avatars[0].get("avatar_name","unknown")
+            logger.info(f"[HeyGen] Using avatar: {aid} ({aname}), total={len(avatars)}")
 
-        async with httpx.AsyncClient(timeout=30) as c:
+        # 2. 영상 생성 요청
+        # 텍스트 5000자 제한, TTS는 ElevenLabs에서 처리하므로 audio_url 방식도 고려
+        script_text = full_text[:4800]
+        async with httpx.AsyncClient(timeout=60) as c:
+            payload = {
+                "video_inputs": [{
+                    "character": {
+                        "type": "avatar",
+                        "avatar_id": aid,
+                        "avatar_style": "normal"
+                    },
+                    "voice": {
+                        "type": "text",
+                        "input_text": script_text,
+                    },
+                    "background": {
+                        "type": "color",
+                        "value": "#00FF00"
+                    }
+                }],
+                "dimension": {"width": 540, "height": 960},
+            }
+            logger.info(f"[HeyGen] Requesting video... text={len(script_text)} chars")
             r = await c.post("https://api.heygen.com/v2/video/generate",
                 headers={"X-Api-Key":key,"Content-Type":"application/json"},
-                json={"video_inputs":[{
-                    "character":{"type":"avatar","avatar_id":aid,"avatar_style":"normal"},
-                    "voice":{"type":"text","input_text":full_text[:4900],"voice_id":"Korean_Female_1"},
-                    "background":{"type":"color","value":"#00FF00"}
-                }],"dimension":{"width":540,"height":960}})
-            if r.status_code != 200: return ""
-            vid = r.json().get("data",{}).get("video_id","")
-            if not vid: return ""
+                json=payload)
+            if r.status_code != 200:
+                logger.error(f"[HeyGen] Generate failed: HTTP {r.status_code} — {r.text[:500]}")
+                return ""
+            resp = r.json()
+            vid = resp.get("data",{}).get("video_id","")
+            if not vid:
+                logger.error(f"[HeyGen] No video_id in response: {resp}")
+                return ""
+            logger.info(f"[HeyGen] Video requested: {vid}")
 
-        ap = os.path.join(jd,"avatar.mp4")
-        async with httpx.AsyncClient(timeout=30) as c:
-            for _ in range(60):
+        # 3. 폴링 (최대 10분)
+        ap = os.path.join(jd, "avatar.mp4")
+        async with httpx.AsyncClient(timeout=60) as c:
+            for attempt in range(60):
                 await asyncio.sleep(10)
-                r = await c.get(f"https://api.heygen.com/v1/video_status.get?video_id={vid}",
-                    headers={"X-Api-Key":key})
-                if r.status_code != 200: continue
-                d = r.json().get("data",{})
-                if d.get("status") == "completed":
-                    url = d.get("video_url","")
-                    if url:
-                        dl = await c.get(url)
+                try:
+                    r = await c.get(
+                        f"https://api.heygen.com/v1/video_status.get?video_id={vid}",
+                        headers={"X-Api-Key":key})
+                except Exception as poll_err:
+                    logger.warning(f"[HeyGen] Poll error: {poll_err}")
+                    continue
+                if r.status_code != 200:
+                    logger.warning(f"[HeyGen] Poll HTTP {r.status_code}")
+                    continue
+                data = r.json().get("data",{})
+                status = data.get("status","")
+                if attempt % 6 == 0:  # 매 1분마다 로그
+                    logger.info(f"[HeyGen] Poll #{attempt}: status={status}")
+                if status == "completed":
+                    video_url = data.get("video_url","")
+                    if video_url:
+                        dl = await c.get(video_url)
                         if dl.status_code == 200:
                             with open(ap,"wb") as f: f.write(dl.content)
+                            sz = os.path.getsize(ap)
+                            logger.info(f"[HeyGen] ✓ Avatar downloaded: {sz/1024:.0f}KB")
                             return ap
-                elif d.get("status") == "failed": return ""
+                        else:
+                            logger.error(f"[HeyGen] Download failed: HTTP {dl.status_code}")
+                    else:
+                        logger.error(f"[HeyGen] Completed but no video_url: {data}")
+                    return ""
+                elif status == "failed":
+                    err = data.get("error","") or data.get("message","")
+                    logger.error(f"[HeyGen] Failed: {err}")
+                    return ""
+        logger.error("[HeyGen] Timeout after 10 min")
         return ""
     except Exception as e:
-        logger.error(f"[HeyGen] {e}"); return ""
+        logger.error(f"[HeyGen] Exception: {e}")
+        return ""
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
