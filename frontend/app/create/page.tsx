@@ -40,36 +40,37 @@ function CurationPage(){
   const togNews=(a:any)=>{const c=store.selectedNews;store.setSelectedNews(c.find((n:any)=>n.id===a.id)?c.filter((n:any)=>n.id!==a.id):[...c,a]);};
 
   return(
-    <div className="flex flex-col md:flex-row h-full">
+    <div className="flex flex-col md:flex-row h-full overflow-hidden">
       {/* LEFT */}
-      <div className="w-full md:w-[480px] shrink-0 border-b md:border-b-0 md:border-r flex flex-col max-h-[45vh] md:max-h-full overflow-y-auto" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
-        <div className="p-3 md:p-5 border-b" style={{borderColor:"var(--border)"}}>
-          <div className="flex items-center justify-between mb-2 md:mb-3">
-            <h2 className="text-[14px] md:text-[17px] font-extrabold text-[#4b5563]">카테고리</h2>
+      <div className="w-full md:w-[480px] shrink-0 border-b md:border-b-0 md:border-r flex flex-col overflow-hidden" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
+        {/* Category — horizontal scroll on mobile */}
+        <div className="p-2.5 md:p-4 border-b shrink-0" style={{borderColor:"var(--border)"}}>
+          <div className="flex items-center justify-between mb-1.5 md:mb-2">
+            <h2 className="text-[13px] md:text-[16px] font-extrabold text-[#4b5563]">카테고리</h2>
             <Guide items={[
               {q:"$12~18 같은 금액은?",a:"CPM — 유튜브 광고 1,000회 노출당 수익. CPM $12 영상이 1만 조회 시 약 $120."},
               {q:"어떤 카테고리가 좋나요?",a:"수익 우선 → 경제/시니어(CPM 높음). 성장 우선 → 테크/라이프(검색량 많음)."},
             ]} />
           </div>
-          <div className="grid grid-cols-3 md:grid-cols-5 gap-1.5 md:gap-2">
+          <div className="flex md:grid md:grid-cols-5 gap-1.5 overflow-x-auto pb-1 md:pb-0 scrollbar-hide">
             {cats.map(cat=>{
               const on=store.category===cat.slug;
               return(
                 <button key={cat.slug} onClick={()=>pickCat(cat.slug)}
-                  className={`flex flex-col items-center gap-1 p-2.5 md:p-3 rounded-xl border transition-all duration-200
+                  className={`flex flex-col items-center gap-0.5 px-3 py-2 md:p-2.5 rounded-lg border transition-all shrink-0
                     ${on?"border-[#c49a1a]/50":"border-transparent hover:border-[#e5e7eb]"}`}
                   style={on?{background:"rgba(212,175,55,0.08)"}:{}}>
-                  <span className="text-[22px] md:text-[26px]">{cat.icon}</span>
-                  <span className={`text-[11px] md:text-[12px] font-bold leading-tight text-center ${on?"text-[#c49a1a]":"text-[#6b7280]"}`}>{cat.label_ko.split(' / ')[0]}</span>
-                  <span className="text-[9px] md:text-[10px] text-[#b0b5bf] font-semibold">{cat.cpm_range}</span>
+                  <span className="text-[20px] md:text-[24px]">{cat.icon}</span>
+                  <span className={`text-[10px] md:text-[11px] font-bold whitespace-nowrap ${on?"text-[#c49a1a]":"text-[#6b7280]"}`}>{cat.label_ko.split(' / ')[0]}</span>
+                  <span className="text-[8px] md:text-[9px] text-[#b0b5bf] font-semibold">{cat.cpm_range}</span>
                 </button>
               );
             })}
           </div>
         </div>
 
-        {/* Keywords */}
-        <div className="flex-1 overflow-y-auto p-3 md:p-5">
+        {/* Keywords — scrollable */}
+        <div className="flex-1 overflow-y-auto p-2.5 md:p-4 min-h-0">
           <div className="flex items-center justify-between mb-2 md:mb-3">
             <h2 className="text-[14px] md:text-[17px] font-extrabold text-[#4b5563]">황금 키워드</h2>
             <div className="flex items-center gap-2">
