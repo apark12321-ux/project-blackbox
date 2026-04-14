@@ -222,7 +222,7 @@ class ScriptEngine:
         self, keyword, category, news_summary,
         core_facts=None, opinion_seeds=None, hook_triggers=None,
         previous_hooks=None, previous_tones=None,
-        target_duration_sec=480.0,
+        target_duration_sec=600.0,
     ):
         benchmarks = await _fetch_benchmarks(category)
         hook_type = select_hook_type(category, previous_hooks)
@@ -260,7 +260,7 @@ class ScriptEngine:
                 if result:
                     body, opinion = result
                     chars = sum(len(b.text) for b in body)
-                    if chars >= 1200 and len(body) >= 5:
+                    if chars >= 5000 and len(body) >= 12:
                         logger.info(f"[Script v3] ✓ Gemini success: {chars} chars, {len(body)} blocks")
                         return body, opinion
                     logger.warning(f"[Script v3] Gemini too short: {chars} chars, {len(body)} blocks — using fallback")
@@ -272,7 +272,7 @@ class ScriptEngine:
         return self._fallback(keyword, category, news_summary, core_facts, opinion_tone, target_sec)
 
     async def _gemini(self, keyword, category, news_summary, core_facts, opinion_tone, benchmarks, target_sec):
-        target_chars = max(2500, int(target_sec * 8.0))
+        target_chars = max(10000, int(target_sec * 12.0))
         facts_text = "\n".join(f"- {f}" for f in core_facts) if core_facts else "(뉴스 요약에서 추출할 것)"
 
         cat_map = {"economy":"경제/재테크","senior":"시니어/건강","selfdev":"자기계발","tech":"IT/테크","life":"라이프스타일"}
@@ -310,15 +310,17 @@ class ScriptEngine:
 ━━━ 작성 규칙 ━━━
 
 1. 하나의 다큐멘터리처럼 자연스럽게 흘러가는 스토리텔링으로 작성
-2. 전개: 도입(왜 중요한지) → 배경 → 뉴스1 심층분석 → 뉴스2 분석 → 종합 → 실전행동 3가지 → 주의사항 → 정리 → 의견({tone_map.get(opinion_tone,"균형")})
+2. 전개: 도입(왜 중요한지) → 배경설명(역사/맥락) → 뉴스1 심층분석 → 뉴스1 영향 → 뉴스2 분석 → 뉴스2 영향 → 전문가 관점 → 비교/대조 → 종합 정리 → 실전행동 3가지 → 주의사항 2가지 → 향후 전망 → 최종 정리 → 의견({tone_map.get(opinion_tone,"균형")})
 3. 각 문단의 마지막 문장이 다음 문단으로 자연스럽게 연결
 4. 키워드를 문단마다 반복하지 말 것. 대명사 사용.
 5. [속보], [긴급] 등 뉴스 태그 금지. 가짜 통계 금지.
 6. "중요합니다", "살펴보겠습니다" 같은 빈 문장 금지.
 7. 구어체: ~인데요, ~거든요, ~하시면 됩니다
-8. 총 {target_chars}자 이상, 10~15문단, 각 150~300자
-9. 마지막 문단만 "opinion", 나머지 "body"
-10. opinion 문단에서 채널명을 절대 언급하지 말 것. 1인칭 "저는", "제 생각에는"으로 표현. 본문에서도 채널명 언급 금지.
+8. 총 {target_chars}자 이상, 20~30문단, 각 300~500자. 반드시 {target_chars}자를 넘겨야 합니다. 짧으면 안 됩니다.
+9. 시니어 시청자 대상: 쉬운 용어, 친절한 설명, 구체적 수치와 예시 풍부
+10. 마지막 문단만 "opinion", 나머지 "body"
+11. opinion 문단에서 채널명을 절대 언급하지 말 것. 1인칭 "저는", "제 생각에는"으로 표현. 본문에서도 채널명 언급 금지.
+12. 교육적 가치: 시청자가 이 영상 하나만 보면 해당 주제를 완전히 이해할 수 있도록 상세하게 설명
 
 ━━━ 출력 ━━━
 JSON 배열만 (마크다운 없이):
@@ -330,7 +332,7 @@ JSON 배열만 (마크다운 없이):
             "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
             params={"key": self.gemini_key},
             json={"contents": [{"parts": [{"text": prompt}]}],
-                  "generationConfig": {"temperature": 0.7, "maxOutputTokens": 8192}},
+                  "generationConfig": {"temperature": 0.7, "maxOutputTokens": 16384}},
         )
 
         if resp.status_code != 200:
