@@ -387,7 +387,7 @@ function DeployPage(){
   const[sL,setSl]=useState(false);const[err,setErr]=useState<string|null>(null);
 
   const runShield=async()=>{if(!store.script||!store.video)return;setSl(true);setErr(null);
-    try{const r=await fetch(`${API}/api/v1/shield/analyze`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keyword:store.selectedKeyword,category:store.category,script_blocks:store.script.blocks,video_info:store.video})});if(!r.ok)throw new Error(`실패(${r.status})`);store.setShield(await r.json());store.setStep(6);}catch(e:any){setErr(e.message);}finally{setSl(false);}};
+    try{const r=await fetch(`${API}/api/v1/shield/safety-check`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keyword:store.selectedKeyword,category:store.category,script_blocks:store.script.blocks,video_info:store.video})});if(!r.ok)throw new Error(`실패(${r.status})`);store.setShield(await r.json());store.setStep(6);}catch(e:any){setErr(e.message);}finally{setSl(false);}};
   useEffect(()=>{if(!store.shield&&store.video&&store.script)runShield();},[]);
 
   const s=store.shield?.safety_score||0;
