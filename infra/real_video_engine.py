@@ -834,3 +834,4 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
         logger.error(f"[V17] FATAL: {e}")
         # 에러에서도 뭐라도 반환
         return RealVideoResult(job_id=job_id, status="error", error=str(e))
+
