@@ -338,7 +338,92 @@ def _gradient_slide(path, keyword, idx, total):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  4. HeyGen 아바타
+#  3c. fal.ai 이미지 생성 (FLUX — 쿼터 제한 없음)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+async def _fal_visual(keyword, text, idx, total, category, section, path,
+                       style_sheet=None):
+    """fal.ai FLUX로 인포그래픽 슬라이드 생성 — 쿼터 제한 없음"""
+    fal_key = os.getenv("FAL_API_KEY","").strip()
+    if not fal_key: return ""
+
+    pal = style_sheet.get("palette", {}) if style_sheet else _get_palette(category)
+    core = text[:200] if text else keyword
+
+    # 섹션별 시각화 유형
+    vis = _VIS_TYPE["body"][idx % len(_VIS_TYPE["body"])] if section == "body" else _VIS_TYPE.get(section, _VIS_TYPE["body"][0])
+
+    prompt = (
+        f"Professional Korean YouTube infographic slide. Clean, modern, flat design.\n"
+        f"Topic: {keyword}\n"
+        f"Content: {core}\n"
+        f"Visual type: {vis}\n"
+        f"Style: {style_sheet.get('theme','') if style_sheet else ''}\n"
+        f"Colors: background {pal.get('bg','#FAFBFE')}, accent {pal.get('accent1','#4A90D9')}, "
+        f"secondary {pal.get('accent2','#D4A537')}\n"
+        f"Rules: data visualization with charts/graphs/diagrams, Korean text labels, "
+        f"16:9 aspect ratio, NO photos, vector-style graphics only, "
+        f"bottom 15% empty for subtitles, clean white/light background, "
+        f"Slide {idx+1} of {total}"
+    )
+
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=90) as c:
+            # FLUX.1 [schnell] — 가장 빠르고 저렴
+            r = await c.post(
+                "https://queue.fal.run/fal-ai/flux/schnell",
+                headers={
+                    "Authorization": f"Key {fal_key}",
+                    "Content-Type": "application/json"
+                },
+                json={
+                    "prompt": prompt,
+                    "image_size": {"width": 1280, "height": 720},
+                    "num_images": 1,
+                    "enable_safety_checker": False,
+                })
+            if r.status_code != 200:
+                logger.warning(f"[fal.ai] HTTP {r.status_code}: {r.text[:200]}")
+                return ""
+
+            data = r.json()
+            images = data.get("images", [])
+            if not images:
+                # 큐 방식 — request_id로 폴링
+                req_id = data.get("request_id","")
+                if req_id:
+                    for _ in range(30):
+                        await asyncio.sleep(2)
+                        sr = await c.get(
+                            f"https://queue.fal.run/fal-ai/flux/schnell/requests/{req_id}/status",
+                            headers={"Authorization": f"Key {fal_key}"})
+                        if sr.status_code == 200:
+                            sd = sr.json()
+                            if sd.get("status") == "COMPLETED":
+                                rr = await c.get(
+                                    f"https://queue.fal.run/fal-ai/flux/schnell/requests/{req_id}",
+                                    headers={"Authorization": f"Key {fal_key}"})
+                                if rr.status_code == 200:
+                                    images = rr.json().get("images",[])
+                                break
+                            elif sd.get("status") == "FAILED":
+                                logger.warning(f"[fal.ai] Queue failed")
+                                return ""
+
+            if images:
+                img_url = images[0].get("url","")
+                if img_url:
+                    dl = await c.get(img_url)
+                    if dl.status_code == 200:
+                        with open(path, "wb") as f:
+                            f.write(dl.content)
+                        logger.info(f"[fal.ai] ✓ Block {idx} ({section})")
+                        return path
+            logger.warning(f"[fal.ai] No image for block {idx}")
+    except Exception as e:
+        logger.warning(f"[fal.ai] {e}")
+    return ""
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 async def _heygen(full_text, jd):
@@ -412,10 +497,13 @@ async def _heygen(full_text, jd):
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def _img_to_clip(img, out, dur, idx=0):
-    """이미지를 영상 클립으로 변환 — 정적 이미지 + 페이드인/아웃만"""
-    vf = (f"scale=1920:1080:force_original_aspect_ratio=decrease,"
-          f"pad=1920:1080:(ow-iw)/2:(oh-ih)/2:black,"
-          f"fade=in:0:12,fade=out:st={max(0,dur-0.5)}:d=12")
+    """이미지를 영상 클립으로 변환 — 미세한 줌인 + 페이드"""
+    # 아주 미세한 줌 (0.02% per frame) — 흔들리지 않지만 살아있는 느낌
+    frames = int(dur * 24)
+    vf = (f"scale=1980:1114,zoompan=z='min(zoom+0.0001,1.03)'"
+          f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
+          f":d={frames}:s=1920x1080:fps=24,"
+          f"fade=in:0:18,fade=out:st={max(0,dur-0.6)}:d=15")
     cmd = ["ffmpeg","-y","-loop","1","-i",img,"-vf",vf,"-t",str(dur),
            "-c:v","libx264","-preset","medium","-crf","18","-pix_fmt","yuv420p",
            "-movflags","+faststart",out]
@@ -423,9 +511,9 @@ def _img_to_clip(img, out, dur, idx=0):
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=240)
         if r.returncode == 0 and os.path.exists(out): return out
     except: pass
-    # fallback
+    # fallback — 정적
     subprocess.run(["ffmpeg","-y","-loop","1","-i",img,"-t",str(dur),
-        "-vf","scale=1920:1080",
+        "-vf","scale=1920:1080,fade=in:0:12",
         "-c:v","libx264","-preset","fast","-crf","20","-pix_fmt","yuv420p",out],
         capture_output=True, timeout=120)
     return out if os.path.exists(out) else ""
@@ -586,7 +674,7 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
                 slide = os.path.join(jd, f"slide_{i}.png")
                 src = "none"
 
-                # 1순위: Gemini (with Recursive Source)
+                # 1순위: Gemini (무료 — with Recursive Source)
                 gem_path = os.path.join(jd, f"gem_{i}.png")
                 result = await _gemini_visual(
                     keyword, text, i, total, category, sec, gem_path,
@@ -602,6 +690,17 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
                     _add_bar(str(result), keyword, i, total, slide)
                     prev_descs.append(f"Block {i+1}: {sec} infographic")
                     src = "gemini"
+
+                # 2순위: fal.ai FLUX (유료 — Gemini 실패 시)
+                if src == "none":
+                    fal_path = os.path.join(jd, f"fal_{i}.png")
+                    fal_got = await _fal_visual(
+                        keyword, text, i, total, category, sec, fal_path,
+                        style_sheet=style)
+                    if fal_got and os.path.exists(fal_got):
+                        _add_bar(fal_got, keyword, i, total, slide)
+                        prev_descs.append(f"Block {i+1}: {sec} infographic slide")
+                        src = "fal.ai"
 
                 if src == "none":
                     # 2순위: Pexels
@@ -620,7 +719,7 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
 
                 logger.info(f"[V16] Block {i+1}/{total}: {src}")
 
-                # 블록 간 3초 대기 (Gemini 분당 20회 제한 — 60/20=3초)
+                # 블록 간 3초 대기 (Gemini 무료 분당 20회 제한)
                 if i < batch_end - 1:
                     await asyncio.sleep(3)
 
@@ -633,16 +732,74 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
             if batch_end < total:
                 await asyncio.sleep(4)  # 배치 간 4초 대기 (Gemini 쿼터 리셋)
 
-        # 클립 연결
+        # 클립 연결 — xfade 전환 효과 (프로 편집 느낌)
         bg = os.path.join(jd, "bg.mp4")
         if clips:
-            lf = os.path.join(jd, "clips.txt")
-            with open(lf,"w") as f:
-                for c in clips: f.write(f"file '{c}'\n")
-            subprocess.run(["ffmpeg","-y","-f","concat","-safe","0","-i",lf,
-                "-c:v","libx264","-preset","medium","-crf","18",
-                "-pix_fmt","yuv420p","-movflags","+faststart",bg],
-                capture_output=True, timeout=600)
+            if len(clips) == 1:
+                shutil.copy2(clips[0], bg)
+            else:
+                # xfade 전환 — 슬라이드별 다른 효과
+                transitions = [
+                    "fadeblack",    # 검정 페이드
+                    "slideleft",    # 왼쪽 슬라이드
+                    "slideright",   # 오른쪽 슬라이드
+                    "slideup",      # 위로 슬라이드
+                    "circlecrop",   # 원형 전환
+                    "fade",         # 크로스 페이드
+                    "wipeleft",     # 왼쪽 와이프
+                    "wiperight",    # 오른쪽 와이프
+                    "smoothleft",   # 부드러운 왼쪽
+                    "smoothright",  # 부드러운 오른쪽
+                ]
+                XFADE_DUR = 0.6  # 전환 0.6초
+
+                try:
+                    # FFmpeg xfade 체인 구성
+                    inputs = []
+                    for c in clips:
+                        inputs.extend(["-i", c])
+
+                    # xfade 필터 체인 — 2개씩 순차 연결
+                    filter_parts = []
+                    cur_label = "[0:v]"
+
+                    # 각 클립 duration 가져오기
+                    clip_durs = []
+                    for c in clips:
+                        d = _dur(c)
+                        clip_durs.append(d if d > 0 else 5.0)
+
+                    offset = clip_durs[0] - XFADE_DUR
+                    for j in range(1, len(clips)):
+                        trans = transitions[j % len(transitions)]
+                        next_label = f"[v{j}]" if j < len(clips)-1 else "[vout]"
+                        in_label = f"[{j}:v]"
+                        filter_parts.append(
+                            f"{cur_label}{in_label}xfade=transition={trans}:duration={XFADE_DUR}:offset={max(0,offset)}{next_label}")
+                        offset += clip_durs[j] - XFADE_DUR
+                        cur_label = next_label
+
+                    filter_str = ";".join(filter_parts)
+                    cmd = ["ffmpeg","-y"] + inputs + [
+                        "-filter_complex", filter_str,
+                        "-map", "[vout]",
+                        "-c:v","libx264","-preset","medium","-crf","18",
+                        "-pix_fmt","yuv420p","-movflags","+faststart",bg]
+                    r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+                    if r.returncode == 0 and os.path.exists(bg):
+                        logger.info(f"[V16] ✓ xfade transitions applied ({len(clips)-1} transitions)")
+                    else:
+                        raise Exception(f"xfade failed: {r.stderr[-200:]}")
+                except Exception as e:
+                    logger.warning(f"[V16] xfade failed, using simple concat: {e}")
+                    # Fallback: 단순 concat
+                    lf = os.path.join(jd, "clips.txt")
+                    with open(lf,"w") as f:
+                        for c in clips: f.write(f"file '{c}'\n")
+                    subprocess.run(["ffmpeg","-y","-f","concat","-safe","0","-i",lf,
+                        "-c:v","libx264","-preset","medium","-crf","18",
+                        "-pix_fmt","yuv420p","-movflags","+faststart",bg],
+                        capture_output=True, timeout=600)
         logger.info(f"[V16] Clips: {len(clips)}")
 
         # ── Step 4: HeyGen ──
