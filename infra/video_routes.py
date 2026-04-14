@@ -21,11 +21,13 @@ async def check_keys():
     gm = os.getenv("GEMINI_API_KEY", "")
     hg = os.getenv("HEYGEN_API_KEY", "")
     px = os.getenv("PEXELS_API_KEY", "")
+    fl = os.getenv("FAL_API_KEY", "")
     return {
         "elevenlabs": f"{el[:8]}...{el[-4:]}" if len(el) > 12 else ("SET" if el else "MISSING"),
-        "gemini": f"{el[:8]}...{gm[-4:]}" if len(gm) > 12 else ("SET" if gm else "MISSING"),
+        "gemini": f"{gm[:8]}...{gm[-4:]}" if len(gm) > 12 else ("SET" if gm else "MISSING"),
         "heygen": f"{hg[:8]}...{hg[-4:]}" if len(hg) > 12 else ("SET" if hg else "MISSING"),
         "pexels": f"{px[:8]}...{px[-4:]}" if len(px) > 12 else ("SET" if px else "MISSING"),
+        "fal": f"{fl[:8]}...{fl[-4:]}" if len(fl) > 12 else ("SET" if fl else "MISSING"),
     }
 
 
@@ -160,4 +162,3 @@ async def video_status(job_id: str):
             "file_size_bytes": r.file_size_bytes,
         }
     return {"job_id": job_id, "status": "not_found"}
-
