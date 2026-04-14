@@ -190,7 +190,7 @@ async def _gemini_visual(keyword, text, idx, total, category, section, path,
         import httpx
         async with httpx.AsyncClient(timeout=60) as c:
             r = await c.post(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent",
+                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
                 params={"key": key},
                 json={
                     "contents": [{"parts": [{"text": prompt}]}],
