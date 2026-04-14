@@ -844,3 +844,4 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
 def create_notebook_bg(path, keyword, category, blocks):
     _gradient_slide(path, keyword, 0, 1)
     return path
+
