@@ -188,31 +188,39 @@ async def _gemini_visual(keyword, text, idx, total, category, section, path,
 
     try:
         import httpx
-        async with httpx.AsyncClient(timeout=60) as c:
-            r = await c.post(
-                "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
-                params={"key": key},
-                json={
-                    "contents": [{"parts": [{"text": prompt}]}],
-                    "generationConfig": {"responseModalities": ["TEXT","IMAGE"]}
-                })
-            if r.status_code != 200:
-                logger.warning(f"[Gemini] HTTP {r.status_code}: {r.text[:200]}")
+        MAX_RETRIES = 3
+        for attempt in range(MAX_RETRIES):
+            async with httpx.AsyncClient(timeout=90) as c:
+                r = await c.post(
+                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
+                    params={"key": key},
+                    json={
+                        "contents": [{"parts": [{"text": prompt}]}],
+                        "generationConfig": {"responseModalities": ["TEXT","IMAGE"]}
+                    })
+                if r.status_code == 429:
+                    wait = 4 + attempt * 3  # 4초, 7초, 10초
+                    logger.info(f"[Gemini] 429 rate limit, waiting {wait}s (attempt {attempt+1}/{MAX_RETRIES})")
+                    await asyncio.sleep(wait)
+                    continue
+                if r.status_code != 200:
+                    logger.warning(f"[Gemini] HTTP {r.status_code}: {r.text[:200]}")
+                    return ""
+                data = r.json()
+                description = ""
+                for part in data.get("candidates",[{}])[0].get("content",{}).get("parts",[]):
+                    if "text" in part:
+                        description = part["text"][:150]
+                    if "inlineData" in part:
+                        img_data = part["inlineData"].get("data","")
+                        if img_data:
+                            with open(path, "wb") as f:
+                                f.write(base64.b64decode(img_data))
+                            logger.info(f"[Gemini] ✓ Block {idx} ({section})")
+                            return path, description
+                logger.warning(f"[Gemini] No image for block {idx}")
                 return ""
-            data = r.json()
-            # 이미지 + 텍스트 설명 추출
-            description = ""
-            for part in data.get("candidates",[{}])[0].get("content",{}).get("parts",[]):
-                if "text" in part:
-                    description = part["text"][:150]
-                if "inlineData" in part:
-                    img_data = part["inlineData"].get("data","")
-                    if img_data:
-                        with open(path, "wb") as f:
-                            f.write(base64.b64decode(img_data))
-                        logger.info(f"[Gemini] ✓ Block {idx} ({section})")
-                        return path, description
-            logger.warning(f"[Gemini] No image for block {idx}")
+        logger.warning(f"[Gemini] Failed after {MAX_RETRIES} retries for block {idx}")
     except Exception as e:
         logger.warning(f"[Gemini] {e}")
     return ""
@@ -404,14 +412,9 @@ async def _heygen(full_text, jd):
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def _img_to_clip(img, out, dur, idx=0):
-    frames = int(dur*24)
-    zooms = [
-        f"z='min(zoom+0.0003,1.08)':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'",
-        f"z='1.06':x='(iw-iw/zoom)*on/{frames}':y='ih/2-(ih/zoom/2)'",
-        f"z='1.06':x='(iw-iw/zoom)*(1-on/{frames})':y='ih/2-(ih/zoom/2)'",
-        f"z='1.08-on/{frames}*0.04':x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'",
-    ]
-    vf = (f"scale=2100:1181,zoompan={zooms[idx%4]}:d={frames}:s=1920x1080:fps=24,"
+    """이미지를 영상 클립으로 변환 — 정적 이미지 + 페이드인/아웃만"""
+    vf = (f"scale=1920:1080:force_original_aspect_ratio=decrease,"
+          f"pad=1920:1080:(ow-iw)/2:(oh-ih)/2:black,"
           f"fade=in:0:12,fade=out:st={max(0,dur-0.5)}:d=12")
     cmd = ["ffmpeg","-y","-loop","1","-i",img,"-vf",vf,"-t",str(dur),
            "-c:v","libx264","-preset","medium","-crf","18","-pix_fmt","yuv420p",
@@ -420,8 +423,9 @@ def _img_to_clip(img, out, dur, idx=0):
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=240)
         if r.returncode == 0 and os.path.exists(out): return out
     except: pass
+    # fallback
     subprocess.run(["ffmpeg","-y","-loop","1","-i",img,"-t",str(dur),
-        "-vf",f"scale=1920:1080,fade=in:0:8",
+        "-vf","scale=1920:1080",
         "-c:v","libx264","-preset","fast","-crf","20","-pix_fmt","yuv420p",out],
         capture_output=True, timeout=120)
     return out if os.path.exists(out) else ""
@@ -539,7 +543,7 @@ def _compose(bg, audio, srt_path, output, bgm_path=""):
 #  메인 파이프라인 v16
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-BATCH_SIZE = 5  # 배치 처리 단위
+BATCH_SIZE = 3  # 배치 처리 단위 (무료 tier: 분당 20회 → 3개씩 + 3초 간격)
 
 async def generate_real_video(keyword, category, script_blocks, mode="normal",
                                channel_name="", watermark_text="", tts_voice_id=""):
@@ -616,6 +620,10 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
 
                 logger.info(f"[V16] Block {i+1}/{total}: {src}")
 
+                # 블록 간 3초 대기 (Gemini 분당 20회 제한 — 60/20=3초)
+                if i < batch_end - 1:
+                    await asyncio.sleep(3)
+
                 # 이미지 → 클립
                 clip = os.path.join(jd, f"clip_{i}.mp4")
                 _img_to_clip(slide, clip, clip_dur, idx=i)
@@ -623,7 +631,7 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
 
             # ★ 배치 간 짧은 대기 (AI 과부하 방지)
             if batch_end < total:
-                await asyncio.sleep(1)
+                await asyncio.sleep(4)  # 배치 간 4초 대기 (Gemini 쿼터 리셋)
 
         # 클립 연결
         bg = os.path.join(jd, "bg.mp4")
