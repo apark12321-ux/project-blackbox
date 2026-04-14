@@ -14,6 +14,21 @@ router = APIRouter(prefix="/api/v1/video", tags=["Video"])
 _jobs: dict = {}
 
 
+@router.get("/check-keys")
+async def check_keys():
+    """API 키 상태 확인 (디버그용)"""
+    el = os.getenv("ELEVENLABS_API_KEY", "")
+    gm = os.getenv("GEMINI_API_KEY", "")
+    hg = os.getenv("HEYGEN_API_KEY", "")
+    px = os.getenv("PEXELS_API_KEY", "")
+    return {
+        "elevenlabs": f"{el[:8]}...{el[-4:]}" if len(el) > 12 else ("SET" if el else "MISSING"),
+        "gemini": f"{el[:8]}...{gm[-4:]}" if len(gm) > 12 else ("SET" if gm else "MISSING"),
+        "heygen": f"{hg[:8]}...{hg[-4:]}" if len(hg) > 12 else ("SET" if hg else "MISSING"),
+        "pexels": f"{px[:8]}...{px[-4:]}" if len(px) > 12 else ("SET" if px else "MISSING"),
+    }
+
+
 class RealVideoRequest(BaseModel):
     keyword: str
     category: str
