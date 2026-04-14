@@ -160,3 +160,4 @@ async def video_status(job_id: str):
             "file_size_bytes": r.file_size_bytes,
         }
     return {"job_id": job_id, "status": "not_found"}
+
