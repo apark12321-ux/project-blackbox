@@ -45,31 +45,57 @@ def _dur(p):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  1. TTS — ElevenLabs → 무음 fallback
+#  1. TTS — ElevenLabs → Edge TTS → 무음 fallback
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-async def _tts_block(text, path, voice_id="2gbExjiWDnG1DMGr81Bx", speed=1.0):
-    key = os.getenv("ELEVENLABS_API_KEY","").strip()
-    est = len(text) / (8.0 * speed)
-    if not key:
-        logger.warning("[TTS] No API key — silent fallback")
-        _silent(path, est); return path, est
+async def _edge_tts(text, path):
+    """Edge TTS — 무료, API 키 불필요, 한국어 고퀄리티 (SunHi/InJoon)"""
     try:
-        import httpx
-        async with httpx.AsyncClient(timeout=120) as c:
-            r = await c.post(f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
-                headers={"xi-api-key":key,"Content-Type":"application/json"},
-                json={"text":text,"model_id":"eleven_multilingual_v2",
-                      "voice_settings":{"stability":0.55,"similarity_boost":0.82,
-                                        "style":0.15,"use_speaker_boost":True,"speed":speed}})
-            r.raise_for_status()
-            with open(path,"wb") as f: f.write(r.content)
-            d = _dur(path)
-            logger.info(f"[TTS] ✓ {d:.1f}s")
-            return path, d if d > 0 else est
+        import edge_tts
+        voice = os.getenv("EDGE_TTS_VOICE", "ko-KR-SunHiNeural")
+        communicate = edge_tts.Communicate(text, voice)
+        await communicate.save(path)
+        if os.path.exists(path) and os.path.getsize(path) > 1000:
+            logger.info(f"[EdgeTTS] ✓ voice={voice}")
+            return path
+    except ImportError:
+        logger.warning("[EdgeTTS] edge-tts 패키지 없음 (pip install edge-tts)")
     except Exception as e:
-        logger.error(f"[TTS] {e} — silent fallback")
-        _silent(path, est); return path, est
+        logger.warning(f"[EdgeTTS] {e}")
+    return ""
+
+async def _tts_block(text, path, voice_id="2gbExjiWDnG1DMGr81Bx", speed=1.0):
+    est = len(text) / (8.0 * speed)
+
+    # ── 1순위: ElevenLabs ──
+    key = os.getenv("ELEVENLABS_API_KEY","").strip()
+    if key:
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=120) as c:
+                r = await c.post(f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+                    headers={"xi-api-key":key,"Content-Type":"application/json"},
+                    json={"text":text,"model_id":"eleven_multilingual_v2",
+                          "voice_settings":{"stability":0.55,"similarity_boost":0.82,
+                                            "style":0.15,"use_speaker_boost":True,"speed":speed}})
+                r.raise_for_status()
+                with open(path,"wb") as f: f.write(r.content)
+                d = _dur(path)
+                logger.info(f"[TTS] ElevenLabs ✓ {d:.1f}s")
+                return path, d if d > 0 else est
+        except Exception as e:
+            logger.warning(f"[TTS] ElevenLabs 실패 ({e}) — Edge TTS 시도")
+
+    # ── 2순위: Edge TTS (무료, 한국어 고퀄리티) ──
+    edge_path = await _edge_tts(text, path)
+    if edge_path:
+        d = _dur(edge_path)
+        return edge_path, d if d > 0 else est
+
+    # ── 3순위: 무음 ──
+    logger.warning("[TTS] 모든 TTS 실패 — 무음 fallback")
+    _silent(path, est)
+    return path, est
 
 async def _tts_all(blocks, jd, speed=1.0, voice_id="2gbExjiWDnG1DMGr81Bx"):
     durs, paths = [], []
@@ -202,20 +228,20 @@ async def _try_gemini(keyword, core, idx, total, section, vis, pal, style, prev_
 
     try:
         import httpx
-        for attempt in range(3):
+        for attempt in range(5):
             async with httpx.AsyncClient(timeout=90) as c:
                 r = await c.post(
-                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
+                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent",
                     params={"key": key},
                     json={"contents":[{"parts":[{"text":prompt}]}],
                           "generationConfig":{"responseModalities":["TEXT","IMAGE"]}})
-                if r.status_code == 429:
-                    wait = 4 + attempt * 4
-                    logger.info(f"[Gemini] 429, wait {wait}s ({attempt+1}/3)")
-                    await asyncio.sleep(wait)
+                if r.status_code in (429, 503):
+                    wait = 8 * (2 ** attempt)  # 8, 16, 32, 64, 128초
+                    logger.info(f"[Gemini] {r.status_code}, wait {wait}s ({attempt+1}/5)")
+                    await asyncio.sleep(min(wait, 120))
                     continue
                 if r.status_code != 200:
-                    logger.warning(f"[Gemini] HTTP {r.status_code}")
+                    logger.warning(f"[Gemini] HTTP {r.status_code}: {r.text[:100]}")
                     return ""
                 for part in r.json().get("candidates",[{}])[0].get("content",{}).get("parts",[]):
                     if "inlineData" in part:
@@ -840,9 +866,9 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
             if os.path.exists(clip):
                 clips.append(clip)
 
-            # Gemini 쿼터 보호: 블록 간 대기
+            # Gemini 쿼터 보호: 블록 간 대기 (429 방지)
             if i < total - 1:
-                await asyncio.sleep(2)
+                await asyncio.sleep(4)
 
         logger.info(f"[V17] Slides: {sources}")
 
