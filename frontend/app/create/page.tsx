@@ -1,911 +1,578 @@
-"""
-AlgoMaker — 영상 생성 엔진 v17 (NEVER FAIL)
-═══════════════════════════════════════════════
-설계 원칙: 비디오는 무조건 생성된다. 어떤 API가 실패해도 다음으로 넘어간다.
+"use client";
+import { useBlackboxStore } from "@/stores/blackbox-store";
+import { useState, useEffect } from "react";
 
-이미지 소스 체인:
-  1. Gemini 2.5 Flash Image (무료, 인포그래픽)
-  2. fal.ai FLUX (유료, 고퀄리티)
-  3. Pexels HD 실사 (무료)
-  4. Pillow 자체 생성 (100% 성공 보장)
+const API = process.env.NEXT_PUBLIC_API_URL || "https://project-blackbox-production.up.railway.app";
 
-TTS 체인:
-  1. ElevenLabs (고퀄리티)
-  2. 무음 fallback (100% 성공)
-
-합성: FFmpeg xfade 전환 → 실패 시 단순 concat → 실패 시 단일 클립
-"""
-import os, uuid, subprocess, logging, random, re, asyncio, shutil, base64, json
-from dataclasses import dataclass
-
-logger = logging.getLogger(__name__)
-OUTPUT_DIR = os.getenv("OUTPUT_DIR", "/tmp/blackbox_output")
-os.makedirs(OUTPUT_DIR, exist_ok=True)
-
-@dataclass
-class RealVideoResult:
-    job_id: str; status: str; output_path: str = ""; download_url: str = ""
-    duration_sec: float = 0.0; file_size_bytes: int = 0
-    tts_audio_path: str = ""; subtitle_path: str = ""; error: str = ""
-
-def _font():
-    for p in ["/usr/share/fonts/truetype/nanum/NanumGothicBold.ttf",
-              "/usr/share/fonts/truetype/nanum/NanumGothic.ttf",
-              "/usr/share/fonts/opentype/noto/NotoSansCJK-Regular.ttc"]:
-        if os.path.exists(p): return p
-    return None
-
-def _dur(p):
-    try:
-        r = subprocess.run(["ffprobe","-v","quiet","-show_entries","format=duration",
-            "-of","default=noprint_wrappers=1:nokey=1",p],capture_output=True,text=True,timeout=10)
-        if r.returncode == 0 and r.stdout.strip(): return float(r.stdout.strip())
-    except: pass
-    return 0.0
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  1. TTS — ElevenLabs → 무음 fallback
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-async def _tts_block(text, path, voice_id="2gbExjiWDnG1DMGr81Bx", speed=1.0):
-    key = os.getenv("ELEVENLABS_API_KEY","").strip()
-    est = len(text) / (8.0 * speed)
-    if not key:
-        logger.warning("[TTS] No API key — silent fallback")
-        _silent(path, est); return path, est
-    try:
-        import httpx
-        async with httpx.AsyncClient(timeout=120) as c:
-            r = await c.post(f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
-                headers={"xi-api-key":key,"Content-Type":"application/json"},
-                json={"text":text,"model_id":"eleven_multilingual_v2",
-                      "voice_settings":{"stability":0.55,"similarity_boost":0.82,
-                                        "style":0.15,"use_speaker_boost":True,"speed":speed}})
-            r.raise_for_status()
-            with open(path,"wb") as f: f.write(r.content)
-            d = _dur(path)
-            logger.info(f"[TTS] ✓ {d:.1f}s")
-            return path, d if d > 0 else est
-    except Exception as e:
-        logger.error(f"[TTS] {e} — silent fallback")
-        _silent(path, est); return path, est
-
-async def _tts_all(blocks, jd, speed=1.0, voice_id="2gbExjiWDnG1DMGr81Bx"):
-    durs, paths = [], []
-    for i, b in enumerate(blocks):
-        p = os.path.join(jd, f"tts_{i}.mp3")
-        _, d = await _tts_block(b["text"], p, voice_id, speed)
-        paths.append(p); durs.append(d)
-    comb = os.path.join(jd, "tts_full.mp3")
-    if len(paths) == 1:
-        shutil.copy2(paths[0], comb)
-    else:
-        lf = os.path.join(jd, "tts_list.txt")
-        with open(lf,"w") as f:
-            for p in paths: f.write(f"file '{p}'\n")
-        subprocess.run(["ffmpeg","-y","-f","concat","-safe","0","-i",lf,"-c:a","copy",comb],
-                       capture_output=True, timeout=120)
-    # 스테레오 변환
-    st = os.path.join(jd, "tts_stereo.mp3")
-    subprocess.run(["ffmpeg","-y","-i",comb,"-ac","2","-c:a","libmp3lame","-b:a","192k",st],
-                   capture_output=True, timeout=60)
-    if os.path.exists(st): os.replace(st, comb)
-    t = _dur(comb)
-    logger.info(f"[TTS] Total: {t:.1f}s, {len(paths)} blocks")
-    return comb, (t if t > 0 else sum(durs)), durs
-
-def _silent(p, d):
-    subprocess.run(["ffmpeg","-y","-f","lavfi","-i",f"anullsrc=r=44100:cl=stereo",
-                    "-t",str(max(0.5, d)),"-c:a","libmp3lame","-b:a","128k",p],
-                   capture_output=True, timeout=30)
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  2. Style Sheet
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-_PALETTES = {
-    "economy": {"bg":"#FAFBFE","accent1":"#2D5F8A","accent2":"#D4A537","accent3":"#1B3A5C","text":"#1E293B"},
-    "senior":  {"bg":"#F8FCFA","accent1":"#3ECDA5","accent2":"#FFB74D","accent3":"#5BA88C","text":"#2D3748"},
-    "selfdev": {"bg":"#FFFAF5","accent1":"#E8735A","accent2":"#4A90D9","accent3":"#F5A623","text":"#1A202C"},
-    "tech":    {"bg":"#0F1729","accent1":"#6C5CE7","accent2":"#00D2FF","accent3":"#A29BFE","text":"#E2E8F0"},
-    "life":    {"bg":"#F9FAF5","accent1":"#6B8E5B","accent2":"#D4A574","accent3":"#8FB573","text":"#2D3B2E"},
-}
-_THEMES = {
-    "economy": "금융/비즈니스. 네이비+골드. 차트와 그래프 중심. 전문가 분위기.",
-    "senior":  "따뜻한 파스텔. 민트+크림. 부드러운 곡선. 건강/복지. 큰 글씨.",
-    "selfdev": "밝고 에너지. 오렌지+화이트. 체크리스트. 깔끔한 미니멀.",
-    "tech":    "다크+네온. 사이버펑크. 회로/코드. 블루+퍼플.",
-    "life":    "자연 어스톤. 그린+베이지. 따뜻하고 친근.",
+export default function CreatePage() {
+  const { activePage } = useBlackboxStore();
+  return <div className="h-full">{activePage==="curation"&&<CurationPage/>}{activePage==="script"&&<ScriptPage/>}{activePage==="video"&&<VideoPage/>}{activePage==="deploy"&&<DeployPage/>}</div>;
 }
 
-def _build_style(keyword, category, blocks):
-    return {
-        "theme": _THEMES.get(category, _THEMES["tech"]),
-        "palette": _PALETTES.get(category, _PALETTES["tech"]),
-        "keyword": keyword,
-        "total": len(blocks),
-    }
+/* ── helpers ── */
+function boi(s:number){if(s>=4.5)return{g:"A+",c:"#16a34a",bg:"rgba(22,163,74,0.1)"};if(s>=3.8)return{g:"A",c:"#22c55e",bg:"rgba(34,197,94,0.08)"};if(s>=3)return{g:"B+",c:"#c49a1a",bg:"rgba(196,154,26,0.1)"};if(s>=2.2)return{g:"B",c:"#f59e0b",bg:"rgba(245,158,11,0.08)"};return{g:"C",c:"#f87171",bg:"rgba(248,113,113,0.08)"};}
+function fv(v:number){if(v>=1e6)return`${(v/1e6).toFixed(1)}M`;if(v>=1e3)return`${(v/1e3).toFixed(0)}K`;return String(v);}
+function mom(m:number){if(m>0.15)return{i:"▲",c:"#16a34a"};if(m>0)return{i:"→",c:"#c49a1a"};return{i:"▼",c:"#f87171"};}
+function sc(s:number){return s>=80?"#16a34a":s>=60?"#f59e0b":"#f87171";}
 
+/* ═══════════════════════════════════════
+   MODULE A — CURATION
+   ═══════════════════════════════════════ */
+function CurationPage(){
+  const store=useBlackboxStore();
+  const[cats,setCats]=useState<any[]>([]);
+  const[ld,setLd]=useState(false);
+  const[nld,setNld]=useState(false);
+  const[err,setErr]=useState<string|null>(null);
 
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  3. 이미지 생성 체인 (절대 실패 불가)
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  useEffect(()=>{fetch(`${API}/api/v1/curation/categories`).then(r=>r.json()).then(d=>setCats(d.categories||[])).catch(()=>{});},[]);
 
-_VIS = {
-    "hook": "타이틀 카드 — 큰 제목+핵심 수치 강렬하게. 주제 아이콘 3개.",
-    "body": [
-        "좌우 비교표 — 두 가지를 나란히 비교. 아이콘+수치.",
-        "막대/도넛 차트 — 핵심 데이터 시각화. 수치 라벨.",
-        "타임라인 — 3~5단계 시간순 흐름. 각 단계 아이콘+한줄 설명.",
-        "체크리스트 카드 — 핵심 포인트 4~5개. 체크 아이콘.",
-        "프로세스 플로우 — 단계별 화살표 연결.",
-        "피라미드 구조 — 상위→하위 계층.",
-        "2×2 매트릭스 — 4가지 관점 정리.",
-    ],
-    "opinion": "인용 카드 — 핵심 메시지 큰 따옴표 강조.",
-    "cta": "요약 카드 — 영상 핵심 3줄 요약 + 구독 유도.",
+  const pickCat=async(slug:string)=>{
+    store.setCategory(slug);store.setStep(1);setLd(true);setErr(null);
+    store.setNews([]);store.setSelectedNews([]);store.setSelectedKeyword(null);store.setScript(null);store.setVideo(null);store.setShield(null);
+    try{const r=await fetch(`${API}/api/v1/curation/keywords/search`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({category_slug:slug,max_results:10,sort_by:"blue_ocean"})});if(!r.ok)throw new Error(`실패(${r.status})`);store.setKeywords((await r.json()).keywords||[]);}catch(e:any){setErr(e.message);}finally{setLd(false);}
+  };
+  const pickKw=async(kw:any)=>{
+    store.setSelectedKeyword(kw.keyword);store.setStep(2);setNld(true);setErr(null);
+    store.setNews([]);store.setSelectedNews([]);store.setScript(null);store.setVideo(null);store.setShield(null);
+    setTimeout(()=>{document.getElementById("news-feed")?.scrollIntoView({behavior:"smooth"});},200);
+    try{const r=await fetch(`${API}/api/v1/curation/news/search`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keyword:kw.keyword,days_back:7,max_results:10})});if(!r.ok)throw new Error("뉴스 로드 실패");store.setNews((await r.json()).articles||[]);}catch(e:any){setErr(e.message);}finally{setNld(false);}
+  };
+  const togNews=(a:any)=>{const c=store.selectedNews;store.setSelectedNews(c.find((n:any)=>n.id===a.id)?c.filter((n:any)=>n.id!==a.id):[...c,a]);};
+
+  return(
+    <div className="h-full overflow-y-auto md:overflow-hidden md:flex">
+      {/* Left Panel */}
+      <div className="w-full md:w-[420px] shrink-0 md:border-r md:flex md:flex-col md:overflow-hidden" style={{borderColor:"var(--border)"}}>
+        {/* Categories */}
+        <div className="p-3 md:p-4 border-b shrink-0" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-[13px] md:text-[15px] font-extrabold text-[#4b5563]">카테고리</h2>
+            <Guide items={[{q:"CPM ($12~18)?",a:"광고 1,000회 노출당 수익. CPM $15 → 1만 조회 시 $150."},
+              {q:"어떤 카테고리?",a:"수익 우선 → 경제/시니어. 성장 우선 → 테크/라이프."}]}/>
+          </div>
+          <div className="flex gap-1.5 overflow-x-auto scrollbar-hide pb-1">
+            {cats.map(cat=>{
+              const on=store.category===cat.slug;
+              return(
+                <button key={cat.slug} onClick={()=>pickCat(cat.slug)}
+                  className={`flex flex-col items-center gap-0.5 px-3 py-2 rounded-lg shrink-0 transition-all
+                    ${on?"border border-[#c49a1a]/40":"border border-transparent"}`}
+                  style={on?{background:"rgba(212,175,55,0.06)"}:{}}>
+                  <span className="text-[20px]">{cat.icon}</span>
+                  <span className={`text-[10px] font-bold whitespace-nowrap ${on?"text-[#c49a1a]":"text-[#6b7280]"}`}>{cat.label_ko?.split(' / ')[0]||cat.slug}</span>
+                  <span className="text-[8px] text-[#b0b5bf]">{cat.cpm_range}</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Keywords */}
+        <div className="md:flex-1 md:overflow-y-auto p-3 md:p-4" style={{background:"var(--bg-secondary)"}}>
+          <div className="flex items-center justify-between mb-2">
+            <h2 className="text-[13px] md:text-[15px] font-extrabold text-[#4b5563]">황금 키워드</h2>
+            <div className="flex items-center gap-2">
+              {store.keywords.length>0&&<span className="text-[10px] text-[#b0b5bf] font-bold">{store.keywords.length}개</span>}
+              <Guide items={[{q:"BOI 등급?",a:"검색량 대비 경쟁이 적으면 높은 등급. A+=틈새 기회."},
+                {q:"데이터 의미?",a:"검색=월간 검색수. 경쟁=기존 영상 수. CPM=광고 단가."}]}/>
+            </div>
+          </div>
+          {err&&<ErrBox>{err}</ErrBox>}
+          {ld?<Spinner className="py-8"/>:store.keywords.length>0?(
+            <div className="space-y-1.5">
+              {store.keywords.map((kw:any,i:number)=>{
+                const on=store.selectedKeyword===kw.keyword;
+                const g=boi(kw.blue_ocean_index||0);
+                const m=mom(kw.trend_momentum||0);
+                const boiVal=(kw.blue_ocean_index||0);
+                const cpm=kw.estimated_cpm||15;
+                const vol=kw.search_volume||0;
+                const rev=Math.round((vol*0.03*cpm)/100)*100; // 예상 월수익 (CTR 3%)
+                const comp=kw.competition_count||0;
+                const difficulty=comp>30000?"높음":comp>10000?"보통":"낮음";
+                const diffColor=comp>30000?"#f87171":comp>10000?"#f59e0b":"#16a34a";
+                return(
+                  <div key={i} onClick={()=>pickKw(kw)}
+                    className={`p-3 rounded-xl border cursor-pointer transition-all anim-fade-up
+                      ${on?"border-[#c49a1a]/30 glow-gold":"border-[#f0f1f3] hover:border-[#d5d7db] active:scale-[0.98]"}`}
+                    style={{animationDelay:`${i*40}ms`,...(on?{background:"rgba(212,175,55,0.04)"}:{})}}>
+                    {/* Row 1: 키워드 + 등급 + 트렌드 */}
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="text-[10px] text-[#c0c5ce] font-bold w-4 shrink-0">{i+1}</span>
+                      <span className={`text-[13px] md:text-[15px] font-extrabold flex-1 truncate ${on?"text-[#c49a1a]":"text-[#1a1d23]"}`}>{kw.keyword}</span>
+                      <span className="text-[10px] font-black px-1.5 py-0.5 rounded-md shrink-0" style={{color:g.c,background:g.bg}}>{g.g}</span>
+                      <span className="text-[11px] font-bold shrink-0" style={{color:m.c}}>{m.i}</span>
+                    </div>
+
+                    {/* Row 2: BOI 게이지 바 + 수익 예측 */}
+                    <div className="ml-6 mb-2">
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <span className="text-[8px] text-[#b0b5bf] font-bold">블루오션</span>
+                        <span className="text-[9px] font-black" style={{color:g.c}}>{boiVal.toFixed(1)}/5.0</span>
+                        <span className="ml-auto text-[9px] font-bold text-[#16a34a]">💰 월 ${rev>0?fv(rev):"-"} 예상</span>
+                      </div>
+                      <div className="h-2 rounded-full overflow-hidden" style={{background:"rgba(0,0,0,0.06)"}}>
+                        <div className="h-full rounded-full anim-bar" style={{width:`${Math.min(100,(boiVal/5)*100)}%`,background:`linear-gradient(90deg, ${g.c}88, ${g.c})`,animationDelay:`${i*60+200}ms`}}/>
+                      </div>
+                    </div>
+
+                    {/* Row 3: 데이터 그리드 */}
+                    <div className="ml-6 grid grid-cols-4 gap-1 mb-1.5">
+                      <div className="text-center p-1 rounded-lg" style={{background:"rgba(0,0,0,0.02)"}}>
+                        <div className="text-[8px] text-[#b0b5bf]">월 검색</div>
+                        <div className="text-[11px] font-bold text-[#4b5563]">{fv(vol)}</div>
+                      </div>
+                      <div className="text-center p-1 rounded-lg" style={{background:"rgba(0,0,0,0.02)"}}>
+                        <div className="text-[8px] text-[#b0b5bf]">CPM</div>
+                        <div className="text-[11px] font-bold text-[#c49a1a]">${cpm.toFixed(0)}</div>
+                      </div>
+                      <div className="text-center p-1 rounded-lg" style={{background:"rgba(0,0,0,0.02)"}}>
+                        <div className="text-[8px] text-[#b0b5bf]">경쟁</div>
+                        <div className="text-[11px] font-bold" style={{color:diffColor}}>{difficulty}</div>
+                      </div>
+                      <div className="text-center p-1 rounded-lg" style={{background:"rgba(0,0,0,0.02)"}}>
+                        <div className="text-[8px] text-[#b0b5bf]">성장세</div>
+                        <div className="text-[11px] font-bold" style={{color:m.c}}>{(kw.trend_momentum||0)>0.15?"급상승":(kw.trend_momentum||0)>0?"상승":"하락"}</div>
+                      </div>
+                    </div>
+
+                    {/* Row 4: 경쟁 게이지 */}
+                    <div className="ml-6 flex items-center gap-2">
+                      <span className="text-[8px] text-[#b0b5bf]">경쟁강도</span>
+                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:"rgba(0,0,0,0.04)"}}>
+                        <div className="h-full rounded-full transition-all" style={{width:`${Math.min(100,(comp/50000)*100)}%`,background:`linear-gradient(90deg, ${diffColor}88, ${diffColor})`}}/>
+                      </div>
+                      <span className="text-[8px] font-bold" style={{color:diffColor}}>{fv(comp)}</span>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ):<Empty icon="◈" text="카테고리를 선택하세요"/>}
+        </div>
+      </div>
+
+      {/* Right: News Feed */}
+      <div id="news-feed" className="flex-1 md:flex md:flex-col md:overflow-hidden min-w-0" style={{background:"var(--bg-primary)"}}>
+        <div className="p-3 md:p-4 border-b flex items-center justify-between shrink-0" style={{borderColor:"var(--border)"}}>
+          <h2 className="text-[13px] md:text-[15px] font-extrabold text-[#4b5563]">뉴스 소스 피드</h2>
+          <div className="flex items-center gap-2">
+            {store.selectedNews.length>0&&<span className="text-[11px] font-bold text-[#16a34a] px-2 py-0.5 rounded-md" style={{background:"rgba(22,163,74,0.08)"}}>{store.selectedNews.length}개</span>}
+            <Guide items={[{q:"뉴스 출처?",a:"선택 키워드로 최근 7일 뉴스를 AI가 자동 수집."},
+              {q:"몇 개 선택?",a:"2~4개가 적당. 적으면 빈약, 많으면 초점 흐림."}]}/>
+          </div>
+        </div>
+        <div className="md:flex-1 md:overflow-y-auto p-3 md:p-4">
+          {nld?<Spinner className="py-12"/>:store.news.length>0?(
+            <div className="space-y-2">
+              {store.news.map((a:any,i:number)=>{
+                const sel=store.selectedNews.find((n:any)=>n.id===a.id);
+                const rel=a.relevance_score||0.7;
+                const relColor=rel>=0.85?"#16a34a":rel>=0.7?"#c49a1a":"#9ca3af";
+                const srcCredibility=a.source?.includes("연합")||a.source?.includes("한겨레")||a.source?.includes("조선")||a.source?.includes("KBS")||a.source?.includes("MBC")?"높음":"보통";
+                const srcColor=srcCredibility==="높음"?"#16a34a":"#c49a1a";
+                const tierColor=a.cpm_tier==="High"?"#16a34a":a.cpm_tier==="Mid"?"#c49a1a":"#9ca3af";
+                return(
+                  <div key={i} onClick={()=>togNews(a)}
+                    className={`p-3 md:p-4 rounded-xl border cursor-pointer transition-all anim-fade-up active:scale-[0.98]
+                      ${sel?"border-[#16a34a]/30 glow-green":"border-[#f0f1f3] hover:border-[#d5d7db]"}`}
+                    style={{animationDelay:`${i*50}ms`,...(sel?{background:"rgba(22,163,74,0.03)"}:{})}}>
+                    <div className="flex items-start gap-2">
+                      <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${sel?"border-[#16a34a] bg-[#16a34a]":"border-[#d1d5db]"}`}>
+                        {sel&&<span className="text-white text-[10px]">✓</span>}
+                      </div>
+                      <div className="flex-1 min-w-0">
+                        <h3 className="text-[13px] md:text-[14px] font-bold text-[#1a1d23] leading-tight mb-1 line-clamp-2">{a.title}</h3>
+                        <p className="text-[11px] text-[#6b7280] line-clamp-2 mb-2 leading-relaxed">{a.summary}</p>
+
+                        {/* 핵심 팩트 하이라이트 */}
+                        {a.key_facts&&a.key_facts.length>0&&(
+                          <div className="mb-2 space-y-1">
+                            {a.key_facts.slice(0,2).map((f:string,fi:number)=>(
+                              <div key={fi} className="flex items-start gap-1.5">
+                                <span className="text-[9px] mt-0.5">💡</span>
+                                <span className="text-[10px] text-[#374151] leading-tight">{f}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* 관련도 게이지 */}
+                        <div className="flex items-center gap-1.5 mb-2">
+                          <span className="text-[8px] text-[#b0b5bf]">관련도</span>
+                          <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:"rgba(0,0,0,0.04)"}}>
+                            <div className="h-full rounded-full transition-all" style={{width:`${rel*100}%`,background:`linear-gradient(90deg, ${relColor}88, ${relColor})`}}/>
+                          </div>
+                          <span className="text-[9px] font-bold" style={{color:relColor}}>{Math.round(rel*100)}%</span>
+                        </div>
+
+                        {/* 메타 태그 */}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[9px] px-1.5 py-0.5 rounded font-bold" style={{background:`${tierColor}15`,color:tierColor}}>{a.cpm_tier==="High"?"💰 High CPM":a.cpm_tier==="Mid"?"💵 Mid CPM":"📊 Low CPM"}</span>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded font-bold" style={{background:`${srcColor}15`,color:srcColor}}>📰 {a.source||"News"}</span>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded font-bold" style={{background:`${srcColor}15`,color:srcColor}}>{srcCredibility==="높음"?"✅ 높은 신뢰도":"📋 보통 신뢰도"}</span>
+                          {a.published_at&&<span className="text-[8px] text-[#b0b5bf] ml-auto">{new Date(a.published_at).toLocaleDateString("ko-KR",{month:"short",day:"numeric"})}</span>}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          ):store.selectedKeyword?<Empty icon="📰" text="뉴스를 불러오는 중..."/>:<Empty icon="📰" text="키워드를 선택하면 뉴스가 표시됩니다"/>}
+
+          {store.selectedNews.length>0&&(
+            <div className="mt-4 sticky bottom-0">
+              <GoldBtn onClick={()=>{store.setStep(3);store.setActivePage("script");}}>
+                스크립트 생성 → ({store.selectedNews.length}개 뉴스)
+              </GoldBtn>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
 
 
-async def _get_slide_image(keyword, text, idx, total, category, section, jd, style, prev_descs):
-    """이미지 생성 — 4단계 체인. 절대 실패 불가."""
-    slide = os.path.join(jd, f"slide_{idx}.png")
-    vis = _VIS["body"][idx % len(_VIS["body"])] if section == "body" else _VIS.get(section, _VIS["body"][0])
-    core = text[:250] if text else keyword
-    pal = style.get("palette", _PALETTES["tech"])
+/* ═══════════════════════════════════════
+   MODULE B — SCRIPT
+   ═══════════════════════════════════════ */
+function ScriptPage(){
+  const store=useBlackboxStore();
+  const[ld,setLd]=useState(false);const[err,setErr]=useState<string|null>(null);
+  const[view,setView]=useState<"blocks"|"scenario">("blocks");
+  const[ebi,setEbi]=useState<number|null>(null);const[et,setEt]=useState("");
 
-    # ── 1순위: Gemini Image ──
-    gem = await _try_gemini(keyword, core, idx, total, section, vis, pal, style, prev_descs, jd)
-    if gem:
-        _add_overlay(gem, keyword, idx, total, slide)
-        logger.info(f"[IMG] Block {idx+1}/{total}: gemini ✓")
-        return slide, "gemini"
+  const gen=async()=>{if(!store.selectedKeyword)return;setLd(true);setErr(null);
+    const ns=store.selectedNews.map((n:any)=>`${n.title}: ${n.summary}`).join("\n\n");
+    try{const r=await fetch(`${API}/api/v1/script/generate`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keyword:store.selectedKeyword,category:store.category,news_summary:ns,core_facts:[],opinion_tone:"balanced",target_duration_sec:600})});if(!r.ok)throw new Error(`실패(${r.status})`);store.setScript(await r.json());}catch(e:any){setErr(e.message);}finally{setLd(false);}};
 
-    # ── 2순위: fal.ai FLUX ──
-    fal = await _try_fal(keyword, core, idx, total, section, vis, pal, style, jd)
-    if fal:
-        _add_overlay(fal, keyword, idx, total, slide)
-        logger.info(f"[IMG] Block {idx+1}/{total}: fal.ai ✓")
-        return slide, "fal.ai"
+  useEffect(()=>{if(!store.script&&store.selectedKeyword&&store.selectedNews.length>0)gen();},[]);
 
-    # ── 3순위: Pexels ──
-    pex = await _try_pexels(text, category, idx, jd)
-    if pex:
-        _add_overlay(pex, keyword, idx, total, slide)
-        logger.info(f"[IMG] Block {idx+1}/{total}: pexels ✓")
-        return slide, "pexels"
+  const eb=async(i:number)=>{if(!store.script)return;try{const r=await fetch(`${API}/api/v1/script/edit-block`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({block_index:i,new_text:et,blocks:store.script.blocks})});if(r.ok){const d=await r.json();const nb=Array.isArray(d.blocks)?d.blocks:Array.isArray(d)?d:store.script.blocks;store.setScript({...store.script,blocks:nb});setEbi(null);}}catch{}};
+  const rb=async(i:number)=>{if(!store.script)return;try{const r=await fetch(`${API}/api/v1/script/regenerate-block`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({block_index:i,keyword:store.selectedKeyword,category:store.category,instruction:"",blocks:store.script.blocks})});if(r.ok){const d=await r.json();const nb=Array.isArray(d.blocks)?d.blocks:Array.isArray(d)?d:store.script.blocks;store.setScript({...store.script,blocks:nb});}}catch{}};
+  const ext=async()=>{if(!store.script)return;setLd(true);setErr(null);try{const r=await fetch(`${API}/api/v1/script/extend`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keyword:store.selectedKeyword,category:store.category,current_blocks:store.script.blocks,extend_paragraphs:3,instruction:""})});const d=await r.json();if(d.error){setErr(d.error);}else{const nb=Array.isArray(d.blocks)?d.blocks:Array.isArray(d)?d:store.script.blocks;store.setScript({...store.script,blocks:nb,total_duration_sec:d.total_duration_sec||nb.reduce((s:number,b:any)=>s+(b.duration_sec||0),0)});}}catch(e:any){setErr(e.message||"분량 추가 실패");}finally{setLd(false);}};
+  const rew=async()=>{if(!store.script)return;setLd(true);try{const ns=store.selectedNews.map((n:any)=>`${n.title}: ${n.summary}`).join("\n\n");const r=await fetch(`${API}/api/v1/script/rewrite`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keyword:store.selectedKeyword,category:store.category,news_summary:ns,core_facts:[],instruction:"",target_duration_sec:600})});if(r.ok)store.setScript(await r.json());}catch{}finally{setLd(false);}};
 
-    # ── 4순위: Pillow 자체 생성 (100% 성공) ──
-    _make_slide(slide, keyword, core, idx, total, section, pal)
-    logger.info(f"[IMG] Block {idx+1}/{total}: pillow ✓")
-    return slide, "pillow"
+  const dur=store.script?.total_duration_sec||0;
+  const ch=store.script?.blocks?.reduce((s:number,b:any)=>s+(b.text?.length||0),0)||0;
 
+  return(
+    <div className="h-full overflow-y-auto md:overflow-hidden md:flex">
+      {/* Main */}
+      <div className="flex-1 md:flex md:flex-col md:overflow-hidden min-w-0">
+        <div className="p-3 md:p-4 border-b flex items-center justify-between shrink-0" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
+          <div className="flex items-center gap-3">
+            <h2 className="text-[13px] md:text-[15px] font-extrabold text-[#4b5563]">AI 스크립트</h2>
+            {store.script&&(
+              <div className="flex rounded-lg overflow-hidden border" style={{borderColor:"var(--border)"}}>
+                <button onClick={()=>setView("blocks")} className={`px-2.5 py-1 text-[10px] md:text-[11px] font-bold ${view==="blocks"?"text-[#c49a1a]":"text-[#b0b5bf]"}`} style={view==="blocks"?{background:"rgba(196,154,26,0.08)"}:{}}>블록</button>
+                <button onClick={()=>setView("scenario")} className={`px-2.5 py-1 text-[10px] md:text-[11px] font-bold ${view==="scenario"?"text-[#c49a1a]":"text-[#b0b5bf]"}`} style={view==="scenario"?{background:"rgba(196,154,26,0.08)"}:{}}>시나리오</button>
+              </div>
+            )}
+          </div>
+          {store.script&&<div className="flex items-center gap-2 text-[10px]">
+            <span className="px-2 py-0.5 rounded-md font-bold" style={{background:"rgba(99,102,241,0.08)",color:"#6366f1"}}>{ch.toLocaleString()}자</span>
+            <span className="px-2 py-0.5 rounded-md font-bold" style={{background:"rgba(14,165,233,0.08)",color:"#0ea5e9"}}>{Math.floor(dur/60)}:{String(Math.round(dur%60)).padStart(2,'0')}</span>
+            <span className="px-2 py-0.5 rounded-md font-bold" style={{background:"rgba(168,139,250,0.08)",color:"#a78bfa"}}>{store.script.blocks?.length||0}블록</span>
+          </div>}
+        </div>
+        <div className="md:flex-1 md:overflow-y-auto p-3 md:p-5">
+          {err&&<ErrBox>{err}</ErrBox>}
+          {ld?<Spinner className="py-16"/>:store.script&&view==="blocks"?(
+            <div className="space-y-2">
+              {store.script.blocks?.map((b:any,i:number)=>{
+                const secMap:{[k:string]:{label:string;color:string;icon:string}}={
+                  hook:{label:"오프닝",color:"#c49a1a",icon:"🎯"},
+                  body:{label:"본문",color:"#3b82f6",icon:"📝"},
+                  opinion:{label:"의견",color:"#a78bfa",icon:"💬"},
+                  cta:{label:"CTA",color:"#22c55e",icon:"📢"},
+                };
+                const s=secMap[b.section]||secMap.body;
+                return(
+                  <div key={i} className="p-3 md:p-4 rounded-xl border anim-fade-up" style={{borderColor:"var(--border)",animationDelay:`${i*40}ms`}}>
+                    <div className="flex items-center gap-2 mb-2">
+                      <span className="text-[12px]">{s.icon}</span>
+                      <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{color:s.color,background:`${s.color}12`}}>{s.label}</span>
+                      <span className="text-[9px] text-[#b0b5bf] ml-auto">{b.duration_sec?.toFixed(0)}s</span>
+                      <button onClick={()=>rb(i)} className="text-[9px] text-[#b0b5bf] hover:text-[#6b7280] px-1">🔄</button>
+                      <button onClick={()=>{setEbi(i);setEt(b.text);}} className="text-[9px] text-[#b0b5bf] hover:text-[#6b7280] px-1">✏️</button>
+                    </div>
+                    {ebi===i?(
+                      <div className="space-y-2">
+                        <textarea value={et} onChange={e=>setEt(e.target.value)} rows={4} className="w-full p-2 rounded-lg text-[12px] border resize-none focus:outline-none focus:ring-1 focus:ring-[#c49a1a]/30" style={{borderColor:"var(--border)"}}/>
+                        <div className="flex gap-2">
+                          <button onClick={()=>eb(i)} className="px-3 py-1 rounded-md text-[10px] font-bold text-white" style={{background:"#c49a1a"}}>저장</button>
+                          <button onClick={()=>setEbi(null)} className="px-3 py-1 rounded-md text-[10px] font-bold text-[#9ca3af]">취소</button>
+                        </div>
+                      </div>
+                    ):<p className="text-[12px] md:text-[13px] text-[#4b5563] leading-relaxed">{b.text}</p>}
+                  </div>
+                );
+              })}
+            </div>
+          ):store.script&&view==="scenario"?(
+            <div className="p-4 rounded-xl border" style={{borderColor:"var(--border)"}}>
+              {store.script.blocks?.map((b:any,i:number)=>(
+                <p key={i} className="text-[13px] text-[#4b5563] leading-relaxed mb-3">{b.text}</p>
+              ))}
+            </div>
+          ):!store.script?<Empty icon="◆" text="큐레이션을 먼저 완료하세요"/>:null}
+        </div>
+      </div>
 
-# ── Gemini ──
-async def _try_gemini(keyword, core, idx, total, section, vis, pal, style, prev_descs, jd):
-    key = os.getenv("GEMINI_API_KEY","").strip()
-    if not key: return ""
-
-    prev_ctx = ""
-    if prev_descs:
-        prev_ctx = "\nPREVIOUS SLIDES:\n" + "\n".join(f"- {d}" for d in prev_descs[-3:]) + "\nMaintain same style.\n"
-
-    prompt = (
-        f"Create professional Korean YouTube infographic (Slide {idx+1}/{total}).\n"
-        f"TOPIC: {keyword}\nCONTENT: {core}\nVISUAL: {vis}\n"
-        f"COLORS: bg={pal['bg']}, accent={pal['accent1']}, secondary={pal['accent2']}\n"
-        f"STYLE: {style.get('theme','')}\n{prev_ctx}"
-        f"RULES: data viz, Korean labels, 16:9, NO photos, vector only, bottom 15% empty for subs.\n"
-    )
-
-    try:
-        import httpx
-        for attempt in range(3):
-            async with httpx.AsyncClient(timeout=90) as c:
-                r = await c.post(
-                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
-                    params={"key": key},
-                    json={"contents":[{"parts":[{"text":prompt}]}],
-                          "generationConfig":{"responseModalities":["TEXT","IMAGE"]}})
-                if r.status_code == 429:
-                    wait = 4 + attempt * 4
-                    logger.info(f"[Gemini] 429, wait {wait}s ({attempt+1}/3)")
-                    await asyncio.sleep(wait)
-                    continue
-                if r.status_code != 200:
-                    logger.warning(f"[Gemini] HTTP {r.status_code}")
-                    return ""
-                for part in r.json().get("candidates",[{}])[0].get("content",{}).get("parts",[]):
-                    if "inlineData" in part:
-                        img = part["inlineData"].get("data","")
-                        if img:
-                            p = os.path.join(jd, f"gem_{idx}.png")
-                            with open(p,"wb") as f: f.write(base64.b64decode(img))
-                            return p
-                return ""
-    except Exception as e:
-        logger.warning(f"[Gemini] {e}")
-    return ""
-
-
-# ── fal.ai ──
-async def _try_fal(keyword, core, idx, total, section, vis, pal, style, jd):
-    fal_key = os.getenv("FAL_API_KEY","").strip()
-    if not fal_key: return ""
-
-    prompt = (
-        f"Professional Korean YouTube infographic slide. Clean modern flat design.\n"
-        f"Topic: {keyword}. Content: {core}\n"
-        f"Visual: {vis}. Colors: bg {pal['bg']}, accent {pal['accent1']}\n"
-        f"Style: {style.get('theme','')}. 16:9, vector graphics, Korean text, "
-        f"bottom 15% empty. Slide {idx+1}/{total}"
-    )
-
-    try:
-        import httpx
-        async with httpx.AsyncClient(timeout=90) as c:
-            r = await c.post("https://queue.fal.run/fal-ai/flux/schnell",
-                headers={"Authorization":f"Key {fal_key}","Content-Type":"application/json"},
-                json={"prompt":prompt,"image_size":{"width":1280,"height":720},
-                      "num_images":1,"enable_safety_checker":False})
-            if r.status_code != 200:
-                logger.warning(f"[fal] HTTP {r.status_code}: {r.text[:150]}")
-                return ""
-            data = r.json()
-            images = data.get("images",[])
-            # 큐 방식 폴링
-            if not images:
-                req_id = data.get("request_id","")
-                if req_id:
-                    for _ in range(30):
-                        await asyncio.sleep(2)
-                        sr = await c.get(f"https://queue.fal.run/fal-ai/flux/schnell/requests/{req_id}/status",
-                            headers={"Authorization":f"Key {fal_key}"})
-                        if sr.status_code == 200:
-                            sd = sr.json()
-                            if sd.get("status") == "COMPLETED":
-                                rr = await c.get(f"https://queue.fal.run/fal-ai/flux/schnell/requests/{req_id}",
-                                    headers={"Authorization":f"Key {fal_key}"})
-                                if rr.status_code == 200:
-                                    images = rr.json().get("images",[])
-                                break
-                            elif sd.get("status") == "FAILED": return ""
-            if images:
-                url = images[0].get("url","")
-                if url:
-                    dl = await c.get(url)
-                    if dl.status_code == 200:
-                        p = os.path.join(jd, f"fal_{idx}.png")
-                        with open(p,"wb") as f: f.write(dl.content)
-                        return p
-    except Exception as e:
-        logger.warning(f"[fal] {e}")
-    return ""
-
-
-# ── Pexels ──
-_KR_EN = {"주식":"stock market","부동산":"real estate","투자":"investment","연금":"retirement",
-    "절세":"tax planning","건강":"wellness","운동":"fitness","AI":"AI technology",
-    "경제":"economy analytics","금리":"interest rate","창업":"startup business"}
-_CAT_TERMS = {
-    "economy":["finance chart","stock market","business meeting","economy graph","banking","trading"],
-    "senior":["elderly garden","retirement","medical care","healthy food","family","wellness yoga"],
-    "selfdev":["reading sunrise","fitness running","workspace clean","meditation","mountain summit"],
-    "tech":["AI neural network","coding developer","server datacenter","robot automation","circuit board"],
-    "life":["cooking gourmet","interior design","travel landscape","coffee cafe","photography","garden"],
+      {/* Tools Panel */}
+      <div className="w-full md:w-[280px] shrink-0 md:border-l md:flex md:flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
+        <div className="p-3 md:p-4 border-b md:border-t-0 border-t shrink-0" style={{borderColor:"var(--border)"}}>
+          <h2 className="text-[13px] font-extrabold text-[#4b5563]">도구</h2>
+        </div>
+        <div className="p-3 md:p-4 space-y-2">
+          <Guide items={[{q:"재생성/재작성 차이?",a:"재생성=같은 뉴스로 새 대본. 재작성=톤/스타일 완전 변경."},
+            {q:"분량 추가?",a:"현재 대본에 3문단 추가. 영상 길이가 늘어남."}]}/>
+          <TBtn icon="🔄" label="전체 재생성" desc="같은 소스로 새로 작성" onClick={gen} disabled={ld||!store.selectedKeyword}/>
+          <TBtn icon="📝" label="분량 추가" desc="3문단 추가" onClick={ext} disabled={ld||!store.script}/>
+          <TBtn icon="✨" label="전체 재작성" desc="톤/스타일 변경" onClick={rew} disabled={ld||!store.script}/>
+          {store.script&&<div className="pt-3"><GoldBtn onClick={()=>{store.setStep(4);store.setActivePage("video");}}>영상 제작 →</GoldBtn></div>}
+        </div>
+      </div>
+    </div>
+  );
 }
-_used_ids = set()
 
-async def _try_pexels(text, category, idx, jd):
-    key = os.getenv("PEXELS_API_KEY","").strip()
-    if not key: return ""
-    # 키워드 매칭
-    query = ""
-    for kr, en in _KR_EN.items():
-        if kr in text: query = en; break
-    if not query:
-        terms = _CAT_TERMS.get(category, _CAT_TERMS["tech"])
-        query = terms[idx % len(terms)]
-    try:
-        import httpx
-        async with httpx.AsyncClient(timeout=15) as c:
-            r = await c.get("https://api.pexels.com/v1/search",
-                headers={"Authorization":key},
-                params={"query":query,"per_page":15,"orientation":"landscape","size":"large"})
-            if r.status_code != 200: return ""
-            photos = r.json().get("photos",[])
-            if not photos: return ""
-            avail = [p for p in photos if p.get("id") not in _used_ids]
-            if not avail: avail = photos
-            photo = random.choice(avail); _used_ids.add(photo.get("id"))
-            url = photo.get("src",{}).get("landscape","") or photo.get("src",{}).get("large2x","")
-            if not url: return ""
-            dl = await c.get(url)
-            if dl.status_code == 200:
-                p = os.path.join(jd, f"pex_{idx}.jpg")
-                with open(p,"wb") as f: f.write(dl.content)
-                return p
-    except: pass
-    return ""
 
-
-# ── Pillow 자체 생성 (100% 성공) ──
-def _make_slide(path, keyword, core, idx, total, section, pal):
-    """Pillow로 인포그래픽 스타일 슬라이드 자체 생성 — 절대 실패 불가"""
-    try:
-        from PIL import Image, ImageDraw, ImageFont
-    except:
-        # Pillow 없으면 빈 이미지라도 생성
-        subprocess.run(["ffmpeg","-y","-f","lavfi","-i",
-            f"color=c=0x1a1d23:s=1920x1080:d=1","-frames:v","1",path],
-            capture_output=True, timeout=10)
-        return path
-
-    fp = _font()
-    def font(sz):
-        if not fp: return ImageFont.load_default()
-        try: return ImageFont.truetype(fp, sz)
-        except: return ImageFont.load_default()
-
-    # 배경색 파싱
-    bg_hex = pal.get("bg","#1a1d23").lstrip("#")
-    try: bg_rgb = tuple(int(bg_hex[i:i+2],16) for i in (0,2,4))
-    except: bg_rgb = (26,29,35)
-
-    acc_hex = pal.get("accent1","#4A90D9").lstrip("#")
-    try: acc_rgb = tuple(int(acc_hex[i:i+2],16) for i in (0,2,4))
-    except: acc_rgb = (74,144,217)
-
-    text_hex = pal.get("text","#1E293B").lstrip("#")
-    try: text_rgb = tuple(int(text_hex[i:i+2],16) for i in (0,2,4))
-    except: text_rgb = (30,41,59)
-
-    img = Image.new("RGB",(1920,1080), bg_rgb)
-    d = ImageDraw.Draw(img)
-
-    # 상단 액센트 바
-    d.rectangle([0,0,1920,6], fill=acc_rgb)
-
-    # 스텝 번호 (좌상단)
-    d.rectangle([40,30,180,80], fill=acc_rgb)
-    d.text((55,35), f"STEP {idx+1}/{total}", fill=(255,255,255), font=font(22))
-
-    # 키워드 (중앙 상단)
-    try:
-        f_kw = font(52)
-        bbox = d.textbbox((0,0), keyword, font=f_kw)
-        tw = bbox[2]-bbox[0]
-        d.text(((1920-tw)//2, 120), keyword, fill=acc_rgb, font=f_kw)
-    except: pass
-
-    # 구분선
-    d.rectangle([200, 200, 1720, 203], fill=(*acc_rgb, 80))
-
-    # 본문 텍스트 (줄바꿈 처리)
-    lines = []
-    words = core.split()
-    cur = ""
-    for w in words:
-        test = cur + " " + w if cur else w
-        if len(test) > 35:
-            lines.append(cur)
-            cur = w
-        else:
-            cur = test
-    if cur: lines.append(cur)
-
-    y = 260
-    f_body = font(32)
-    for line in lines[:12]:
-        d.text((200, y), line, fill=text_rgb, font=f_body)
-        y += 55
-
-    # 하단 그라디언트 영역 (자막용 빈 공간)
-    for yy in range(880, 1080):
-        alpha = int((yy-880)/200 * 150)
-        d.rectangle([0,yy,1920,yy+1], fill=(bg_rgb[0]//2, bg_rgb[1]//2, bg_rgb[2]//2))
-
-    # 워터마크
-    d.text((1780,1045), "AlgoMaker", fill=(*text_rgb[:2],text_rgb[2]//2), font=font(14))
-
-    img.save(path, "PNG", quality=95)
-    return path
-
-
-# ── 오버레이 (상단 바 + 하단 그라디언트) ──
-def _add_overlay(img_path, keyword, idx, total, out_path):
-    try:
-        from PIL import Image, ImageDraw, ImageFont
-    except:
-        shutil.copy2(img_path, out_path)
-        return out_path
-
-    fp = _font()
-    def font(sz):
-        if not fp: return ImageFont.load_default()
-        try: return ImageFont.truetype(fp, sz)
-        except: return ImageFont.load_default()
-
-    img = Image.open(img_path).convert("RGBA")
-    img = img.resize((1920,1080), Image.LANCZOS)
-    ov = Image.new("RGBA",(1920,1080),(0,0,0,0))
-    d = ImageDraw.Draw(ov)
-
-    # 상단 바
-    d.rectangle([0,0,1920,50], fill=(0,0,0,160))
-    d.text((20,10), f"STEP {idx+1}/{total}", fill=(196,154,26), font=font(14))
-    d.text((120,8), keyword, fill=(255,255,255,220), font=font(20))
-    d.text((1780,12), "AlgoMaker", fill=(255,255,255,80), font=font(12))
-
-    # 하단 그라디언트 (자막 영역)
-    for y in range(940,1080):
-        a = int((y-940)/140 * 200)
-        d.rectangle([0,y,1920,y+1], fill=(0,0,0,a))
-
-    img = Image.alpha_composite(img, ov)
-    img.convert("RGB").save(out_path, "PNG", quality=95)
-    return out_path
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  4. FFmpeg — 클립 생성 + 전환
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-def _img_to_clip(img, out, dur, idx=0):
-    """이미지 → 클립. 미세 줌 + 페이드."""
-    frames = max(24, int(dur * 24))
-    vf = (f"scale=1980:1114,zoompan=z='min(zoom+0.0001,1.03)'"
-          f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
-          f":d={frames}:s=1920x1080:fps=24,"
-          f"fade=in:0:18,fade=out:st={max(0,dur-0.6)}:d=15")
-    cmd = ["ffmpeg","-y","-loop","1","-i",img,"-vf",vf,"-t",str(dur),
-           "-c:v","libx264","-preset","medium","-crf","18","-pix_fmt","yuv420p",
-           "-movflags","+faststart",out]
-    try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=240)
-        if r.returncode == 0 and os.path.exists(out): return out
-    except: pass
-    # fallback — 정적
-    subprocess.run(["ffmpeg","-y","-loop","1","-i",img,"-t",str(dur),
-        "-vf","scale=1920:1080,fade=in:0:12",
-        "-c:v","libx264","-preset","fast","-crf","22","-pix_fmt","yuv420p",out],
-        capture_output=True, timeout=120)
-    return out if os.path.exists(out) else ""
-
-
-def _concat_with_transitions(clips, bg_path, jd):
-    """클립들을 xfade 전환으로 연결. 실패 시 단순 concat."""
-    if len(clips) == 1:
-        shutil.copy2(clips[0], bg_path)
-        return bg_path
-
-    transitions = ["fadeblack","slideleft","slideright","slideup","circlecrop",
-                    "fade","wipeleft","wiperight","smoothleft","smoothright"]
-    XDUR = 0.5
-
-    try:
-        # xfade 체인
-        inputs = []
-        for c in clips: inputs.extend(["-i", c])
-
-        clip_durs = []
-        for c in clips:
-            d = _dur(c)
-            clip_durs.append(d if d > 0.5 else 5.0)
-
-        parts = []
-        cur = "[0:v]"
-        offset = clip_durs[0] - XDUR
-
-        for j in range(1, len(clips)):
-            tr = transitions[j % len(transitions)]
-            out_label = f"[v{j}]" if j < len(clips)-1 else "[vout]"
-            parts.append(f"{cur}[{j}:v]xfade=transition={tr}:duration={XDUR}:offset={max(0.1,offset)}{out_label}")
-            offset += clip_durs[j] - XDUR
-            cur = out_label
-
-        cmd = ["ffmpeg","-y"] + inputs + [
-            "-filter_complex", ";".join(parts),
-            "-map","[vout]","-c:v","libx264","-preset","medium","-crf","18",
-            "-pix_fmt","yuv420p","-movflags","+faststart",bg_path]
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
-        if r.returncode == 0 and os.path.exists(bg_path):
-            logger.info(f"[FFmpeg] ✓ xfade {len(clips)-1} transitions")
-            return bg_path
-        raise Exception(r.stderr[-200:] if r.stderr else "xfade failed")
-    except Exception as e:
-        logger.warning(f"[FFmpeg] xfade failed: {e}, using concat")
-
-    # Fallback: 단순 concat
-    lf = os.path.join(jd, "clips.txt")
-    with open(lf,"w") as f:
-        for c in clips: f.write(f"file '{c}'\n")
-    subprocess.run(["ffmpeg","-y","-f","concat","-safe","0","-i",lf,
-        "-c:v","libx264","-preset","medium","-crf","18",
-        "-pix_fmt","yuv420p","-movflags","+faststart",bg_path],
-        capture_output=True, timeout=600)
-    return bg_path if os.path.exists(bg_path) else ""
-
-
-def _avatar_pip(bg, avatar, out):
-    """아바타 PIP 합성 (우측 하단)"""
-    vf = ("[1:v]scale=320:-1,chromakey=0x00FF00:0.3:0.1[av];"
-          "[0:v][av]overlay=W-w-40:H-h-40:shortest=1[out]")
-    cmd = ["ffmpeg","-y","-i",bg,"-i",avatar,"-filter_complex",vf,
-           "-map","[out]","-map","0:a?","-c:v","libx264","-preset","medium","-crf","18",
-           "-c:a","aac","-b:a","192k","-ac","2","-shortest","-movflags","+faststart",out]
-    try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
-        if r.returncode == 0 and os.path.exists(out): return out
-    except: pass
-    return ""
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  5. SRT 자막
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-def _chunk(t, mc=22):
-    if len(t) <= mc: return [t]
-    ch, cur = [], ""
-    for s in re.split(r'(?<=[.!?。]) ', t):
-        if len(cur)+len(s)+1 <= mc: cur = (cur+" "+s).strip()
-        else:
-            if cur: ch.append(cur)
-            while len(s) > mc:
-                cut = -1
-                for sep in [', ','는 ','을 ','를 ','에 ','고 ','며 ','다. ','로 ','의 ']:
-                    idx = s[:mc].rfind(sep)
-                    if idx > 4: cut = idx+len(sep)-1; break
-                if cut <= 0:
-                    sp = s[:mc].rfind(' ')
-                    cut = sp if sp > 4 else mc
-                ch.append(s[:cut].strip()); s = s[cut:].strip()
-            cur = s
-    if cur: ch.append(cur)
-    return ch or [t[:mc]]
-
-def _srt(blocks, path, pause=0.3, durs=None):
-    lines, cur, idx = [], 0.0, 1
-    for i, b in enumerate(blocks):
-        bd = durs[i] if durs and i < len(durs) else len(b["text"])/8.0
-        chs = _chunk(b["text"]); cd = bd/max(len(chs),1)
-        for ch in chs:
-            lines += [str(idx), f"{_ts(cur)} --> {_ts(cur+cd)}", ch.strip(), ""]
-            cur += cd; idx += 1
-        cur += pause
-    with open(path, "w", encoding="utf-8") as f: f.write("\n".join(lines))
-    return path
-
-def _ts(s):
-    return f"{int(s//3600):02d}:{int((s%3600)//60):02d}:{int(s%60):02d},{int((s%1)*1000):03d}"
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  6. BGM + 최종 합성
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-def _bgm(path, dur, vol=0.05):
-    cmd = ["ffmpeg","-y","-f","lavfi","-i",
-           f"sine=frequency=160:duration={dur},tremolo=f=0.12:d=0.25,lowpass=f=1800,volume={vol*0.6}[a1];"
-           f"sine=frequency=240:duration={dur},tremolo=f=0.08:d=0.2,lowpass=f=1600,volume={vol*0.4}[a2];"
-           f"[a1][a2]amix=inputs=2:duration=first",
-           "-ac","2","-c:a","aac","-b:a","128k",path]
-    try:
-        subprocess.run(cmd, capture_output=True, timeout=60)
-        if os.path.exists(path): return path
-    except: pass
-    subprocess.run(["ffmpeg","-y","-f","lavfi","-i",f"sine=frequency=180:duration={dur},volume={vol}",
-                    "-ac","2","-c:a","aac",path], capture_output=True, timeout=60)
-    return path if os.path.exists(path) else ""
-
-def _compose(bg, audio, srt_path, output, bgm_path=""):
-    """최종 합성: 영상 + TTS + 자막 + BGM"""
-    fp = _font()
-    fn = "NanumGothicBold" if fp and "NanumGothicBold" in fp else "NanumGothic"
-    srt_esc = srt_path.replace("\\","/").replace(":",r"\:")
-    ss = (f"FontSize=18,PrimaryColour=&H00FFFFFF,OutlineColour=&H00000000,"
-          f"BackColour=&H00000000,BorderStyle=1,Outline=2,Shadow=1,"
-          f"MarginV=30,MarginL=60,MarginR=60,Alignment=2,Fontname={fn}")
-    vf = f"subtitles='{srt_esc}':force_style='{ss}'"
-
-    if bgm_path and os.path.exists(bgm_path):
-        cmd = ["ffmpeg","-y","-i",bg,"-i",audio,"-i",bgm_path,
-               "-filter_complex","[1:a][2:a]amix=inputs=2:duration=first:dropout_transition=3[aout]",
-               "-vf",vf,"-map","0:v","-map","[aout]",
-               "-c:v","libx264","-preset","medium","-crf","18",
-               "-c:a","aac","-b:a","192k","-ac","2",
-               "-shortest","-movflags","+faststart",output]
-    else:
-        cmd = ["ffmpeg","-y","-i",bg,"-i",audio,
-               "-vf",vf,"-map","0:v","-map","1:a",
-               "-c:v","libx264","-preset","medium","-crf","18",
-               "-c:a","aac","-b:a","192k","-ac","2",
-               "-shortest","-movflags","+faststart",output]
-
-    try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=900)
-        if r.returncode == 0 and os.path.exists(output):
-            logger.info("[Compose] ✓ Final video with subtitles")
-            return output
-        logger.warning(f"[Compose] SRT failed, trying without subs")
-    except Exception as e:
-        logger.warning(f"[Compose] {e}")
-
-    # Fallback: 자막 없이
-    try:
-        subprocess.run(["ffmpeg","-y","-i",bg,"-i",audio,"-map","0:v","-map","1:a",
-            "-c:v","libx264","-preset","fast","-crf","20",
-            "-c:a","aac","-b:a","192k","-ac","2","-shortest",
-            "-movflags","+faststart",output], capture_output=True, timeout=600)
-        if os.path.exists(output):
-            logger.info("[Compose] ✓ Final video (no subs)")
-            return output
-    except: pass
-
-    # 최후: 오디오만이라도
-    shutil.copy2(audio, output.replace(".mp4",".mp3"))
-    return output.replace(".mp4",".mp3")
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  6b. 디지털 지문 변조 (Policy Shield)
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-def _fingerprint(video_path, jd):
-    """영상의 픽셀/오디오를 미세 변조하여 유튜브 AI가 재사용 콘텐츠로 인식 못하게 처리"""
-    out = os.path.join(jd, "fingerprinted.mp4")
-    
-    # 랜덤 시드
-    hue_shift = random.uniform(-2, 2)          # 색조 미세 변환
-    brightness = random.uniform(-0.02, 0.02)   # 밝기 미세 조정
-    contrast = random.uniform(0.98, 1.02)      # 대비 미세 조정
-    pitch_shift = random.randint(-50, 50)      # 오디오 피치 미세 변환 (Hz)
-    pad_ms = random.randint(50, 200)           # 앞뒤 무음 패딩 (ms)
-    
-    vf = (f"eq=brightness={brightness}:contrast={contrast},"
-          f"hue=h={hue_shift},"
-          f"noise=alls={random.randint(1,3)}:allf=t")  # 극미세 노이즈
-    
-    af = (f"apad=pad_dur={pad_ms/1000},"
-          f"asetrate=44100*{1 + pitch_shift/44100},"
-          f"aresample=44100,"
-          f"volume={random.uniform(0.98, 1.02)}")
-    
-    cmd = ["ffmpeg","-y","-i",video_path,
-           "-vf",vf,"-af",af,
-           "-c:v","libx264","-preset","medium","-crf","18",
-           "-c:a","aac","-b:a","192k","-ac","2",
-           "-movflags","+faststart",
-           "-metadata",f"comment=AM{uuid.uuid4().hex[:8]}",
-           "-metadata",f"creation_time={_random_time()}",
-           out]
-    try:
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
-        if r.returncode == 0 and os.path.exists(out):
-            os.replace(out, video_path)
-            logger.info(f"[Shield] ✓ Fingerprint applied (hue={hue_shift:.1f}, brt={brightness:.3f})")
-            return video_path
-    except Exception as e:
-        logger.warning(f"[Shield] Fingerprint failed: {e}")
-    return video_path
-
-def _random_time():
-    """랜덤 creation_time 메타데이터 생성"""
-    import datetime
-    base = datetime.datetime.now() - datetime.timedelta(hours=random.randint(1,72))
-    return base.strftime("%Y-%m-%dT%H:%M:%S")
-
-def _uniqueness_grade(sources):
-    """수익화 등급 산출 (A+~F)"""
-    total = sum(sources.values())
-    if total == 0: return "F", 0
-    
-    ai_ratio = (sources.get("gemini",0) + sources.get("fal.ai",0)) / total
-    pexels_ratio = sources.get("pexels",0) / total
-    pillow_ratio = sources.get("pillow",0) / total
-    
-    score = ai_ratio * 100 + pexels_ratio * 50 + pillow_ratio * 20
-    
-    if score >= 90: return "A+", score
-    elif score >= 80: return "A", score
-    elif score >= 70: return "B+", score
-    elif score >= 60: return "B", score
-    elif score >= 40: return "C", score
-    elif score >= 20: return "D", score
-    else: return "F", score
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  7. HeyGen 아바타
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-async def _heygen(full_text, jd):
-    key = os.getenv("HEYGEN_API_KEY","").strip()
-    if not key: return ""
-    try:
-        import httpx
-        # 아바타 목록
-        async with httpx.AsyncClient(timeout=30) as c:
-            r = await c.get("https://api.heygen.com/v2/avatars",headers={"X-Api-Key":key})
-            if r.status_code != 200: return ""
-            avatars = r.json().get("data",{}).get("avatars",[])
-            if not avatars: return ""
-            aid = avatars[0].get("avatar_id","")
-
-        # 음성 목록
-        async with httpx.AsyncClient(timeout=30) as c:
-            voice_id = ""
-            try:
-                vr = await c.get("https://api.heygen.com/v2/voices",headers={"X-Api-Key":key})
-                if vr.status_code == 200:
-                    for v in vr.json().get("data",{}).get("voices",[]):
-                        if "ko" in v.get("language","").lower():
-                            voice_id = v.get("voice_id",""); break
-                    if not voice_id:
-                        voices = vr.json().get("data",{}).get("voices",[])
-                        if voices: voice_id = voices[0].get("voice_id","")
-            except: pass
-            if not voice_id: return ""
-
-            # 생성 요청
-            r = await c.post("https://api.heygen.com/v2/video/generate",
-                headers={"X-Api-Key":key,"Content-Type":"application/json"},
-                json={"video_inputs":[{
-                    "character":{"type":"avatar","avatar_id":aid,"avatar_style":"normal"},
-                    "voice":{"type":"text","input_text":full_text[:4800],"voice_id":voice_id},
-                    "background":{"type":"color","value":"#00FF00"}
-                }],"dimension":{"width":540,"height":960}})
-            if r.status_code != 200:
-                logger.warning(f"[HeyGen] {r.status_code}: {r.text[:200]}")
-                return ""
-            vid = r.json().get("data",{}).get("video_id","")
-            if not vid: return ""
-
-        # 폴링
-        ap = os.path.join(jd,"avatar.mp4")
-        async with httpx.AsyncClient(timeout=60) as c:
-            for _ in range(60):
-                await asyncio.sleep(10)
-                try:
-                    r = await c.get(f"https://api.heygen.com/v1/video_status.get?video_id={vid}",
-                        headers={"X-Api-Key":key})
-                    if r.status_code != 200: continue
-                    d = r.json().get("data",{})
-                    if d.get("status") == "completed":
-                        url = d.get("video_url","")
-                        if url:
-                            dl = await c.get(url)
-                            if dl.status_code == 200:
-                                with open(ap,"wb") as f: f.write(dl.content)
-                                return ap
-                        return ""
-                    elif d.get("status") == "failed": return ""
-                except: continue
-        return ""
-    except Exception as e:
-        logger.error(f"[HeyGen] {e}")
-        return ""
-
-
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  메인 파이프라인 v17 — NEVER FAIL
-# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-async def generate_real_video(keyword, category, script_blocks, mode="normal",
-                               channel_name="", watermark_text="", tts_voice_id=""):
-    global _used_ids
-    _used_ids = set()
-    job_id = str(uuid.uuid4())[:8]
-    jd = os.path.join(OUTPUT_DIR, job_id)
-    os.makedirs(jd, exist_ok=True)
-
-    try:
-        is_sr = mode == "senior"
-        speed = 0.92 if is_sr else 1.0
-        pause = 0.5 if is_sr else 0.3
-        voice = tts_voice_id or "2gbExjiWDnG1DMGr81Bx"
-        total = len(script_blocks)
-
-        logger.info(f"[V17] ═══ START: '{keyword}', {total} blocks, mode={mode} ═══")
-
-        # ── Step 1: TTS (항상 성공) ──
-        audio, adur, bdurs = await _tts_all(script_blocks, jd, speed, voice)
-
-        # ── Step 2: Style ──
-        style = _build_style(keyword, category, script_blocks)
-
-        # ── Step 3: 슬라이드 이미지 (항상 성공 — 4단계 체인) ──
-        clips = []
-        prev_descs = []
-        sources = {"gemini":0, "fal.ai":0, "pexels":0, "pillow":0}
-
-        for i in range(total):
-            b = script_blocks[i]
-            bd = bdurs[i] if i < len(bdurs) else 5.0
-            clip_dur = bd + pause
-
-            slide, src = await _get_slide_image(
-                keyword, b.get("text",""), i, total, category,
-                b.get("section","body"), jd, style, prev_descs)
-
-            sources[src] = sources.get(src, 0) + 1
-            prev_descs.append(f"Slide {i+1}: {src} — {b.get('section','body')}")
-
-            # 클립 변환
-            clip = os.path.join(jd, f"clip_{i}.mp4")
-            _img_to_clip(slide, clip, clip_dur, idx=i)
-            if os.path.exists(clip):
-                clips.append(clip)
-
-            # Gemini 쿼터 보호: 블록 간 대기
-            if i < total - 1:
-                await asyncio.sleep(2)
-
-        logger.info(f"[V17] Slides: {sources}")
-
-        # ── Step 4: 클립 연결 (전환 효과) ──
-        bg = os.path.join(jd, "bg.mp4")
-        if clips:
-            _concat_with_transitions(clips, bg, jd)
-        else:
-            # 클립이 하나도 없으면 검정 배경이라도
-            subprocess.run(["ffmpeg","-y","-f","lavfi","-i",
-                f"color=c=black:s=1920x1080:d={adur+2}",
-                "-c:v","libx264","-pix_fmt","yuv420p",bg],
-                capture_output=True, timeout=60)
-
-        # ── Step 5: HeyGen 아바타 ──
-        full = " ".join(b.get("text","") for b in script_blocks)
-        avp = await _heygen(full, jd)
-        if avp and os.path.exists(avp):
-            pip = os.path.join(jd, "bg_pip.mp4")
-            result = _avatar_pip(bg, avp, pip)
-            if result: bg = pip
-            logger.info(f"[V17] Avatar: {'✓' if result else '✗'}")
-        else:
-            logger.info("[V17] Avatar: skipped")
-
-        # ── Step 6: SRT 자막 ──
-        srt = os.path.join(jd, "subs.srt")
-        _srt(script_blocks, srt, pause, bdurs)
-
-        # ── Step 7: BGM + 최종 합성 ──
-        vdur = adur + pause * total + 2
-        bgm = os.path.join(jd, "bgm.m4a")
-        _bgm(bgm, vdur, 0.04 if is_sr else 0.05)
-
-        out = os.path.join(jd, f"creato_{job_id}_final.mp4")
-        res = _compose(bg, audio, srt, out, bgm)
-
-        if res and os.path.exists(res):
-            # ── Step 8: 디지털 지문 변조 (재사용 콘텐츠 필터 회피) ──
-            _fingerprint(res, jd)
-            
-            # ── Step 9: 수익화 등급 산출 ──
-            grade, score = _uniqueness_grade(sources)
-            logger.info(f"[V17] Shield Grade: {grade} ({score:.0f}/100)")
-
-            fs = os.path.getsize(res)
-            rd = _dur(res) or vdur
-            logger.info(f"[V17] ═══ DONE: {fs/1024/1024:.1f}MB, {rd:.1f}s, Grade={grade} ═══")
-            return RealVideoResult(
-                job_id=job_id, status="done", output_path=res,
-                download_url=f"/api/v1/video/download/{job_id}",
-                duration_sec=round(rd,1), file_size_bytes=fs,
-                tts_audio_path=audio, subtitle_path=srt)
-
-        # 최후: 오디오만이라도 반환
-        logger.warning("[V17] Video compose failed, returning audio only")
-        return RealVideoResult(
-            job_id=job_id, status="done", output_path=audio,
-            download_url=f"/api/v1/video/download/{job_id}",
-            duration_sec=round(adur,1), file_size_bytes=os.path.getsize(audio),
-            tts_audio_path=audio)
-
-    except Exception as e:
-        logger.error(f"[V17] FATAL: {e}")
-        # 에러에서도 뭐라도 반환
-        return RealVideoResult(job_id=job_id, status="error", error=str(e))
+/* ═══════════════════════════════════════
+   MODULE C — VIDEO
+   ═══════════════════════════════════════ */
+function VideoPage(){
+  const store=useBlackboxStore();
+  const[ld,setLd]=useState(false);const[pg,setPg]=useState(0);const[err,setErr]=useState<string|null>(null);
+  const[phase,setPhase]=useState(0);const[elapsed,setElapsed]=useState(0);
+
+  const gen=async()=>{if(!store.script)return;setLd(true);setErr(null);setPg(0);setPhase(1);setElapsed(0);
+    const t0=Date.now();
+    const ticker=setInterval(()=>{
+      const sec=Math.floor((Date.now()-t0)/1000);setElapsed(sec);
+      if(sec<15){setPhase(1);setPg(Math.min(18,Math.floor(sec/15*18)));}
+      else if(sec<90){setPhase(2);setPg(18+Math.min(37,Math.floor((sec-15)/75*37)));}
+      else if(sec<120){setPhase(3);setPg(55+Math.min(20,Math.floor((sec-90)/30*20)));}
+      else if(sec<210){setPhase(4);setPg(75+Math.min(20,Math.floor((sec-120)/90*20)));}
+      else{setPg(Math.min(96,95));}
+    },500);
+    try{const r=await fetch(`${API}/api/v1/video/generate-real`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keyword:store.selectedKeyword,category:store.category,mode:store.mode,script_blocks:store.script.blocks,channel_name:store.profile.channelName,watermark_text:store.profile.watermarkText||store.profile.channelName,tts_voice_id:store.profile.ttsVoiceId})});
+      clearInterval(ticker);if(!r.ok)throw new Error(`실패(${r.status})`);const d=await r.json();
+      if(d.status==="completed"||d.status==="done"||d.download_url){setPhase(5);setPg(100);store.setVideo(d);store.setStep(5);setLd(false);}
+      else if(d.status==="error"){throw new Error(d.error||"실패");}
+      else{const iv=setInterval(async()=>{try{const r2=await fetch(`${API}/api/v1/video/status/${d.job_id}`);if(r2.ok){const d2=await r2.json();if(d2.status==="completed"||d2.status==="done"){clearInterval(iv);setPhase(5);setPg(100);store.setVideo(d2);store.setStep(5);setLd(false);}}}catch{}},5000);setTimeout(()=>{clearInterval(iv);setLd(false);},600000);}
+    }catch(e:any){clearInterval(ticker);setErr(e.message);setLd(false);}};
+
+  const totalDur=store.script?.total_duration_sec||0;
+  const totalBlocks=store.script?.blocks?.length||0;
+
+  return(
+    <div className="h-full overflow-y-auto md:overflow-hidden md:flex">
+      <div className="flex-1 md:flex md:flex-col md:overflow-hidden min-w-0">
+        <div className="p-3 md:p-4 border-b shrink-0" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
+          <h2 className="text-[13px] md:text-[15px] font-extrabold text-[#4b5563]">영상 제작</h2>
+        </div>
+        <div className="md:flex-1 md:overflow-y-auto p-4 md:p-6">
+          {err&&<ErrBox>{err}</ErrBox>}
+
+          {ld?(
+            <div className="flex flex-col items-center py-12 gap-4">
+              <div className="w-full max-w-sm p-5 rounded-2xl relative overflow-hidden" style={{background:"var(--bg-card)",border:"1px solid var(--border)",boxShadow:"0 4px 24px rgba(0,0,0,0.06)"}}>
+                <div className="absolute top-0 left-0 right-0 h-[2px]" style={{background:"linear-gradient(90deg,#c49a1a,#e8c84a,#c49a1a)",backgroundSize:"200% 100%",animation:"shimmer 2s linear infinite"}}/>
+                <div className="flex items-center justify-between mb-4">
+                  <span className="text-[14px] font-bold text-[#1a1d23]">영상 생성 중</span>
+                  <span className="text-[16px] font-black tabular-nums" style={{color:"#c49a1a"}}>{pg}%</span>
+                </div>
+                <div className="h-2 rounded-full overflow-hidden mb-5" style={{background:"rgba(0,0,0,0.05)"}}>
+                  <div className="h-full rounded-full transition-all duration-700" style={{width:`${pg}%`,background:"linear-gradient(90deg,#c49a1a,#e8c84a)"}}/>
+                </div>
+                <div className="space-y-1">
+                  {([{label:"TTS 음성",done:phase>1,active:phase===1,icon:"🎙"},
+                     {label:"자료화면",done:phase>2,active:phase===2,icon:"🎨"},
+                     {label:"아바타",done:phase>3,active:phase===3,icon:"👤"},
+                     {label:"최종 합성",done:phase>=5,active:phase===4,icon:"🎬"}
+                  ] as const).map((s,i)=>(
+                    <div key={i} className={`flex items-center gap-2.5 p-2.5 rounded-lg transition-all ${s.active?"bg-[#c49a1a]/5 border border-[#c49a1a]/15":s.done?"bg-[#16a34a]/3":"border border-transparent"}`}>
+                      <div className={`w-6 h-6 rounded-md flex items-center justify-center text-[11px] font-bold shrink-0 ${s.done?"bg-[#16a34a]/10 text-[#16a34a]":s.active?"bg-[#c49a1a]/10 text-[#c49a1a]":"bg-[#f3f4f6] text-[#d1d5db]"}`}>
+                        {s.done?"✓":s.active?<span style={{animation:"spin 2s linear infinite",display:"inline-block"}}>{s.icon}</span>:<span className="text-[10px]">{i+1}</span>}
+                      </div>
+                      <span className={`text-[12px] font-semibold ${s.done?"text-[#374151]":s.active?"text-[#1a1d23]":"text-[#c0c5ce]"}`}>{s.label}</span>
+                      {s.done&&<span className="text-[9px] text-[#16a34a] font-bold ml-auto">완료</span>}
+                      {s.active&&<div className="flex gap-0.5 ml-auto">{[0,1,2].map(d=><span key={d} className="w-1 h-1 rounded-full bg-[#c49a1a]" style={{animation:`dot-bounce 1.4s ease-in-out ${d*0.2}s infinite`}}/>)}</div>}
+                    </div>
+                  ))}
+                </div>
+              </div>
+              <p className="text-[11px] text-[#b0b5bf]">{elapsed>0?`${Math.floor(elapsed/60)}:${String(elapsed%60).padStart(2,'0')} 경과`:"약 3~5분 소요"}</p>
+            </div>
+          ):store.video?(
+            <div className="flex flex-col items-center py-8 gap-4 anim-fade-up">
+              <div className="text-[48px] anim-score">🎬</div>
+              <h3 className="text-[18px] font-bold text-[#1a1d23]">영상 완성!</h3>
+              <p className="text-[12px] text-[#9ca3af]">{store.video.duration_sec?.toFixed(0)}초 · {((store.video.file_size_bytes||0)/1024/1024).toFixed(1)}MB</p>
+              <a href={`${API}${store.video.download_url}`} download className="px-8 py-3 rounded-xl text-[14px] font-bold text-white" style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>⬇ 다운로드</a>
+              <GoldBtn onClick={()=>{store.setStep(5);store.setActivePage("deploy");}}>검수 & 배포 →</GoldBtn>
+            </div>
+          ):store.script?(
+            <div className="flex flex-col items-center py-12 gap-5">
+              <Guide items={[{q:"영상 생성 과정?",a:"TTS → Gemini 인포그래픽/Pexels 배경 → 아바타(선택) → FFmpeg 합성."},
+                {q:"시니어 모드?",a:"TTS 느리게, 자막 크게, BGM 작게. 50대+ 타겟."}]}/>
+              <div className="text-center">
+                <p className="text-[12px] text-[#9ca3af] mb-1">{totalBlocks}블록 · {Math.floor(totalDur/60)}분 {Math.round(totalDur%60)}초</p>
+                <button onClick={gen} className="px-10 py-3.5 rounded-xl text-[15px] font-bold text-white transition-all hover:brightness-110 active:scale-[0.97] anim-pulse"
+                  style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)",boxShadow:"0 6px 30px rgba(196,154,26,0.3)"}}>
+                  🎬 영상 생성 시작
+                </button>
+              </div>
+            </div>
+          ):<Empty icon="▶" text="스크립트가 필요합니다"/>}
+        </div>
+      </div>
+
+      {/* Settings */}
+      <div className="w-full md:w-[260px] shrink-0 md:border-l md:flex md:flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
+        <div className="p-3 md:p-4 border-b md:border-t-0 border-t shrink-0" style={{borderColor:"var(--border)"}}><h2 className="text-[13px] font-extrabold text-[#4b5563]">설정</h2></div>
+        <div className="p-3 md:p-4 space-y-3 text-[12px]">
+          <div className="flex justify-between"><span className="text-[#9ca3af]">시니어 모드</span><Tog on={store.mode==="senior"} fn={()=>store.setMode(store.mode==="senior"?"normal":"senior")}/></div>
+          <div className="h-px" style={{background:"var(--border)"}}/>
+          {([["해상도","1920×1080"],["TTS","ElevenLabs"],["비주얼","Gemini AI"],["자막","한글"],["BGM","Ambient"]] as [string,string][]).map(([l,v])=><Row key={l} l={l} v={v}/>)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+/* ═══════════════════════════════════════
+   MODULE D — DEPLOY
+   ═══════════════════════════════════════ */
+function DeployPage(){
+  const store=useBlackboxStore();
+  const[sL,setSl]=useState(false);const[err,setErr]=useState<string|null>(null);
+
+  const runShield=async()=>{if(!store.script||!store.video)return;setSl(true);setErr(null);
+    try{const r=await fetch(`${API}/api/v1/shield/safety-check`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keyword:store.selectedKeyword,category:store.category,script_blocks:store.script.blocks,video_info:store.video})});if(!r.ok)throw new Error(`실패(${r.status})`);store.setShield(await r.json());store.setStep(6);}catch(e:any){setErr(e.message);}finally{setSl(false);}};
+  useEffect(()=>{if(!store.shield&&store.video&&store.script)runShield();},[]);
+
+  const s=store.shield?.safety_score||0;
+  const passed=s>=70;
+  const goBackToScript=()=>{store.setActivePage("script");};
+  const goBackToVideo=()=>{store.setActivePage("video");store.setVideo(null);};
+
+  return(
+    <div className="h-full overflow-y-auto md:overflow-hidden md:flex">
+      <div className="flex-1 md:flex md:flex-col md:overflow-hidden">
+        <div className="p-3 md:p-4 border-b shrink-0" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}><h2 className="text-[13px] md:text-[15px] font-extrabold text-[#4b5563]">알고리즘 실드</h2></div>
+        <div className="md:flex-1 md:overflow-y-auto p-4 md:p-6">
+          <Guide items={[{q:"Safety Score?",a:"유튜브 수익 창출 정책 안전도 (0~100). 70+ 필요."},
+            {q:"점수 낮으면?",a:"의견/팩트 추가, 영상 길이 늘리기, 아바타 활성화."}]}/>
+          {err&&<ErrBox>{err}</ErrBox>}
+          {sL?<Spinner className="py-16"/>:store.shield?(
+            <div className="space-y-6">
+              <div className="flex items-center gap-8">
+                <div className="text-center anim-score">
+                  <div className="text-[56px] md:text-[72px] font-black leading-none" style={{color:sc(s)}}>{Math.round(s)}</div>
+                  <div className="text-[13px] font-bold mt-1" style={{color:sc(s)}}>{store.shield.grade}</div>
+                  <div className="text-[11px] text-[#b0b5bf] mt-0.5">{passed?"✓ 안전":"⚠ 개선 필요"}</div>
+                </div>
+                <div className="flex-1">
+                  <div className="h-4 rounded-full overflow-hidden" style={{background:"rgba(0,0,0,0.04)"}}>
+                    <div className="h-full rounded-full anim-bar" style={{width:`${s}%`,background:sc(s)}}/>
+                  </div>
+                </div>
+              </div>
+
+              {!passed&&(
+                <div className="p-4 rounded-xl border border-[#f87171]/20 anim-fade-up" style={{background:"rgba(248,113,113,0.03)"}}>
+                  <p className="text-[13px] font-bold text-[#f87171] mb-2">🚫 수익화 위험</p>
+                  <div className="flex gap-2">
+                    <button onClick={goBackToScript} className="flex-1 p-3 rounded-lg border text-center text-[11px] font-bold text-[#6b7280]" style={{borderColor:"var(--border)"}}>📝 스크립트 수정</button>
+                    <button onClick={goBackToVideo} className="flex-1 p-3 rounded-lg border text-center text-[11px] font-bold text-[#6b7280]" style={{borderColor:"var(--border)"}}>🎬 영상 재생성</button>
+                  </div>
+                </div>
+              )}
+
+              {store.shield.checks&&(
+                <div className="space-y-1.5">
+                  {store.shield.checks.map((c:any,i:number)=>(
+                    <div key={i} className="flex items-center gap-2 p-2.5 rounded-lg anim-fade-up" style={{animationDelay:`${i*60}ms`,background:c.passed?"rgba(22,163,74,0.03)":"rgba(248,113,113,0.03)"}}>
+                      <span className="text-[12px]">{c.passed?"✅":"❌"}</span>
+                      <span className="text-[12px] text-[#4b5563] flex-1">{c.label}</span>
+                      <span className="text-[10px] font-bold" style={{color:c.passed?"#16a34a":"#f87171"}}>{c.score}/{c.max}</span>
+                    </div>
+                  ))}
+                </div>
+              )}
+
+              {passed&&store.video&&(
+                <div className="space-y-3 pt-4">
+                  <a href={`${API}${store.video.download_url}`} download
+                    className="block w-full py-3 rounded-xl text-center text-[14px] font-bold text-white"
+                    style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>
+                    ⬇ 최종 다운로드
+                  </a>
+                </div>
+              )}
+            </div>
+          ):<Empty icon="◉" text="영상이 필요합니다"/>}
+        </div>
+      </div>
+
+      {/* SEO/Schedule */}
+      <div className="w-full md:w-[280px] shrink-0 md:border-l md:flex md:flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
+        <div className="p-3 md:p-4 border-b md:border-t-0 border-t shrink-0" style={{borderColor:"var(--border)"}}><h2 className="text-[13px] font-extrabold text-[#4b5563]">SEO & 스케줄</h2></div>
+        <div className="p-3 md:p-4 space-y-3">
+          {store.shield?.seo?(
+            <>
+              <div><label className="text-[10px] font-bold text-[#9ca3af] block mb-1">추천 제목</label><p className="text-[12px] font-bold text-[#1a1d23] p-2 rounded-lg" style={{background:"var(--bg-elevated)"}}>{store.shield.seo.title}</p></div>
+              <div><label className="text-[10px] font-bold text-[#9ca3af] block mb-1">설명</label><p className="text-[11px] text-[#6b7280] p-2 rounded-lg line-clamp-4" style={{background:"var(--bg-elevated)"}}>{store.shield.seo.description}</p></div>
+              <div><label className="text-[10px] font-bold text-[#9ca3af] block mb-1">태그</label><div className="flex flex-wrap gap-1">{store.shield.seo.tags?.map((t:string,i:number)=><span key={i} className="text-[9px] px-1.5 py-0.5 rounded bg-[#f3f4f6] text-[#6b7280]">{t}</span>)}</div></div>
+            </>
+          ):<p className="text-[11px] text-[#b0b5bf]">분석 후 자동 생성됩니다</p>}
+          {store.shield?.schedule&&(
+            <div className="p-3 rounded-xl" style={{background:"rgba(196,154,26,0.04)",border:"1px solid rgba(196,154,26,0.1)"}}>
+              <p className="text-[10px] font-bold text-[#c49a1a] mb-1">추천 업로드 시간</p>
+              <p className="text-[13px] font-bold text-[#1a1d23]">{store.shield.schedule.best_time}</p>
+              <p className="text-[10px] text-[#9ca3af] mt-0.5">{store.shield.schedule.reason}</p>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+
+/* ═══ SHARED COMPONENTS ═══ */
+function Guide({items}:{items:{q:string;a:string}[]}){
+  const[open,setOpen]=useState(false);
+  return(
+    <div className="mb-2">
+      <button onClick={()=>setOpen(!open)} className="flex items-center gap-1.5 text-[10px] text-[#b0b5bf] hover:text-[#9ca3af] transition-colors">
+        <span style={{transform:open?"rotate(90deg)":"",transition:"transform 0.2s",display:"inline-block",fontSize:"8px"}}>▶</span>
+        <span className="font-bold">사용법</span>
+      </button>
+      {open&&(
+        <div className="mt-2 p-3 rounded-lg space-y-2 text-[11px] anim-fade-up" style={{background:"rgba(196,154,26,0.03)",border:"1px solid rgba(196,154,26,0.08)"}}>
+          {items.map((item,i)=>(
+            <div key={i}>
+              <div className="font-bold text-[#c49a1a] mb-0.5 text-[10px]">{item.q}</div>
+              <div className="text-[#7c8290] leading-relaxed text-[10px]">{item.a}</div>
+            </div>
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+function Spinner({className=""}:{className?:string}){return<div className={`flex items-center justify-center ${className}`}><div className="w-7 h-7 border-2 border-[#c49a1a]/15 border-t-[#c49a1a] rounded-full animate-spin"/></div>;}
+function Empty({icon,text}:{icon:string;text:string}){return<div className="flex flex-col items-center justify-center py-16 text-[#d1d5db]"><span className="text-[40px] mb-3 anim-float">{icon}</span><span className="text-[13px]">{text}</span></div>;}
+function ErrBox({children}:{children:React.ReactNode}){return<div className="mb-3 p-3 rounded-xl border border-red-400/20 bg-red-50 text-red-500 text-[12px]">{children}</div>;}
+function GoldBtn({children,onClick,disabled}:{children:React.ReactNode;onClick?:()=>void;disabled?:boolean}){return<button onClick={onClick} disabled={disabled} className="w-full py-3 rounded-xl text-[13px] font-bold text-white transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-30" style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)",boxShadow:"0 4px 16px rgba(196,154,26,0.2)"}}>{children}</button>;}
+function TBtn({icon,label,desc,onClick,disabled}:{icon:string;label:string;desc:string;onClick:()=>void;disabled?:boolean}){return<button onClick={onClick} disabled={disabled} className="w-full text-left p-3 rounded-xl border transition-all hover:border-[#d5d7db] active:scale-[0.98] disabled:opacity-20" style={{borderColor:"var(--border)"}}><div className="flex items-center gap-3"><span className="text-[18px]">{icon}</span><div><div className="text-[12px] font-bold text-[#374151]">{label}</div><div className="text-[10px] text-[#b0b5bf]">{desc}</div></div></div></button>;}
+function Row({l,v}:{l:string;v:string}){return<div className="flex items-center justify-between"><span className="text-[11px] text-[#b0b5bf]">{l}</span><span className="text-[11px] text-[#6b7280] font-bold">{v}</span></div>;}
+function Tog({on,fn}:{on:boolean;fn:()=>void}){return<button onClick={fn} className={`w-10 h-5 rounded-full relative transition-all ${on?"bg-[#c49a1a]":"bg-[#e5e7eb]"}`}><div className={`w-4 h-4 rounded-full bg-white absolute top-0.5 transition-all shadow-sm ${on?"left-[22px]":"left-0.5"}`}/></button>;}
