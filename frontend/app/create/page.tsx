@@ -27,11 +27,6 @@ const PROG_STEPS: { key:PK; icon:string; label:string }[] = [
 
 const INIT_PROG: Prog = { news:"waiting", script:"waiting", tts:"waiting", image:"waiting", compose:"waiting", shield:"waiting" };
 
-const GoldBtn = ({ onClick, disabled, children, full }: any) => (
-  <button onClick={onClick} disabled={disabled}
-    className={`${full?"w-full":""} px-6 py-3 rounded-xl font-bold text-[15px] transition-all disabled:opacity-40 disabled:cursor-not-allowed`}
-    style={{ background: disabled ? "#d1d5db" : "linear-gradient(135deg,#b38600,#d4a537)", color:"#fff", boxShadow: disabled ? "none" : "0 4px 16px rgba(179,134,0,0.3)" }}>
-    {children}
   </button>
 );
 
