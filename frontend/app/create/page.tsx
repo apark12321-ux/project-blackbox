@@ -47,7 +47,7 @@ function CurationPage(){
         {/* Categories */}
         <div className="p-3 md:p-4 border-b shrink-0" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-[13px] md:text-[15px] font-extrabold text-[#4b5563]">카테고리</h2>
+            <h2 className="text-[13px] md:text-[15px] font-extrabold text-white/60">카테고리</h2>
             <Guide items={[{q:"CPM ($12~18)?",a:"광고 1,000회 노출당 수익. CPM $15 → 1만 조회 시 $150."},
               {q:"어떤 카테고리?",a:"수익 우선 → 경제/시니어. 성장 우선 → 테크/라이프."}]}/>
           </div>
@@ -60,8 +60,8 @@ function CurationPage(){
                     ${on?"border border-[#c49a1a]/40":"border border-transparent"}`}
                   style={on?{background:"rgba(212,175,55,0.06)"}:{}}>
                   <span className="text-[20px]">{cat.icon}</span>
-                  <span className={`text-[10px] font-bold whitespace-nowrap ${on?"text-[#c49a1a]":"text-[#6b7280]"}`}>{cat.label_ko?.split(' / ')[0]||cat.slug}</span>
-                  <span className="text-[8px] text-[#b0b5bf]">{cat.cpm_range}</span>
+                  <span className={`text-[10px] font-bold whitespace-nowrap ${on?"text-[#c49a1a]":"text-white/40"}`}>{cat.label_ko?.split(' / ')[0]||cat.slug}</span>
+                  <span className="text-[8px] text-white/30">{cat.cpm_range}</span>
                 </button>
               );
             })}
@@ -71,9 +71,9 @@ function CurationPage(){
         {/* Keywords */}
         <div className="md:flex-1 md:overflow-y-auto p-3 md:p-4" style={{background:"var(--bg-secondary)"}}>
           <div className="flex items-center justify-between mb-2">
-            <h2 className="text-[13px] md:text-[15px] font-extrabold text-[#4b5563]">황금 키워드</h2>
+            <h2 className="text-[13px] md:text-[15px] font-extrabold text-white/60">황금 키워드</h2>
             <div className="flex items-center gap-2">
-              {store.keywords.length>0&&<span className="text-[10px] text-[#b0b5bf] font-bold">{store.keywords.length}개</span>}
+              {store.keywords.length>0&&<span className="text-[10px] text-white/30 font-bold">{store.keywords.length}개</span>}
               <Guide items={[{q:"BOI 등급?",a:"검색량 대비 경쟁이 적으면 높은 등급. A+=틈새 기회."},
                 {q:"데이터 의미?",a:"검색=월간 검색수. 경쟁=기존 영상 수. CPM=광고 단가."}]}/>
             </div>
@@ -95,12 +95,12 @@ function CurationPage(){
                 return(
                   <div key={i} onClick={()=>pickKw(kw)}
                     className={`p-3 rounded-xl border cursor-pointer transition-all anim-fade-up
-                      ${on?"border-[#c49a1a]/30 glow-gold":"border-[#f0f1f3] hover:border-[#d5d7db] active:scale-[0.98]"}`}
+                      ${on?"border-[#c49a1a]/30 glow-gold":"border-white/10 hover:border-white/15 active:scale-[0.98]"}`}
                     style={{animationDelay:`${i*40}ms`,...(on?{background:"rgba(212,175,55,0.04)"}:{})}}>
                     {/* Row 1: 키워드 + 등급 + 트렌드 */}
                     <div className="flex items-center gap-2 mb-1">
-                      <span className="text-[10px] text-[#c0c5ce] font-bold w-4 shrink-0">{i+1}</span>
-                      <span className={`text-[13px] md:text-[15px] font-extrabold flex-1 truncate ${on?"text-[#c49a1a]":"text-[#1a1d23]"}`}>{kw.keyword}</span>
+                      <span className="text-[10px] text-white/25 font-bold w-4 shrink-0">{i+1}</span>
+                      <span className={`text-[13px] md:text-[15px] font-extrabold flex-1 truncate ${on?"text-[#c49a1a]":"text-white/90"}`}>{kw.keyword}</span>
                       <span className="text-[10px] font-black px-1.5 py-0.5 rounded-md shrink-0" style={{color:g.c,background:g.bg}}>{g.g}</span>
                       <span className="text-[11px] font-bold shrink-0" style={{color:m.c}}>{m.i}</span>
                     </div>
@@ -108,39 +108,39 @@ function CurationPage(){
                     {/* Row 2: BOI 게이지 바 + 수익 예측 */}
                     <div className="ml-6 mb-2">
                       <div className="flex items-center gap-1.5 mb-0.5">
-                        <span className="text-[8px] text-[#b0b5bf] font-bold">블루오션</span>
+                        <span className="text-[8px] text-white/30 font-bold">블루오션</span>
                         <span className="text-[9px] font-black" style={{color:g.c}}>{boiVal.toFixed(1)}/5.0</span>
                         <span className="ml-auto text-[9px] font-bold text-[#16a34a]">💰 월 ${rev>0?fv(rev):"-"} 예상</span>
                       </div>
-                      <div className="h-2 rounded-full overflow-hidden" style={{background:"rgba(0,0,0,0.06)"}}>
+                      <div className="h-2 rounded-full overflow-hidden" style={{background:"rgba(255,255,255,0.08)"}}>
                         <div className="h-full rounded-full anim-bar" style={{width:`${Math.min(100,(boiVal/5)*100)}%`,background:`linear-gradient(90deg, ${g.c}88, ${g.c})`,animationDelay:`${i*60+200}ms`}}/>
                       </div>
                     </div>
 
                     {/* Row 3: 데이터 그리드 */}
                     <div className="ml-6 grid grid-cols-4 gap-1 mb-1.5">
-                      <div className="text-center p-1 rounded-lg" style={{background:"rgba(0,0,0,0.02)"}}>
-                        <div className="text-[8px] text-[#b0b5bf]">월 검색</div>
-                        <div className="text-[11px] font-bold text-[#4b5563]">{fv(vol)}</div>
+                      <div className="text-center p-1 rounded-lg" style={{background:"rgba(255,255,255,0.04)"}}>
+                        <div className="text-[8px] text-white/30">월 검색</div>
+                        <div className="text-[11px] font-bold text-white/60">{fv(vol)}</div>
                       </div>
-                      <div className="text-center p-1 rounded-lg" style={{background:"rgba(0,0,0,0.02)"}}>
-                        <div className="text-[8px] text-[#b0b5bf]">CPM</div>
+                      <div className="text-center p-1 rounded-lg" style={{background:"rgba(255,255,255,0.04)"}}>
+                        <div className="text-[8px] text-white/30">CPM</div>
                         <div className="text-[11px] font-bold text-[#c49a1a]">${cpm.toFixed(0)}</div>
                       </div>
-                      <div className="text-center p-1 rounded-lg" style={{background:"rgba(0,0,0,0.02)"}}>
-                        <div className="text-[8px] text-[#b0b5bf]">경쟁</div>
+                      <div className="text-center p-1 rounded-lg" style={{background:"rgba(255,255,255,0.04)"}}>
+                        <div className="text-[8px] text-white/30">경쟁</div>
                         <div className="text-[11px] font-bold" style={{color:diffColor}}>{difficulty}</div>
                       </div>
-                      <div className="text-center p-1 rounded-lg" style={{background:"rgba(0,0,0,0.02)"}}>
-                        <div className="text-[8px] text-[#b0b5bf]">성장세</div>
+                      <div className="text-center p-1 rounded-lg" style={{background:"rgba(255,255,255,0.04)"}}>
+                        <div className="text-[8px] text-white/30">성장세</div>
                         <div className="text-[11px] font-bold" style={{color:m.c}}>{(kw.trend_momentum||0)>0.15?"급상승":(kw.trend_momentum||0)>0?"상승":"하락"}</div>
                       </div>
                     </div>
 
                     {/* Row 4: 경쟁 게이지 */}
                     <div className="ml-6 flex items-center gap-2">
-                      <span className="text-[8px] text-[#b0b5bf]">경쟁강도</span>
-                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:"rgba(0,0,0,0.04)"}}>
+                      <span className="text-[8px] text-white/30">경쟁강도</span>
+                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:"rgba(255,255,255,0.06)"}}>
                         <div className="h-full rounded-full transition-all" style={{width:`${Math.min(100,(comp/50000)*100)}%`,background:`linear-gradient(90deg, ${diffColor}88, ${diffColor})`}}/>
                       </div>
                       <span className="text-[8px] font-bold" style={{color:diffColor}}>{fv(comp)}</span>
@@ -156,7 +156,7 @@ function CurationPage(){
       {/* Right: News Feed */}
       <div id="news-feed" className="flex-1 md:flex md:flex-col md:overflow-hidden min-w-0" style={{background:"var(--bg-primary)"}}>
         <div className="p-3 md:p-4 border-b flex items-center justify-between shrink-0" style={{borderColor:"var(--border)"}}>
-          <h2 className="text-[13px] md:text-[15px] font-extrabold text-[#4b5563]">뉴스 소스 피드</h2>
+          <h2 className="text-[13px] md:text-[15px] font-extrabold text-white/60">뉴스 소스 피드</h2>
           <div className="flex items-center gap-2">
             {store.selectedNews.length>0&&<span className="text-[11px] font-bold text-[#16a34a] px-2 py-0.5 rounded-md" style={{background:"rgba(22,163,74,0.08)"}}>{store.selectedNews.length}개</span>}
             <Guide items={[{q:"뉴스 출처?",a:"선택 키워드로 최근 7일 뉴스를 AI가 자동 수집."},
@@ -176,15 +176,15 @@ function CurationPage(){
                 return(
                   <div key={i} onClick={()=>togNews(a)}
                     className={`p-3 md:p-4 rounded-xl border cursor-pointer transition-all anim-fade-up active:scale-[0.98]
-                      ${sel?"border-[#16a34a]/30 glow-green":"border-[#f0f1f3] hover:border-[#d5d7db]"}`}
+                      ${sel?"border-[#16a34a]/30 glow-green":"border-white/10 hover:border-white/15"}`}
                     style={{animationDelay:`${i*50}ms`,...(sel?{background:"rgba(22,163,74,0.03)"}:{})}}>
                     <div className="flex items-start gap-2">
-                      <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${sel?"border-[#16a34a] bg-[#16a34a]":"border-[#d1d5db]"}`}>
+                      <div className={`w-5 h-5 rounded-md border-2 flex items-center justify-center shrink-0 mt-0.5 transition-all ${sel?"border-[#16a34a] bg-[#16a34a]":"border-white/15"}`}>
                         {sel&&<span className="text-white text-[10px]">✓</span>}
                       </div>
                       <div className="flex-1 min-w-0">
-                        <h3 className="text-[13px] md:text-[14px] font-bold text-[#1a1d23] leading-tight mb-1 line-clamp-2">{a.title}</h3>
-                        <p className="text-[11px] text-[#6b7280] line-clamp-2 mb-2 leading-relaxed">{a.summary}</p>
+                        <h3 className="text-[13px] md:text-[14px] font-bold text-white/90 leading-tight mb-1 line-clamp-2">{a.title}</h3>
+                        <p className="text-[11px] text-white/40 line-clamp-2 mb-2 leading-relaxed">{a.summary}</p>
 
                         {/* 핵심 팩트 하이라이트 */}
                         {a.key_facts&&a.key_facts.length>0&&(
@@ -192,7 +192,7 @@ function CurationPage(){
                             {a.key_facts.slice(0,2).map((f:string,fi:number)=>(
                               <div key={fi} className="flex items-start gap-1.5">
                                 <span className="text-[9px] mt-0.5">💡</span>
-                                <span className="text-[10px] text-[#374151] leading-tight">{f}</span>
+                                <span className="text-[10px] text-white/70 leading-tight">{f}</span>
                               </div>
                             ))}
                           </div>
@@ -200,8 +200,8 @@ function CurationPage(){
 
                         {/* 관련도 게이지 */}
                         <div className="flex items-center gap-1.5 mb-2">
-                          <span className="text-[8px] text-[#b0b5bf]">관련도</span>
-                          <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:"rgba(0,0,0,0.04)"}}>
+                          <span className="text-[8px] text-white/30">관련도</span>
+                          <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:"rgba(255,255,255,0.06)"}}>
                             <div className="h-full rounded-full transition-all" style={{width:`${rel*100}%`,background:`linear-gradient(90deg, ${relColor}88, ${relColor})`}}/>
                           </div>
                           <span className="text-[9px] font-bold" style={{color:relColor}}>{Math.round(rel*100)}%</span>
@@ -212,7 +212,7 @@ function CurationPage(){
                           <span className="text-[9px] px-1.5 py-0.5 rounded font-bold" style={{background:`${tierColor}15`,color:tierColor}}>{a.cpm_tier==="High"?"💰 High CPM":a.cpm_tier==="Mid"?"💵 Mid CPM":"📊 Low CPM"}</span>
                           <span className="text-[9px] px-1.5 py-0.5 rounded font-bold" style={{background:`${srcColor}15`,color:srcColor}}>📰 {a.source||"News"}</span>
                           <span className="text-[9px] px-1.5 py-0.5 rounded font-bold" style={{background:`${srcColor}15`,color:srcColor}}>{srcCredibility==="높음"?"✅ 높은 신뢰도":"📋 보통 신뢰도"}</span>
-                          {a.published_at&&<span className="text-[8px] text-[#b0b5bf] ml-auto">{new Date(a.published_at).toLocaleDateString("ko-KR",{month:"short",day:"numeric"})}</span>}
+                          {a.published_at&&<span className="text-[8px] text-white/30 ml-auto">{new Date(a.published_at).toLocaleDateString("ko-KR",{month:"short",day:"numeric"})}</span>}
                         </div>
                       </div>
                     </div>
@@ -265,11 +265,11 @@ function ScriptPage(){
       <div className="flex-1 md:flex md:flex-col md:overflow-hidden min-w-0">
         <div className="p-3 md:p-4 border-b flex items-center justify-between shrink-0" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
           <div className="flex items-center gap-3">
-            <h2 className="text-[13px] md:text-[15px] font-extrabold text-[#4b5563]">AI 스크립트</h2>
+            <h2 className="text-[13px] md:text-[15px] font-extrabold text-white/60">AI 스크립트</h2>
             {store.script&&(
               <div className="flex rounded-lg overflow-hidden border" style={{borderColor:"var(--border)"}}>
-                <button onClick={()=>setView("blocks")} className={`px-2.5 py-1 text-[10px] md:text-[11px] font-bold ${view==="blocks"?"text-[#c49a1a]":"text-[#b0b5bf]"}`} style={view==="blocks"?{background:"rgba(196,154,26,0.08)"}:{}}>블록</button>
-                <button onClick={()=>setView("scenario")} className={`px-2.5 py-1 text-[10px] md:text-[11px] font-bold ${view==="scenario"?"text-[#c49a1a]":"text-[#b0b5bf]"}`} style={view==="scenario"?{background:"rgba(196,154,26,0.08)"}:{}}>시나리오</button>
+                <button onClick={()=>setView("blocks")} className={`px-2.5 py-1 text-[10px] md:text-[11px] font-bold ${view==="blocks"?"text-[#c49a1a]":"text-white/30"}`} style={view==="blocks"?{background:"rgba(196,154,26,0.08)"}:{}}>블록</button>
+                <button onClick={()=>setView("scenario")} className={`px-2.5 py-1 text-[10px] md:text-[11px] font-bold ${view==="scenario"?"text-[#c49a1a]":"text-white/30"}`} style={view==="scenario"?{background:"rgba(196,154,26,0.08)"}:{}}>시나리오</button>
               </div>
             )}
           </div>
@@ -296,19 +296,19 @@ function ScriptPage(){
                     <div className="flex items-center gap-2 mb-2">
                       <span className="text-[12px]">{s.icon}</span>
                       <span className="text-[10px] font-bold px-1.5 py-0.5 rounded" style={{color:s.color,background:`${s.color}12`}}>{s.label}</span>
-                      <span className="text-[9px] text-[#b0b5bf] ml-auto">{b.duration_sec?.toFixed(0)}s</span>
-                      <button onClick={()=>rb(i)} className="text-[9px] text-[#b0b5bf] hover:text-[#6b7280] px-1">🔄</button>
-                      <button onClick={()=>{setEbi(i);setEt(b.text);}} className="text-[9px] text-[#b0b5bf] hover:text-[#6b7280] px-1">✏️</button>
+                      <span className="text-[9px] text-white/30 ml-auto">{b.duration_sec?.toFixed(0)}s</span>
+                      <button onClick={()=>rb(i)} className="text-[9px] text-white/30 hover:text-white/40 px-1">🔄</button>
+                      <button onClick={()=>{setEbi(i);setEt(b.text);}} className="text-[9px] text-white/30 hover:text-white/40 px-1">✏️</button>
                     </div>
                     {ebi===i?(
                       <div className="space-y-2">
                         <textarea value={et} onChange={e=>setEt(e.target.value)} rows={4} className="w-full p-2 rounded-lg text-[12px] border resize-none focus:outline-none focus:ring-1 focus:ring-[#c49a1a]/30" style={{borderColor:"var(--border)"}}/>
                         <div className="flex gap-2">
                           <button onClick={()=>eb(i)} className="px-3 py-1 rounded-md text-[10px] font-bold text-white" style={{background:"#c49a1a"}}>저장</button>
-                          <button onClick={()=>setEbi(null)} className="px-3 py-1 rounded-md text-[10px] font-bold text-[#9ca3af]">취소</button>
+                          <button onClick={()=>setEbi(null)} className="px-3 py-1 rounded-md text-[10px] font-bold text-white/35">취소</button>
                         </div>
                       </div>
-                    ):<p className="text-[12px] md:text-[13px] text-[#4b5563] leading-relaxed">{b.text}</p>}
+                    ):<p className="text-[12px] md:text-[13px] text-white/60 leading-relaxed">{b.text}</p>}
                   </div>
                 );
               })}
@@ -316,7 +316,7 @@ function ScriptPage(){
           ):store.script&&view==="scenario"?(
             <div className="p-4 rounded-xl border" style={{borderColor:"var(--border)"}}>
               {store.script.blocks?.map((b:any,i:number)=>(
-                <p key={i} className="text-[13px] text-[#4b5563] leading-relaxed mb-3">{b.text}</p>
+                <p key={i} className="text-[13px] text-white/60 leading-relaxed mb-3">{b.text}</p>
               ))}
             </div>
           ):!store.script?<Empty icon="◆" text="큐레이션을 먼저 완료하세요"/>:null}
@@ -326,7 +326,7 @@ function ScriptPage(){
       {/* Tools Panel */}
       <div className="w-full md:w-[280px] shrink-0 md:border-l md:flex md:flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
         <div className="p-3 md:p-4 border-b md:border-t-0 border-t shrink-0" style={{borderColor:"var(--border)"}}>
-          <h2 className="text-[13px] font-extrabold text-[#4b5563]">도구</h2>
+          <h2 className="text-[13px] font-extrabold text-white/60">도구</h2>
         </div>
         <div className="p-3 md:p-4 space-y-2">
           <Guide items={[{q:"재생성/재작성 차이?",a:"재생성=같은 뉴스로 새 대본. 재작성=톤/스타일 완전 변경."},
@@ -374,20 +374,20 @@ function VideoPage(){
     <div className="h-full overflow-y-auto md:overflow-hidden md:flex">
       <div className="flex-1 md:flex md:flex-col md:overflow-hidden min-w-0">
         <div className="p-3 md:p-4 border-b shrink-0" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
-          <h2 className="text-[13px] md:text-[15px] font-extrabold text-[#4b5563]">영상 제작</h2>
+          <h2 className="text-[13px] md:text-[15px] font-extrabold text-white/60">영상 제작</h2>
         </div>
         <div className="md:flex-1 md:overflow-y-auto p-4 md:p-6">
           {err&&<ErrBox>{err}</ErrBox>}
 
           {ld?(
             <div className="flex flex-col items-center py-12 gap-4">
-              <div className="w-full max-w-sm p-5 rounded-2xl relative overflow-hidden" style={{background:"var(--bg-card)",border:"1px solid var(--border)",boxShadow:"0 4px 24px rgba(0,0,0,0.06)"}}>
+              <div className="w-full max-w-sm p-5 rounded-2xl relative overflow-hidden" style={{background:"var(--bg-card)",border:"1px solid var(--border)",boxShadow:"0 4px 24px rgba(255,255,255,0.08)"}}>
                 <div className="absolute top-0 left-0 right-0 h-[2px]" style={{background:"linear-gradient(90deg,#c49a1a,#e8c84a,#c49a1a)",backgroundSize:"200% 100%",animation:"shimmer 2s linear infinite"}}/>
                 <div className="flex items-center justify-between mb-4">
-                  <span className="text-[14px] font-bold text-[#1a1d23]">영상 생성 중</span>
+                  <span className="text-[14px] font-bold text-white/90">영상 생성 중</span>
                   <span className="text-[16px] font-black tabular-nums" style={{color:"#c49a1a"}}>{pg}%</span>
                 </div>
-                <div className="h-2 rounded-full overflow-hidden mb-5" style={{background:"rgba(0,0,0,0.05)"}}>
+                <div className="h-2 rounded-full overflow-hidden mb-5" style={{background:"rgba(255,255,255,0.07)"}}>
                   <div className="h-full rounded-full transition-all duration-700" style={{width:`${pg}%`,background:"linear-gradient(90deg,#c49a1a,#e8c84a)"}}/>
                 </div>
                 <div className="space-y-1">
@@ -397,23 +397,23 @@ function VideoPage(){
                      {label:"최종 합성",done:phase>=5,active:phase===4,icon:"🎬"}
                   ] as const).map((s,i)=>(
                     <div key={i} className={`flex items-center gap-2.5 p-2.5 rounded-lg transition-all ${s.active?"bg-[#c49a1a]/5 border border-[#c49a1a]/15":s.done?"bg-[#16a34a]/3":"border border-transparent"}`}>
-                      <div className={`w-6 h-6 rounded-md flex items-center justify-center text-[11px] font-bold shrink-0 ${s.done?"bg-[#16a34a]/10 text-[#16a34a]":s.active?"bg-[#c49a1a]/10 text-[#c49a1a]":"bg-[#f3f4f6] text-[#d1d5db]"}`}>
+                      <div className={`w-6 h-6 rounded-md flex items-center justify-center text-[11px] font-bold shrink-0 ${s.done?"bg-[#16a34a]/10 text-[#16a34a]":s.active?"bg-[#c49a1a]/10 text-[#c49a1a]":"bg-white/8 text-white/20"}`}>
                         {s.done?"✓":s.active?<span style={{animation:"spin 2s linear infinite",display:"inline-block"}}>{s.icon}</span>:<span className="text-[10px]">{i+1}</span>}
                       </div>
-                      <span className={`text-[12px] font-semibold ${s.done?"text-[#374151]":s.active?"text-[#1a1d23]":"text-[#c0c5ce]"}`}>{s.label}</span>
+                      <span className={`text-[12px] font-semibold ${s.done?"text-white/70":s.active?"text-white/90":"text-white/25"}`}>{s.label}</span>
                       {s.done&&<span className="text-[9px] text-[#16a34a] font-bold ml-auto">완료</span>}
                       {s.active&&<div className="flex gap-0.5 ml-auto">{[0,1,2].map(d=><span key={d} className="w-1 h-1 rounded-full bg-[#c49a1a]" style={{animation:`dot-bounce 1.4s ease-in-out ${d*0.2}s infinite`}}/>)}</div>}
                     </div>
                   ))}
                 </div>
               </div>
-              <p className="text-[11px] text-[#b0b5bf]">{elapsed>0?`${Math.floor(elapsed/60)}:${String(elapsed%60).padStart(2,'0')} 경과`:"약 3~5분 소요"}</p>
+              <p className="text-[11px] text-white/30">{elapsed>0?`${Math.floor(elapsed/60)}:${String(elapsed%60).padStart(2,'0')} 경과`:"약 3~5분 소요"}</p>
             </div>
           ):store.video?(
             <div className="flex flex-col items-center py-8 gap-4 anim-fade-up">
               <div className="text-[48px] anim-score">🎬</div>
-              <h3 className="text-[18px] font-bold text-[#1a1d23]">영상 완성!</h3>
-              <p className="text-[12px] text-[#9ca3af]">{store.video.duration_sec?.toFixed(0)}초 · {((store.video.file_size_bytes||0)/1024/1024).toFixed(1)}MB</p>
+              <h3 className="text-[18px] font-bold text-white/90">영상 완성!</h3>
+              <p className="text-[12px] text-white/35">{store.video.duration_sec?.toFixed(0)}초 · {((store.video.file_size_bytes||0)/1024/1024).toFixed(1)}MB</p>
               <a href={`${API}${store.video.download_url}`} download className="px-8 py-3 rounded-xl text-[14px] font-bold text-white" style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>⬇ 다운로드</a>
               <GoldBtn onClick={()=>{store.setStep(5);store.setActivePage("deploy");}}>검수 & 배포 →</GoldBtn>
             </div>
@@ -422,7 +422,7 @@ function VideoPage(){
               <Guide items={[{q:"영상 생성 과정?",a:"TTS → Gemini 인포그래픽/Pexels 배경 → 아바타(선택) → FFmpeg 합성."},
                 {q:"시니어 모드?",a:"TTS 느리게, 자막 크게, BGM 작게. 50대+ 타겟."}]}/>
               <div className="text-center">
-                <p className="text-[12px] text-[#9ca3af] mb-1">{totalBlocks}블록 · {Math.floor(totalDur/60)}분 {Math.round(totalDur%60)}초</p>
+                <p className="text-[12px] text-white/35 mb-1">{totalBlocks}블록 · {Math.floor(totalDur/60)}분 {Math.round(totalDur%60)}초</p>
                 <button onClick={gen} className="px-10 py-3.5 rounded-xl text-[15px] font-bold text-white transition-all hover:brightness-110 active:scale-[0.97] anim-pulse"
                   style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)",boxShadow:"0 6px 30px rgba(196,154,26,0.3)"}}>
                   🎬 영상 생성 시작
@@ -435,9 +435,9 @@ function VideoPage(){
 
       {/* Settings */}
       <div className="w-full md:w-[260px] shrink-0 md:border-l md:flex md:flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
-        <div className="p-3 md:p-4 border-b md:border-t-0 border-t shrink-0" style={{borderColor:"var(--border)"}}><h2 className="text-[13px] font-extrabold text-[#4b5563]">설정</h2></div>
+        <div className="p-3 md:p-4 border-b md:border-t-0 border-t shrink-0" style={{borderColor:"var(--border)"}}><h2 className="text-[13px] font-extrabold text-white/60">설정</h2></div>
         <div className="p-3 md:p-4 space-y-3 text-[12px]">
-          <div className="flex justify-between"><span className="text-[#9ca3af]">시니어 모드</span><Tog on={store.mode==="senior"} fn={()=>store.setMode(store.mode==="senior"?"normal":"senior")}/></div>
+          <div className="flex justify-between"><span className="text-white/35">시니어 모드</span><Tog on={store.mode==="senior"} fn={()=>store.setMode(store.mode==="senior"?"normal":"senior")}/></div>
           <div className="h-px" style={{background:"var(--border)"}}/>
           {([["해상도","1920×1080"],["TTS","ElevenLabs"],["비주얼","Gemini AI"],["자막","한글"],["BGM","Ambient"]] as [string,string][]).map(([l,v])=><Row key={l} l={l} v={v}/>)}
         </div>
@@ -466,7 +466,7 @@ function DeployPage(){
   return(
     <div className="h-full overflow-y-auto md:overflow-hidden md:flex">
       <div className="flex-1 md:flex md:flex-col md:overflow-hidden">
-        <div className="p-3 md:p-4 border-b shrink-0" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}><h2 className="text-[13px] md:text-[15px] font-extrabold text-[#4b5563]">알고리즘 실드</h2></div>
+        <div className="p-3 md:p-4 border-b shrink-0" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}><h2 className="text-[13px] md:text-[15px] font-extrabold text-white/60">알고리즘 실드</h2></div>
         <div className="md:flex-1 md:overflow-y-auto p-4 md:p-6">
           <Guide items={[{q:"Safety Score?",a:"유튜브 수익 창출 정책 안전도 (0~100). 70+ 필요."},
             {q:"점수 낮으면?",a:"의견/팩트 추가, 영상 길이 늘리기, 아바타 활성화."}]}/>
@@ -477,10 +477,10 @@ function DeployPage(){
                 <div className="text-center anim-score">
                   <div className="text-[56px] md:text-[72px] font-black leading-none" style={{color:sc(s)}}>{Math.round(s)}</div>
                   <div className="text-[13px] font-bold mt-1" style={{color:sc(s)}}>{store.shield.grade}</div>
-                  <div className="text-[11px] text-[#b0b5bf] mt-0.5">{passed?"✓ 안전":"⚠ 개선 필요"}</div>
+                  <div className="text-[11px] text-white/30 mt-0.5">{passed?"✓ 안전":"⚠ 개선 필요"}</div>
                 </div>
                 <div className="flex-1">
-                  <div className="h-4 rounded-full overflow-hidden" style={{background:"rgba(0,0,0,0.04)"}}>
+                  <div className="h-4 rounded-full overflow-hidden" style={{background:"rgba(255,255,255,0.06)"}}>
                     <div className="h-full rounded-full anim-bar" style={{width:`${s}%`,background:sc(s)}}/>
                   </div>
                 </div>
@@ -490,8 +490,8 @@ function DeployPage(){
                 <div className="p-4 rounded-xl border border-[#f87171]/20 anim-fade-up" style={{background:"rgba(248,113,113,0.03)"}}>
                   <p className="text-[13px] font-bold text-[#f87171] mb-2">🚫 수익화 위험</p>
                   <div className="flex gap-2">
-                    <button onClick={goBackToScript} className="flex-1 p-3 rounded-lg border text-center text-[11px] font-bold text-[#6b7280]" style={{borderColor:"var(--border)"}}>📝 스크립트 수정</button>
-                    <button onClick={goBackToVideo} className="flex-1 p-3 rounded-lg border text-center text-[11px] font-bold text-[#6b7280]" style={{borderColor:"var(--border)"}}>🎬 영상 재생성</button>
+                    <button onClick={goBackToScript} className="flex-1 p-3 rounded-lg border text-center text-[11px] font-bold text-white/40" style={{borderColor:"var(--border)"}}>📝 스크립트 수정</button>
+                    <button onClick={goBackToVideo} className="flex-1 p-3 rounded-lg border text-center text-[11px] font-bold text-white/40" style={{borderColor:"var(--border)"}}>🎬 영상 재생성</button>
                   </div>
                 </div>
               )}
@@ -501,7 +501,7 @@ function DeployPage(){
                   {store.shield.checks.map((c:any,i:number)=>(
                     <div key={i} className="flex items-center gap-2 p-2.5 rounded-lg anim-fade-up" style={{animationDelay:`${i*60}ms`,background:c.passed?"rgba(22,163,74,0.03)":"rgba(248,113,113,0.03)"}}>
                       <span className="text-[12px]">{c.passed?"✅":"❌"}</span>
-                      <span className="text-[12px] text-[#4b5563] flex-1">{c.label}</span>
+                      <span className="text-[12px] text-white/60 flex-1">{c.label}</span>
                       <span className="text-[10px] font-bold" style={{color:c.passed?"#16a34a":"#f87171"}}>{c.score}/{c.max}</span>
                     </div>
                   ))}
@@ -524,20 +524,20 @@ function DeployPage(){
 
       {/* SEO/Schedule */}
       <div className="w-full md:w-[280px] shrink-0 md:border-l md:flex md:flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
-        <div className="p-3 md:p-4 border-b md:border-t-0 border-t shrink-0" style={{borderColor:"var(--border)"}}><h2 className="text-[13px] font-extrabold text-[#4b5563]">SEO & 스케줄</h2></div>
+        <div className="p-3 md:p-4 border-b md:border-t-0 border-t shrink-0" style={{borderColor:"var(--border)"}}><h2 className="text-[13px] font-extrabold text-white/60">SEO & 스케줄</h2></div>
         <div className="p-3 md:p-4 space-y-3">
           {store.shield?.seo?(
             <>
-              <div><label className="text-[10px] font-bold text-[#9ca3af] block mb-1">추천 제목</label><p className="text-[12px] font-bold text-[#1a1d23] p-2 rounded-lg" style={{background:"var(--bg-elevated)"}}>{store.shield.seo.title}</p></div>
-              <div><label className="text-[10px] font-bold text-[#9ca3af] block mb-1">설명</label><p className="text-[11px] text-[#6b7280] p-2 rounded-lg line-clamp-4" style={{background:"var(--bg-elevated)"}}>{store.shield.seo.description}</p></div>
-              <div><label className="text-[10px] font-bold text-[#9ca3af] block mb-1">태그</label><div className="flex flex-wrap gap-1">{store.shield.seo.tags?.map((t:string,i:number)=><span key={i} className="text-[9px] px-1.5 py-0.5 rounded bg-[#f3f4f6] text-[#6b7280]">{t}</span>)}</div></div>
+              <div><label className="text-[10px] font-bold text-white/35 block mb-1">추천 제목</label><p className="text-[12px] font-bold text-white/90 p-2 rounded-lg" style={{background:"var(--bg-elevated)"}}>{store.shield.seo.title}</p></div>
+              <div><label className="text-[10px] font-bold text-white/35 block mb-1">설명</label><p className="text-[11px] text-white/40 p-2 rounded-lg line-clamp-4" style={{background:"var(--bg-elevated)"}}>{store.shield.seo.description}</p></div>
+              <div><label className="text-[10px] font-bold text-white/35 block mb-1">태그</label><div className="flex flex-wrap gap-1">{store.shield.seo.tags?.map((t:string,i:number)=><span key={i} className="text-[9px] px-1.5 py-0.5 rounded bg-white/8 text-white/40">{t}</span>)}</div></div>
             </>
-          ):<p className="text-[11px] text-[#b0b5bf]">분석 후 자동 생성됩니다</p>}
+          ):<p className="text-[11px] text-white/30">분석 후 자동 생성됩니다</p>}
           {store.shield?.schedule&&(
             <div className="p-3 rounded-xl" style={{background:"rgba(196,154,26,0.04)",border:"1px solid rgba(196,154,26,0.1)"}}>
               <p className="text-[10px] font-bold text-[#c49a1a] mb-1">추천 업로드 시간</p>
-              <p className="text-[13px] font-bold text-[#1a1d23]">{store.shield.schedule.best_time}</p>
-              <p className="text-[10px] text-[#9ca3af] mt-0.5">{store.shield.schedule.reason}</p>
+              <p className="text-[13px] font-bold text-white/90">{store.shield.schedule.best_time}</p>
+              <p className="text-[10px] text-white/35 mt-0.5">{store.shield.schedule.reason}</p>
             </div>
           )}
         </div>
@@ -552,7 +552,7 @@ function Guide({items}:{items:{q:string;a:string}[]}){
   const[open,setOpen]=useState(false);
   return(
     <div className="mb-2">
-      <button onClick={()=>setOpen(!open)} className="flex items-center gap-1.5 text-[10px] text-[#b0b5bf] hover:text-[#9ca3af] transition-colors">
+      <button onClick={()=>setOpen(!open)} className="flex items-center gap-1.5 text-[10px] text-white/30 hover:text-white/35 transition-colors">
         <span style={{transform:open?"rotate(90deg)":"",transition:"transform 0.2s",display:"inline-block",fontSize:"8px"}}>▶</span>
         <span className="font-bold">사용법</span>
       </button>
@@ -561,7 +561,7 @@ function Guide({items}:{items:{q:string;a:string}[]}){
           {items.map((item,i)=>(
             <div key={i}>
               <div className="font-bold text-[#c49a1a] mb-0.5 text-[10px]">{item.q}</div>
-              <div className="text-[#7c8290] leading-relaxed text-[10px]">{item.a}</div>
+              <div className="text-white/35 leading-relaxed text-[10px]">{item.a}</div>
             </div>
           ))}
         </div>
@@ -570,9 +570,9 @@ function Guide({items}:{items:{q:string;a:string}[]}){
   );
 }
 function Spinner({className=""}:{className?:string}){return<div className={`flex items-center justify-center ${className}`}><div className="w-7 h-7 border-2 border-[#c49a1a]/15 border-t-[#c49a1a] rounded-full animate-spin"/></div>;}
-function Empty({icon,text}:{icon:string;text:string}){return<div className="flex flex-col items-center justify-center py-16 text-[#d1d5db]"><span className="text-[40px] mb-3 anim-float">{icon}</span><span className="text-[13px]">{text}</span></div>;}
-function ErrBox({children}:{children:React.ReactNode}){return<div className="mb-3 p-3 rounded-xl border border-red-400/20 bg-red-50 text-red-500 text-[12px]">{children}</div>;}
+function Empty({icon,text}:{icon:string;text:string}){return<div className="flex flex-col items-center justify-center py-16 text-white/20"><span className="text-[40px] mb-3 anim-float">{icon}</span><span className="text-[13px]">{text}</span></div>;}
+function ErrBox({children}:{children:React.ReactNode}){return<div className="mb-3 p-3 rounded-xl border border-red-400/20 bg-red-900/20 text-red-500 text-[12px]">{children}</div>;}
 function GoldBtn({children,onClick,disabled}:{children:React.ReactNode;onClick?:()=>void;disabled?:boolean}){return<button onClick={onClick} disabled={disabled} className="w-full py-3 rounded-xl text-[13px] font-bold text-white transition-all hover:brightness-110 active:scale-[0.98] disabled:opacity-30" style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)",boxShadow:"0 4px 16px rgba(196,154,26,0.2)"}}>{children}</button>;}
-function TBtn({icon,label,desc,onClick,disabled}:{icon:string;label:string;desc:string;onClick:()=>void;disabled?:boolean}){return<button onClick={onClick} disabled={disabled} className="w-full text-left p-3 rounded-xl border transition-all hover:border-[#d5d7db] active:scale-[0.98] disabled:opacity-20" style={{borderColor:"var(--border)"}}><div className="flex items-center gap-3"><span className="text-[18px]">{icon}</span><div><div className="text-[12px] font-bold text-[#374151]">{label}</div><div className="text-[10px] text-[#b0b5bf]">{desc}</div></div></div></button>;}
-function Row({l,v}:{l:string;v:string}){return<div className="flex items-center justify-between"><span className="text-[11px] text-[#b0b5bf]">{l}</span><span className="text-[11px] text-[#6b7280] font-bold">{v}</span></div>;}
-function Tog({on,fn}:{on:boolean;fn:()=>void}){return<button onClick={fn} className={`w-10 h-5 rounded-full relative transition-all ${on?"bg-[#c49a1a]":"bg-[#e5e7eb]"}`}><div className={`w-4 h-4 rounded-full bg-white absolute top-0.5 transition-all shadow-sm ${on?"left-[22px]":"left-0.5"}`}/></button>;}
+function TBtn({icon,label,desc,onClick,disabled}:{icon:string;label:string;desc:string;onClick:()=>void;disabled?:boolean}){return<button onClick={onClick} disabled={disabled} className="w-full text-left p-3 rounded-xl border transition-all hover:border-white/15 active:scale-[0.98] disabled:opacity-20" style={{borderColor:"var(--border)"}}><div className="flex items-center gap-3"><span className="text-[18px]">{icon}</span><div><div className="text-[12px] font-bold text-white/70">{label}</div><div className="text-[10px] text-white/30">{desc}</div></div></div></button>;}
+function Row({l,v}:{l:string;v:string}){return<div className="flex items-center justify-between"><span className="text-[11px] text-white/30">{l}</span><span className="text-[11px] text-white/40 font-bold">{v}</span></div>;}
+function Tog({on,fn}:{on:boolean;fn:()=>void}){return<button onClick={fn} className={`w-10 h-5 rounded-full relative transition-all ${on?"bg-[#c49a1a]":"bg-white/10"}`}><div className={`w-4 h-4 rounded-full bg-white absolute top-0.5 transition-all shadow-sm ${on?"left-[22px]":"left-0.5"}`}/></button>;}
