@@ -45,79 +45,31 @@ def _dur(p):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  1. TTS — ElevenLabs → Edge TTS → 무음 fallback
+#  1. TTS — ElevenLabs → 무음 fallback
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-async def _edge_tts(text, path, speed=1.0):
-    """Edge TTS — 무료, API 키 불필요, SSML prosody rate로 속도 제어"""
-    try:
-        import edge_tts
-        voice = os.getenv("EDGE_TTS_VOICE", "ko-KR-SunHiNeural")
-        # SSML prosody rate로 속도 제어 (ElevenLabs와 동일한 speed 값 적용)
-        rate_pct = int((speed - 1.0) * 100)  # 1.0 → 0%, 0.92 → -8%
-        rate_str = f"{rate_pct:+d}%"
-        ssml_text = f'<speak><prosody rate="{rate_str}">{text}</prosody></speak>'
-        communicate = edge_tts.Communicate(ssml_text, voice)
-        await communicate.save(path)
-        if os.path.exists(path) and os.path.getsize(path) > 1000:
-            logger.info(f"[EdgeTTS] ✓ voice={voice}, rate={rate_str}")
-            return path
-    except ImportError:
-        logger.warning("[EdgeTTS] edge-tts 패키지 없음 (pip install edge-tts)")
-    except Exception as e:
-        # SSML 실패 시 plain text로 재시도
-        try:
-            import edge_tts as _et
-            voice = os.getenv("EDGE_TTS_VOICE", "ko-KR-SunHiNeural")
-            communicate = _et.Communicate(text, voice)
-            await communicate.save(path)
-            if os.path.exists(path) and os.path.getsize(path) > 1000:
-                logger.info(f"[EdgeTTS] ✓ plain fallback, voice={voice}")
-                return path
-        except Exception as e2:
-            logger.warning(f"[EdgeTTS] {e2}")
-    return ""
-
-class TTSFailedError(Exception):
-    """ElevenLabs와 Edge TTS 모두 실패했을 때 발생 — 무음 영상 생성 금지"""
-    pass
-
 async def _tts_block(text, path, voice_id="2gbExjiWDnG1DMGr81Bx", speed=1.0):
-    est = len(text) / (8.0 * speed)
-    errors = []
-
-    # ── 1순위: ElevenLabs ──
     key = os.getenv("ELEVENLABS_API_KEY","").strip()
-    if key:
-        try:
-            import httpx
-            async with httpx.AsyncClient(timeout=120) as c:
-                r = await c.post(f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
-                    headers={"xi-api-key":key,"Content-Type":"application/json"},
-                    json={"text":text,"model_id":"eleven_multilingual_v2",
-                          "voice_settings":{"stability":0.55,"similarity_boost":0.82,
-                                            "style":0.15,"use_speaker_boost":True,"speed":speed}})
-                r.raise_for_status()
-                with open(path,"wb") as f: f.write(r.content)
-                d = _dur(path)
-                logger.info(f"[TTS] ElevenLabs ✓ {d:.1f}s")
-                return path, d if d > 0 else est
-        except Exception as e:
-            errors.append(f"ElevenLabs: {e}")
-            logger.warning(f"[TTS] ElevenLabs 실패 ({e}) — Edge TTS 시도")
-
-    # ── 2순위: Edge TTS (무료, 한국어 고퀄리티) ──
-    edge_path = await _edge_tts(text, path, speed)
-    if edge_path:
-        d = _dur(edge_path)
-        return edge_path, d if d > 0 else est
-    errors.append("Edge TTS: 실패")
-
-    # ── TTS 완전 실패 → 영상 생성 중단 ──
-    raise TTSFailedError(
-        f"음성 생성 실패: {' / '.join(errors)}\n"
-        "ElevenLabs API 키를 확인하거나 네트워크 상태를 점검해 주세요."
-    )
+    est = len(text) / (8.0 * speed)
+    if not key:
+        logger.warning("[TTS] No API key — silent fallback")
+        _silent(path, est); return path, est
+    try:
+        import httpx
+        async with httpx.AsyncClient(timeout=120) as c:
+            r = await c.post(f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+                headers={"xi-api-key":key,"Content-Type":"application/json"},
+                json={"text":text,"model_id":"eleven_multilingual_v2",
+                      "voice_settings":{"stability":0.55,"similarity_boost":0.82,
+                                        "style":0.15,"use_speaker_boost":True,"speed":speed}})
+            r.raise_for_status()
+            with open(path,"wb") as f: f.write(r.content)
+            d = _dur(path)
+            logger.info(f"[TTS] ✓ {d:.1f}s")
+            return path, d if d > 0 else est
+    except Exception as e:
+        logger.error(f"[TTS] {e} — silent fallback")
+        _silent(path, est); return path, est
 
 async def _tts_all(blocks, jd, speed=1.0, voice_id="2gbExjiWDnG1DMGr81Bx"):
     durs, paths = [], []
@@ -219,7 +171,7 @@ async def _get_slide_image(keyword, text, idx, total, category, section, jd, sty
         return slide, "fal.ai"
 
     # ── 3순위: Pexels ──
-    pex = await _try_pexels(text, category, idx, jd, keyword)
+    pex = await _try_pexels(text, category, idx, jd)
     if pex:
         _add_overlay(pex, keyword, idx, total, slide)
         logger.info(f"[IMG] Block {idx+1}/{total}: pexels ✓")
@@ -250,20 +202,20 @@ async def _try_gemini(keyword, core, idx, total, section, vis, pal, style, prev_
 
     try:
         import httpx
-        for attempt in range(5):
+        for attempt in range(3):
             async with httpx.AsyncClient(timeout=90) as c:
                 r = await c.post(
-                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-04-17:generateContent",
+                    "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-image:generateContent",
                     params={"key": key},
                     json={"contents":[{"parts":[{"text":prompt}]}],
                           "generationConfig":{"responseModalities":["TEXT","IMAGE"]}})
-                if r.status_code in (429, 503):
-                    wait = 8 * (2 ** attempt)  # 8, 16, 32, 64, 128초
-                    logger.info(f"[Gemini] {r.status_code}, wait {wait}s ({attempt+1}/5)")
-                    await asyncio.sleep(min(wait, 120))
+                if r.status_code == 429:
+                    wait = 4 + attempt * 4
+                    logger.info(f"[Gemini] 429, wait {wait}s ({attempt+1}/3)")
+                    await asyncio.sleep(wait)
                     continue
                 if r.status_code != 200:
-                    logger.warning(f"[Gemini] HTTP {r.status_code}: {r.text[:100]}")
+                    logger.warning(f"[Gemini] HTTP {r.status_code}")
                     return ""
                 for part in r.json().get("candidates",[{}])[0].get("content",{}).get("parts",[]):
                     if "inlineData" in part:
@@ -334,52 +286,28 @@ async def _try_fal(keyword, core, idx, total, section, vis, pal, style, jd):
 
 
 # ── Pexels ──
-_KR_EN = {
-    "주식":"stock market chart","부동산":"real estate property","투자":"investment finance",
-    "연금":"retirement pension","절세":"tax planning","건강":"health wellness",
-    "운동":"fitness exercise","AI":"artificial intelligence","경제":"economy business",
-    "금리":"interest rate banking","창업":"startup entrepreneur","노후":"retirement lifestyle",
-    "배당":"dividend stock","ETF":"ETF fund investing","펀드":"mutual fund investment",
-    "보험":"insurance financial","적금":"savings bank","대출":"loan mortgage",
-    "수익":"profit income","손실":"financial risk","자산":"wealth management",
-    "인플레이션":"inflation economy","달러":"dollar currency exchange","환율":"currency exchange",
-    "암호화폐":"cryptocurrency bitcoin","채권":"bond investment","원자재":"commodity market",
-    "은퇴":"retirement planning","재테크":"financial planning wealth","절약":"saving money frugal",
-    "직장":"office workplace professional","사업":"business entrepreneurship",
-    "습관":"habit productivity routine","독서":"reading books learning","성장":"personal growth",
-    "다이어트":"diet nutrition healthy eating","수면":"sleep rest relaxation",
-    "스트레스":"stress management mindfulness","명상":"meditation zen calm",
-    "요리":"cooking food gourmet","여행":"travel adventure landscape",
-    "인테리어":"interior design home","카페":"coffee cafe cozy",
-    "반도체":"semiconductor technology chip","로봇":"robot automation industry",
-    "클라우드":"cloud computing data center","메타버스":"metaverse virtual reality",
-    "스마트폰":"smartphone technology mobile","전기차":"electric vehicle EV",
-}
+_KR_EN = {"주식":"stock market","부동산":"real estate","투자":"investment","연금":"retirement",
+    "절세":"tax planning","건강":"wellness","운동":"fitness","AI":"AI technology",
+    "경제":"economy analytics","금리":"interest rate","창업":"startup business"}
 _CAT_TERMS = {
-    "economy":["financial planning desk","stock market analysis","business strategy meeting","economy data chart","banking finance professional","investment portfolio"],
-    "senior":["healthy senior lifestyle","retirement couple happy","medical professional care","nutritious meal preparation","family bonding warm","wellness active elderly"],
-    "selfdev":["morning routine productive","person reading learning","clean organized workspace","meditation peaceful mindfulness","mountain hiking achievement","goal setting planning"],
-    "tech":["AI technology futuristic","software developer coding","modern data center","robotics automation future","tech innovation abstract","digital transformation"],
-    "life":["gourmet cooking kitchen","modern home interior","scenic travel landscape","cozy coffee shop","creative photography","beautiful garden nature"],
+    "economy":["finance chart","stock market","business meeting","economy graph","banking","trading"],
+    "senior":["elderly garden","retirement","medical care","healthy food","family","wellness yoga"],
+    "selfdev":["reading sunrise","fitness running","workspace clean","meditation","mountain summit"],
+    "tech":["AI neural network","coding developer","server datacenter","robot automation","circuit board"],
+    "life":["cooking gourmet","interior design","travel landscape","coffee cafe","photography","garden"],
 }
 _used_ids = set()
 
-def _extract_pexels_query(text, keyword, category, idx):
-    """텍스트에서 Pexels 검색 쿼리 추출 — 내용 연관성 극대화"""
-    # 1. 상세 키워드 매핑에서 찾기
-    for kr, en in _KR_EN.items():
-        if kr in text: return en
-    # 2. 키워드(주제어)도 검색
-    for kr, en in _KR_EN.items():
-        if kr in keyword: return en
-    # 3. 카테고리 기반 (다양하게 순환)
-    terms = _CAT_TERMS.get(category, _CAT_TERMS["tech"])
-    return terms[idx % len(terms)]
-
-async def _try_pexels(text, category, idx, jd, keyword=""):
+async def _try_pexels(text, category, idx, jd):
     key = os.getenv("PEXELS_API_KEY","").strip()
     if not key: return ""
-    query = _extract_pexels_query(text, keyword, category, idx)
+    # 키워드 매칭
+    query = ""
+    for kr, en in _KR_EN.items():
+        if kr in text: query = en; break
+    if not query:
+        terms = _CAT_TERMS.get(category, _CAT_TERMS["tech"])
+        query = terms[idx % len(terms)]
     try:
         import httpx
         async with httpx.AsyncClient(timeout=15) as c:
@@ -548,49 +476,57 @@ def _img_to_clip(img, out, dur, idx=0):
 
 
 def _concat_with_transitions(clips, bg_path, jd):
-    """클립들을 concat으로 연결.
-    
-    ★ 설계 원칙: 오디오-비디오 싱크 정확도 최우선.
-      - xfade 방식은 클립당 0.5초씩 겹쳐 총 영상 길이가 오디오보다 짧아지는 버그가 있음
-        (n개 클립 = 총 (n-1)*0.5초 단축 → -shortest가 후반 오디오를 잘라버림)
-      - 대신: 각 클립 내부에 fade in/out 이미 포함돼 있으므로
-        단순 concat만으로도 부드러운 전환 효과가 난다
-    """
+    """클립들을 xfade 전환으로 연결. 실패 시 단순 concat."""
     if len(clips) == 1:
         shutil.copy2(clips[0], bg_path)
         return bg_path
 
-    # 단순 concat — 총 영상 길이 = 합산 클립 길이 (오디오 길이와 정확히 매칭)
-    lf = os.path.join(jd, "clips.txt")
-    with open(lf, "w") as f:
+    transitions = ["fadeblack","slideleft","slideright","slideup","circlecrop",
+                    "fade","wipeleft","wiperight","smoothleft","smoothright"]
+    XDUR = 0.5
+
+    try:
+        # xfade 체인
+        inputs = []
+        for c in clips: inputs.extend(["-i", c])
+
+        clip_durs = []
         for c in clips:
-            f.write(f"file '{c}'\n")
+            d = _dur(c)
+            clip_durs.append(d if d > 0.5 else 5.0)
 
-    try:
-        r = subprocess.run(
-            ["ffmpeg","-y","-f","concat","-safe","0","-i",lf,
-             "-c:v","libx264","-preset","medium","-crf","18",
-             "-pix_fmt","yuv420p","-movflags","+faststart",bg_path],
-            capture_output=True, text=True, timeout=600)
+        parts = []
+        cur = "[0:v]"
+        offset = clip_durs[0] - XDUR
+
+        for j in range(1, len(clips)):
+            tr = transitions[j % len(transitions)]
+            out_label = f"[v{j}]" if j < len(clips)-1 else "[vout]"
+            parts.append(f"{cur}[{j}:v]xfade=transition={tr}:duration={XDUR}:offset={max(0.1,offset)}{out_label}")
+            offset += clip_durs[j] - XDUR
+            cur = out_label
+
+        cmd = ["ffmpeg","-y"] + inputs + [
+            "-filter_complex", ";".join(parts),
+            "-map","[vout]","-c:v","libx264","-preset","medium","-crf","18",
+            "-pix_fmt","yuv420p","-movflags","+faststart",bg_path]
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
         if r.returncode == 0 and os.path.exists(bg_path):
-            logger.info(f"[FFmpeg] ✓ concat {len(clips)} clips (sync-safe)")
+            logger.info(f"[FFmpeg] ✓ xfade {len(clips)-1} transitions")
             return bg_path
-        logger.warning(f"[FFmpeg] concat failed: {r.stderr[-200:]}")
+        raise Exception(r.stderr[-200:] if r.stderr else "xfade failed")
     except Exception as e:
-        logger.warning(f"[FFmpeg] concat exception: {e}")
+        logger.warning(f"[FFmpeg] xfade failed: {e}, using concat")
 
-    # Fallback: copy-mode concat (빠름)
-    try:
-        subprocess.run(
-            ["ffmpeg","-y","-f","concat","-safe","0","-i",lf,
-             "-c","copy",bg_path],
-            capture_output=True, timeout=300)
-        if os.path.exists(bg_path):
-            logger.info("[FFmpeg] ✓ copy-concat fallback")
-            return bg_path
-    except: pass
-
-    return ""
+    # Fallback: 단순 concat
+    lf = os.path.join(jd, "clips.txt")
+    with open(lf,"w") as f:
+        for c in clips: f.write(f"file '{c}'\n")
+    subprocess.run(["ffmpeg","-y","-f","concat","-safe","0","-i",lf,
+        "-c:v","libx264","-preset","medium","-crf","18",
+        "-pix_fmt","yuv420p","-movflags","+faststart",bg_path],
+        capture_output=True, timeout=600)
+    return bg_path if os.path.exists(bg_path) else ""
 
 
 def _avatar_pip(bg, avatar, out):
@@ -875,7 +811,7 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
 
         logger.info(f"[V17] ═══ START: '{keyword}', {total} blocks, mode={mode} ═══")
 
-        # ── Step 1: TTS (실패 시 영상 생성 중단) ──
+        # ── Step 1: TTS (항상 성공) ──
         audio, adur, bdurs = await _tts_all(script_blocks, jd, speed, voice)
 
         # ── Step 2: Style ──
@@ -904,9 +840,9 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
             if os.path.exists(clip):
                 clips.append(clip)
 
-            # Gemini 쿼터 보호: 블록 간 대기 (429 방지)
+            # Gemini 쿼터 보호: 블록 간 대기
             if i < total - 1:
-                await asyncio.sleep(4)
+                await asyncio.sleep(2)
 
         logger.info(f"[V17] Slides: {sources}")
 
@@ -969,22 +905,7 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
             duration_sec=round(adur,1), file_size_bytes=os.path.getsize(audio),
             tts_audio_path=audio)
 
-    except TTSFailedError as e:
-        # TTS 완전 실패 — 임시 파일 정리 후 초기 상태로 복귀
-        logger.error(f"[V17] TTS 실패 — 영상 생성 중단: {e}")
-        try:
-            if os.path.exists(jd):
-                shutil.rmtree(jd)
-                logger.info(f"[V17] 임시 파일 정리 완료: {jd}")
-        except Exception:
-            pass
-        return RealVideoResult(
-            job_id=job_id,
-            status="tts_failed",
-            error=str(e),
-        )
-
     except Exception as e:
         logger.error(f"[V17] FATAL: {e}")
+        # 에러에서도 뭐라도 반환
         return RealVideoResult(job_id=job_id, status="error", error=str(e))
-
