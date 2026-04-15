@@ -234,13 +234,12 @@ export default function HomePage() {
       </section>
 
       {/* ═══ FOOTER ═══ */}
-      <footer className="py-8 px-5 border-t" style={{borderColor:"#eceef1",background:"#fff"}}>
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-[11px] text-[#9ca3af]">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded flex items-center justify-center text-[8px] font-black text-white" style={{background:"#b38600"}}>AM</div>
-            <span className="font-bold text-[#6b7280]">AlgoMaker</span>
-          </div>
-          <span>© 2026 AlgoMaker. All rights reserved.</span>
+      <footer className="py-8 px-5 border-t" style={{borderColor:"#eceef1",background:"#fafafa"}}>
+        <div className="max-w-4xl mx-auto text-center space-y-1" style={{color:"#9ca3af",fontSize:"10px",lineHeight:"1.7"}}>
+          <p>상호명: 한줄컴퍼니 | 대표자: 박예준 | 사업자등록번호: 450-07-03104</p>
+          <p>통신판매업 신고번호: 제 2025-인천서구-3321 호</p>
+          <p>사업장주소: 인천광역시 서구 청라커낼로 270, 커낼힐스빌 2층 2498호</p>
+          <p style={{marginTop:"8px",color:"#6b7280"}}>© 2026 AlgoMaker. All rights reserved.</p>
         </div>
       </footer>
     </div>
