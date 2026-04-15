@@ -3,13 +3,10 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ═══ LIGHT THEME (Landing Page / :root defaults) ═══ */
 :root {
   --bg: #f8f9fb;
   --bg-card: #ffffff;
   --bg-warm: #faf9f7;
-  --bg-primary: #f8f9fb;
-  --bg-secondary: #f3f4f7;
   --border: #eceef1;
   --border-hover: #d4d7dd;
   --gold: #b38600;
@@ -22,6 +19,7 @@
   --blue-500: #3b82f6;
   --blue-50: #eff6ff;
   --purple-500: #8b5cf6;
+  --purple-50: #f5f3ff;
   --red-500: #ef4444;
   --text: #111827;
   --text-sub: #4b5563;
@@ -35,42 +33,6 @@
   --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 20px; --r-2xl: 24px;
 }
 
-/* ═══ DARK THEME — App Shell (/create 및 앱 영역) ═══ */
-.app-shell {
-  --bg-base:     #111113;
-  --bg-surface:  #1a1a1e;
-  --bg-elevated: #222226;
-  --bg-input:    #2a2a2e;
-  --bg-sidebar:  #141416;
-
-  --text-primary:   #f0f0f0;
-  --text-secondary: #a0a0a8;
-  --text-muted:     #5a5a64;
-  --text-faint:     #3a3a42;
-
-  --gold:        #d4a537;
-  --gold-hover:  #e8c84a;
-  --gold-dim:    #b38600;
-  --gold-bg:     rgba(212,165,55,0.08);
-  --gold-border: rgba(212,165,55,0.22);
-
-  --green:       #10b981;
-  --green-bg:    rgba(16,185,129,0.10);
-  --red:         #ef4444;
-  --red-bg:      rgba(239,68,68,0.10);
-  --blue:        #3b82f6;
-  --blue-bg:     rgba(59,130,246,0.10);
-  --orange:      #f59e0b;
-
-  --border:        rgba(255,255,255,0.06);
-  --border-strong: rgba(255,255,255,0.10);
-  --border-hover:  rgba(255,255,255,0.14);
-
-  --shadow-gold: 0 4px 24px rgba(212,165,55,0.20);
-  --shadow-sm:   0 2px 8px rgba(0,0,0,0.30);
-  --shadow-md:   0 4px 20px rgba(0,0,0,0.40);
-}
-
 *{margin:0;padding:0;box-sizing:border-box;}
 
 body {
@@ -78,35 +40,58 @@ body {
   background: var(--bg);
   color: var(--text);
   -webkit-font-smoothing: antialiased;
-  font-size: 15px;
-  line-height: 1.65;
+  -moz-osx-font-smoothing: grayscale;
+  font-size: 16px;
+  line-height: 1.7;
   overflow: hidden;
   height: 100dvh;
-  letter-spacing: -0.012em;
+  letter-spacing: -0.01em;
+}
+
+/* ═══ TYPOGRAPHY SCALE (Videoto 참고) ═══ */
+h1, .h1 { font-size: 32px; font-weight: 800; line-height: 1.25; letter-spacing: -0.02em; }
+h2, .h2 { font-size: 24px; font-weight: 700; line-height: 1.3; letter-spacing: -0.015em; }
+h3, .h3 { font-size: 18px; font-weight: 700; line-height: 1.4; }
+h4, .h4 { font-size: 16px; font-weight: 600; line-height: 1.5; }
+.text-body { font-size: 15px; line-height: 1.7; }
+.text-sm { font-size: 14px; line-height: 1.6; }
+.text-xs { font-size: 13px; line-height: 1.5; }
+.text-2xs { font-size: 12px; line-height: 1.4; }
+.text-3xs { font-size: 11px; line-height: 1.3; }
+
+@media(max-width:767px){
+  h1, .h1 { font-size: 24px; }
+  h2, .h2 { font-size: 20px; }
+  h3, .h3 { font-size: 16px; }
+  body { font-size: 15px; }
 }
 
 ::selection { background: rgba(179,134,0,0.12); }
 
+/* Scrollbar */
 ::-webkit-scrollbar { width:6px; height:6px; }
 ::-webkit-scrollbar-track { background:transparent; }
 ::-webkit-scrollbar-thumb { background:rgba(0,0,0,0.07); border-radius:10px; }
 ::-webkit-scrollbar-thumb:hover { background:rgba(0,0,0,0.12); }
-.app-shell ::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.07); }
-.app-shell ::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.12); }
 .scrollbar-hide::-webkit-scrollbar{display:none;}
 .scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none;}
 
+/* ═══ ANIMATIONS ═══ */
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes slideR{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
 @keyframes barGrow{from{width:0}}
 @keyframes scoreReveal{from{opacity:0;transform:scale(0.7)}to{opacity:1;transform:scale(1)}}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(212,165,55,0.25)}50%{box-shadow:0 0 0 12px rgba(212,165,55,0)}}
+@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(179,134,0,0.2)}50%{box-shadow:0 0 0 12px rgba(179,134,0,0)}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
+@keyframes progress{0%{width:15%;margin-left:0}50%{width:55%;margin-left:22%}100%{width:15%;margin-left:85%}}
 @keyframes spin{to{transform:rotate(360deg)}}
+@keyframes dotBounce{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1.15)}}
 @keyframes heroGrad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-@keyframes pulseDot{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(0.7)}}
+@keyframes countUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
+@keyframes gradFlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
 .ani-up{animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both}
 .ani-in{animation:fadeIn .35s ease both}
@@ -115,49 +100,90 @@ body {
 .ani-score{animation:scoreReveal .6s cubic-bezier(.34,1.56,.64,1) both}
 .ani-pulse{animation:pulse 2.5s ease-in-out infinite}
 .ani-float{animation:float 3.5s ease-in-out infinite}
-.ani-dot{animation:pulseDot 2s ease-in-out infinite}
 
-/* SURFACES — light default */
+/* ═══ SURFACES ═══ */
 .surface{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-xs);transition:all .2s ease}
 .surface:hover{border-color:var(--border-hover);box-shadow:var(--shadow-sm)}
 .surface-active{border-color:rgba(179,134,0,.25)!important;box-shadow:var(--shadow-gold)}
 .surface-green{border-color:rgba(16,185,129,.25)!important;box-shadow:0 4px 20px rgba(16,185,129,.1)}
 
-/* SURFACES — dark override */
-.app-shell .surface{background:var(--bg-surface);border-color:var(--border)}
-.app-shell .surface:hover{border-color:var(--border-hover);background:var(--bg-elevated)}
-.app-shell .surface-active{border-color:var(--gold-border)!important;background:var(--gold-bg)}
-
-/* GLASS */
+/* ═══ GLASS ═══ */
 .glass{background:rgba(255,255,255,.88);backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2)}
-.app-shell .glass{background:rgba(20,20,22,.85);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px)}
 
-/* SIDEBAR */
-.sidebar{background:#141416;color:rgba(255,255,255,.7)}
+/* ═══ SIDEBAR ═══ */
+.sidebar{background:#16181d;color:rgba(255,255,255,.7)}
 
+/* ═══ SAFE AREA ═══ */
 .safe-b{padding-bottom:env(safe-area-inset-bottom,0)}
 
+/* ═══ HERO ═══ */
 .hero{background:linear-gradient(-45deg,#16181d,#1f1a0e,#141926,#16181d);background-size:400% 400%;animation:heroGrad 14s ease infinite}
 
-/* GOLD BTN */
+/* ═══ GOLD BTN ═══ */
 .gold-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#b38600,#d4a537);color:#fff;font-weight:700;border:none;border-radius:var(--r-md);padding:12px 28px;cursor:pointer;transition:all .25s;box-shadow:0 2px 10px rgba(179,134,0,.2)}
 .gold-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-gold)}
 .gold-btn:active{transform:translateY(0)}
 
-/* INPUT — dark overrides */
-.app-shell input,.app-shell textarea,.app-shell select{
-  background:var(--bg-input);border-color:var(--border);color:var(--text-primary);
-}
-.app-shell input::placeholder,.app-shell textarea::placeholder{color:var(--text-muted);}
-.app-shell input:focus,.app-shell textarea:focus{
-  border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,165,55,0.12);outline:none;
-}
-
+/* ═══ RESPONSIVE ═══ */
 @media(max-width:767px){
-  body{font-size:14px}
+  body{font-size:15px}
   .overflow-x-auto::-webkit-scrollbar{display:none}
 }
+@media(min-width:768px) and (max-width:1279px){
+  body{font-size:16px}
+}
 @media(min-width:1280px){
+  body{font-size:16px}
   .surface:hover{transform:translateY(-1px)}
-  .app-shell .surface:hover{transform:none}
+}
+
+/* ═══ TYPOGRAPHY SCALE (Videoto 참고) ═══ */
+/* 페이지 제목 */
+h1, .text-h1 { font-size: 28px; font-weight: 800; line-height: 1.25; letter-spacing: -0.02em; }
+h2, .text-h2 { font-size: 22px; font-weight: 700; line-height: 1.3; letter-spacing: -0.015em; }
+h3, .text-h3 { font-size: 17px; font-weight: 700; line-height: 1.4; }
+
+@media(min-width:768px) {
+  h1, .text-h1 { font-size: 36px; }
+  h2, .text-h2 { font-size: 28px; }
+  h3, .text-h3 { font-size: 20px; }
+}
+
+/* ═══ FONT SIZE BOOST (전체 폰트 키우기) ═══ */
+/* Videoto 기준: 본문 16px, 라벨 14px, 캡션 13px, 미니 12px */
+/* 현재 text-[11px], text-[13px] 등이 너무 작음 → 전체 2px씩 키움 */
+
+/* 사이드바 메뉴 텍스트 */
+.sidebar button, .sidebar a { font-size: 14px !important; }
+.sidebar .text-\[9px\], .sidebar .text-\[10px\] { font-size: 12px !important; }
+.sidebar .text-\[12px\], .sidebar .text-\[13px\] { font-size: 14px !important; }
+
+/* 앱 내 카드 텍스트 */
+main .text-\[11px\] { font-size: 13px !important; }
+main .text-\[12px\] { font-size: 14px !important; }
+main .text-\[13px\] { font-size: 15px !important; }
+main .text-\[14px\] { font-size: 15px !important; }
+main .text-\[15px\] { font-size: 16px !important; }
+main .text-\[16px\] { font-size: 17px !important; }
+
+/* 태그/뱃지는 작게 유지 */
+main .text-\[8px\] { font-size: 11px !important; }
+main .text-\[9px\] { font-size: 12px !important; }
+main .text-\[10px\] { font-size: 12px !important; }
+
+/* 헤더 */
+header .text-\[11px\] { font-size: 13px !important; }
+header .text-\[13px\] { font-size: 14px !important; }
+header .text-\[16px\] { font-size: 18px !important; }
+
+/* 버튼 */
+.gold-btn { font-size: 15px !important; padding: 14px 32px !important; }
+
+/* 모바일에서는 부스트 줄이기 */
+@media(max-width:767px) {
+  main .text-\[11px\] { font-size: 12px !important; }
+  main .text-\[13px\] { font-size: 14px !important; }
+  main .text-\[8px\] { font-size: 10px !important; }
+  main .text-\[9px\] { font-size: 11px !important; }
+  .gold-btn { font-size: 14px !important; padding: 12px 24px !important; }
 }
