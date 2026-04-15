@@ -85,26 +85,65 @@ function CurationPage(){
                 const on=store.selectedKeyword===kw.keyword;
                 const g=boi(kw.blue_ocean_index||0);
                 const m=mom(kw.trend_momentum||0);
+                const boiVal=(kw.blue_ocean_index||0);
+                const cpm=kw.estimated_cpm||15;
+                const vol=kw.search_volume||0;
+                const rev=Math.round((vol*0.03*cpm)/100)*100; // 예상 월수익 (CTR 3%)
+                const comp=kw.competition_count||0;
+                const difficulty=comp>30000?"높음":comp>10000?"보통":"낮음";
+                const diffColor=comp>30000?"#f87171":comp>10000?"#f59e0b":"#16a34a";
                 return(
                   <div key={i} onClick={()=>pickKw(kw)}
                     className={`p-3 rounded-xl border cursor-pointer transition-all anim-fade-up
                       ${on?"border-[#c49a1a]/30 glow-gold":"border-[#f0f1f3] hover:border-[#d5d7db] active:scale-[0.98]"}`}
                     style={{animationDelay:`${i*40}ms`,...(on?{background:"rgba(212,175,55,0.04)"}:{})}}>
-                    <div className="flex items-center gap-2 mb-1.5">
+                    {/* Row 1: 키워드 + 등급 + 트렌드 */}
+                    <div className="flex items-center gap-2 mb-1">
                       <span className="text-[10px] text-[#c0c5ce] font-bold w-4 shrink-0">{i+1}</span>
                       <span className={`text-[13px] md:text-[15px] font-extrabold flex-1 truncate ${on?"text-[#c49a1a]":"text-[#1a1d23]"}`}>{kw.keyword}</span>
                       <span className="text-[10px] font-black px-1.5 py-0.5 rounded-md shrink-0" style={{color:g.c,background:g.bg}}>{g.g}</span>
+                      <span className="text-[11px] font-bold shrink-0" style={{color:m.c}}>{m.i}</span>
                     </div>
-                    <div className="ml-6 mb-1.5">
-                      <div className="h-1 rounded-full overflow-hidden" style={{background:"rgba(0,0,0,0.04)"}}>
-                        <div className="h-full rounded-full anim-bar" style={{width:`${Math.min(100,(kw.blue_ocean_index/5)*100)}%`,background:g.c,animationDelay:`${i*60+200}ms`}}/>
+
+                    {/* Row 2: BOI 게이지 바 + 수익 예측 */}
+                    <div className="ml-6 mb-2">
+                      <div className="flex items-center gap-1.5 mb-0.5">
+                        <span className="text-[8px] text-[#b0b5bf] font-bold">블루오션</span>
+                        <span className="text-[9px] font-black" style={{color:g.c}}>{boiVal.toFixed(1)}/5.0</span>
+                        <span className="ml-auto text-[9px] font-bold text-[#16a34a]">💰 월 ${rev>0?fv(rev):"-"} 예상</span>
+                      </div>
+                      <div className="h-2 rounded-full overflow-hidden" style={{background:"rgba(0,0,0,0.06)"}}>
+                        <div className="h-full rounded-full anim-bar" style={{width:`${Math.min(100,(boiVal/5)*100)}%`,background:`linear-gradient(90deg, ${g.c}88, ${g.c})`,animationDelay:`${i*60+200}ms`}}/>
                       </div>
                     </div>
-                    <div className="flex items-center gap-3 ml-6 text-[9px] md:text-[11px]">
-                      <span className="text-[#9ca3af]">검색 <b className="text-[#6b7280]">{fv(kw.search_volume||0)}</b></span>
-                      <span className="text-[#9ca3af]">경쟁 <b className="text-[#6b7280]">{kw.competition_count||0}</b></span>
-                      <span className="text-[#9ca3af]">CPM <b className="text-[#6b7280]">{kw.estimated_cpm?`$${kw.estimated_cpm.toFixed(0)}`:"-"}</b></span>
-                      <span className="font-bold ml-auto" style={{color:m.c}}>{m.i}</span>
+
+                    {/* Row 3: 데이터 그리드 */}
+                    <div className="ml-6 grid grid-cols-4 gap-1 mb-1.5">
+                      <div className="text-center p-1 rounded-lg" style={{background:"rgba(0,0,0,0.02)"}}>
+                        <div className="text-[8px] text-[#b0b5bf]">월 검색</div>
+                        <div className="text-[11px] font-bold text-[#4b5563]">{fv(vol)}</div>
+                      </div>
+                      <div className="text-center p-1 rounded-lg" style={{background:"rgba(0,0,0,0.02)"}}>
+                        <div className="text-[8px] text-[#b0b5bf]">CPM</div>
+                        <div className="text-[11px] font-bold text-[#c49a1a]">${cpm.toFixed(0)}</div>
+                      </div>
+                      <div className="text-center p-1 rounded-lg" style={{background:"rgba(0,0,0,0.02)"}}>
+                        <div className="text-[8px] text-[#b0b5bf]">경쟁</div>
+                        <div className="text-[11px] font-bold" style={{color:diffColor}}>{difficulty}</div>
+                      </div>
+                      <div className="text-center p-1 rounded-lg" style={{background:"rgba(0,0,0,0.02)"}}>
+                        <div className="text-[8px] text-[#b0b5bf]">성장세</div>
+                        <div className="text-[11px] font-bold" style={{color:m.c}}>{(kw.trend_momentum||0)>0.15?"급상승":(kw.trend_momentum||0)>0?"상승":"하락"}</div>
+                      </div>
+                    </div>
+
+                    {/* Row 4: 경쟁 게이지 */}
+                    <div className="ml-6 flex items-center gap-2">
+                      <span className="text-[8px] text-[#b0b5bf]">경쟁강도</span>
+                      <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:"rgba(0,0,0,0.04)"}}>
+                        <div className="h-full rounded-full transition-all" style={{width:`${Math.min(100,(comp/50000)*100)}%`,background:`linear-gradient(90deg, ${diffColor}88, ${diffColor})`}}/>
+                      </div>
+                      <span className="text-[8px] font-bold" style={{color:diffColor}}>{fv(comp)}</span>
                     </div>
                   </div>
                 );
@@ -129,6 +168,11 @@ function CurationPage(){
             <div className="space-y-2">
               {store.news.map((a:any,i:number)=>{
                 const sel=store.selectedNews.find((n:any)=>n.id===a.id);
+                const rel=a.relevance_score||0.7;
+                const relColor=rel>=0.85?"#16a34a":rel>=0.7?"#c49a1a":"#9ca3af";
+                const srcCredibility=a.source?.includes("연합")||a.source?.includes("한겨레")||a.source?.includes("조선")||a.source?.includes("KBS")||a.source?.includes("MBC")?"높음":"보통";
+                const srcColor=srcCredibility==="높음"?"#16a34a":"#c49a1a";
+                const tierColor=a.cpm_tier==="High"?"#16a34a":a.cpm_tier==="Mid"?"#c49a1a":"#9ca3af";
                 return(
                   <div key={i} onClick={()=>togNews(a)}
                     className={`p-3 md:p-4 rounded-xl border cursor-pointer transition-all anim-fade-up active:scale-[0.98]
@@ -140,11 +184,35 @@ function CurationPage(){
                       </div>
                       <div className="flex-1 min-w-0">
                         <h3 className="text-[13px] md:text-[14px] font-bold text-[#1a1d23] leading-tight mb-1 line-clamp-2">{a.title}</h3>
-                        <p className="text-[11px] text-[#9ca3af] line-clamp-2 mb-1.5">{a.summary}</p>
-                        <div className="flex items-center gap-2 flex-wrap">
-                          <span className="text-[9px] px-1.5 py-0.5 rounded font-bold" style={{background:"rgba(196,154,26,0.08)",color:"#c49a1a"}}>{a.cpm_tier||"Mid"}</span>
-                          <span className="text-[9px] text-[#b0b5bf]">{a.source||"News"}</span>
-                          {a.relevance_score&&<span className="text-[9px] text-[#b0b5bf]">관련도 {Math.round(a.relevance_score*100)}%</span>}
+                        <p className="text-[11px] text-[#6b7280] line-clamp-2 mb-2 leading-relaxed">{a.summary}</p>
+
+                        {/* 핵심 팩트 하이라이트 */}
+                        {a.key_facts&&a.key_facts.length>0&&(
+                          <div className="mb-2 space-y-1">
+                            {a.key_facts.slice(0,2).map((f:string,fi:number)=>(
+                              <div key={fi} className="flex items-start gap-1.5">
+                                <span className="text-[9px] mt-0.5">💡</span>
+                                <span className="text-[10px] text-[#374151] leading-tight">{f}</span>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+
+                        {/* 관련도 게이지 */}
+                        <div className="flex items-center gap-1.5 mb-2">
+                          <span className="text-[8px] text-[#b0b5bf]">관련도</span>
+                          <div className="flex-1 h-1.5 rounded-full overflow-hidden" style={{background:"rgba(0,0,0,0.04)"}}>
+                            <div className="h-full rounded-full transition-all" style={{width:`${rel*100}%`,background:`linear-gradient(90deg, ${relColor}88, ${relColor})`}}/>
+                          </div>
+                          <span className="text-[9px] font-bold" style={{color:relColor}}>{Math.round(rel*100)}%</span>
+                        </div>
+
+                        {/* 메타 태그 */}
+                        <div className="flex items-center gap-1.5 flex-wrap">
+                          <span className="text-[9px] px-1.5 py-0.5 rounded font-bold" style={{background:`${tierColor}15`,color:tierColor}}>{a.cpm_tier==="High"?"💰 High CPM":a.cpm_tier==="Mid"?"💵 Mid CPM":"📊 Low CPM"}</span>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded font-bold" style={{background:`${srcColor}15`,color:srcColor}}>📰 {a.source||"News"}</span>
+                          <span className="text-[9px] px-1.5 py-0.5 rounded font-bold" style={{background:`${srcColor}15`,color:srcColor}}>{srcCredibility==="높음"?"✅ 높은 신뢰도":"📋 보통 신뢰도"}</span>
+                          {a.published_at&&<span className="text-[8px] text-[#b0b5bf] ml-auto">{new Date(a.published_at).toLocaleDateString("ko-KR",{month:"short",day:"numeric"})}</span>}
                         </div>
                       </div>
                     </div>
