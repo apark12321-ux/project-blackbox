@@ -5,18 +5,18 @@ import Link from "next/link";
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 
-const NAV: { key: ActivePage; icon: string; label: string; min: number }[] = [
-  { key: "curation", icon: "◈", label: "큐레이션", min: 0 },
-  { key: "script", icon: "◆", label: "스크립트", min: 3 },
-  { key: "video", icon: "▶", label: "영상", min: 4 },
-  { key: "deploy", icon: "◉", label: "배포", min: 5 },
+const NAV_TABS: { key: ActivePage; label: string; minStep: number }[] = [
+  { key: "curation", label: "큐레이션", minStep: 0 },
+  { key: "script",   label: "스크립트", minStep: 3 },
+  { key: "video",    label: "영상 제작", minStep: 4 },
+  { key: "deploy",   label: "검수·배포", minStep: 5 },
 ];
 
-const STEPS = [
-  { key: "curation" as const, n: 1, color: "#6366f1" },
-  { key: "script" as const, n: 2, color: "#c49a1a" },
-  { key: "video" as const, n: 3, color: "#0ea5e9" },
-  { key: "deploy" as const, n: 4, color: "#22c55e" },
+const SIDEBAR_STEPS = [
+  { key: "curation" as const, label: "뉴스 큐레이션", n: 1, cost: "FREE",  icon: "◈", minStep: 0 },
+  { key: "script"   as const, label: "AI 스크립트",   n: 2, cost: "0.2",   icon: "◆", minStep: 3 },
+  { key: "video"    as const, label: "영상 제작",     n: 3, cost: "2.5",   icon: "▶", minStep: 4 },
+  { key: "deploy"   as const, label: "검수 & 배포",   n: 4, cost: "0.1",   icon: "◉", minStep: 5 },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -28,170 +28,204 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   const isDone = (k: string) =>
     (k==="curation"&&step>=3)||(k==="script"&&step>=4)||(k==="video"&&step>=5)||(k==="deploy"&&step>=6);
 
-  // Landing page — no sidebar/header
   if (isLanding) return <>{children}</>;
 
   return (
-    <div className="flex flex-col md:flex-row h-[100dvh]">
+    <div className="flex flex-col h-[100dvh]" style={{background:"#0d0c0a"}}>
 
-      {/* ═══ Desktop Sidebar (expanded) ═══ */}
-      <nav className="hidden md:flex w-[220px] lg:w-[240px] shrink-0 flex-col py-5 sidebar-dark"
-        style={{ borderRight: "1px solid rgba(255,255,255,0.06)" }}>
+      {/* ═══ TOP NAVIGATION BAR ═══ */}
+      <header style={{background:"#0d0c0a",borderBottom:"1px solid rgba(255,255,255,0.07)"}}
+        className="shrink-0 h-[52px] flex items-center px-4 md:px-6 gap-0">
+
         {/* Logo */}
-        <Link href="/" onClick={reset}
-          className="flex items-center gap-2.5 px-5 mb-6 group">
-          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[13px] font-black text-white transition-transform group-hover:scale-105"
-            style={{ background: "linear-gradient(135deg,#c49a1a,#e8c84a)", boxShadow: "0 4px 16px rgba(196,154,26,0.3)" }}>
+        <Link href="/" onClick={reset} className="flex items-center gap-2 mr-6 md:mr-8 shrink-0 group">
+          <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg flex items-center justify-center text-[11px] md:text-[12px] font-black text-white transition-transform group-hover:scale-105"
+            style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)",boxShadow:"0 2px 12px rgba(196,154,26,0.30)"}}>
             AM
           </div>
-          <div>
-            <span className="text-[15px] font-black tracking-tight" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
-              <span className="text-white/90">Algo</span><span style={{color:"#e8c84a"}}>Maker</span>
-            </span>
-            <div className="text-[9px] text-white/30 font-medium -mt-0.5">YouTube Automation</div>
-          </div>
+          <span className="hidden md:block text-[14px] font-black tracking-tight" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
+            <span className="text-white/85">Algo</span><span style={{color:"#e8c84a"}}>Maker</span>
+          </span>
         </Link>
 
-        {/* Nav Items */}
-        <div className="flex-1 px-3 space-y-1">
-          {NAV.map((item) => {
-            const active = activePage === item.key;
-            const ok = step >= item.min;
-            const done = isDone(item.key);
-            const stepInfo = STEPS.find(s => s.key === item.key);
+        {/* Nav Tabs */}
+        <nav className="flex items-center flex-1 min-w-0">
+          {NAV_TABS.map(tab => {
+            const active = activePage === tab.key;
+            const ok = step >= tab.minStep;
+            const done = isDone(tab.key);
             return (
-              <button key={item.key} onClick={() => ok && setActivePage(item.key)} disabled={!ok}
-                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all relative
-                  ${active?"text-white":"text-white/40 hover:text-white/60 hover:bg-white/[0.04]"}
-                  ${!ok?"opacity-20 cursor-not-allowed":"cursor-pointer"}`}
-                style={active?{background:`${stepInfo?.color||"#c49a1a"}18`}:{}}>
-                {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-7 rounded-r" style={{background:stepInfo?.color||"#d4af37"}} />}
-                <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-[12px] font-black text-white shrink-0`}
-                  style={{background:active?stepInfo?.color||"#c49a1a":done?"#22c55e":"rgba(255,255,255,0.08)"}}>
-                  {done&&!active?"✓":item.icon}
-                </span>
-                <div className="flex-1 min-w-0">
-                  <div className={`text-[13px] font-bold ${active?"text-white":"text-white/50"}`}>{item.label}</div>
-                  <div className="text-[9px] text-white/25">Step {stepInfo?.n}</div>
-                </div>
-                {active&&<div className="w-1.5 h-1.5 rounded-full shrink-0" style={{background:stepInfo?.color}}/>}
+              <button key={tab.key}
+                onClick={() => ok && setActivePage(tab.key)}
+                disabled={!ok}
+                className="h-[52px] px-3 md:px-5 text-[12px] md:text-[13px] font-bold transition-all relative shrink-0"
+                style={{
+                  color: active ? "rgba(255,255,255,0.92)" : ok ? "rgba(255,255,255,0.38)" : "rgba(255,255,255,0.18)",
+                  borderBottom: active ? "2px solid #e8c84a" : "2px solid transparent",
+                  cursor: ok ? "pointer" : "not-allowed",
+                }}>
+                {tab.label}
+                {done && !active && (
+                  <span className="ml-1 text-[9px] text-[#34d399]">✓</span>
+                )}
               </button>
             );
           })}
-        </div>
+        </nav>
 
-        {/* Bottom */}
-        <div className="px-3 space-y-2 mt-4">
-          <div className="mx-2 h-px bg-white/[0.06]"/>
-          <div className="flex items-center gap-2 px-3 py-2 rounded-lg">
-            <div className="w-2 h-2 rounded-full bg-[#34d399]" style={{boxShadow:"0 0 6px rgba(52,211,153,0.4)"}} />
-            <span className="text-[10px] text-white/30">서버 연결됨</span>
+        {/* Right Controls */}
+        <div className="flex items-center gap-2 shrink-0">
+          {/* Mode Toggle */}
+          <div className="flex rounded-lg overflow-hidden"
+            style={{border:"1px solid rgba(255,255,255,0.10)"}}>
+            {["normal","senior"].map(m => (
+              <button key={m} onClick={() => setMode(m as "normal"|"senior")}
+                className="px-2.5 md:px-3 py-1.5 text-[10px] md:text-[11px] font-bold transition-all"
+                style={mode===m
+                  ? {background:"rgba(232,200,74,0.12)",color:"#e8c84a"}
+                  : {color:"rgba(255,255,255,0.32)"}}>
+                {m==="normal"?"일반":"시니어"}
+              </button>
+            ))}
           </div>
-          <button onClick={() => setShowSettings(true)} 
-            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-white/25 hover:text-white/40 hover:bg-white/[0.04] transition-all">
-            <span className="text-[14px]">⚙</span>
-            <span className="text-[12px]">설정</span>
+
+          {/* Channel / Settings */}
+          <button onClick={() => setShowSettings(true)}
+            className="hidden md:flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-[11px] transition-all hover:bg-white/[0.05]"
+            style={{border:"1px solid rgba(255,255,255,0.09)",color:"rgba(255,255,255,0.45)"}}>
+            <span>채널</span>
+            <span className="font-bold" style={{color:"#e8c84a"}}>{profile.channelName||"미설정"}</span>
           </button>
+          <button onClick={() => setShowSettings(true)}
+            className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center text-[14px] transition-all hover:bg-white/[0.05]"
+            style={{color:"rgba(255,255,255,0.40)"}}>⚙</button>
         </div>
-      </nav>
+      </header>
 
-      {/* ═══ Main ═══ */}
-      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+      {/* ═══ BODY ═══ */}
+      <div className="flex flex-1 overflow-hidden">
 
-        {/* Header */}
-        <header className="h-11 md:h-14 border-b flex items-center px-3 md:px-6 gap-2 md:gap-4 shrink-0 glass"
-          style={{ borderColor: "var(--border)" }}>
-          {/* Mobile only logo */}
-          <div className="flex md:hidden items-center gap-1.5 shrink-0">
-            <div className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-black text-white" style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>A</div>
-            <span className="text-[14px] font-black tracking-tight" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
-              <span className="text-white/90">Algo</span><span style={{background:"linear-gradient(90deg,#c49a1a,#e8c84a)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Maker</span>
-            </span>
+        {/* ═══ LEFT SIDEBAR ═══ */}
+        <aside className="hidden md:flex w-[176px] lg:w-[192px] shrink-0 flex-col py-5"
+          style={{background:"#0d0c0a",borderRight:"1px solid rgba(255,255,255,0.07)"}}>
+
+          <div className="px-4 mb-3">
+            <div className="text-[9px] font-black tracking-widest uppercase" style={{color:"rgba(255,255,255,0.22)"}}>PIPELINE</div>
           </div>
 
-          {/* PC: Page title */}
-          <div className="hidden md:flex items-center gap-3 shrink-0">
-            <h1 className="text-[16px] font-extrabold text-white/90">
-              {activePage==="curation"?"뉴스 큐레이션":activePage==="script"?"AI 스크립트":activePage==="video"?"영상 제작":"검수 & 배포"}
-            </h1>
-            <div className="h-5 w-px bg-white/10"/>
-          </div>
-
-          {/* Step pills */}
-          <div className="flex items-center gap-1 md:gap-2 flex-1 min-w-0">
-            {STEPS.map((s) => {
+          <div className="flex-1 px-2 space-y-0.5">
+            {SIDEBAR_STEPS.map(s => {
               const active = activePage === s.key;
               const done = isDone(s.key);
-              const labels = {curation:"큐레이션",script:"스크립트",video:"영상",deploy:"배포"};
+              const ok = step >= s.minStep;
               return (
-                <div key={s.key} className={`flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2.5 py-0.5 md:py-1 rounded-lg transition-all ${active?"":"opacity-35"}`}
-                  style={active?{background:`${s.color}10`}:{}}>
-                  <span className="text-[8px] md:text-[10px] font-black w-4 h-4 md:w-5 md:h-5 rounded flex items-center justify-center text-white"
-                    style={{background:active?s.color:done?"#22c55e":"#d1d5db"}}>
-                    {done&&!active?"✓":`${s.n}`}
-                  </span>
-                  <span className={`hidden md:inline text-[11px] font-bold ${active?"text-white/90":"text-white/35"}`}>{labels[s.key as keyof typeof labels]}</span>
-                </div>
+                <button key={s.key}
+                  onClick={() => ok && setActivePage(s.key)}
+                  disabled={!ok}
+                  className="w-full text-left rounded-xl transition-all flex items-center gap-3 px-3 py-3"
+                  style={{
+                    background: active ? "rgba(232,200,74,0.07)" : "transparent",
+                    borderLeft: active ? "2px solid #e8c84a" : "2px solid transparent",
+                    opacity: ok ? 1 : 0.25,
+                    cursor: ok ? "pointer" : "not-allowed",
+                  }}
+                  onMouseEnter={e => { if (ok && !active) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)"; }}
+                  onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
+
+                  <div className="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0"
+                    style={{
+                      background: active ? "rgba(232,200,74,0.15)" : done && !active ? "rgba(52,211,153,0.12)" : "rgba(255,255,255,0.06)",
+                      color: active ? "#e8c84a" : done && !active ? "#34d399" : "rgba(255,255,255,0.35)",
+                    }}>
+                    {done && !active ? "✓" : s.n}
+                  </div>
+
+                  <div className="flex-1 min-w-0">
+                    <div className="text-[12px] font-bold truncate"
+                      style={{color: active ? "rgba(255,255,255,0.90)" : "rgba(255,255,255,0.42)"}}>
+                      {s.label}
+                    </div>
+                    <div className="text-[9px] font-bold mt-0.5"
+                      style={{color: active ? "rgba(232,200,74,0.55)" : "rgba(255,255,255,0.18)"}}>
+                      Step {s.n} · {s.cost}
+                    </div>
+                  </div>
+                </button>
               );
             })}
           </div>
 
-          {/* Right */}
-          <div className="flex items-center gap-1.5 shrink-0">
-            <div className="flex rounded-lg overflow-hidden border" style={{borderColor:"var(--border)"}}>
-              <button onClick={()=>setMode("normal")} className={`px-2 py-0.5 text-[10px] md:text-[11px] font-bold ${mode==="normal"?"text-[#c49a1a]":"text-[#b0b5bf]"}`} style={mode==="normal"?{background:"rgba(196,154,26,0.08)"}:{}}>일반</button>
-              <button onClick={()=>setMode("senior")} className={`px-2 py-0.5 text-[10px] md:text-[11px] font-bold ${mode==="senior"?"text-[#c49a1a]":"text-[#b0b5bf]"}`} style={mode==="senior"?{background:"rgba(196,154,26,0.08)"}:{}}>시니어</button>
+          {/* Bottom Info */}
+          <div className="px-3 mt-2 pt-3 space-y-1" style={{borderTop:"1px solid rgba(255,255,255,0.06)"}}>
+            <div className="px-1 py-1.5 rounded-lg flex items-center gap-2">
+              <div className="w-1.5 h-1.5 rounded-full" style={{background:"#34d399",boxShadow:"0 0 6px rgba(52,211,153,0.5)"}}/>
+              <span className="text-[10px]" style={{color:"rgba(255,255,255,0.28)"}}>서버 연결됨</span>
             </div>
-            <button onClick={() => setShowSettings(true)} className="md:hidden w-7 h-7 rounded-md flex items-center justify-center text-white/35">⚙</button>
-            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] text-white/40" style={{borderColor:"var(--border)"}}>
-              <span>👤</span> {profile.channelName || "채널 미설정"}
-            </div>
+            <button onClick={() => setShowSettings(true)}
+              className="w-full flex items-center gap-2 px-2 py-1.5 rounded-lg transition-all hover:bg-white/[0.04]"
+              style={{color:"rgba(255,255,255,0.25)"}}>
+              <span className="text-[13px]">⚙</span>
+              <span className="text-[11px]">설정</span>
+            </button>
           </div>
-        </header>
+        </aside>
 
+        {/* ═══ MAIN ═══ */}
         <main className="flex-1 overflow-hidden">{children}</main>
       </div>
 
-      {/* ═══ Mobile Bottom Tab ═══ */}
-      <nav className="md:hidden flex items-center justify-around shrink-0 sidebar-dark safe-bottom"
-        style={{ borderTop: "1px solid rgba(255,255,255,0.06)", height: "52px" }}>
-        {NAV.map((item) => {
-          const active = activePage === item.key;
-          const ok = step >= item.min;
-          const done = isDone(item.key);
+      {/* ═══ MOBILE BOTTOM NAV ═══ */}
+      <nav className="md:hidden flex items-center justify-around shrink-0 safe-bottom"
+        style={{background:"#0d0c0a",borderTop:"1px solid rgba(255,255,255,0.07)",height:"54px"}}>
+        {NAV_TABS.map(tab => {
+          const active = activePage === tab.key;
+          const ok = step >= tab.minStep;
+          const done = isDone(tab.key);
           return (
-            <button key={item.key} onClick={() => ok && setActivePage(item.key)} disabled={!ok}
-              className={`flex flex-col items-center justify-center gap-0.5 py-1.5 px-4 ${!ok?"opacity-20":""}`}>
-              <span className={`text-[16px] ${active?"text-[#d4af37]":done?"text-[#34d399]":"text-white/30"}`}>
-                {done&&!active?"✓":item.icon}
+            <button key={tab.key}
+              onClick={() => ok && setActivePage(tab.key)}
+              disabled={!ok}
+              className={`flex flex-col items-center gap-0.5 px-3 py-1.5 ${!ok?"opacity-20":""}`}>
+              <span className="text-[9px] font-black" style={{
+                color: active ? "#e8c84a" : done ? "#34d399" : "rgba(255,255,255,0.28)"
+              }}>
+                {active ? "●" : done ? "✓" : "○"}
               </span>
-              <span className={`text-[9px] font-bold ${active?"text-[#d4af37]":"text-white/25"}`}>{item.label}</span>
+              <span className="text-[10px] font-bold" style={{color: active ? "#e8c84a" : "rgba(255,255,255,0.30)"}}>
+                {tab.label}
+              </span>
             </button>
           );
         })}
       </nav>
 
-      {/* ═══ Settings ═══ */}
+      {/* ═══ SETTINGS MODAL ═══ */}
       {showSettings && (
-        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center" onClick={()=>setShowSettings(false)} style={{background:"rgba(0,0,0,0.4)"}}>
-          <div onClick={e=>e.stopPropagation()} className="w-full md:w-[440px] max-h-[85vh] overflow-y-auto rounded-t-2xl md:rounded-2xl p-5 md:p-6 space-y-4 shadow-2xl anim-fade-up"
-            style={{background:"var(--bg-secondary)",border:"1px solid var(--border)"}}>
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center"
+          onClick={() => setShowSettings(false)}
+          style={{background:"rgba(0,0,0,0.65)"}}>
+          <div onClick={e => e.stopPropagation()}
+            className="w-full md:w-[440px] max-h-[88vh] overflow-y-auto rounded-t-2xl md:rounded-2xl p-5 md:p-6 space-y-4 shadow-2xl"
+            style={{background:"#161510",border:"1px solid rgba(255,255,255,0.09)"}}>
             <div className="flex items-center justify-between">
-              <h2 className="text-[17px] font-extrabold text-white/90">채널 설정</h2>
-              <button onClick={() => setShowSettings(false)} className="text-[18px] text-white/35 hover:text-white/60">✕</button>
+              <h2 className="text-[16px] font-extrabold" style={{color:"rgba(255,255,255,0.90)"}}>채널 설정</h2>
+              <button onClick={() => setShowSettings(false)}
+                className="text-[18px] transition-all hover:text-white/60" style={{color:"rgba(255,255,255,0.28)"}}>✕</button>
             </div>
             {[
               {label:"채널 이름 *",key:"channelName" as const,ph:"예: 돈이 보이는 경제"},
               {label:"인트로 멘트",key:"introText" as const,ph:"안녕하세요, 오늘도 핵심만 짚어드리겠습니다."},
               {label:"아웃트로 멘트",key:"outroText" as const,ph:"다음 영상에서 더 유익한 정보로 찾아뵙겠습니다."},
               {label:"워터마크",key:"watermarkText" as const,ph:"비우면 채널명 사용"},
-            ].map(f=>(
+            ].map(f => (
               <div key={f.key}>
-                <label className="text-[12px] font-bold text-white/40 block mb-1.5">{f.label}</label>
-                <input value={profile[f.key]} onChange={e => setProfile({ [f.key]: e.target.value })}
+                <label className="text-[11px] font-bold block mb-1.5" style={{color:"rgba(255,255,255,0.40)"}}>
+                  {f.label}
+                </label>
+                <input value={profile[f.key]} onChange={e => setProfile({[f.key]: e.target.value})}
                   placeholder={f.ph}
-                  className="w-full px-3 py-2.5 rounded-lg text-[14px] text-white/90 focus:outline-none focus:ring-2 focus:ring-[#c49a1a]/30"
-                  style={{background:"var(--bg-elevated)",border:"1px solid var(--border)"}} />
+                  className="w-full px-3 py-2.5 rounded-xl text-[13px] focus:outline-none focus:ring-1 focus:ring-[#e8c84a]/30 placeholder:opacity-25"
+                  style={{background:"rgba(255,255,255,0.06)",border:"1px solid rgba(255,255,255,0.09)",color:"rgba(255,255,255,0.80)"}}/>
               </div>
             ))}
             <button onClick={() => setShowSettings(false)}
