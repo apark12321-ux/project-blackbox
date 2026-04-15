@@ -45,33 +45,75 @@ def _dur(p):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  1. TTS — ElevenLabs → 무음 fallback
+#  1. TTS — Edge TTS (무료) → ElevenLabs (유료) → 무음
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-async def _tts_block(text, path, voice_id="2gbExjiWDnG1DMGr81Bx", speed=1.0):
-    key = os.getenv("ELEVENLABS_API_KEY","").strip()
+# 한국어 Edge TTS 음성
+_EDGE_VOICES = {
+    "female_warm": "ko-KR-SunHiNeural",
+    "male_calm": "ko-KR-InJoonNeural",
+    "male_deep": "ko-KR-HyunsuNeural",
+    "female_natural": "ko-KR-SeoHyeonNeural",
+}
+
+async def _tts_block(text, path, voice_id="ko-KR-SunHiNeural", speed=1.0):
     est = len(text) / (8.0 * speed)
-    if not key:
-        logger.warning("[TTS] No API key — silent fallback")
-        _silent(path, est); return path, est
+
+    # 1순위: Edge TTS (완전 무료, 무제한)
+    edge_ok = await _edge_tts(text, path, voice_id, speed)
+    if edge_ok:
+        d = _dur(path)
+        logger.info(f"[TTS] ✓ Edge TTS {d:.1f}s")
+        return path, d if d > 0 else est
+
+    # 2순위: ElevenLabs (유료)
+    el_key = os.getenv("ELEVENLABS_API_KEY","").strip()
+    if el_key:
+        el_ok = await _elevenlabs_tts(text, path, el_key, speed)
+        if el_ok:
+            d = _dur(path)
+            logger.info(f"[TTS] ✓ ElevenLabs {d:.1f}s")
+            return path, d if d > 0 else est
+
+    # 3순위: 무음 fallback
+    logger.warning("[TTS] All TTS failed — silent fallback")
+    _silent(path, est)
+    return path, est
+
+
+async def _edge_tts(text, path, voice="ko-KR-SunHiNeural", speed=1.0):
+    """Edge TTS — 완전 무료, 무제한, 한국어 고퀄리티"""
+    try:
+        import edge_tts
+        rate = f"+{int((speed-1)*100)}%" if speed >= 1 else f"{int((speed-1)*100)}%"
+        communicate = edge_tts.Communicate(text, voice, rate=rate)
+        await communicate.save(path)
+        if os.path.exists(path) and os.path.getsize(path) > 100:
+            return True
+    except Exception as e:
+        logger.warning(f"[Edge TTS] {e}")
+    return False
+
+
+async def _elevenlabs_tts(text, path, key, speed=1.0):
+    """ElevenLabs — 유료 프리미엄"""
     try:
         import httpx
         async with httpx.AsyncClient(timeout=120) as c:
-            r = await c.post(f"https://api.elevenlabs.io/v1/text-to-speech/{voice_id}",
+            r = await c.post("https://api.elevenlabs.io/v1/text-to-speech/2gbExjiWDnG1DMGr81Bx",
                 headers={"xi-api-key":key,"Content-Type":"application/json"},
                 json={"text":text,"model_id":"eleven_multilingual_v2",
                       "voice_settings":{"stability":0.55,"similarity_boost":0.82,
                                         "style":0.15,"use_speaker_boost":True,"speed":speed}})
             r.raise_for_status()
             with open(path,"wb") as f: f.write(r.content)
-            d = _dur(path)
-            logger.info(f"[TTS] ✓ {d:.1f}s")
-            return path, d if d > 0 else est
+            return True
     except Exception as e:
-        logger.error(f"[TTS] {e} — silent fallback")
-        _silent(path, est); return path, est
+        logger.warning(f"[ElevenLabs] {e}")
+    return False
 
-async def _tts_all(blocks, jd, speed=1.0, voice_id="2gbExjiWDnG1DMGr81Bx"):
+
+async def _tts_all(blocks, jd, speed=1.0, voice_id="ko-KR-SunHiNeural"):
     durs, paths = [], []
     for i, b in enumerate(blocks):
         p = os.path.join(jd, f"tts_{i}.mp3")
@@ -795,11 +837,10 @@ async def _heygen(full_text, jd):
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 async def generate_real_video(keyword, category, script_blocks, mode="normal",
-                               channel_name="", watermark_text="", tts_voice_id="",
-                               _job_id=None):
+                               channel_name="", watermark_text="", tts_voice_id=""):
     global _used_ids
     _used_ids = set()
-    job_id = _job_id or str(uuid.uuid4())[:8]
+    job_id = str(uuid.uuid4())[:8]
     jd = os.path.join(OUTPUT_DIR, job_id)
     os.makedirs(jd, exist_ok=True)
 
@@ -807,7 +848,7 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
         is_sr = mode == "senior"
         speed = 0.92 if is_sr else 1.0
         pause = 0.5 if is_sr else 0.3
-        voice = tts_voice_id or "2gbExjiWDnG1DMGr81Bx"
+        voice = tts_voice_id or "ko-KR-SunHiNeural"
         total = len(script_blocks)
 
         logger.info(f"[V17] ═══ START: '{keyword}', {total} blocks, mode={mode} ═══")
