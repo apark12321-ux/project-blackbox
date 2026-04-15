@@ -93,12 +93,12 @@ export default function HomePage() {
       </section>
 
       {/* Features */}
-      <section className="bg-white py-16 md:py-24 px-4">
+      <section className="py-16 md:py-24 px-4" style={{background:"var(--bg-card)"}}>
         <div className="max-w-3xl mx-auto">
-          <h2 className="text-[22px] md:text-[36px] font-black text-center text-[#1a1d23] mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
+          <h2 className="text-[22px] md:text-[36px] font-black text-center text-white/90 mb-3" style={{ fontFamily: "'Plus Jakarta Sans', sans-serif" }}>
             4단계 자동화 파이프라인
           </h2>
-          <p className="text-[13px] md:text-[16px] text-[#9ca3af] text-center mb-10 md:mb-16">
+          <p className="text-[13px] md:text-[16px] text-white/35 text-center mb-10 md:mb-16">
             키워드 발굴부터 영상 생성까지, AI가 전부 처리합니다
           </p>
 
@@ -110,8 +110,8 @@ export default function HomePage() {
                   style={{ background: `${f.color}12`, color: f.color }}>
                   {f.icon}
                 </div>
-                <h3 className="text-[16px] md:text-[18px] font-bold text-[#1a1d23] mb-1.5">{f.title}</h3>
-                <p className="text-[13px] text-[#9ca3af] leading-relaxed">{f.desc}</p>
+                <h3 className="text-[16px] md:text-[18px] font-bold text-white/90 mb-1.5">{f.title}</h3>
+                <p className="text-[13px] text-white/35 leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
