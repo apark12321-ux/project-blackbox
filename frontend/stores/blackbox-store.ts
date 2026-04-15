@@ -1,6 +1,6 @@
 import { create } from "zustand";
 
-export type ActivePage = "curation" | "script" | "video" | "deploy";
+export type ActivePage = "curation" | "script" | "video" | "deploy" | "channel";
 
 interface UserProfile {
   channelName: string;
@@ -25,8 +25,6 @@ const DEFAULT_PROFILE: UserProfile = {
 };
 
 interface BlackboxState {
-  mode: "normal" | "senior";
-  setMode: (m: "normal" | "senior") => void;
   profile: UserProfile;
   setProfile: (p: Partial<UserProfile>) => void;
   step: number;
@@ -57,8 +55,6 @@ interface BlackboxState {
 }
 
 export const useBlackboxStore = create<BlackboxState>((set) => ({
-  mode: "normal",
-  setMode: (m) => set({ mode: m }),
   profile: { ...DEFAULT_PROFILE },
   setProfile: (p) => set((state) => ({ profile: { ...state.profile, ...p } })),
   step: 0,
