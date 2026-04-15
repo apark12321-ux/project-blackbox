@@ -234,12 +234,22 @@ export default function HomePage() {
       </section>
 
       {/* ═══ FOOTER ═══ */}
-      <footer className="py-8 px-5 border-t" style={{borderColor:"#eceef1",background:"#fafafa"}}>
-        <div className="max-w-4xl mx-auto text-center space-y-1" style={{color:"#9ca3af",fontSize:"10px",lineHeight:"1.7"}}>
-          <p>상호명: 한줄컴퍼니 | 대표자: 박예준 | 사업자등록번호: 450-07-03104</p>
-          <p>통신판매업 신고번호: 제 2025-인천서구-3321 호</p>
-          <p>사업장주소: 인천광역시 서구 청라커낼로 270, 커낼힐스빌 2층 2498호</p>
-          <p style={{marginTop:"8px",color:"#6b7280"}}>© 2026 AlgoMaker. All rights reserved.</p>
+      <footer className="py-10 px-5 border-t" style={{borderColor:"#eceef1",background:"#fafafa"}}>
+        <div className="max-w-4xl mx-auto">
+          {/* Business info */}
+          <div className="text-center space-y-1 mb-5" style={{color:"#9ca3af",fontSize:"10px",lineHeight:"1.8"}}>
+            <p><span style={{fontWeight:700,color:"#6b7280"}}>상호명: 한줄컴퍼니</span> | 대표자: 박예준 | 사업자등록번호: 450-07-03104</p>
+            <p>통신판매업 신고번호: 제 2025-인천서구-3321 호</p>
+            <p>사업장주소: 인천광역시 서구 청라커낼로 270, 커낼힐스빌 2층 2498호</p>
+            <p>고객센터: <a href="tel:01022284930" style={{color:"#9ca3af",textDecoration:"none"}}>010-2228-4930</a> | 이메일: <a href="mailto:edufix.contact@gmail.com" style={{color:"#9ca3af",textDecoration:"none"}}>edufix.contact@gmail.com</a></p>
+          </div>
+          {/* Legal links */}
+          <div className="flex items-center justify-center gap-4 mb-4" style={{fontSize:"11px"}}>
+            <a href="/privacy" style={{color:"#6b7280",textDecoration:"none",fontWeight:600}}>개인정보처리방침</a>
+            <span style={{color:"#d1d5db"}}>|</span>
+            <a href="/terms" style={{color:"#6b7280",textDecoration:"none"}}>이용약관</a>
+          </div>
+          <p className="text-center" style={{color:"#9ca3af",fontSize:"10px"}}>© 2026 AlgoMaker. All rights reserved.</p>
         </div>
       </footer>
     </div>
