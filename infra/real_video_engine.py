@@ -795,10 +795,11 @@ async def _heygen(full_text, jd):
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 async def generate_real_video(keyword, category, script_blocks, mode="normal",
-                               channel_name="", watermark_text="", tts_voice_id=""):
+                               channel_name="", watermark_text="", tts_voice_id="",
+                               _job_id=None):
     global _used_ids
     _used_ids = set()
-    job_id = str(uuid.uuid4())[:8]
+    job_id = _job_id or str(uuid.uuid4())[:8]
     jd = os.path.join(OUTPUT_DIR, job_id)
     os.makedirs(jd, exist_ok=True)
 
