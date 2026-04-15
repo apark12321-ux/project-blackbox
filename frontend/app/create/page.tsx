@@ -391,10 +391,10 @@ function VideoPage(){
                   <div className="h-full rounded-full transition-all duration-700" style={{width:`${pg}%`,background:"linear-gradient(90deg,#c49a1a,#e8c84a)"}}/>
                 </div>
                 <div className="space-y-1">
-                  {([{label:"TTS 음성",done:phase>1,active:phase===1,icon:"🎙"},
-                     {label:"자료화면",done:phase>2,active:phase===2,icon:"🎨"},
-                     {label:"아바타",done:phase>3,active:phase===3,icon:"👤"},
-                     {label:"최종 합성",done:phase>=5,active:phase===4,icon:"🎬"}
+                  {([{label:"시그널 분석",done:phase>1,active:phase===1,icon:"◈"},
+                     {label:"패턴 생성",done:phase>2,active:phase===2,icon:"◆"},
+                     {label:"프레임 처리",done:phase>3,active:phase===3,icon:"▣"},
+                     {label:"알고리즘 최적화",done:phase>=5,active:phase===4,icon:"◉"}
                   ] as const).map((s,i)=>(
                     <div key={i} className={`flex items-center gap-2.5 p-2.5 rounded-lg transition-all ${s.active?"bg-[#c49a1a]/5 border border-[#c49a1a]/15":s.done?"bg-[#16a34a]/3":"border border-transparent"}`}>
                       <div className={`w-6 h-6 rounded-md flex items-center justify-center text-[11px] font-bold shrink-0 ${s.done?"bg-[#16a34a]/10 text-[#16a34a]":s.active?"bg-[#c49a1a]/10 text-[#c49a1a]":"bg-[#f3f4f6] text-[#d1d5db]"}`}>
@@ -419,13 +419,14 @@ function VideoPage(){
             </div>
           ):store.script?(
             <div className="flex flex-col items-center py-12 gap-5">
-              <Guide items={[{q:"영상 생성 과정?",a:"TTS → Gemini 인포그래픽/Pexels 배경 → 아바타(선택) → FFmpeg 합성."},
-                {q:"시니어 모드?",a:"TTS 느리게, 자막 크게, BGM 작게. 50대+ 타겟."}]}/>
+              <div className="w-full max-w-sm p-4 rounded-2xl text-center" style={{background:"rgba(196,154,26,0.04)",border:"1px solid rgba(196,154,26,0.12)"}}>
+                <div className="text-[11px] font-bold text-[#c49a1a] mb-1 tracking-widest">BLACKBOX ALGO ENGINE</div>
+                <div className="text-[12px] text-[#9ca3af]">스크립트 분석 완료 · {totalBlocks}개 시퀀스 감지됨</div>
+              </div>
               <div className="text-center">
-                <p className="text-[12px] text-[#9ca3af] mb-1">{totalBlocks}블록 · {Math.floor(totalDur/60)}분 {Math.round(totalDur%60)}초</p>
                 <button onClick={gen} className="px-10 py-3.5 rounded-xl text-[15px] font-bold text-white transition-all hover:brightness-110 active:scale-[0.97] anim-pulse"
                   style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)",boxShadow:"0 6px 30px rgba(196,154,26,0.3)"}}>
-                  🎬 영상 생성 시작
+                  영상 제작
                 </button>
               </div>
             </div>
@@ -433,13 +434,42 @@ function VideoPage(){
         </div>
       </div>
 
-      {/* Settings */}
+      {/* AlgoEngine Panel */}
       <div className="w-full md:w-[260px] shrink-0 md:border-l md:flex md:flex-col" style={{borderColor:"var(--border)",background:"var(--bg-secondary)"}}>
-        <div className="p-3 md:p-4 border-b md:border-t-0 border-t shrink-0" style={{borderColor:"var(--border)"}}><h2 className="text-[13px] font-extrabold text-[#4b5563]">설정</h2></div>
+        <div className="p-3 md:p-4 border-b md:border-t-0 border-t shrink-0" style={{borderColor:"var(--border)"}}>
+          <div className="flex items-center justify-between">
+            <h2 className="text-[13px] font-extrabold text-[#4b5563]">AlgoEngine™</h2>
+            <div className="flex items-center gap-1.5">
+              <div className="w-1.5 h-1.5 rounded-full bg-[#22c55e]" style={{animation:"pulse 2s ease-in-out infinite"}}/>
+              <span className="text-[9px] font-bold text-[#22c55e] tracking-wider">ONLINE</span>
+            </div>
+          </div>
+        </div>
         <div className="p-3 md:p-4 space-y-3 text-[12px]">
-          <div className="flex justify-between"><span className="text-[#9ca3af]">시니어 모드</span><Tog on={store.mode==="senior"} fn={()=>store.setMode(store.mode==="senior"?"normal":"senior")}/></div>
+          <div className="flex justify-between items-center">
+            <span className="text-[#9ca3af]">시니어 최적화</span>
+            <Tog on={store.mode==="senior"} fn={()=>store.setMode(store.mode==="senior"?"normal":"senior")}/>
+          </div>
           <div className="h-px" style={{background:"var(--border)"}}/>
-          {([["해상도","1920×1080"],["TTS","ElevenLabs"],["비주얼","Gemini AI"],["자막","한글"],["BGM","Ambient"]] as [string,string][]).map(([l,v])=><Row key={l} l={l} v={v}/>)}
+          <div className="space-y-2.5">
+            {([
+              {label:"학습 정확도",bars:5,color:"#22c55e"},
+              {label:"패턴 매칭",bars:4,color:"#c49a1a"},
+              {label:"수익 최적화",bars:5,color:"#22c55e"},
+              {label:"알고 싱크",bars:4,color:"#6366f1"},
+            ]).map(({label,bars,color})=>(
+              <div key={label} className="flex items-center justify-between">
+                <span className="text-[11px] text-[#9ca3af]">{label}</span>
+                <span className="text-[10px] font-bold tracking-[3px]" style={{color}}>{"●".repeat(bars)+"○".repeat(5-bars)}</span>
+              </div>
+            ))}
+          </div>
+          <div className="h-px" style={{background:"var(--border)"}}/>
+          <div className="p-2.5 rounded-xl" style={{background:"rgba(99,102,241,0.04)",border:"1px solid rgba(99,102,241,0.1)"}}>
+            <div className="text-[9px] font-bold text-[#9ca3af] mb-1.5 tracking-widest">SYSTEM</div>
+            <div className="text-[12px] font-black text-[#4b5563]">BlackBox v7</div>
+            <div className="text-[10px] text-[#b0b5bf] mt-0.5">패턴 학습 완료</div>
+          </div>
         </div>
       </div>
     </div>
