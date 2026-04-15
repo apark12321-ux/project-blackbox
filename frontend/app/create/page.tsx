@@ -12,6 +12,7 @@ export default function CreatePage() {
       {activePage==="script"   && <ScriptPage/>}
       {activePage==="video"    && <VideoPage/>}
       {activePage==="deploy"   && <DeployPage/>}
+      {activePage==="channel"  && <ChannelPage/>}
     </div>
   );
 }
@@ -22,7 +23,6 @@ function fv(v:number){if(v>=1e6)return`${(v/1e6).toFixed(1)}M`;if(v>=1e3)return`
 function mom(m:number){if(m>0.15)return{i:"▲",c:"#34d399"};if(m>0)return{i:"→",c:"#e8c84a"};return{i:"▼",c:"#f87171"};}
 function sc(s:number){return s>=80?"#34d399":s>=60?"#e8c84a":"#f87171";}
 
-/* ── Section Header (videoto.kr style) ── */
 function SH({icon,label}:{icon:string;label:string}){
   return(
     <div className="flex items-center gap-2 mb-3">
@@ -58,24 +58,18 @@ function CurationPage(){
 
   return(
     <div className="h-full overflow-y-auto md:overflow-hidden md:flex">
-
-      {/* ── Left Panel ── */}
+      {/* Left Panel */}
       <div className="w-full md:w-[400px] lg:w-[420px] shrink-0 md:flex md:flex-col md:overflow-hidden md:border-r"
         style={{borderColor:"rgba(255,255,255,0.07)"}}>
-
-        {/* Panel Header */}
         <div className="px-4 py-3 shrink-0" style={{borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
           <h2 className="text-[15px] font-extrabold" style={{color:"rgba(255,255,255,0.88)"}}>뉴스 큐레이션</h2>
           <p className="text-[11px] mt-0.5" style={{color:"rgba(255,255,255,0.32)"}}>카테고리 선택 → 키워드 발굴 → 뉴스 수집</p>
         </div>
-
         <div className="md:flex-1 md:overflow-y-auto p-4 space-y-5">
           {err&&<ErrBox>{err}</ErrBox>}
-
-          {/* Categories */}
           <div>
             <SH icon="⊞" label="카테고리"/>
-            <div className="grid grid-cols-2 md:grid-cols-2 gap-2">
+            <div className="grid grid-cols-2 gap-2">
               {cats.map(cat=>{
                 const on=store.category===cat.slug;
                 return(
@@ -93,8 +87,6 @@ function CurationPage(){
               })}
             </div>
           </div>
-
-          {/* Keywords */}
           <div>
             <div className="flex items-center justify-between mb-3">
               <SH icon="◈" label="황금 키워드"/>
@@ -141,9 +133,8 @@ function CurationPage(){
         </div>
       </div>
 
-      {/* ── Right Panel: News Feed ── */}
-      <div id="news-feed" className="flex-1 md:flex md:flex-col md:overflow-hidden min-w-0">
-
+      {/* Right Panel: News */}
+      <div className="flex-1 md:flex md:flex-col md:overflow-hidden min-w-0">
         <div className="px-4 py-3 shrink-0 flex items-center justify-between"
           style={{borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
           <div>
@@ -158,7 +149,6 @@ function CurationPage(){
             </span>
           )}
         </div>
-
         <div className="md:flex-1 md:overflow-y-auto p-4">
           {nld?<Spinner className="py-12"/>:store.news.length>0?(
             <div className="space-y-2">
@@ -242,7 +232,6 @@ function ScriptPage(){
 
   const dur=store.script?.total_duration_sec||0;
   const ch=store.script?.blocks?.reduce((s:number,b:any)=>s+(b.text?.length||0),0)||0;
-
   const secMap:{[k:string]:{label:string;color:string;icon:string}}={
     hook:{label:"오프닝",color:"#e8c84a",icon:"🎯"},
     body:{label:"본문",color:"#60a5fa",icon:"📝"},
@@ -252,14 +241,11 @@ function ScriptPage(){
 
   return(
     <div className="h-full overflow-y-auto md:overflow-hidden md:flex">
-      {/* Main */}
       <div className="flex-1 md:flex md:flex-col md:overflow-hidden min-w-0">
         <div className="px-4 py-3 shrink-0 flex items-center justify-between"
           style={{borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
           <div className="flex items-center gap-3">
-            <div>
-              <h2 className="text-[15px] font-extrabold" style={{color:"rgba(255,255,255,0.88)"}}>AI 스크립트</h2>
-            </div>
+            <h2 className="text-[15px] font-extrabold" style={{color:"rgba(255,255,255,0.88)"}}>AI 스크립트</h2>
             {store.script&&(
               <div className="flex rounded-lg overflow-hidden" style={{border:"1px solid rgba(255,255,255,0.09)"}}>
                 {["blocks","scenario"].map(v=>(
@@ -319,8 +305,6 @@ function ScriptPage(){
           ):!store.script?<Empty icon="◆" text="큐레이션을 먼저 완료하세요"/>:null}
         </div>
       </div>
-
-      {/* Tools Panel */}
       <div className="w-full md:w-[260px] shrink-0 md:flex md:flex-col"
         style={{borderLeft:"1px solid rgba(255,255,255,0.07)"}}>
         <div className="px-4 py-3 shrink-0" style={{borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
@@ -356,7 +340,7 @@ function VideoPage(){
       else if(sec<210){setPhase(4);setPg(75+Math.min(20,Math.floor((sec-120)/90*20)));}
       else{setPg(Math.min(96,95));}
     },500);
-    try{const r=await fetch(`${API}/api/v1/video/generate-real`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keyword:store.selectedKeyword,category:store.category,mode:store.mode,script_blocks:store.script.blocks,channel_name:store.profile.channelName,watermark_text:store.profile.watermarkText||store.profile.channelName,tts_voice_id:store.profile.ttsVoiceId})});
+    try{const r=await fetch(`${API}/api/v1/video/generate-real`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({keyword:store.selectedKeyword,category:store.category,mode:"normal",script_blocks:store.script.blocks,channel_name:store.profile.channelName,watermark_text:store.profile.watermarkText||store.profile.channelName,tts_voice_id:store.profile.ttsVoiceId})});
       clearInterval(ticker);if(!r.ok)throw new Error(`실패(${r.status})`);const d=await r.json();
       if(d.status==="completed"||d.status==="done"||d.download_url){setPhase(5);setPg(100);store.setVideo(d);store.setStep(5);setLd(false);}
       else if(d.status==="error"){throw new Error(d.error||"실패");}
@@ -365,7 +349,6 @@ function VideoPage(){
 
   const totalDur=store.script?.total_duration_sec||0;
   const totalBlocks=store.script?.blocks?.length||0;
-
   const phases=[
     {label:"TTS 음성 생성",icon:"🎙"},
     {label:"자료화면 합성",icon:"🎨"},
@@ -415,22 +398,16 @@ function VideoPage(){
                   })}
                 </div>
               </div>
-              <p className="text-[11px]" style={{color:"rgba(255,255,255,0.28)"}}>
-                {elapsed>0?`${Math.floor(elapsed/60)}:${String(elapsed%60).padStart(2,"0")} 경과`:"약 3~5분 소요"}
-              </p>
+              <p className="text-[11px]" style={{color:"rgba(255,255,255,0.28)"}}>{elapsed>0?`${Math.floor(elapsed/60)}:${String(elapsed%60).padStart(2,"0")} 경과`:"약 3~5분 소요"}</p>
             </div>
           ):store.video?(
             <div className="flex flex-col items-center py-8 gap-4 anim-fade-up">
               <div className="text-[48px] anim-score">🎬</div>
               <h3 className="text-[18px] font-bold" style={{color:"rgba(255,255,255,0.88)"}}>영상 완성!</h3>
-              <p className="text-[12px]" style={{color:"rgba(255,255,255,0.35)"}}>
-                {store.video.duration_sec?.toFixed(0)}초 · {((store.video.file_size_bytes||0)/1024/1024).toFixed(1)}MB
-              </p>
+              <p className="text-[12px]" style={{color:"rgba(255,255,255,0.35)"}}>{store.video.duration_sec?.toFixed(0)}초 · {((store.video.file_size_bytes||0)/1024/1024).toFixed(1)}MB</p>
               <a href={`${API}${store.video.download_url}`} download
                 className="px-8 py-3 rounded-xl text-[14px] font-bold text-white"
-                style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>
-                ⬇ 다운로드
-              </a>
+                style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>⬇ 다운로드</a>
               <GoldBtn onClick={()=>{store.setStep(5);store.setActivePage("deploy");}}>검수 & 배포 →</GoldBtn>
             </div>
           ):store.script?(
@@ -439,9 +416,7 @@ function VideoPage(){
                 <div className="text-[40px]">🎬</div>
                 <div>
                   <p className="text-[14px] font-bold" style={{color:"rgba(255,255,255,0.80)"}}>영상 생성 준비 완료</p>
-                  <p className="text-[11px] mt-1" style={{color:"rgba(255,255,255,0.35)"}}>
-                    {totalBlocks}블록 · {Math.floor(totalDur/60)}분 {Math.round(totalDur%60)}초
-                  </p>
+                  <p className="text-[11px] mt-1" style={{color:"rgba(255,255,255,0.35)"}}>{totalBlocks}블록 · {Math.floor(totalDur/60)}분 {Math.round(totalDur%60)}초</p>
                 </div>
                 <button onClick={gen}
                   className="w-full py-3 rounded-xl text-[14px] font-bold text-white transition-all hover:brightness-110 active:scale-[0.98] anim-pulse"
@@ -453,20 +428,19 @@ function VideoPage(){
           ):<Empty icon="▶" text="스크립트가 필요합니다"/>}
         </div>
       </div>
-
-      {/* Settings Panel */}
       <div className="w-full md:w-[240px] shrink-0 md:flex md:flex-col"
         style={{borderLeft:"1px solid rgba(255,255,255,0.07)"}}>
         <div className="px-4 py-3 shrink-0" style={{borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
           <h2 className="text-[13px] font-extrabold" style={{color:"rgba(255,255,255,0.70)"}}>영상 설정</h2>
         </div>
         <div className="p-4 space-y-3 text-[12px]">
-          <div className="flex justify-between items-center">
-            <span style={{color:"rgba(255,255,255,0.40)"}}>시니어 모드</span>
-            <Tog on={store.mode==="senior"} fn={()=>store.setMode(store.mode==="senior"?"normal":"senior")}/>
-          </div>
-          <div className="h-px" style={{background:"rgba(255,255,255,0.06)"}}/>
           {([["해상도","1920×1080"],["TTS","ElevenLabs"],["비주얼","Gemini AI"],["자막","한글"],["BGM","Ambient"]] as [string,string][]).map(([l,v])=><Row key={l} l={l} v={v}/>)}
+          {store.profile.channelName&&(
+            <>
+              <div className="h-px" style={{background:"rgba(255,255,255,0.06)"}}/>
+              <Row l="채널명" v={store.profile.channelName}/>
+            </>
+          )}
         </div>
       </div>
     </div>
@@ -499,7 +473,6 @@ function DeployPage(){
           {err&&<ErrBox>{err}</ErrBox>}
           {sL?<Spinner className="py-16"/>:store.shield?(
             <div className="space-y-5">
-              {/* Score */}
               <div className="vto-card p-5 flex items-center gap-6">
                 <div className="text-center">
                   <div className="text-[56px] font-black leading-none anim-score" style={{color:sc(s)}}>{Math.round(s)}</div>
@@ -515,7 +488,6 @@ function DeployPage(){
                   </div>
                 </div>
               </div>
-
               {!passed&&(
                 <div className="p-4 rounded-xl" style={{background:"rgba(248,113,113,0.05)",border:"1px solid rgba(248,113,113,0.15)"}}>
                   <p className="text-[13px] font-bold mb-2" style={{color:"#f87171"}}>🚫 수익화 위험</p>
@@ -527,7 +499,6 @@ function DeployPage(){
                   </div>
                 </div>
               )}
-
               {store.shield.checks&&(
                 <div className="space-y-1.5">
                   {store.shield.checks.map((c:any,i:number)=>(
@@ -540,20 +511,15 @@ function DeployPage(){
                   ))}
                 </div>
               )}
-
               {passed&&store.video&&(
                 <a href={`${API}${store.video.download_url}`} download
                   className="block w-full py-3 rounded-xl text-center text-[14px] font-bold text-white"
-                  style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>
-                  ⬇ 최종 다운로드
-                </a>
+                  style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>⬇ 최종 다운로드</a>
               )}
             </div>
           ):<Empty icon="◉" text="영상이 필요합니다"/>}
         </div>
       </div>
-
-      {/* SEO Panel */}
       <div className="w-full md:w-[260px] shrink-0 md:flex md:flex-col"
         style={{borderLeft:"1px solid rgba(255,255,255,0.07)"}}>
         <div className="px-4 py-3 shrink-0" style={{borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
@@ -588,6 +554,165 @@ function DeployPage(){
             </div>
           )}
         </div>
+      </div>
+    </div>
+  );
+}
+
+
+/* ═══════════════════════════════════════
+   MODULE E — CHANNEL MANAGEMENT
+   (videoto.kr "내 채널 관리" style)
+   ═══════════════════════════════════════ */
+function ChannelPage(){
+  const store=useBlackboxStore();
+  const[tab,setTab]=useState<"settings"|"tts">("settings");
+  const[saved,setSaved]=useState(false);
+
+  const fields=[
+    {label:"채널 이름 *",key:"channelName" as const,ph:"예: 돈이 보이는 경제",type:"input",desc:"YouTube 채널에 표시될 이름"},
+    {label:"인트로 멘트",key:"introText" as const,ph:"안녕하세요, 오늘도 핵심만 짚어드리겠습니다.",type:"textarea",desc:"영상 시작 시 읽는 인사말"},
+    {label:"아웃트로 멘트",key:"outroText" as const,ph:"다음 영상에서 더 유익한 정보로 찾아뵙겠습니다.",type:"textarea",desc:"영상 마무리 멘트"},
+    {label:"워터마크",key:"watermarkText" as const,ph:"비우면 채널명 사용",type:"input",desc:"영상에 표시될 채널 워터마크"},
+  ];
+
+  const ttsVoices=[
+    {id:"jBpfuIE2acCO8z3wKNLl",name:"기본 한국어",desc:"자연스러운 표준 한국어"},
+    {id:"pNInz6obpgDQGcFmaJgB",name:"남성 저음",desc:"신뢰감 있는 낮은 목소리"},
+    {id:"XB0fDUnXU5powFXDhCwa",name:"여성 밝음",desc:"활기차고 명랑한 목소리"},
+    {id:"29vD33N1CtxCmqQRPOHJ",name:"뉴스 앵커",desc:"격식 있는 뉴스 진행 스타일"},
+  ];
+
+  const save=()=>{setSaved(true);setTimeout(()=>setSaved(false),2500);};
+
+  return(
+    <div className="h-full overflow-y-auto">
+      {/* Page Header */}
+      <div className="px-6 md:px-8 pt-6 pb-0">
+        <div className="flex items-center gap-2 mb-1 text-[11px]" style={{color:"rgba(255,255,255,0.30)"}}>
+          <span>채널</span>
+          <span>/</span>
+          <span style={{color:"rgba(255,255,255,0.55)"}}>채널 설정</span>
+        </div>
+        <h1 className="text-[22px] font-extrabold mb-4" style={{color:"rgba(255,255,255,0.92)"}}>내 채널 관리</h1>
+
+        {/* Sub Tabs */}
+        <div className="flex items-center gap-0 border-b" style={{borderColor:"rgba(255,255,255,0.07)"}}>
+          {([["settings","⚙ 채널 설정"],["tts","🎙 TTS 음성"]] as [typeof tab,string][]).map(([k,l])=>(
+            <button key={k} onClick={()=>setTab(k)}
+              className="px-5 py-2.5 text-[13px] font-bold transition-all"
+              style={{
+                color: tab===k ? "rgba(255,255,255,0.88)" : "rgba(255,255,255,0.35)",
+                borderBottom: tab===k ? "2px solid #e8c84a" : "2px solid transparent",
+                marginBottom: "-1px",
+              }}>
+              {l}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Content */}
+      <div className="px-6 md:px-8 py-6">
+        {tab==="settings"?(
+          <div className="max-w-[640px]">
+            {/* Channel Card */}
+            <div className="mb-6 p-4 rounded-2xl flex items-center gap-4"
+              style={{background:"rgba(255,255,255,0.04)",border:"1px solid rgba(255,255,255,0.08)"}}>
+              <div className="w-14 h-14 rounded-2xl flex items-center justify-center text-[24px] shrink-0"
+                style={{background:"linear-gradient(135deg,#1a1208,#2a2010)",border:"1px solid rgba(232,200,74,0.20)"}}>
+                📺
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="text-[16px] font-extrabold truncate" style={{color:"rgba(255,255,255,0.88)"}}>
+                  {store.profile.channelName||<span style={{color:"rgba(255,255,255,0.28)"}}>채널 이름 미설정</span>}
+                </div>
+                <div className="text-[11px] mt-0.5" style={{color:"rgba(255,255,255,0.35)"}}>
+                  {store.profile.channelName ? "AlgoMaker 채널 · 설정 완료" : "아래에서 채널 정보를 입력해주세요"}
+                </div>
+              </div>
+              {store.profile.channelName&&(
+                <div className="shrink-0 px-2.5 py-1 rounded-full text-[10px] font-bold"
+                  style={{background:"rgba(52,211,153,0.10)",color:"#34d399",border:"1px solid rgba(52,211,153,0.20)"}}>
+                  ✓ 등록됨
+                </div>
+              )}
+            </div>
+
+            {/* Fields */}
+            <div className="space-y-5">
+              {fields.map(f=>(
+                <div key={f.key}>
+                  <div className="flex items-center justify-between mb-1.5">
+                    <label className="text-[12px] font-bold" style={{color:"rgba(255,255,255,0.60)"}}>
+                      {f.label}
+                    </label>
+                    <span className="text-[10px]" style={{color:"rgba(255,255,255,0.25)"}}>{f.desc}</span>
+                  </div>
+                  {f.type==="textarea"?(
+                    <textarea value={store.profile[f.key]} onChange={e=>store.setProfile({[f.key]:e.target.value})}
+                      placeholder={f.ph} rows={3}
+                      className="w-full px-3.5 py-3 rounded-xl text-[13px] resize-none focus:outline-none focus:ring-1 focus:ring-[#e8c84a]/25 placeholder:opacity-25"
+                      style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.09)",color:"rgba(255,255,255,0.80)"}}/>
+                  ):(
+                    <input value={store.profile[f.key]} onChange={e=>store.setProfile({[f.key]:e.target.value})}
+                      placeholder={f.ph}
+                      className="w-full px-3.5 py-3 rounded-xl text-[13px] focus:outline-none focus:ring-1 focus:ring-[#e8c84a]/25 placeholder:opacity-25"
+                      style={{background:"rgba(255,255,255,0.05)",border:"1px solid rgba(255,255,255,0.09)",color:"rgba(255,255,255,0.80)"}}/>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            <div className="mt-6 flex items-center gap-3">
+              <button onClick={save}
+                className="flex-1 md:flex-none md:w-40 py-3 rounded-xl text-[14px] font-bold text-white transition-all hover:brightness-110 active:scale-[0.98]"
+                style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>
+                {saved?"✓ 저장됨":"저장"}
+              </button>
+              {saved&&<span className="text-[12px]" style={{color:"#34d399"}}>채널 설정이 저장되었습니다</span>}
+            </div>
+          </div>
+        ):(
+          /* TTS Voice Selection */
+          <div className="max-w-[640px]">
+            <p className="text-[13px] mb-5" style={{color:"rgba(255,255,255,0.40)"}}>영상에 사용할 TTS 음성을 선택하세요</p>
+            <div className="space-y-2">
+              {ttsVoices.map(v=>{
+                const sel=store.profile.ttsVoiceId===v.id;
+                return(
+                  <button key={v.id}
+                    onClick={()=>store.setProfile({ttsVoiceId:v.id,ttsVoiceName:v.name})}
+                    className={`w-full text-left p-4 rounded-xl transition-all flex items-center gap-4 ${sel?"glow-gold":""}`}
+                    style={{
+                      background:sel?"rgba(232,200,74,0.06)":"rgba(255,255,255,0.04)",
+                      border:`1px solid ${sel?"rgba(232,200,74,0.30)":"rgba(255,255,255,0.07)"}`,
+                    }}>
+                    <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[20px] shrink-0"
+                      style={{background:sel?"rgba(232,200,74,0.12)":"rgba(255,255,255,0.06)"}}>
+                      🎙
+                    </div>
+                    <div className="flex-1">
+                      <div className="text-[13px] font-bold" style={{color:sel?"#e8c84a":"rgba(255,255,255,0.78)"}}>{v.name}</div>
+                      <div className="text-[11px] mt-0.5" style={{color:"rgba(255,255,255,0.35)"}}>{v.desc}</div>
+                    </div>
+                    {sel&&(
+                      <div className="w-5 h-5 rounded-full flex items-center justify-center text-[10px] font-black"
+                        style={{background:"#e8c84a",color:"#0d0c0a"}}>✓</div>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+            <div className="mt-5">
+              <button onClick={save}
+                className="w-full md:w-40 py-3 rounded-xl text-[14px] font-bold text-white transition-all hover:brightness-110"
+                style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>
+                {saved?"✓ 저장됨":"저장"}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
@@ -648,15 +773,5 @@ function Row({l,v}:{l:string;v:string}){
       <span className="text-[11px]" style={{color:"rgba(255,255,255,0.30)"}}>{l}</span>
       <span className="text-[11px] font-bold" style={{color:"rgba(255,255,255,0.60)"}}>{v}</span>
     </div>
-  );
-}
-function Tog({on,fn}:{on:boolean;fn:()=>void}){
-  return(
-    <button onClick={fn}
-      className="w-10 h-5 rounded-full relative transition-all"
-      style={{background:on?"#c49a1a":"rgba(255,255,255,0.12)"}}>
-      <div className="w-4 h-4 rounded-full bg-white absolute top-0.5 transition-all shadow"
-        style={{left:on?"22px":"2px"}}/>
-    </button>
   );
 }
