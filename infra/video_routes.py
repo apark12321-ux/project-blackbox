@@ -67,6 +67,16 @@ async def generate_real_video_endpoint(req: RealVideoRequest):
 
     _jobs[result.job_id] = result
 
+    if result.status == "tts_failed":
+        raise HTTPException(
+            status_code=503,
+            detail={
+                "code": "TTS_FAILED",
+                "message": result.error,
+                "action": "음성 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.",
+            }
+        )
+
     return RealVideoResponse(
         job_id=result.job_id,
         status=result.status,
