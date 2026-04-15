@@ -64,8 +64,13 @@ async def _edge_tts(text, path):
         logger.warning(f"[EdgeTTS] {e}")
     return ""
 
+class TTSFailedError(Exception):
+    """ElevenLabs와 Edge TTS 모두 실패했을 때 발생 — 무음 영상 생성 금지"""
+    pass
+
 async def _tts_block(text, path, voice_id="2gbExjiWDnG1DMGr81Bx", speed=1.0):
     est = len(text) / (8.0 * speed)
+    errors = []
 
     # ── 1순위: ElevenLabs ──
     key = os.getenv("ELEVENLABS_API_KEY","").strip()
@@ -84,6 +89,7 @@ async def _tts_block(text, path, voice_id="2gbExjiWDnG1DMGr81Bx", speed=1.0):
                 logger.info(f"[TTS] ElevenLabs ✓ {d:.1f}s")
                 return path, d if d > 0 else est
         except Exception as e:
+            errors.append(f"ElevenLabs: {e}")
             logger.warning(f"[TTS] ElevenLabs 실패 ({e}) — Edge TTS 시도")
 
     # ── 2순위: Edge TTS (무료, 한국어 고퀄리티) ──
@@ -91,11 +97,13 @@ async def _tts_block(text, path, voice_id="2gbExjiWDnG1DMGr81Bx", speed=1.0):
     if edge_path:
         d = _dur(edge_path)
         return edge_path, d if d > 0 else est
+    errors.append("Edge TTS: 실패")
 
-    # ── 3순위: 무음 ──
-    logger.warning("[TTS] 모든 TTS 실패 — 무음 fallback")
-    _silent(path, est)
-    return path, est
+    # ── TTS 완전 실패 → 영상 생성 중단 ──
+    raise TTSFailedError(
+        f"음성 생성 실패: {' / '.join(errors)}\n"
+        "ElevenLabs API 키를 확인하거나 네트워크 상태를 점검해 주세요."
+    )
 
 async def _tts_all(blocks, jd, speed=1.0, voice_id="2gbExjiWDnG1DMGr81Bx"):
     durs, paths = [], []
@@ -837,7 +845,7 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
 
         logger.info(f"[V17] ═══ START: '{keyword}', {total} blocks, mode={mode} ═══")
 
-        # ── Step 1: TTS (항상 성공) ──
+        # ── Step 1: TTS (실패 시 영상 생성 중단) ──
         audio, adur, bdurs = await _tts_all(script_blocks, jd, speed, voice)
 
         # ── Step 2: Style ──
@@ -931,8 +939,22 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
             duration_sec=round(adur,1), file_size_bytes=os.path.getsize(audio),
             tts_audio_path=audio)
 
+    except TTSFailedError as e:
+        # TTS 완전 실패 — 임시 파일 정리 후 초기 상태로 복귀
+        logger.error(f"[V17] TTS 실패 — 영상 생성 중단: {e}")
+        try:
+            if os.path.exists(jd):
+                shutil.rmtree(jd)
+                logger.info(f"[V17] 임시 파일 정리 완료: {jd}")
+        except Exception:
+            pass
+        return RealVideoResult(
+            job_id=job_id,
+            status="tts_failed",
+            error=str(e),
+        )
+
     except Exception as e:
         logger.error(f"[V17] FATAL: {e}")
-        # 에러에서도 뭐라도 반환
         return RealVideoResult(job_id=job_id, status="error", error=str(e))
 
