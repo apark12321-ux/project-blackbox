@@ -27,9 +27,6 @@ const PROG_STEPS: { key:PK; icon:string; label:string }[] = [
 
 const INIT_PROG: Prog = { news:"waiting", script:"waiting", tts:"waiting", image:"waiting", compose:"waiting", shield:"waiting" };
 
-  </button>
-);
-
 export default function CreatePage() {
   const store = useBlackboxStore();
   const [uiStep, setUiStep] = useState<1|2|3>(1);
