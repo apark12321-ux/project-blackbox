@@ -5,13 +5,26 @@ Creato — 영상 생성 + 다운로드 + 슬라이드 미리보기 API
 import os
 import uuid
 import base64
+import asyncio
 from fastapi import APIRouter, HTTPException
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
+from dataclasses import dataclass, field
 
 router = APIRouter(prefix="/api/v1/video", tags=["Video"])
 
 _jobs: dict = {}
+
+
+@dataclass
+class _JobState:
+    job_id: str
+    status: str = "processing"
+    download_url: str = ""
+    duration_sec: float = 0.0
+    file_size_bytes: int = 0
+    error: str = ""
+    output_path: str = ""
 
 
 @router.get("/check-keys")
@@ -36,6 +49,9 @@ class RealVideoRequest(BaseModel):
     category: str
     mode: str = "normal"
     script_blocks: list[dict]
+    channel_name: str = ""
+    watermark_text: str = ""
+    tts_voice_id: str = ""
 
 
 class RealVideoResponse(BaseModel):
@@ -55,36 +71,38 @@ class SlidePreviewRequest(BaseModel):
 
 @router.post("/generate-real", response_model=RealVideoResponse)
 async def generate_real_video_endpoint(req: RealVideoRequest):
-    """실제 영상 생성 (TTS + Gemini/Pexels + FFmpeg)"""
+    """실제 영상 생성 — 즉시 job_id 반환 후 백그라운드에서 생성"""
     from real_video_engine import generate_real_video
 
-    result = await generate_real_video(
-        keyword=req.keyword,
-        category=req.category,
-        script_blocks=req.script_blocks,
-        mode=req.mode,
-    )
+    job_id = str(uuid.uuid4())[:8]
+    _jobs[job_id] = _JobState(job_id=job_id, status="processing")
 
-    _jobs[result.job_id] = result
+    async def _run():
+        try:
+            result = await generate_real_video(
+                keyword=req.keyword,
+                category=req.category,
+                script_blocks=req.script_blocks,
+                mode=req.mode,
+                channel_name=req.channel_name,
+                watermark_text=req.watermark_text,
+                tts_voice_id=req.tts_voice_id,
+                _job_id=job_id,
+            )
+            # Merge result into pre-registered job slot
+            _jobs[job_id].status = result.status
+            _jobs[job_id].download_url = result.download_url
+            _jobs[job_id].duration_sec = result.duration_sec
+            _jobs[job_id].file_size_bytes = result.file_size_bytes
+            _jobs[job_id].error = result.error
+            _jobs[job_id].output_path = getattr(result, "output_path", "")
+        except Exception as e:
+            _jobs[job_id].status = "error"
+            _jobs[job_id].error = str(e)
 
-    if result.status == "tts_failed":
-        raise HTTPException(
-            status_code=503,
-            detail={
-                "code": "TTS_FAILED",
-                "message": result.error,
-                "action": "음성 생성에 실패했습니다. 잠시 후 다시 시도해 주세요.",
-            }
-        )
+    asyncio.create_task(_run())
 
-    return RealVideoResponse(
-        job_id=result.job_id,
-        status=result.status,
-        download_url=result.download_url,
-        duration_sec=result.duration_sec,
-        file_size_bytes=result.file_size_bytes,
-        error=result.error,
-    )
+    return RealVideoResponse(job_id=job_id, status="processing")
 
 
 @router.post("/preview-slides")
@@ -131,8 +149,9 @@ async def download_video(job_id: str):
     # 1. 메모리 캐시에서 찾기
     if job_id in _jobs:
         result = _jobs[job_id]
-        if result.output_path and os.path.exists(result.output_path):
-            file_path = result.output_path
+        op = getattr(result, "output_path", "")
+        if op and os.path.exists(op):
+            file_path = op
 
     # 2. 디스크에서 찾기 (creato_ 또는 blackbox_ prefix)
     if not file_path and os.path.exists(job_dir):
@@ -170,5 +189,6 @@ async def video_status(job_id: str):
             "download_url": r.download_url,
             "duration_sec": r.duration_sec,
             "file_size_bytes": r.file_size_bytes,
+            "error": getattr(r, "error", ""),
         }
     return {"job_id": job_id, "status": "not_found"}
