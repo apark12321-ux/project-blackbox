@@ -226,7 +226,6 @@ export default function HomePage() {
         <h3 className="text-[22px] md:text-[34px] font-black text-white mb-4">
           지금 바로 수익형 영상을 만들어보세요
         </h3>
-        <p className="text-[14px] text-white/40 mb-8">카드 등록 불필요. 무료로 시작하세요.</p>
         <button onClick={()=>router.push("/create")}
           className="gold-btn text-[16px] px-12 py-4">
           무료로 시작하기 →
