@@ -48,20 +48,34 @@ def _dur(p):
 #  1. TTS — ElevenLabs → Edge TTS → 무음 fallback
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-async def _edge_tts(text, path):
-    """Edge TTS — 무료, API 키 불필요, 한국어 고퀄리티 (SunHi/InJoon)"""
+async def _edge_tts(text, path, speed=1.0):
+    """Edge TTS — 무료, API 키 불필요, SSML prosody rate로 속도 제어"""
     try:
         import edge_tts
         voice = os.getenv("EDGE_TTS_VOICE", "ko-KR-SunHiNeural")
-        communicate = edge_tts.Communicate(text, voice)
+        # SSML prosody rate로 속도 제어 (ElevenLabs와 동일한 speed 값 적용)
+        rate_pct = int((speed - 1.0) * 100)  # 1.0 → 0%, 0.92 → -8%
+        rate_str = f"{rate_pct:+d}%"
+        ssml_text = f'<speak><prosody rate="{rate_str}">{text}</prosody></speak>'
+        communicate = edge_tts.Communicate(ssml_text, voice)
         await communicate.save(path)
         if os.path.exists(path) and os.path.getsize(path) > 1000:
-            logger.info(f"[EdgeTTS] ✓ voice={voice}")
+            logger.info(f"[EdgeTTS] ✓ voice={voice}, rate={rate_str}")
             return path
     except ImportError:
         logger.warning("[EdgeTTS] edge-tts 패키지 없음 (pip install edge-tts)")
     except Exception as e:
-        logger.warning(f"[EdgeTTS] {e}")
+        # SSML 실패 시 plain text로 재시도
+        try:
+            import edge_tts as _et
+            voice = os.getenv("EDGE_TTS_VOICE", "ko-KR-SunHiNeural")
+            communicate = _et.Communicate(text, voice)
+            await communicate.save(path)
+            if os.path.exists(path) and os.path.getsize(path) > 1000:
+                logger.info(f"[EdgeTTS] ✓ plain fallback, voice={voice}")
+                return path
+        except Exception as e2:
+            logger.warning(f"[EdgeTTS] {e2}")
     return ""
 
 class TTSFailedError(Exception):
@@ -93,7 +107,7 @@ async def _tts_block(text, path, voice_id="2gbExjiWDnG1DMGr81Bx", speed=1.0):
             logger.warning(f"[TTS] ElevenLabs 실패 ({e}) — Edge TTS 시도")
 
     # ── 2순위: Edge TTS (무료, 한국어 고퀄리티) ──
-    edge_path = await _edge_tts(text, path)
+    edge_path = await _edge_tts(text, path, speed)
     if edge_path:
         d = _dur(edge_path)
         return edge_path, d if d > 0 else est
@@ -205,7 +219,7 @@ async def _get_slide_image(keyword, text, idx, total, category, section, jd, sty
         return slide, "fal.ai"
 
     # ── 3순위: Pexels ──
-    pex = await _try_pexels(text, category, idx, jd)
+    pex = await _try_pexels(text, category, idx, jd, keyword)
     if pex:
         _add_overlay(pex, keyword, idx, total, slide)
         logger.info(f"[IMG] Block {idx+1}/{total}: pexels ✓")
@@ -320,28 +334,52 @@ async def _try_fal(keyword, core, idx, total, section, vis, pal, style, jd):
 
 
 # ── Pexels ──
-_KR_EN = {"주식":"stock market","부동산":"real estate","투자":"investment","연금":"retirement",
-    "절세":"tax planning","건강":"wellness","운동":"fitness","AI":"AI technology",
-    "경제":"economy analytics","금리":"interest rate","창업":"startup business"}
+_KR_EN = {
+    "주식":"stock market chart","부동산":"real estate property","투자":"investment finance",
+    "연금":"retirement pension","절세":"tax planning","건강":"health wellness",
+    "운동":"fitness exercise","AI":"artificial intelligence","경제":"economy business",
+    "금리":"interest rate banking","창업":"startup entrepreneur","노후":"retirement lifestyle",
+    "배당":"dividend stock","ETF":"ETF fund investing","펀드":"mutual fund investment",
+    "보험":"insurance financial","적금":"savings bank","대출":"loan mortgage",
+    "수익":"profit income","손실":"financial risk","자산":"wealth management",
+    "인플레이션":"inflation economy","달러":"dollar currency exchange","환율":"currency exchange",
+    "암호화폐":"cryptocurrency bitcoin","채권":"bond investment","원자재":"commodity market",
+    "은퇴":"retirement planning","재테크":"financial planning wealth","절약":"saving money frugal",
+    "직장":"office workplace professional","사업":"business entrepreneurship",
+    "습관":"habit productivity routine","독서":"reading books learning","성장":"personal growth",
+    "다이어트":"diet nutrition healthy eating","수면":"sleep rest relaxation",
+    "스트레스":"stress management mindfulness","명상":"meditation zen calm",
+    "요리":"cooking food gourmet","여행":"travel adventure landscape",
+    "인테리어":"interior design home","카페":"coffee cafe cozy",
+    "반도체":"semiconductor technology chip","로봇":"robot automation industry",
+    "클라우드":"cloud computing data center","메타버스":"metaverse virtual reality",
+    "스마트폰":"smartphone technology mobile","전기차":"electric vehicle EV",
+}
 _CAT_TERMS = {
-    "economy":["finance chart","stock market","business meeting","economy graph","banking","trading"],
-    "senior":["elderly garden","retirement","medical care","healthy food","family","wellness yoga"],
-    "selfdev":["reading sunrise","fitness running","workspace clean","meditation","mountain summit"],
-    "tech":["AI neural network","coding developer","server datacenter","robot automation","circuit board"],
-    "life":["cooking gourmet","interior design","travel landscape","coffee cafe","photography","garden"],
+    "economy":["financial planning desk","stock market analysis","business strategy meeting","economy data chart","banking finance professional","investment portfolio"],
+    "senior":["healthy senior lifestyle","retirement couple happy","medical professional care","nutritious meal preparation","family bonding warm","wellness active elderly"],
+    "selfdev":["morning routine productive","person reading learning","clean organized workspace","meditation peaceful mindfulness","mountain hiking achievement","goal setting planning"],
+    "tech":["AI technology futuristic","software developer coding","modern data center","robotics automation future","tech innovation abstract","digital transformation"],
+    "life":["gourmet cooking kitchen","modern home interior","scenic travel landscape","cozy coffee shop","creative photography","beautiful garden nature"],
 }
 _used_ids = set()
 
-async def _try_pexels(text, category, idx, jd):
+def _extract_pexels_query(text, keyword, category, idx):
+    """텍스트에서 Pexels 검색 쿼리 추출 — 내용 연관성 극대화"""
+    # 1. 상세 키워드 매핑에서 찾기
+    for kr, en in _KR_EN.items():
+        if kr in text: return en
+    # 2. 키워드(주제어)도 검색
+    for kr, en in _KR_EN.items():
+        if kr in keyword: return en
+    # 3. 카테고리 기반 (다양하게 순환)
+    terms = _CAT_TERMS.get(category, _CAT_TERMS["tech"])
+    return terms[idx % len(terms)]
+
+async def _try_pexels(text, category, idx, jd, keyword=""):
     key = os.getenv("PEXELS_API_KEY","").strip()
     if not key: return ""
-    # 키워드 매칭
-    query = ""
-    for kr, en in _KR_EN.items():
-        if kr in text: query = en; break
-    if not query:
-        terms = _CAT_TERMS.get(category, _CAT_TERMS["tech"])
-        query = terms[idx % len(terms)]
+    query = _extract_pexels_query(text, keyword, category, idx)
     try:
         import httpx
         async with httpx.AsyncClient(timeout=15) as c:
@@ -510,57 +548,49 @@ def _img_to_clip(img, out, dur, idx=0):
 
 
 def _concat_with_transitions(clips, bg_path, jd):
-    """클립들을 xfade 전환으로 연결. 실패 시 단순 concat."""
+    """클립들을 concat으로 연결.
+    
+    ★ 설계 원칙: 오디오-비디오 싱크 정확도 최우선.
+      - xfade 방식은 클립당 0.5초씩 겹쳐 총 영상 길이가 오디오보다 짧아지는 버그가 있음
+        (n개 클립 = 총 (n-1)*0.5초 단축 → -shortest가 후반 오디오를 잘라버림)
+      - 대신: 각 클립 내부에 fade in/out 이미 포함돼 있으므로
+        단순 concat만으로도 부드러운 전환 효과가 난다
+    """
     if len(clips) == 1:
         shutil.copy2(clips[0], bg_path)
         return bg_path
 
-    transitions = ["fadeblack","slideleft","slideright","slideup","circlecrop",
-                    "fade","wipeleft","wiperight","smoothleft","smoothright"]
-    XDUR = 0.5
+    # 단순 concat — 총 영상 길이 = 합산 클립 길이 (오디오 길이와 정확히 매칭)
+    lf = os.path.join(jd, "clips.txt")
+    with open(lf, "w") as f:
+        for c in clips:
+            f.write(f"file '{c}'\n")
 
     try:
-        # xfade 체인
-        inputs = []
-        for c in clips: inputs.extend(["-i", c])
-
-        clip_durs = []
-        for c in clips:
-            d = _dur(c)
-            clip_durs.append(d if d > 0.5 else 5.0)
-
-        parts = []
-        cur = "[0:v]"
-        offset = clip_durs[0] - XDUR
-
-        for j in range(1, len(clips)):
-            tr = transitions[j % len(transitions)]
-            out_label = f"[v{j}]" if j < len(clips)-1 else "[vout]"
-            parts.append(f"{cur}[{j}:v]xfade=transition={tr}:duration={XDUR}:offset={max(0.1,offset)}{out_label}")
-            offset += clip_durs[j] - XDUR
-            cur = out_label
-
-        cmd = ["ffmpeg","-y"] + inputs + [
-            "-filter_complex", ";".join(parts),
-            "-map","[vout]","-c:v","libx264","-preset","medium","-crf","18",
-            "-pix_fmt","yuv420p","-movflags","+faststart",bg_path]
-        r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+        r = subprocess.run(
+            ["ffmpeg","-y","-f","concat","-safe","0","-i",lf,
+             "-c:v","libx264","-preset","medium","-crf","18",
+             "-pix_fmt","yuv420p","-movflags","+faststart",bg_path],
+            capture_output=True, text=True, timeout=600)
         if r.returncode == 0 and os.path.exists(bg_path):
-            logger.info(f"[FFmpeg] ✓ xfade {len(clips)-1} transitions")
+            logger.info(f"[FFmpeg] ✓ concat {len(clips)} clips (sync-safe)")
             return bg_path
-        raise Exception(r.stderr[-200:] if r.stderr else "xfade failed")
+        logger.warning(f"[FFmpeg] concat failed: {r.stderr[-200:]}")
     except Exception as e:
-        logger.warning(f"[FFmpeg] xfade failed: {e}, using concat")
+        logger.warning(f"[FFmpeg] concat exception: {e}")
 
-    # Fallback: 단순 concat
-    lf = os.path.join(jd, "clips.txt")
-    with open(lf,"w") as f:
-        for c in clips: f.write(f"file '{c}'\n")
-    subprocess.run(["ffmpeg","-y","-f","concat","-safe","0","-i",lf,
-        "-c:v","libx264","-preset","medium","-crf","18",
-        "-pix_fmt","yuv420p","-movflags","+faststart",bg_path],
-        capture_output=True, timeout=600)
-    return bg_path if os.path.exists(bg_path) else ""
+    # Fallback: copy-mode concat (빠름)
+    try:
+        subprocess.run(
+            ["ffmpeg","-y","-f","concat","-safe","0","-i",lf,
+             "-c","copy",bg_path],
+            capture_output=True, timeout=300)
+        if os.path.exists(bg_path):
+            logger.info("[FFmpeg] ✓ copy-concat fallback")
+            return bg_path
+    except: pass
+
+    return ""
 
 
 def _avatar_pip(bg, avatar, out):
