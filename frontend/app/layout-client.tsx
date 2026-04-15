@@ -34,32 +34,64 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col md:flex-row h-[100dvh]">
 
-      {/* ═══ Desktop Sidebar ═══ */}
-      <nav className="hidden md:flex w-[72px] shrink-0 flex-col items-center py-4 gap-2 sidebar-dark"
+      {/* ═══ Desktop Sidebar (expanded) ═══ */}
+      <nav className="hidden md:flex w-[220px] lg:w-[240px] shrink-0 flex-col py-5 sidebar-dark"
         style={{ borderRight: "1px solid rgba(255,255,255,0.06)" }}>
+        {/* Logo */}
         <Link href="/" onClick={reset}
-          className="w-11 h-11 rounded-xl flex items-center justify-center text-[14px] font-black mb-4 text-white transition-transform hover:scale-105"
-          style={{ background: "linear-gradient(135deg,#c49a1a,#e8c84a)", boxShadow: "0 4px 16px rgba(196,154,26,0.3)" }}>
-          AM
+          className="flex items-center gap-2.5 px-5 mb-6 group">
+          <div className="w-10 h-10 rounded-xl flex items-center justify-center text-[13px] font-black text-white transition-transform group-hover:scale-105"
+            style={{ background: "linear-gradient(135deg,#c49a1a,#e8c84a)", boxShadow: "0 4px 16px rgba(196,154,26,0.3)" }}>
+            AM
+          </div>
+          <div>
+            <span className="text-[15px] font-black tracking-tight" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
+              <span className="text-white/90">Algo</span><span style={{color:"#e8c84a"}}>Maker</span>
+            </span>
+            <div className="text-[9px] text-white/30 font-medium -mt-0.5">YouTube Automation</div>
+          </div>
         </Link>
-        {NAV.map((item) => {
-          const active = activePage === item.key;
-          const ok = step >= item.min;
-          const done = isDone(item.key);
-          return (
-            <button key={item.key} onClick={() => ok && setActivePage(item.key)} disabled={!ok} title={item.label}
-              className={`w-[56px] h-[48px] rounded-xl flex flex-col items-center justify-center gap-0.5 transition-all relative
-                ${!ok?"opacity-15 cursor-not-allowed":"cursor-pointer hover:bg-white/[0.05]"}`}
-              style={active?{background:"rgba(212,175,55,0.15)"}:{}}>
-              {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[2.5px] h-6 rounded-r" style={{background:"#d4af37"}} />}
-              <span className={`text-[17px] ${active?"text-[#d4af37]":done?"text-[#34d399]":"text-white/25"}`}>{done&&!active?"✓":item.icon}</span>
-              <span className={`text-[9px] font-bold ${active?"text-[#d4af37]":"text-white/20"}`}>{item.label}</span>
-            </button>
-          );
-        })}
-        <div className="mt-auto flex flex-col items-center gap-2">
-          <button onClick={() => setShowSettings(true)} className="w-8 h-8 rounded-lg flex items-center justify-center text-white/20 hover:bg-white/[0.05] hover:text-white/40 text-[14px] transition-all">⚙</button>
-          <div className="w-2.5 h-2.5 rounded-full bg-[#34d399]" style={{boxShadow:"0 0 6px rgba(52,211,153,0.4)"}} />
+
+        {/* Nav Items */}
+        <div className="flex-1 px-3 space-y-1">
+          {NAV.map((item) => {
+            const active = activePage === item.key;
+            const ok = step >= item.min;
+            const done = isDone(item.key);
+            const stepInfo = STEPS.find(s => s.key === item.key);
+            return (
+              <button key={item.key} onClick={() => ok && setActivePage(item.key)} disabled={!ok}
+                className={`w-full flex items-center gap-3 px-3 py-2.5 rounded-xl text-left transition-all relative
+                  ${active?"text-white":"text-white/40 hover:text-white/60 hover:bg-white/[0.04]"}
+                  ${!ok?"opacity-20 cursor-not-allowed":"cursor-pointer"}`}
+                style={active?{background:`${stepInfo?.color||"#c49a1a"}18`}:{}}>
+                {active && <div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-7 rounded-r" style={{background:stepInfo?.color||"#d4af37"}} />}
+                <span className={`w-7 h-7 rounded-lg flex items-center justify-center text-[12px] font-black text-white shrink-0`}
+                  style={{background:active?stepInfo?.color||"#c49a1a":done?"#22c55e":"rgba(255,255,255,0.08)"}}>
+                  {done&&!active?"✓":item.icon}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className={`text-[13px] font-bold ${active?"text-white":"text-white/50"}`}>{item.label}</div>
+                  <div className="text-[9px] text-white/25">Step {stepInfo?.n}</div>
+                </div>
+                {active&&<div className="w-1.5 h-1.5 rounded-full shrink-0" style={{background:stepInfo?.color}}/>}
+              </button>
+            );
+          })}
+        </div>
+
+        {/* Bottom */}
+        <div className="px-3 space-y-2 mt-4">
+          <div className="mx-2 h-px bg-white/[0.06]"/>
+          <div className="flex items-center gap-2 px-3 py-2 rounded-lg">
+            <div className="w-2 h-2 rounded-full bg-[#34d399]" style={{boxShadow:"0 0 6px rgba(52,211,153,0.4)"}} />
+            <span className="text-[10px] text-white/30">서버 연결됨</span>
+          </div>
+          <button onClick={() => setShowSettings(true)} 
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-white/25 hover:text-white/40 hover:bg-white/[0.04] transition-all">
+            <span className="text-[14px]">⚙</span>
+            <span className="text-[12px]">설정</span>
+          </button>
         </div>
       </nav>
 
@@ -67,27 +99,39 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
 
         {/* Header */}
-        <header className="h-11 md:h-12 border-b flex items-center px-3 md:px-5 gap-2 md:gap-4 shrink-0 glass"
+        <header className="h-11 md:h-14 border-b flex items-center px-3 md:px-6 gap-2 md:gap-4 shrink-0 glass"
           style={{ borderColor: "var(--border)" }}>
-          <div className="flex items-center gap-1.5 shrink-0">
-            <div className="w-6 h-6 md:w-7 md:h-7 rounded-md flex items-center justify-center text-[10px] md:text-[11px] font-black text-white" style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>A</div>
-            <span className="text-[14px] md:text-[16px] font-black tracking-tight hidden sm:inline" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
+          {/* Mobile only logo */}
+          <div className="flex md:hidden items-center gap-1.5 shrink-0">
+            <div className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-black text-white" style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>A</div>
+            <span className="text-[14px] font-black tracking-tight" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
               <span className="text-[#1a1d23]">Algo</span><span style={{background:"linear-gradient(90deg,#c49a1a,#e8c84a)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Maker</span>
             </span>
           </div>
 
+          {/* PC: Page title */}
+          <div className="hidden md:flex items-center gap-3 shrink-0">
+            <h1 className="text-[16px] font-extrabold text-[#1a1d23]">
+              {activePage==="curation"?"뉴스 큐레이션":activePage==="script"?"AI 스크립트":activePage==="video"?"영상 제작":"검수 & 배포"}
+            </h1>
+            <div className="h-5 w-px bg-[#e5e7eb]"/>
+          </div>
+
           {/* Step pills */}
-          <div className="flex items-center gap-1 flex-1 min-w-0">
+          <div className="flex items-center gap-1 md:gap-2 flex-1 min-w-0">
             {STEPS.map((s) => {
               const active = activePage === s.key;
               const done = isDone(s.key);
+              const labels = {curation:"큐레이션",script:"스크립트",video:"영상",deploy:"배포"};
               return (
-                <div key={s.key} className={`flex items-center gap-1 px-1.5 py-0.5 rounded-md transition-all ${active?"":"opacity-35"}`}
+                <div key={s.key} className={`flex items-center gap-1 md:gap-1.5 px-1.5 md:px-2.5 py-0.5 md:py-1 rounded-lg transition-all ${active?"":"opacity-35"}`}
                   style={active?{background:`${s.color}10`}:{}}>
-                  <span className="text-[8px] md:text-[9px] font-black w-4 h-4 rounded flex items-center justify-center text-white"
+                  <span className="text-[8px] md:text-[10px] font-black w-4 h-4 md:w-5 md:h-5 rounded flex items-center justify-center text-white"
                     style={{background:active?s.color:done?"#22c55e":"#d1d5db"}}>
                     {done&&!active?"✓":`${s.n}`}
                   </span>
+                  <span className={`hidden md:inline text-[11px] font-bold ${active?"text-[#1a1d23]":"text-[#9ca3af]"}`}>{labels[s.key as keyof typeof labels]}</span>
+                </div>
                 </div>
               );
             })}
