@@ -651,6 +651,74 @@ def _compose(bg, audio, srt_path, output, bgm_path=""):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+#  6b. 디지털 지문 변조 (Policy Shield)
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+def _fingerprint(video_path, jd):
+    """영상의 픽셀/오디오를 미세 변조하여 유튜브 AI가 재사용 콘텐츠로 인식 못하게 처리"""
+    out = os.path.join(jd, "fingerprinted.mp4")
+    
+    # 랜덤 시드
+    hue_shift = random.uniform(-2, 2)          # 색조 미세 변환
+    brightness = random.uniform(-0.02, 0.02)   # 밝기 미세 조정
+    contrast = random.uniform(0.98, 1.02)      # 대비 미세 조정
+    pitch_shift = random.randint(-50, 50)      # 오디오 피치 미세 변환 (Hz)
+    pad_ms = random.randint(50, 200)           # 앞뒤 무음 패딩 (ms)
+    
+    vf = (f"eq=brightness={brightness}:contrast={contrast},"
+          f"hue=h={hue_shift},"
+          f"noise=alls={random.randint(1,3)}:allf=t")  # 극미세 노이즈
+    
+    af = (f"apad=pad_dur={pad_ms/1000},"
+          f"asetrate=44100*{1 + pitch_shift/44100},"
+          f"aresample=44100,"
+          f"volume={random.uniform(0.98, 1.02)}")
+    
+    cmd = ["ffmpeg","-y","-i",video_path,
+           "-vf",vf,"-af",af,
+           "-c:v","libx264","-preset","medium","-crf","18",
+           "-c:a","aac","-b:a","192k","-ac","2",
+           "-movflags","+faststart",
+           "-metadata",f"comment=AM{uuid.uuid4().hex[:8]}",
+           "-metadata",f"creation_time={_random_time()}",
+           out]
+    try:
+        r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
+        if r.returncode == 0 and os.path.exists(out):
+            os.replace(out, video_path)
+            logger.info(f"[Shield] ✓ Fingerprint applied (hue={hue_shift:.1f}, brt={brightness:.3f})")
+            return video_path
+    except Exception as e:
+        logger.warning(f"[Shield] Fingerprint failed: {e}")
+    return video_path
+
+def _random_time():
+    """랜덤 creation_time 메타데이터 생성"""
+    import datetime
+    base = datetime.datetime.now() - datetime.timedelta(hours=random.randint(1,72))
+    return base.strftime("%Y-%m-%dT%H:%M:%S")
+
+def _uniqueness_grade(sources):
+    """수익화 등급 산출 (A+~F)"""
+    total = sum(sources.values())
+    if total == 0: return "F", 0
+    
+    ai_ratio = (sources.get("gemini",0) + sources.get("fal.ai",0)) / total
+    pexels_ratio = sources.get("pexels",0) / total
+    pillow_ratio = sources.get("pillow",0) / total
+    
+    score = ai_ratio * 100 + pexels_ratio * 50 + pillow_ratio * 20
+    
+    if score >= 90: return "A+", score
+    elif score >= 80: return "A", score
+    elif score >= 70: return "B+", score
+    elif score >= 60: return "B", score
+    elif score >= 40: return "C", score
+    elif score >= 20: return "D", score
+    else: return "F", score
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 #  7. HeyGen 아바타
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
@@ -813,9 +881,16 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
         res = _compose(bg, audio, srt, out, bgm)
 
         if res and os.path.exists(res):
+            # ── Step 8: 디지털 지문 변조 (재사용 콘텐츠 필터 회피) ──
+            _fingerprint(res, jd)
+            
+            # ── Step 9: 수익화 등급 산출 ──
+            grade, score = _uniqueness_grade(sources)
+            logger.info(f"[V17] Shield Grade: {grade} ({score:.0f}/100)")
+
             fs = os.path.getsize(res)
             rd = _dur(res) or vdur
-            logger.info(f"[V17] ═══ DONE: {fs/1024/1024:.1f}MB, {rd:.1f}s ═══")
+            logger.info(f"[V17] ═══ DONE: {fs/1024/1024:.1f}MB, {rd:.1f}s, Grade={grade} ═══")
             return RealVideoResult(
                 job_id=job_id, status="done", output_path=res,
                 download_url=f"/api/v1/video/download/{job_id}",
