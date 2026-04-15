@@ -2,232 +2,179 @@
 import { useBlackboxStore } from "@/stores/blackbox-store";
 import type { ActivePage } from "@/stores/blackbox-store";
 import Link from "next/link";
+import { useState } from "react";
 import { usePathname } from "next/navigation";
 
-const NAV_TABS: { key: ActivePage; label: string; minStep: number; always?: boolean }[] = [
-  { key: "curation", label: "큐레이션",   minStep: 0 },
-  { key: "script",   label: "스크립트",   minStep: 3 },
-  { key: "video",    label: "영상 제작",   minStep: 4 },
-  { key: "deploy",   label: "검수·배포",   minStep: 5 },
-];
-
-const SIDEBAR_STEPS = [
-  { key: "curation" as ActivePage, label: "뉴스 큐레이션", n: 1, cost: "FREE", minStep: 0 },
-  { key: "script"   as ActivePage, label: "AI 스크립트",   n: 2, cost: "0.2",  minStep: 3 },
-  { key: "video"    as ActivePage, label: "영상 제작",     n: 3, cost: "2.5",  minStep: 4 },
-  { key: "deploy"   as ActivePage, label: "검수 & 배포",   n: 4, cost: "0.1",  minStep: 5 },
+const NAV: { key: ActivePage; icon: string; label: string; sub: string; min: number; color: string }[] = [
+  { key: "curation", icon: "🔍", label: "큐레이션", sub: "키워드·뉴스", min: 0, color: "#3b82f6" },
+  { key: "script", icon: "✍️", label: "스크립트", sub: "AI 대본", min: 3, color: "#b38600" },
+  { key: "video", icon: "🎬", label: "영상 제작", sub: "합성·렌더링", min: 4, color: "#ef4444" },
+  { key: "deploy", icon: "🛡️", label: "검수·배포", sub: "수익화 검증", min: 5, color: "#10b981" },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
-  const { step, activePage, setActivePage, reset, profile } = useBlackboxStore();
+  const { mode, setMode, step, activePage, setActivePage, reset, profile, setProfile } = useBlackboxStore();
+  const [showSettings, setShowSettings] = useState(false);
   const pathname = usePathname();
-  const isLanding = pathname === "/";
+  if (pathname === "/") return <>{children}</>;
 
   const isDone = (k: string) =>
     (k==="curation"&&step>=3)||(k==="script"&&step>=4)||(k==="video"&&step>=5)||(k==="deploy"&&step>=6);
 
-  if (isLanding) return <>{children}</>;
-
-  const isChannel = activePage === "channel";
-
   return (
-    <div className="flex flex-col h-[100dvh]" style={{background:"#0d0c0a"}}>
+    <div className="flex flex-col md:flex-row h-[100dvh]">
 
-      {/* ═══ TOP NAVIGATION ═══ */}
-      <header className="shrink-0 h-[52px] flex items-center px-4 md:px-6"
-        style={{background:"#0d0c0a",borderBottom:"1px solid rgba(255,255,255,0.07)"}}>
-
+      {/* ═══ PC Sidebar ═══ */}
+      <nav className="hidden md:flex w-[240px] shrink-0 flex-col sidebar" style={{borderRight:"1px solid rgba(255,255,255,0.06)"}}>
         {/* Logo */}
-        <Link href="/" onClick={reset}
-          className="flex items-center gap-2 mr-6 md:mr-8 shrink-0 group">
-          <div className="w-7 h-7 md:w-8 md:h-8 rounded-lg flex items-center justify-center text-[11px] md:text-[12px] font-black text-white transition-transform group-hover:scale-105"
-            style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)",boxShadow:"0 2px 12px rgba(196,154,26,0.30)"}}>
-            AM
+        <Link href="/" onClick={reset} className="flex items-center gap-3 px-5 py-5 group">
+          <div className="w-9 h-9 rounded-xl flex items-center justify-center text-[12px] font-black text-white transition-transform group-hover:scale-105"
+            style={{background:"linear-gradient(135deg,#b38600,#d4a537)",boxShadow:"0 4px 16px rgba(179,134,0,0.3)"}}>AM</div>
+          <div>
+            <div className="text-[15px] font-extrabold tracking-tight">
+              <span className="text-white/90">Algo</span><span className="text-[#d4a537]">Maker</span>
+            </div>
+            <div className="text-[9px] text-white/25 -mt-0.5">YouTube Automation</div>
           </div>
-          <span className="hidden md:block text-[14px] font-black tracking-tight"
-            style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
-            <span style={{color:"rgba(255,255,255,0.85)"}}>Algo</span>
-            <span style={{color:"#e8c84a"}}>Maker</span>
-          </span>
         </Link>
 
-        {/* Workflow Tabs */}
-        <nav className="flex items-center flex-1 min-w-0">
-          {NAV_TABS.map(tab => {
-            const active = activePage === tab.key;
-            const ok = step >= tab.minStep;
-            const done = isDone(tab.key);
+        <div className="h-px mx-4 bg-white/[0.06] mb-2"/>
+
+        {/* Nav */}
+        <div className="flex-1 px-3 space-y-1">
+          {NAV.map((item) => {
+            const active = activePage === item.key;
+            const ok = step >= item.min;
+            const done = isDone(item.key);
             return (
-              <button key={tab.key}
-                onClick={() => ok && setActivePage(tab.key)}
-                disabled={!ok}
-                className="h-[52px] px-3 md:px-5 text-[12px] md:text-[13px] font-bold transition-all shrink-0"
-                style={{
-                  color: active ? "rgba(255,255,255,0.92)" : ok ? "rgba(255,255,255,0.35)" : "rgba(255,255,255,0.16)",
-                  borderBottom: active ? "2px solid #e8c84a" : "2px solid transparent",
-                  cursor: ok ? "pointer" : "not-allowed",
-                }}>
-                {tab.label}
-                {done && !active && <span className="ml-1 text-[9px]" style={{color:"#34d399"}}>✓</span>}
+              <button key={item.key} onClick={() => ok && setActivePage(item.key)} disabled={!ok}
+                className={`w-full flex items-center gap-3 px-3 py-3 rounded-xl text-left transition-all relative
+                  ${active?"text-white":"text-white/35 hover:text-white/55 hover:bg-white/[0.03]"}
+                  ${!ok?"opacity-15 cursor-not-allowed":"cursor-pointer"}`}
+                style={active?{background:`${item.color}15`}:{}}>
+                {active&&<div className="absolute left-0 top-1/2 -translate-y-1/2 w-[3px] h-7 rounded-r" style={{background:item.color}}/>}
+                <span className={`w-8 h-8 rounded-lg flex items-center justify-center text-[15px] shrink-0 ${done&&!active?"bg-[#10b981]":""}`}
+                  style={active?{background:item.color}:done?{}:{background:"rgba(255,255,255,0.06)"}}>
+                  {done&&!active?"✓":item.icon}
+                </span>
+                <div className="flex-1 min-w-0">
+                  <div className={`text-[13px] font-bold ${active?"text-white":"text-white/45"}`}>{item.label}</div>
+                  <div className="text-[10px] text-white/20">{item.sub}</div>
+                </div>
+                {active&&<div className="w-1.5 h-1.5 rounded-full shrink-0" style={{background:item.color}}/>}
               </button>
             );
           })}
-        </nav>
+        </div>
 
-        {/* Right: 내 채널 관리 */}
-        <button
-          onClick={() => setActivePage("channel")}
-          className="hidden md:flex items-center gap-2 px-4 py-1.5 rounded-lg text-[12px] font-bold transition-all"
-          style={{
-            background: isChannel ? "rgba(232,200,74,0.10)" : "transparent",
-            border: `1px solid ${isChannel ? "rgba(232,200,74,0.30)" : "rgba(255,255,255,0.09)"}`,
-            color: isChannel ? "#e8c84a" : "rgba(255,255,255,0.45)",
-          }}>
-          <span>📺</span>
-          <span>내 채널 관리</span>
-          {profile.channelName && (
-            <span className="text-[10px] px-1.5 py-0.5 rounded font-bold"
-              style={{background:"rgba(232,200,74,0.10)",color:"#e8c84a"}}>
-              {profile.channelName.length > 8 ? profile.channelName.substring(0,8)+"…" : profile.channelName}
-            </span>
-          )}
-        </button>
-        {/* Mobile channel icon */}
-        <button onClick={() => setActivePage("channel")}
-          className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center text-[16px] ml-1"
-          style={{
-            background: isChannel ? "rgba(232,200,74,0.10)" : "transparent",
-            border: `1px solid ${isChannel ? "rgba(232,200,74,0.25)" : "rgba(255,255,255,0.08)"}`,
-          }}>
-          📺
-        </button>
-      </header>
+        {/* Bottom */}
+        <div className="px-3 pb-4 space-y-2">
+          <div className="mx-2 h-px bg-white/[0.06]"/>
+          <div className="flex items-center gap-2 px-3 py-2">
+            <div className="w-2 h-2 rounded-full bg-[#10b981]" style={{boxShadow:"0 0 6px rgba(16,185,129,0.4)"}}/>
+            <span className="text-[10px] text-white/25">서버 연결됨</span>
+          </div>
+          <button onClick={()=>setShowSettings(true)}
+            className="w-full flex items-center gap-3 px-3 py-2 rounded-lg text-white/20 hover:text-white/35 hover:bg-white/[0.03] transition-all text-[12px]">
+            ⚙ 설정
+          </button>
+        </div>
+      </nav>
 
-      {/* ═══ BODY ═══ */}
-      <div className="flex flex-1 overflow-hidden">
-
-        {/* ═══ LEFT SIDEBAR ═══ */}
-        <aside className="hidden md:flex w-[176px] lg:w-[192px] shrink-0 flex-col py-5"
-          style={{background:"#0d0c0a",borderRight:"1px solid rgba(255,255,255,0.07)"}}>
-
-          <div className="px-4 mb-3">
-            <div className="text-[9px] font-black tracking-widest uppercase"
-              style={{color:"rgba(255,255,255,0.22)"}}>PIPELINE</div>
+      {/* ═══ Main ═══ */}
+      <div className="flex-1 flex flex-col overflow-hidden min-w-0">
+        {/* Header */}
+        <header className="h-12 md:h-14 border-b flex items-center px-4 md:px-6 gap-3 shrink-0 glass" style={{borderColor:"#eceef1"}}>
+          {/* Mobile logo */}
+          <div className="flex md:hidden items-center gap-2 shrink-0">
+            <div className="w-7 h-7 rounded-lg flex items-center justify-center text-[10px] font-black text-white" style={{background:"linear-gradient(135deg,#b38600,#d4a537)"}}>AM</div>
           </div>
 
-          {/* Workflow Steps */}
-          <div className="flex-1 px-2 space-y-0.5">
-            {SIDEBAR_STEPS.map(s => {
-              const active = activePage === s.key;
-              const done = isDone(s.key);
-              const ok = step >= s.minStep;
-              return (
-                <button key={s.key}
-                  onClick={() => ok && setActivePage(s.key)}
-                  disabled={!ok}
-                  className="w-full text-left rounded-xl transition-all flex items-center gap-3 px-3 py-3"
-                  style={{
-                    background: active ? "rgba(232,200,74,0.07)" : "transparent",
-                    borderLeft: active ? "2px solid #e8c84a" : "2px solid transparent",
-                    opacity: ok ? 1 : 0.25,
-                    cursor: ok ? "pointer" : "not-allowed",
-                  }}
-                  onMouseEnter={e => { if (ok && !active) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)"; }}
-                  onMouseLeave={e => { if (!active) (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
+          {/* PC: Page title */}
+          <div className="hidden md:flex items-center gap-3">
+            <h1 className="text-[16px] font-extrabold text-[#111827]">
+              {activePage==="curation"?"뉴스 큐레이션":activePage==="script"?"AI 스크립트":activePage==="video"?"영상 제작":"검수 & 배포"}
+            </h1>
+          </div>
 
-                  <div className="w-6 h-6 rounded-lg flex items-center justify-center text-[10px] font-black shrink-0"
-                    style={{
-                      background: active ? "rgba(232,200,74,0.15)" : done && !active ? "rgba(52,211,153,0.12)" : "rgba(255,255,255,0.06)",
-                      color: active ? "#e8c84a" : done && !active ? "#34d399" : "rgba(255,255,255,0.35)",
-                    }}>
-                    {done && !active ? "✓" : s.n}
-                  </div>
-
-                  <div className="flex-1 min-w-0">
-                    <div className="text-[12px] font-bold truncate"
-                      style={{color: active ? "rgba(255,255,255,0.90)" : "rgba(255,255,255,0.42)"}}>
-                      {s.label}
-                    </div>
-                    <div className="text-[9px] font-bold mt-0.5"
-                      style={{color: active ? "rgba(232,200,74,0.55)" : "rgba(255,255,255,0.18)"}}>
-                      Step {s.n} · {s.cost}
-                    </div>
-                  </div>
-                </button>
+          {/* Progress dots */}
+          <div className="flex items-center gap-2 flex-1 justify-center md:justify-start md:ml-4">
+            {NAV.map((n,i)=>{
+              const active=activePage===n.key;
+              const done=isDone(n.key);
+              return(
+                <div key={i} className="flex items-center gap-1.5">
+                  <div className={`w-2 h-2 rounded-full transition-all ${active?"scale-125":""}`}
+                    style={{background:active?n.color:done?"#10b981":"#d1d5db"}}/>
+                  {i<NAV.length-1&&<div className="hidden md:block w-8 h-px" style={{background:done?"#10b981":"#e5e7eb"}}/>}
+                </div>
               );
             })}
           </div>
 
-          {/* Divider + Channel Management */}
-          <div className="px-2 pt-3" style={{borderTop:"1px solid rgba(255,255,255,0.06)"}}>
-            <button
-              onClick={() => setActivePage("channel")}
-              className="w-full text-left rounded-xl flex items-center gap-3 px-3 py-2.5 transition-all"
-              style={{
-                background: isChannel ? "rgba(232,200,74,0.07)" : "transparent",
-                borderLeft: isChannel ? "2px solid #e8c84a" : "2px solid transparent",
-              }}
-              onMouseEnter={e => { if (!isChannel) (e.currentTarget as HTMLElement).style.background = "rgba(255,255,255,0.04)"; }}
-              onMouseLeave={e => { if (!isChannel) (e.currentTarget as HTMLElement).style.background = "transparent"; }}>
-              <div className="w-6 h-6 rounded-lg flex items-center justify-center text-[12px] shrink-0"
-                style={{
-                  background: isChannel ? "rgba(232,200,74,0.15)" : "rgba(255,255,255,0.06)",
-                  color: isChannel ? "#e8c84a" : "rgba(255,255,255,0.35)",
-                }}>
-                📺
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-[12px] font-bold truncate"
-                  style={{color: isChannel ? "rgba(255,255,255,0.90)" : "rgba(255,255,255,0.42)"}}>
-                  내 채널 관리
-                </div>
-                {profile.channelName && (
-                  <div className="text-[9px] truncate mt-0.5" style={{color:isChannel?"rgba(232,200,74,0.55)":"rgba(255,255,255,0.20)"}}>
-                    {profile.channelName}
-                  </div>
-                )}
-              </div>
-            </button>
-          </div>
-
-          {/* Server Status */}
-          <div className="px-3 pt-2">
-            <div className="flex items-center gap-2 px-1 py-1.5">
-              <div className="w-1.5 h-1.5 rounded-full"
-                style={{background:"#34d399",boxShadow:"0 0 6px rgba(52,211,153,0.5)"}}/>
-              <span className="text-[10px]" style={{color:"rgba(255,255,255,0.28)"}}>서버 연결됨</span>
+          {/* Right */}
+          <div className="flex items-center gap-2 shrink-0">
+            <div className="flex rounded-lg overflow-hidden border" style={{borderColor:"#eceef1"}}>
+              <button onClick={()=>setMode("normal")}
+                className={`px-2.5 py-1 text-[11px] font-bold transition ${mode==="normal"?"text-[#b38600] bg-[#fef9eb]":"text-[#9ca3af]"}`}>일반</button>
+              <button onClick={()=>setMode("senior")}
+                className={`px-2.5 py-1 text-[11px] font-bold transition ${mode==="senior"?"text-[#b38600] bg-[#fef9eb]":"text-[#9ca3af]"}`}>시니어</button>
             </div>
+            <button onClick={()=>setShowSettings(true)} className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center text-[#9ca3af] text-[14px]">⚙</button>
           </div>
-        </aside>
+        </header>
 
-        {/* ═══ MAIN ═══ */}
         <main className="flex-1 overflow-hidden">{children}</main>
       </div>
 
-      {/* ═══ MOBILE BOTTOM NAV ═══ */}
-      <nav className="md:hidden flex items-center justify-around shrink-0 safe-bottom"
-        style={{background:"#0d0c0a",borderTop:"1px solid rgba(255,255,255,0.07)",height:"54px"}}>
-        {[...NAV_TABS, {key:"channel" as ActivePage, label:"채널", minStep:0}].map(tab => {
-          const active = activePage === tab.key;
-          const ok = tab.key==="channel" || step >= tab.minStep;
-          const done = isDone(tab.key);
-          return (
-            <button key={tab.key}
-              onClick={() => ok && setActivePage(tab.key)}
-              disabled={!ok}
-              className={`flex flex-col items-center gap-0.5 px-2 py-1.5 ${!ok?"opacity-20":""}`}>
-              <span className="text-[9px] font-black"
-                style={{color: active ? "#e8c84a" : done ? "#34d399" : "rgba(255,255,255,0.28)"}}>
-                {active ? "●" : done ? "✓" : "○"}
+      {/* ═══ Mobile Bottom Tab ═══ */}
+      <nav className="md:hidden flex items-center justify-around shrink-0 sidebar safe-b" style={{borderTop:"1px solid rgba(255,255,255,0.06)",height:"56px"}}>
+        {NAV.map((item)=>{
+          const active=activePage===item.key;
+          const ok=step>=item.min;
+          const done=isDone(item.key);
+          return(
+            <button key={item.key} onClick={()=>ok&&setActivePage(item.key)} disabled={!ok}
+              className={`flex flex-col items-center justify-center gap-0.5 py-2 px-3 ${!ok?"opacity-15":""}`}>
+              <span className={`text-[16px] ${active?"":done?"":"opacity-40"}`}>
+                {done&&!active?"✓":item.icon}
               </span>
-              <span className="text-[9px] font-bold"
-                style={{color: active ? "#e8c84a" : "rgba(255,255,255,0.28)"}}>
-                {tab.label}
-              </span>
+              <span className={`text-[9px] font-bold ${active?"text-[#d4a537]":"text-white/25"}`}>{item.label}</span>
             </button>
           );
         })}
       </nav>
+
+      {/* ═══ Settings Modal ═══ */}
+      {showSettings&&(
+        <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center" onClick={()=>setShowSettings(false)}>
+          <div className="absolute inset-0 bg-black/40 ani-in"/>
+          <div className="relative w-full md:w-[420px] bg-white rounded-t-2xl md:rounded-2xl p-6 max-h-[70vh] overflow-y-auto ani-up" onClick={e=>e.stopPropagation()}>
+            <div className="flex items-center justify-between mb-5">
+              <h3 className="text-[16px] font-bold">설정</h3>
+              <button onClick={()=>setShowSettings(false)} className="text-[18px] text-[#9ca3af] hover:text-[#111827]">✕</button>
+            </div>
+            <div className="space-y-4">
+              <div>
+                <label className="text-[12px] font-bold text-[#6b7280] mb-1.5 block">채널 이름</label>
+                <input value={profile.channelName} onChange={e=>setProfile({...profile,channelName:e.target.value})}
+                  className="w-full px-3 py-2.5 rounded-lg border text-[13px]" style={{borderColor:"#eceef1"}} placeholder="채널 이름"/>
+              </div>
+              <div>
+                <label className="text-[12px] font-bold text-[#6b7280] mb-1.5 block">타겟 모드</label>
+                <div className="flex gap-2">
+                  <button onClick={()=>setMode("normal")} className={`flex-1 py-2.5 rounded-lg text-[13px] font-bold border transition ${mode==="normal"?"border-[#b38600] text-[#b38600] bg-[#fef9eb]":"border-[#eceef1] text-[#9ca3af]"}`}>일반</button>
+                  <button onClick={()=>setMode("senior")} className={`flex-1 py-2.5 rounded-lg text-[13px] font-bold border transition ${mode==="senior"?"border-[#b38600] text-[#b38600] bg-[#fef9eb]":"border-[#eceef1] text-[#9ca3af]"}`}>시니어</button>
+                </div>
+              </div>
+              <button onClick={()=>{reset();setShowSettings(false);}}
+                className="w-full py-2.5 rounded-lg text-[13px] font-bold text-[#ef4444] border border-[#fee2e2] hover:bg-[#fef2f2] transition">
+                초기화
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
