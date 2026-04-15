@@ -38,19 +38,19 @@ export default function HomePage() {
       <nav className="fixed top-0 left-0 right-0 z-50 glass border-b" style={{borderColor:"rgba(0,0,0,0.06)"}}>
         <div className="max-w-6xl mx-auto h-14 flex items-center justify-between px-5">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-black text-white"
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[12px] font-black text-white"
               style={{background:"linear-gradient(135deg,#b38600,#d4a537)"}}>AM</div>
             <span className="text-[16px] font-extrabold tracking-tight">
-              <span className="text-[#111827]">Algo</span><span className="text-[#b38600]">Maker</span>
+              <span className="text-[#e8e8ec]">Algo</span><span className="text-[#b38600]">Maker</span>
             </span>
           </div>
-          <div className="hidden md:flex items-center gap-6 text-[13px] text-[#6b7280] font-medium">
-            <a href="#process" className="hover:text-[#111827] transition">제작 과정</a>
-            <a href="#compare" className="hover:text-[#111827] transition">비교</a>
-            <a href="#reviews" className="hover:text-[#111827] transition">후기</a>
+          <div className="hidden md:flex items-center gap-6 text-[14px] text-[#808088] font-medium">
+            <a href="#process" className="hover:text-[#e8e8ec] transition">제작 과정</a>
+            <a href="#compare" className="hover:text-[#e8e8ec] transition">비교</a>
+            <a href="#reviews" className="hover:text-[#e8e8ec] transition">후기</a>
           </div>
           <button onClick={()=>router.push("/create")}
-            className="px-5 py-2 rounded-lg text-[13px] font-bold text-white transition hover:brightness-110"
+            className="px-5 py-2 rounded-lg text-[14px] font-bold text-white transition hover:brightness-110"
             style={{background:"linear-gradient(135deg,#b38600,#d4a537)"}}>
             무료 시작
           </button>
@@ -60,7 +60,7 @@ export default function HomePage() {
       {/* ═══ HERO ═══ */}
       <section className="hero relative flex flex-col items-center justify-center px-5 pt-28 pb-20 md:pt-36 md:pb-28 text-center overflow-hidden">
         <div className={`transition-all duration-700 ${v?"opacity-100 translate-y-0":"opacity-0 translate-y-6"}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[12px] font-bold text-[#d4a537] mb-6"
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[14px] font-bold text-[#d4a537] mb-6"
             style={{background:"rgba(212,165,55,0.1)",border:"1px solid rgba(212,165,55,0.15)"}}>
             ✨ 유튜브 수익화의 지름길
           </div>
@@ -99,32 +99,32 @@ export default function HomePage() {
           ].map((s,i)=>(
             <div key={i} className="text-center">
               <div className="text-[22px] md:text-[28px] font-black text-white/90">{s.v}</div>
-              <div className="text-[11px] text-white/30 font-medium mt-0.5">{s.l}</div>
+              <div className="text-[12px] text-white/30 font-medium mt-0.5">{s.l}</div>
             </div>
           ))}
         </div>
       </section>
 
       {/* ═══ PROCESS (6 Steps) ═══ */}
-      <section id="process" className="py-20 md:py-28 px-5" style={{background:"#fff"}}>
+      <section id="process" className="py-20 md:py-28 px-5" style={{background:"#1a1b20"}}>
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-14">
-            <span className="text-[12px] font-bold text-[#b38600] tracking-wider">PROCESS</span>
-            <h2 className="text-[24px] md:text-[36px] font-black text-[#111827] mt-2 mb-3">
+            <span className="text-[14px] font-bold text-[#b38600] tracking-wider">PROCESS</span>
+            <h2 className="text-[24px] md:text-[36px] font-black text-[#e8e8ec] mt-2 mb-3">
               키워드 하나면 완성까지 6단계
             </h2>
-            <p className="text-[14px] text-[#9ca3af]">복잡한 설정 없이, AI가 전부 처리합니다</p>
+            <p className="text-[14px] text-[#5a5a64]">복잡한 설정 없이, AI가 전부 처리합니다</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {STEPS.map((s,i)=>(
-              <div key={i} className="group p-6 rounded-2xl border border-[#eceef1] bg-white hover:border-[#d4d7dd] transition-all duration-300 hover:shadow-md hover:-translate-y-1">
+              <div key={i} className="group p-6 rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[#1a1b20] hover:border-[rgba(255,255,255,0.12)] transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="text-[11px] font-black text-white w-7 h-7 rounded-lg flex items-center justify-center" style={{background:s.color}}>{s.n}</span>
+                  <span className="text-[12px] font-black text-white w-7 h-7 rounded-lg flex items-center justify-center" style={{background:s.color}}>{s.n}</span>
                   <span className="text-[22px]">{s.icon}</span>
                 </div>
-                <h3 className="text-[16px] font-bold text-[#111827] mb-2">{s.title}</h3>
-                <p className="text-[13px] text-[#6b7280] leading-relaxed">{s.desc}</p>
+                <h3 className="text-[16px] font-bold text-[#e8e8ec] mb-2">{s.title}</h3>
+                <p className="text-[14px] text-[#808088] leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -132,11 +132,11 @@ export default function HomePage() {
       </section>
 
       {/* ═══ DIFFERENTIATOR ═══ */}
-      <section className="py-20 md:py-28 px-5" style={{background:"#f8f9fb"}}>
+      <section className="py-20 md:py-28 px-5" style={{background:"#0f1014"}}>
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-14">
-            <span className="text-[12px] font-bold text-[#b38600] tracking-wider">WHY ALGOMAKER</span>
-            <h2 className="text-[24px] md:text-[36px] font-black text-[#111827] mt-2 mb-3">
+            <span className="text-[14px] font-bold text-[#b38600] tracking-wider">WHY ALGOMAKER</span>
+            <h2 className="text-[24px] md:text-[36px] font-black text-[#e8e8ec] mt-2 mb-3">
               다른 도구에 없는 것들
             </h2>
           </div>
@@ -148,10 +148,10 @@ export default function HomePage() {
               {icon:"👴",title:"시니어 최적화 모드",desc:"큰 자막, 느린 낭독, 쉬운 용어. 시니어 시청자를 위한 맞춤 설정이 기본 탑재.",bg:"#fef9eb",color:"#b38600"},
               {icon:"📰",title:"뉴스 기반 팩트체크",desc:"실시간 뉴스를 자동 수집하여 대본에 반영합니다. 허위콘텐츠 걱정 없는 교육적 영상.",bg:"#f5f3ff",color:"#8b5cf6"},
             ].map((f,i)=>(
-              <div key={i} className="p-6 rounded-2xl border border-[#eceef1] bg-white">
+              <div key={i} className="p-6 rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[#1a1b20]">
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center text-[22px] mb-4" style={{background:f.bg}}>{f.icon}</div>
-                <h3 className="text-[16px] font-bold text-[#111827] mb-2">{f.title}</h3>
-                <p className="text-[13px] text-[#6b7280] leading-relaxed">{f.desc}</p>
+                <h3 className="text-[16px] font-bold text-[#e8e8ec] mb-2">{f.title}</h3>
+                <p className="text-[14px] text-[#808088] leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -159,32 +159,32 @@ export default function HomePage() {
       </section>
 
       {/* ═══ COMPARE ═══ */}
-      <section id="compare" className="py-20 md:py-28 px-5" style={{background:"#fff"}}>
+      <section id="compare" className="py-20 md:py-28 px-5" style={{background:"#1a1b20"}}>
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-14">
-            <span className="text-[12px] font-bold text-[#b38600] tracking-wider">COMPARISON</span>
-            <h2 className="text-[24px] md:text-[36px] font-black text-[#111827] mt-2 mb-3">
+            <span className="text-[14px] font-bold text-[#b38600] tracking-wider">COMPARISON</span>
+            <h2 className="text-[24px] md:text-[36px] font-black text-[#e8e8ec] mt-2 mb-3">
               직접 비교해보세요
             </h2>
           </div>
 
-          <div className="overflow-x-auto rounded-2xl border border-[#eceef1]">
-            <table className="w-full text-[13px]">
+          <div className="overflow-x-auto rounded-2xl border border-[rgba(255,255,255,0.06)]">
+            <table className="w-full text-[14px]">
               <thead>
-                <tr className="border-b border-[#eceef1]" style={{background:"#faf9f7"}}>
-                  <th className="text-left p-4 font-bold text-[#6b7280]">항목</th>
+                <tr className="border-b border-[rgba(255,255,255,0.06)]" style={{background:"#222328"}}>
+                  <th className="text-left p-4 font-bold text-[#808088]">항목</th>
                   <th className="p-4 font-bold text-[#b38600]">AlgoMaker</th>
-                  <th className="p-4 font-bold text-[#9ca3af]">직접 제작</th>
-                  <th className="p-4 font-bold text-[#9ca3af]">편집자 고용</th>
+                  <th className="p-4 font-bold text-[#5a5a64]">직접 제작</th>
+                  <th className="p-4 font-bold text-[#5a5a64]">편집자 고용</th>
                 </tr>
               </thead>
               <tbody>
                 {COMPARE.map((r,i)=>(
-                  <tr key={i} className="border-b border-[#f3f4f6] last:border-0">
-                    <td className="p-4 font-medium text-[#374151]">{r.item}</td>
+                  <tr key={i} className="border-b border-[rgba(255,255,255,0.04)] last:border-0">
+                    <td className="p-4 font-medium text-[#c0c0c8]">{r.item}</td>
                     <td className="p-4 text-center font-bold text-[#b38600]">{r.us}</td>
-                    <td className="p-4 text-center text-[#9ca3af]">{r.them}</td>
-                    <td className="p-4 text-center text-[#9ca3af]">{r.hire}</td>
+                    <td className="p-4 text-center text-[#5a5a64]">{r.them}</td>
+                    <td className="p-4 text-center text-[#5a5a64]">{r.hire}</td>
                   </tr>
                 ))}
               </tbody>
@@ -194,26 +194,26 @@ export default function HomePage() {
       </section>
 
       {/* ═══ REVIEWS ═══ */}
-      <section id="reviews" className="py-20 md:py-28 px-5" style={{background:"#f8f9fb"}}>
+      <section id="reviews" className="py-20 md:py-28 px-5" style={{background:"#0f1014"}}>
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-14">
-            <span className="text-[12px] font-bold text-[#b38600] tracking-wider">TESTIMONIALS</span>
-            <h2 className="text-[24px] md:text-[36px] font-black text-[#111827] mt-2 mb-3">
+            <span className="text-[14px] font-bold text-[#b38600] tracking-wider">TESTIMONIALS</span>
+            <h2 className="text-[24px] md:text-[36px] font-black text-[#e8e8ec] mt-2 mb-3">
               실제 사용자들의 이야기
             </h2>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
             {REVIEWS.map((r,i)=>(
-              <div key={i} className="p-6 rounded-2xl border border-[#eceef1] bg-white">
+              <div key={i} className="p-6 rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[#1a1b20]">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-[10px] font-bold px-2 py-0.5 rounded-md text-[#b38600]" style={{background:"#fef9eb"}}>{r.plan}</span>
-                  <div className="flex gap-0.5">{"★★★★★".split("").map((_,j)=><span key={j} className="text-[10px] text-[#b38600]">★</span>)}</div>
+                  <span className="text-[12px] font-bold px-2 py-0.5 rounded-md text-[#b38600]" style={{background:"#fef9eb"}}>{r.plan}</span>
+                  <div className="flex gap-0.5">{"★★★★★".split("").map((_,j)=><span key={j} className="text-[12px] text-[#b38600]">★</span>)}</div>
                 </div>
-                <p className="text-[13px] text-[#374151] leading-relaxed mb-5">&ldquo;{r.text}&rdquo;</p>
+                <p className="text-[14px] text-[#c0c0c8] leading-relaxed mb-5">&ldquo;{r.text}&rdquo;</p>
                 <div>
-                  <div className="text-[13px] font-bold text-[#111827]">{r.name}</div>
-                  <div className="text-[11px] text-[#9ca3af]">{r.role}</div>
+                  <div className="text-[14px] font-bold text-[#e8e8ec]">{r.name}</div>
+                  <div className="text-[12px] text-[#5a5a64]">{r.role}</div>
                 </div>
               </div>
             ))}
@@ -226,30 +226,22 @@ export default function HomePage() {
         <h3 className="text-[22px] md:text-[34px] font-black text-white mb-4">
           지금 바로 수익형 영상을 만들어보세요
         </h3>
+        <p className="text-[14px] text-white/40 mb-8">카드 등록 불필요. 무료로 시작하세요.</p>
         <button onClick={()=>router.push("/create")}
           className="gold-btn text-[16px] px-12 py-4">
           무료로 시작하기 →
         </button>
-        <p className="text-[11px] text-white/20 mt-8">AlgoMaker v2.1 · Powered by Gemini AI + ElevenLabs</p>
+        <p className="text-[12px] text-white/20 mt-8">AlgoMaker v2.1 · Powered by Gemini AI + ElevenLabs</p>
       </section>
 
       {/* ═══ FOOTER ═══ */}
-      <footer className="py-10 px-5 border-t" style={{borderColor:"#eceef1",background:"#fafafa"}}>
-        <div className="max-w-4xl mx-auto">
-          {/* Business info */}
-          <div className="text-center space-y-1 mb-5" style={{color:"#9ca3af",fontSize:"10px",lineHeight:"1.8"}}>
-            <p><span style={{fontWeight:700,color:"#6b7280"}}>상호명: 한줄컴퍼니</span> | 대표자: 박예준 | 사업자등록번호: 450-07-03104</p>
-            <p>통신판매업 신고번호: 제 2025-인천서구-3321 호</p>
-            <p>사업장주소: 인천광역시 서구 청라커낼로 270, 커낼힐스빌 2층 2498호</p>
-            <p>고객센터: <a href="tel:01022284930" style={{color:"#9ca3af",textDecoration:"none"}}>010-2228-4930</a> | 이메일: <a href="mailto:edufix.contact@gmail.com" style={{color:"#9ca3af",textDecoration:"none"}}>edufix.contact@gmail.com</a></p>
+      <footer className="py-8 px-5 border-t" style={{borderColor:"rgba(255,255,255,0.06)",background:"#0f1014"}}>
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-[12px] text-[#5a5a64]">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded flex items-center justify-center text-[8px] font-black text-white" style={{background:"#b38600"}}>AM</div>
+            <span className="font-bold text-[#808088]">AlgoMaker</span>
           </div>
-          {/* Legal links */}
-          <div className="flex items-center justify-center gap-4 mb-4" style={{fontSize:"11px"}}>
-            <a href="/privacy" style={{color:"#6b7280",textDecoration:"none",fontWeight:600}}>개인정보처리방침</a>
-            <span style={{color:"#d1d5db"}}>|</span>
-            <a href="/terms" style={{color:"#6b7280",textDecoration:"none"}}>이용약관</a>
-          </div>
-          <p className="text-center" style={{color:"#9ca3af",fontSize:"10px"}}>© 2026 AlgoMaker. All rights reserved.</p>
+          <span>© 2026 AlgoMaker. All rights reserved.</span>
         </div>
       </footer>
     </div>
