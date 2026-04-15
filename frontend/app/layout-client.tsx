@@ -132,7 +132,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                   </span>
                   <span className={`hidden md:inline text-[11px] font-bold ${active?"text-[#1a1d23]":"text-[#9ca3af]"}`}>{labels[s.key as keyof typeof labels]}</span>
                 </div>
-                </div>
               );
             })}
           </div>
