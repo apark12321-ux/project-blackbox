@@ -105,16 +105,16 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex md:hidden items-center gap-1.5 shrink-0">
             <div className="w-6 h-6 rounded-md flex items-center justify-center text-[10px] font-black text-white" style={{background:"linear-gradient(135deg,#c49a1a,#e8c84a)"}}>A</div>
             <span className="text-[14px] font-black tracking-tight" style={{fontFamily:"'Plus Jakarta Sans',sans-serif"}}>
-              <span className="text-[#1a1d23]">Algo</span><span style={{background:"linear-gradient(90deg,#c49a1a,#e8c84a)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Maker</span>
+              <span className="text-white/90">Algo</span><span style={{background:"linear-gradient(90deg,#c49a1a,#e8c84a)",WebkitBackgroundClip:"text",WebkitTextFillColor:"transparent"}}>Maker</span>
             </span>
           </div>
 
           {/* PC: Page title */}
           <div className="hidden md:flex items-center gap-3 shrink-0">
-            <h1 className="text-[16px] font-extrabold text-[#1a1d23]">
+            <h1 className="text-[16px] font-extrabold text-white/90">
               {activePage==="curation"?"뉴스 큐레이션":activePage==="script"?"AI 스크립트":activePage==="video"?"영상 제작":"검수 & 배포"}
             </h1>
-            <div className="h-5 w-px bg-[#e5e7eb]"/>
+            <div className="h-5 w-px bg-white/10"/>
           </div>
 
           {/* Step pills */}
@@ -130,7 +130,7 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
                     style={{background:active?s.color:done?"#22c55e":"#d1d5db"}}>
                     {done&&!active?"✓":`${s.n}`}
                   </span>
-                  <span className={`hidden md:inline text-[11px] font-bold ${active?"text-[#1a1d23]":"text-[#9ca3af]"}`}>{labels[s.key as keyof typeof labels]}</span>
+                  <span className={`hidden md:inline text-[11px] font-bold ${active?"text-white/90":"text-white/35"}`}>{labels[s.key as keyof typeof labels]}</span>
                 </div>
                 </div>
               );
@@ -143,8 +143,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               <button onClick={()=>setMode("normal")} className={`px-2 py-0.5 text-[10px] md:text-[11px] font-bold ${mode==="normal"?"text-[#c49a1a]":"text-[#b0b5bf]"}`} style={mode==="normal"?{background:"rgba(196,154,26,0.08)"}:{}}>일반</button>
               <button onClick={()=>setMode("senior")} className={`px-2 py-0.5 text-[10px] md:text-[11px] font-bold ${mode==="senior"?"text-[#c49a1a]":"text-[#b0b5bf]"}`} style={mode==="senior"?{background:"rgba(196,154,26,0.08)"}:{}}>시니어</button>
             </div>
-            <button onClick={() => setShowSettings(true)} className="md:hidden w-7 h-7 rounded-md flex items-center justify-center text-[#9ca3af]">⚙</button>
-            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] text-[#6b7280]" style={{borderColor:"var(--border)"}}>
+            <button onClick={() => setShowSettings(true)} className="md:hidden w-7 h-7 rounded-md flex items-center justify-center text-white/35">⚙</button>
+            <div className="hidden md:flex items-center gap-1.5 px-2.5 py-1 rounded-lg border text-[11px] text-white/40" style={{borderColor:"var(--border)"}}>
               <span>👤</span> {profile.channelName || "채널 미설정"}
             </div>
           </div>
@@ -178,8 +178,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div onClick={e=>e.stopPropagation()} className="w-full md:w-[440px] max-h-[85vh] overflow-y-auto rounded-t-2xl md:rounded-2xl p-5 md:p-6 space-y-4 shadow-2xl anim-fade-up"
             style={{background:"var(--bg-secondary)",border:"1px solid var(--border)"}}>
             <div className="flex items-center justify-between">
-              <h2 className="text-[17px] font-extrabold text-[#1a1d23]">채널 설정</h2>
-              <button onClick={() => setShowSettings(false)} className="text-[18px] text-[#9ca3af] hover:text-[#4b5563]">✕</button>
+              <h2 className="text-[17px] font-extrabold text-white/90">채널 설정</h2>
+              <button onClick={() => setShowSettings(false)} className="text-[18px] text-white/35 hover:text-white/60">✕</button>
             </div>
             {[
               {label:"채널 이름 *",key:"channelName" as const,ph:"예: 돈이 보이는 경제"},
@@ -188,10 +188,10 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
               {label:"워터마크",key:"watermarkText" as const,ph:"비우면 채널명 사용"},
             ].map(f=>(
               <div key={f.key}>
-                <label className="text-[12px] font-bold text-[#6b7280] block mb-1.5">{f.label}</label>
+                <label className="text-[12px] font-bold text-white/40 block mb-1.5">{f.label}</label>
                 <input value={profile[f.key]} onChange={e => setProfile({ [f.key]: e.target.value })}
                   placeholder={f.ph}
-                  className="w-full px-3 py-2.5 rounded-lg text-[14px] text-[#1a1d23] focus:outline-none focus:ring-2 focus:ring-[#c49a1a]/30"
+                  className="w-full px-3 py-2.5 rounded-lg text-[14px] text-white/90 focus:outline-none focus:ring-2 focus:ring-[#c49a1a]/30"
                   style={{background:"var(--bg-elevated)",border:"1px solid var(--border)"}} />
               </div>
             ))}
