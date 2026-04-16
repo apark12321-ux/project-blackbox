@@ -29,7 +29,7 @@ function CurationPage(){
 
   const pickCat=async(slug:string)=>{
     store.setCategory(slug);store.setStep(1);setLd(true);setErr(null);
-    store.setNews([]);store.setSelectedNews([]);store.setSelectedKeyword(null);store.setScript(null);store.setVideo(null);store.setShield(null);
+    store.setKeywords([]);store.setNews([]);store.setSelectedNews([]);store.setSelectedKeyword(null);store.setScript(null);store.setVideo(null);store.setShield(null);
     try{const r=await fetch(`${API}/api/v1/curation/keywords/search`,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify({category_slug:slug,max_results:10,sort_by:"blue_ocean"})});if(!r.ok)throw new Error(`실패(${r.status})`);store.setKeywords((await r.json()).keywords||[]);}catch(e:any){setErr(e.message);}finally{setLd(false);}
   };
   const pickKw=async(kw:any)=>{
