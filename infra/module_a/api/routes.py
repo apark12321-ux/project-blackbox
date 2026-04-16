@@ -225,7 +225,7 @@ async def _get_news(keyword: str) -> list[NewsArticleResponse]:
             async with httpx.AsyncClient(timeout=10) as client:
                 resp = await client.get(
                     "https://newsapi.org/v2/everything",
-                    params={"q": keyword, "sortBy": "relevancy", "pageSize": 5, "language": "ko", "apiKey": api_key}
+                    params={"q": keyword, "sortBy": "relevancy", "pageSize": 10, "language": "ko", "apiKey": api_key}
                 )
                 if resp.status_code == 200:
                     articles = resp.json().get("articles", [])
@@ -242,7 +242,7 @@ async def _get_news(keyword: str) -> list[NewsArticleResponse]:
                                 cpm_level=random.choice(["매우 높음", "높음"]),
                                 relevance_score=round(random.uniform(0.75, 0.98), 2),
                             )
-                            for i, a in enumerate(articles[:3])
+                            for i, a in enumerate(articles[:5])
                         ]
                         _news_cache[keyword] = {"data": result, "ts": now}
                         return result
@@ -262,6 +262,14 @@ async def _get_news(keyword: str) -> list[NewsArticleResponse]:
             source_name="조선비즈", source_url="", published_at=datetime.utcnow(), time_ago="1일 전",
             summary=f"최근 정책 변경으로 {keyword}의 패러다임이 바뀌고 있다. 3가지 시나리오를 통해 향후 방향을 예측.",
             cpm_level="매우 높음", relevance_score=0.78),
+        NewsArticleResponse(id=4, title=f"{keyword} 실전 가이드 — 지금 바로 적용하는 법",
+            source_name="연합뉴스", source_url="", published_at=datetime.utcnow(), time_ago="3시간 전",
+            summary=f"{keyword}를 실생활에 바로 적용할 수 있는 단계별 가이드. 전문가 인터뷰와 현장 사례를 중심으로 분석.",
+            cpm_level="높음", relevance_score=0.88),
+        NewsArticleResponse(id=5, title=f"2026년 {keyword} 트렌드 완전 분석",
+            source_name="YTN", source_url="", published_at=datetime.utcnow(), time_ago="6시간 전",
+            summary=f"2026년 {keyword}의 핵심 트렌드를 데이터 기반으로 분석. 전문가들이 주목하는 핵심 변화 5가지를 정리했다.",
+            cpm_level="매우 높음", relevance_score=0.91),
     ]
     _news_cache[keyword] = {"data": result, "ts": now}
     return result
