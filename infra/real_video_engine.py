@@ -172,7 +172,7 @@ def _build_style(keyword, category, blocks):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  3. 이미지 생성 체인 (절대 실패 불가)
+#  3. 이미지 생성 체인 (fal.ai 키 라운드로빈 + 크로스 체인)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 _VIS = {
@@ -191,26 +191,52 @@ _VIS = {
 }
 
 
+# fal.ai 키 라운드로빈
+_FAL_KEYS = []
+_fal_key_idx = 0
+
+def _get_fal_keys():
+    global _FAL_KEYS
+    if _FAL_KEYS: return _FAL_KEYS
+    keys = []
+    k = os.getenv("FAL_API_KEY","").strip()
+    if k: keys.append(k)
+    for i in range(2, 11):
+        k = os.getenv(f"FAL_API_KEY_{i}","").strip()
+        if k: keys.append(k)
+    _FAL_KEYS = keys
+    logger.info(f"[FAL] Loaded {len(keys)} API keys for rotation")
+    return keys
+
+def _next_fal_key():
+    global _fal_key_idx
+    keys = _get_fal_keys()
+    if not keys: return ""
+    key = keys[_fal_key_idx % len(keys)]
+    _fal_key_idx += 1
+    return key
+
+
 async def _get_slide_image(keyword, text, idx, total, category, section, jd, style, prev_descs):
-    """이미지 생성 — 4단계 체인. 절대 실패 불가."""
+    """이미지 생성 — fal.ai 최우선 + 크로스 체인. 절대 실패 불가."""
     slide = os.path.join(jd, f"slide_{idx}.png")
     vis = _VIS["body"][idx % len(_VIS["body"])] if section == "body" else _VIS.get(section, _VIS["body"][0])
     core = text[:250] if text else keyword
     pal = style.get("palette", _PALETTES["tech"])
 
-    # ── 1순위: Gemini Image ──
-    gem = await _try_gemini(keyword, core, idx, total, section, vis, pal, style, prev_descs, jd)
-    if gem:
-        _add_overlay(gem, keyword, idx, total, slide)
-        logger.info(f"[IMG] Block {idx+1}/{total}: gemini ✓")
-        return slide, "gemini"
-
-    # ── 2순위: fal.ai FLUX ──
+    # ── 1순위: fal.ai FLUX (키 라운드로빈) ──
     fal = await _try_fal(keyword, core, idx, total, section, vis, pal, style, jd)
     if fal:
         _add_overlay(fal, keyword, idx, total, slide)
         logger.info(f"[IMG] Block {idx+1}/{total}: fal.ai ✓")
         return slide, "fal.ai"
+
+    # ── 2순위: Gemini Image ──
+    gem = await _try_gemini(keyword, core, idx, total, section, vis, pal, style, prev_descs, jd)
+    if gem:
+        _add_overlay(gem, keyword, idx, total, slide)
+        logger.info(f"[IMG] Block {idx+1}/{total}: gemini ✓")
+        return slide, "gemini"
 
     # ── 3순위: Pexels ──
     pex = await _try_pexels(text, category, idx, jd)
@@ -219,7 +245,7 @@ async def _get_slide_image(keyword, text, idx, total, category, section, jd, sty
         logger.info(f"[IMG] Block {idx+1}/{total}: pexels ✓")
         return slide, "pexels"
 
-    # ── 4순위: Pillow 자체 생성 (100% 성공) ──
+    # ── 4순위: Pillow (100% 성공) ──
     _make_slide(slide, keyword, core, idx, total, section, pal)
     logger.info(f"[IMG] Block {idx+1}/{total}: pillow ✓")
     return slide, "pillow"
@@ -272,9 +298,9 @@ async def _try_gemini(keyword, core, idx, total, section, vis, pal, style, prev_
     return ""
 
 
-# ── fal.ai ──
+# ── fal.ai (키 라운드로빈) ──
 async def _try_fal(keyword, core, idx, total, section, vis, pal, style, jd):
-    fal_key = os.getenv("FAL_API_KEY","").strip()
+    fal_key = _next_fal_key()
     if not fal_key: return ""
 
     prompt = (
@@ -285,45 +311,52 @@ async def _try_fal(keyword, core, idx, total, section, vis, pal, style, jd):
         f"bottom 15% empty. Slide {idx+1}/{total}"
     )
 
-    try:
-        import httpx
-        async with httpx.AsyncClient(timeout=90) as c:
-            r = await c.post("https://queue.fal.run/fal-ai/flux/schnell",
-                headers={"Authorization":f"Key {fal_key}","Content-Type":"application/json"},
-                json={"prompt":prompt,"image_size":{"width":1280,"height":720},
-                      "num_images":1,"enable_safety_checker":False})
-            if r.status_code != 200:
-                logger.warning(f"[fal] HTTP {r.status_code}: {r.text[:150]}")
-                return ""
-            data = r.json()
-            images = data.get("images",[])
-            # 큐 방식 폴링
-            if not images:
-                req_id = data.get("request_id","")
-                if req_id:
-                    for _ in range(30):
-                        await asyncio.sleep(2)
-                        sr = await c.get(f"https://queue.fal.run/fal-ai/flux/schnell/requests/{req_id}/status",
-                            headers={"Authorization":f"Key {fal_key}"})
-                        if sr.status_code == 200:
-                            sd = sr.json()
-                            if sd.get("status") == "COMPLETED":
-                                rr = await c.get(f"https://queue.fal.run/fal-ai/flux/schnell/requests/{req_id}",
-                                    headers={"Authorization":f"Key {fal_key}"})
-                                if rr.status_code == 200:
-                                    images = rr.json().get("images",[])
-                                break
-                            elif sd.get("status") == "FAILED": return ""
-            if images:
-                url = images[0].get("url","")
-                if url:
-                    dl = await c.get(url)
-                    if dl.status_code == 200:
-                        p = os.path.join(jd, f"fal_{idx}.png")
-                        with open(p,"wb") as f: f.write(dl.content)
-                        return p
-    except Exception as e:
-        logger.warning(f"[fal] {e}")
+    for retry in range(min(3, len(_get_fal_keys()))):
+        try:
+            import httpx
+            async with httpx.AsyncClient(timeout=90) as c:
+                r = await c.post("https://queue.fal.run/fal-ai/flux/schnell",
+                    headers={"Authorization":f"Key {fal_key}","Content-Type":"application/json"},
+                    json={"prompt":prompt,"image_size":{"width":1280,"height":720},
+                          "num_images":1,"enable_safety_checker":False})
+                if r.status_code == 403:
+                    logger.warning(f"[fal] Key exhausted, rotating to next")
+                    fal_key = _next_fal_key()
+                    if not fal_key: return ""
+                    continue
+                if r.status_code != 200:
+                    logger.warning(f"[fal] HTTP {r.status_code}: {r.text[:150]}")
+                    return ""
+                data = r.json()
+                images = data.get("images",[])
+                if not images:
+                    req_id = data.get("request_id","")
+                    if req_id:
+                        for _ in range(30):
+                            await asyncio.sleep(2)
+                            sr = await c.get(f"https://queue.fal.run/fal-ai/flux/schnell/requests/{req_id}/status",
+                                headers={"Authorization":f"Key {fal_key}"})
+                            if sr.status_code == 200:
+                                sd = sr.json()
+                                if sd.get("status") == "COMPLETED":
+                                    rr = await c.get(f"https://queue.fal.run/fal-ai/flux/schnell/requests/{req_id}",
+                                        headers={"Authorization":f"Key {fal_key}"})
+                                    if rr.status_code == 200:
+                                        images = rr.json().get("images",[])
+                                    break
+                                elif sd.get("status") == "FAILED": break
+                if images:
+                    url = images[0].get("url","")
+                    if url:
+                        dl = await c.get(url)
+                        if dl.status_code == 200:
+                            p = os.path.join(jd, f"fal_{idx}.png")
+                            with open(p,"wb") as f: f.write(dl.content)
+                            return p
+        except Exception as e:
+            logger.warning(f"[fal] {e}")
+        fal_key = _next_fal_key()
+        if not fal_key: return ""
     return ""
 
 
