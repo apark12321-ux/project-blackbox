@@ -219,6 +219,30 @@ async def _get_news(keyword: str) -> list[NewsArticleResponse]:
 
     api_key = os.getenv("NEWS_API_KEY", "").strip()
 
+    # ── 폴백 뉴스 5개 (실제 뉴스가 부족할 때 보완용) ──
+    fallback_pool = [
+        {"id": 1, "title": f"[속보] {keyword} — 전문가가 분석한 핵심 포인트",
+         "source_name": "한국경제", "time_ago": "2시간 전",
+         "summary": f"{keyword}에 대한 전문가의 심층 분석. 기존 예측과 달리 새로운 변수가 등장하면서 관심이 집중되고 있다.",
+         "cpm_level": "매우 높음", "relevance_score": 0.95},
+        {"id": 2, "title": f"{keyword}, 이것만 알면 손해 안 봅니다",
+         "source_name": "매일경제", "time_ago": "5시간 전",
+         "summary": f"{keyword} 관련 핵심 정보를 쉽게 정리. 실생활에서 바로 활용할 수 있는 팁 포함.",
+         "cpm_level": "높음", "relevance_score": 0.82},
+        {"id": 3, "title": f"[긴급] {keyword} 최신 변경사항 총정리",
+         "source_name": "조선비즈", "time_ago": "1일 전",
+         "summary": f"최근 정책 변경으로 {keyword}의 패러다임이 바뀌고 있다. 3가지 시나리오를 통해 향후 방향을 예측.",
+         "cpm_level": "매우 높음", "relevance_score": 0.78},
+        {"id": 4, "title": f"{keyword} 실전 가이드 — 지금 바로 적용하는 법",
+         "source_name": "연합뉴스", "time_ago": "3시간 전",
+         "summary": f"{keyword}를 실생활에 바로 적용할 수 있는 단계별 가이드. 전문가 인터뷰와 현장 사례를 중심으로 분석.",
+         "cpm_level": "높음", "relevance_score": 0.88},
+        {"id": 5, "title": f"2026년 {keyword} 트렌드 완전 분석",
+         "source_name": "YTN", "time_ago": "6시간 전",
+         "summary": f"2026년 {keyword}의 핵심 트렌드를 데이터 기반으로 분석. 전문가들이 주목하는 핵심 변화 5가지를 정리했다.",
+         "cpm_level": "매우 높음", "relevance_score": 0.91},
+    ]
+
     if api_key:
         try:
             import httpx
@@ -229,47 +253,42 @@ async def _get_news(keyword: str) -> list[NewsArticleResponse]:
                 )
                 if resp.status_code == 200:
                     articles = resp.json().get("articles", [])
-                    if articles:
-                        result = [
-                            NewsArticleResponse(
-                                id=i + 1,
-                                title=a.get("title", "") or "",
-                                source_name=a.get("source", {}).get("name", "알 수 없음"),
-                                source_url=a.get("url", ""),
-                                published_at=datetime.utcnow(),
-                                time_ago="최근",
-                                summary=(a.get("description", "") or a.get("title", ""))[:200],
-                                cpm_level=random.choice(["매우 높음", "높음"]),
-                                relevance_score=round(random.uniform(0.75, 0.98), 2),
-                            )
-                            for i, a in enumerate(articles[:5])
-                        ]
-                        _news_cache[keyword] = {"data": result, "ts": now}
-                        return result
+                    real = [
+                        NewsArticleResponse(
+                            id=i + 1,
+                            title=a.get("title", "") or "",
+                            source_name=a.get("source", {}).get("name", "알 수 없음"),
+                            source_url=a.get("url", ""),
+                            published_at=datetime.utcnow(),
+                            time_ago="최근",
+                            summary=(a.get("description", "") or a.get("title", ""))[:200],
+                            cpm_level=random.choice(["매우 높음", "높음"]),
+                            relevance_score=round(random.uniform(0.75, 0.98), 2),
+                        )
+                        for i, a in enumerate(articles[:5])
+                    ]
+                    # 5개 미만이면 폴백으로 보완
+                    need = 5 - len(real)
+                    for fb in fallback_pool[len(real):len(real) + need]:
+                        real.append(NewsArticleResponse(
+                            id=fb["id"] + len(real), title=fb["title"],
+                            source_name=fb["source_name"], source_url="",
+                            published_at=datetime.utcnow(), time_ago=fb["time_ago"],
+                            summary=fb["summary"], cpm_level=fb["cpm_level"],
+                            relevance_score=fb["relevance_score"],
+                        ))
+                    if real:
+                        _news_cache[keyword] = {"data": real, "ts": now}
+                        return real
         except Exception as e:
             logger.warning(f"[News] Error: {e}")
 
+    # 완전 폴백 (API 키 없음 또는 API 실패)
     result = [
-        NewsArticleResponse(id=1, title=f"[속보] {keyword} — 전문가가 분석한 핵심 포인트",
-            source_name="한국경제", source_url="", published_at=datetime.utcnow(), time_ago="2시간 전",
-            summary=f"{keyword}에 대한 전문가의 심층 분석. 기존 예측과 달리 새로운 변수가 등장하면서 관심이 집중되고 있다.",
-            cpm_level="매우 높음", relevance_score=0.95),
-        NewsArticleResponse(id=2, title=f"{keyword}, 이것만 알면 손해 안 봅니다",
-            source_name="매일경제", source_url="", published_at=datetime.utcnow(), time_ago="5시간 전",
-            summary=f"{keyword} 관련 핵심 정보를 쉽게 정리. 실생활에서 바로 활용할 수 있는 팁 포함.",
-            cpm_level="높음", relevance_score=0.82),
-        NewsArticleResponse(id=3, title=f"[긴급] {keyword} 최신 변경사항 총정리",
-            source_name="조선비즈", source_url="", published_at=datetime.utcnow(), time_ago="1일 전",
-            summary=f"최근 정책 변경으로 {keyword}의 패러다임이 바뀌고 있다. 3가지 시나리오를 통해 향후 방향을 예측.",
-            cpm_level="매우 높음", relevance_score=0.78),
-        NewsArticleResponse(id=4, title=f"{keyword} 실전 가이드 — 지금 바로 적용하는 법",
-            source_name="연합뉴스", source_url="", published_at=datetime.utcnow(), time_ago="3시간 전",
-            summary=f"{keyword}를 실생활에 바로 적용할 수 있는 단계별 가이드. 전문가 인터뷰와 현장 사례를 중심으로 분석.",
-            cpm_level="높음", relevance_score=0.88),
-        NewsArticleResponse(id=5, title=f"2026년 {keyword} 트렌드 완전 분석",
-            source_name="YTN", source_url="", published_at=datetime.utcnow(), time_ago="6시간 전",
-            summary=f"2026년 {keyword}의 핵심 트렌드를 데이터 기반으로 분석. 전문가들이 주목하는 핵심 변화 5가지를 정리했다.",
-            cpm_level="매우 높음", relevance_score=0.91),
+        NewsArticleResponse(id=fb["id"], title=fb["title"], source_name=fb["source_name"],
+            source_url="", published_at=datetime.utcnow(), time_ago=fb["time_ago"],
+            summary=fb["summary"], cpm_level=fb["cpm_level"], relevance_score=fb["relevance_score"])
+        for fb in fallback_pool
     ]
     _news_cache[keyword] = {"data": result, "ts": now}
     return result
