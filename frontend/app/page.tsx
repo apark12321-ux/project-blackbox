@@ -226,8 +226,7 @@ export default function HomePage() {
         <h3 className="text-[22px] md:text-[34px] font-black text-white mb-4">
           지금 바로 수익형 영상을 만들어보세요
         </h3>
-        <p className="text-[15px] text-white/40 mb-8">카드 등록 불필요. 무료로 시작하세요.</p>
-        <button onClick={()=>router.push("/create")}
+                <button onClick={()=>router.push("/create")}
           className="gold-btn text-[16px] px-12 py-4">
           무료로 시작하기 →
         </button>
@@ -235,13 +234,20 @@ export default function HomePage() {
       </section>
 
       {/* ═══ FOOTER ═══ */}
-      <footer className="py-8 px-5 border-t" style={{borderColor:"rgba(255,255,255,0.06)",background:"#0f1014"}}>
-        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-[15px] text-[#52525b]">
-          <div className="flex items-center gap-2">
-            <div className="w-5 h-5 rounded flex items-center justify-center text-[15px] font-black text-white" style={{background:"#b38600"}}>AM</div>
-            <span className="font-bold text-[#71717a]">AlgoMaker</span>
+      <footer className="py-10 px-5 border-t" style={{borderColor:"rgba(255,255,255,0.06)",background:"#0c0d10"}}>
+        <div className="max-w-4xl mx-auto">
+          <div className="text-center space-y-1 mb-5" style={{fontSize:"10px",lineHeight:"1.9",color:"#5a5a64"}}>
+            <p><span style={{fontWeight:700,color:"#808088"}}>상호명: 한줄컴퍼니</span> | 대표자: 박예준 | 사업자등록번호: 450-07-03104</p>
+            <p>통신판매업 신고번호: 제 2025-인천서구-3321 호</p>
+            <p>사업장주소: 인천광역시 서구 청라커낼로 270, 커낼힐스빌 2층 2498호</p>
+            <p>고객센터: <a href="tel:01022284930" style={{color:"#5a5a64",textDecoration:"none"}}>010-2228-4930</a> | 이메일: <a href="mailto:edufix.contact@gmail.com" style={{color:"#5a5a64",textDecoration:"none"}}>edufix.contact@gmail.com</a></p>
           </div>
-          <span>© 2026 AlgoMaker. All rights reserved.</span>
+          <div className="flex items-center justify-center gap-4 mb-4" style={{fontSize:"11px"}}>
+            <a href="/privacy" style={{color:"#808088",textDecoration:"none",fontWeight:600}}>개인정보처리방침</a>
+            <span style={{color:"#3a3a42"}}>|</span>
+            <a href="/terms" style={{color:"#808088",textDecoration:"none"}}>이용약관</a>
+          </div>
+          <p className="text-center" style={{fontSize:"10px",color:"#3a3a42"}}>© 2026 AlgoMaker. All rights reserved.</p>
         </div>
       </footer>
     </div>
