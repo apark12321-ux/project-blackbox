@@ -3,40 +3,41 @@
 @tailwind components;
 @tailwind utilities;
 
+/*
+  ═══════════════════════════════════════════════
+  AlgoMaker Design System — Videoto 동일 규격
+  ═══════════════════════════════════════════════
+  Videoto 실측:
+  - 배경: #0e0e10 (최하단), #18181b (카드)
+  - 텍스트: #fafafa (밝), #a1a1aa (보조), #52525b (뮤트)
+  - 액센트: #f5a623 (골드/노란) → AlgoMaker: #d4a537
+  - 사이드바: #111113, 170px
+  - 폰트: Pretendard, 16px 기본
+  - 카드 radius: 12px
+  - 보더: rgba(255,255,255,0.08)
+*/
+
 :root {
-  /* ═══ DARK MODE (Videoto 참고) ═══ */
-  --bg: #0f1014;
-  --bg-card: #1a1b20;
-  --bg-elevated: #222328;
-  --bg-input: #2a2b30;
-  --bg-warm: #1e1d1a;
-  --border: rgba(255,255,255,0.06);
-  --border-hover: rgba(255,255,255,0.12);
-  --border-strong: rgba(255,255,255,0.10);
+  --bg: #0e0e10;
+  --bg-card: #18181b;
+  --bg-elevated: #27272a;
+  --bg-input: #27272a;
+  --border: rgba(255,255,255,0.08);
+  --border-hover: rgba(255,255,255,0.15);
   --gold: #d4a537;
   --gold-dim: #b38600;
-  --gold-50: rgba(212,165,55,0.08);
-  --gold-100: rgba(212,165,55,0.15);
-  --gold-500: #d4a537;
-  --gold-600: #b38600;
-  --green-500: #10b981;
-  --green-50: rgba(16,185,129,0.1);
-  --blue-500: #3b82f6;
-  --blue-50: rgba(59,130,246,0.1);
-  --purple-500: #8b5cf6;
-  --purple-50: rgba(139,92,246,0.1);
-  --red-500: #ef4444;
-  --red-50: rgba(239,68,68,0.1);
-  --text: #e8e8ec;
-  --text-sub: #a0a0a8;
-  --text-muted: #5a5a64;
-  --text-faint: #3a3a42;
-  --shadow-xs: 0 1px 2px rgba(0,0,0,0.3);
-  --shadow-sm: 0 1px 3px rgba(0,0,0,0.4), 0 1px 2px rgba(0,0,0,0.2);
-  --shadow-md: 0 4px 16px rgba(0,0,0,0.4);
-  --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
-  --shadow-gold: 0 4px 24px rgba(212,165,55,0.15);
-  --r-sm: 8px; --r-md: 12px; --r-lg: 16px; --r-xl: 20px; --r-2xl: 24px;
+  --gold-bg: rgba(212,165,55,0.08);
+  --green: #22c55e;
+  --green-bg: rgba(34,197,94,0.1);
+  --red: #ef4444;
+  --red-bg: rgba(239,68,68,0.1);
+  --blue: #3b82f6;
+  --purple: #a78bfa;
+  --text: #fafafa;
+  --text-sub: #a1a1aa;
+  --text-muted: #52525b;
+  --text-faint: #3f3f46;
+  --r: 12px;
 }
 
 *{margin:0;padding:0;box-sizing:border-box;}
@@ -48,88 +49,85 @@ body {
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   font-size: 16px;
-  line-height: 1.7;
+  line-height: 1.6;
   overflow: hidden;
   height: 100dvh;
   letter-spacing: -0.01em;
 }
 
-/* ═══ TYPOGRAPHY SCALE ═══ */
-h1, .h1 { font-size: 32px; font-weight: 800; line-height: 1.25; letter-spacing: -0.02em; }
-h2, .h2 { font-size: 24px; font-weight: 700; line-height: 1.3; letter-spacing: -0.015em; }
-h3, .h3 { font-size: 18px; font-weight: 700; line-height: 1.4; }
-h4, .h4 { font-size: 16px; font-weight: 600; line-height: 1.5; }
-@media(max-width:767px){
-  h1, .h1 { font-size: 24px; }
-  h2, .h2 { font-size: 20px; }
-  h3, .h3 { font-size: 16px; }
-  body { font-size: 15px; }
-}
+::selection { background: rgba(212,165,55,0.25); color: #fff; }
 
-::selection { background: rgba(212,165,55,0.2); color: #fff; }
-
-/* Scrollbar */
+/* ═══ SCROLLBAR (Videoto 스타일) ═══ */
 ::-webkit-scrollbar { width:6px; height:6px; }
 ::-webkit-scrollbar-track { background:transparent; }
-::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.08); border-radius:10px; }
-::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.15); }
+::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:10px; }
+::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.2); }
 .scrollbar-hide::-webkit-scrollbar{display:none;}
 .scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none;}
 
 /* ═══ ANIMATIONS ═══ */
 @keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes slideR{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
 @keyframes barGrow{from{width:0}}
 @keyframes scoreReveal{from{opacity:0;transform:scale(0.7)}to{opacity:1;transform:scale(1)}}
 @keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(212,165,55,0.2)}50%{box-shadow:0 0 0 12px rgba(212,165,55,0)}}
 @keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
 @keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-@keyframes progress{0%{width:15%;margin-left:0}50%{width:55%;margin-left:22%}100%{width:15%;margin-left:85%}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes dotBounce{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1.15)}}
 @keyframes heroGrad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-@keyframes countUp{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
-@keyframes blink{0%,100%{opacity:1}50%{opacity:.3}}
-@keyframes gradFlow{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
 
 .ani-up{animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both}
 .ani-in{animation:fadeIn .35s ease both}
-.ani-r{animation:slideR .4s ease both}
 .ani-bar{animation:barGrow 1s cubic-bezier(.22,1,.36,1) both}
 .ani-score{animation:scoreReveal .6s cubic-bezier(.34,1.56,.64,1) both}
 .ani-pulse{animation:pulse 2.5s ease-in-out infinite}
 .ani-float{animation:float 3.5s ease-in-out infinite}
+.anim-fade-up{animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both}
 
-/* ═══ SURFACES (Dark) ═══ */
-.surface{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r-lg);box-shadow:var(--shadow-xs);transition:all .2s ease}
-.surface:hover{border-color:var(--border-hover);box-shadow:var(--shadow-sm)}
-.surface-active{border-color:rgba(212,165,55,.25)!important;box-shadow:var(--shadow-gold)}
-.surface-green{border-color:rgba(16,185,129,.25)!important;box-shadow:0 4px 20px rgba(16,185,129,.08)}
+/* ═══ SURFACES ═══ */
+.surface{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);transition:all .2s ease}
+.surface:hover{border-color:var(--border-hover)}
+.surface-active{border-color:rgba(212,165,55,.3)!important;box-shadow:0 0 20px rgba(212,165,55,.08)}
+.surface-green{border-color:rgba(34,197,94,.3)!important}
 
-/* ═══ GLASS (Dark) ═══ */
-.glass{background:rgba(15,16,20,.92);backdrop-filter:blur(20px) saturate(1.2);-webkit-backdrop-filter:blur(20px) saturate(1.2);border-bottom:1px solid var(--border)}
+.glow-gold{border-color:rgba(212,165,55,.3)!important;box-shadow:0 0 20px rgba(212,165,55,.08)}
+.glow-green{border-color:rgba(34,197,94,.3)!important;box-shadow:0 0 20px rgba(34,197,94,.06)}
 
-/* ═══ SIDEBAR ═══ */
-.sidebar{background:#0c0d10;color:rgba(255,255,255,.7)}
+/* ═══ GLASS (Videoto 헤더) ═══ */
+.glass{background:rgba(14,14,16,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+
+/* ═══ SIDEBAR (Videoto: #111113) ═══ */
+.sidebar{background:#111113;color:rgba(255,255,255,.7)}
 
 /* ═══ SAFE AREA ═══ */
 .safe-b{padding-bottom:env(safe-area-inset-bottom,0)}
 
 /* ═══ HERO ═══ */
-.hero{background:linear-gradient(-45deg,#0c0d10,#1f1a0e,#0e1320,#0c0d10);background-size:400% 400%;animation:heroGrad 14s ease infinite}
+.hero{background:linear-gradient(-45deg,#0e0e10,#1f1a0e,#0e1320,#0e0e10);background-size:400% 400%;animation:heroGrad 14s ease infinite}
 
-/* ═══ GOLD BTN ═══ */
-.gold-btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;background:linear-gradient(135deg,#b38600,#d4a537);color:#fff;font-weight:700;border:none;border-radius:var(--r-md);padding:12px 28px;cursor:pointer;transition:all .25s;box-shadow:0 2px 10px rgba(179,134,0,.2)}
-.gold-btn:hover{transform:translateY(-1px);box-shadow:var(--shadow-gold)}
+/* ═══ GOLD BTN (Videoto 노란 버튼 동일) ═══ */
+.gold-btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  background:linear-gradient(135deg,#b38600,#d4a537);
+  color:#fff;font-weight:700;font-size:16px;
+  border:none;border-radius:var(--r);
+  padding:14px 32px;cursor:pointer;
+  transition:all .2s;
+  box-shadow:0 2px 12px rgba(179,134,0,.2)
+}
+.gold-btn:hover{transform:translateY(-1px);box-shadow:0 4px 24px rgba(179,134,0,.3)}
 .gold-btn:active{transform:translateY(0)}
 
-/* ═══ INPUT (Dark) ═══ */
+/* ═══ INPUT (Videoto 스타일) ═══ */
 input, textarea, select {
   background: var(--bg-input);
-  border: 1px solid var(--border-strong);
+  border: 1px solid var(--border);
   color: var(--text);
-  border-radius: var(--r-sm);
+  border-radius: var(--r);
+  padding: 12px 16px;
+  font-size: 16px;
+  font-family: inherit;
 }
 input:focus, textarea:focus, select:focus {
   border-color: var(--gold);
@@ -142,11 +140,4 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); }
 @media(max-width:767px){
   body{font-size:15px}
   .overflow-x-auto::-webkit-scrollbar{display:none}
-}
-@media(min-width:768px) and (max-width:1279px){
-  body{font-size:16px}
-}
-@media(min-width:1280px){
-  body{font-size:16px}
-  .surface:hover{transform:translateY(-1px)}
 }
