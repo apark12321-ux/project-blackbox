@@ -38,19 +38,19 @@ export default function HomePage() {
       <nav className="fixed top-0 left-0 right-0 z-50 glass border-b" style={{borderColor:"rgba(0,0,0,0.06)"}}>
         <div className="max-w-6xl mx-auto h-14 flex items-center justify-between px-5">
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[12px] font-black text-white"
+            <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[15px] font-black text-white"
               style={{background:"linear-gradient(135deg,#b38600,#d4a537)"}}>AM</div>
             <span className="text-[16px] font-extrabold tracking-tight">
-              <span className="text-[#e8e8ec]">Algo</span><span className="text-[#b38600]">Maker</span>
+              <span className="text-[#fafafa]">Algo</span><span className="text-[#b38600]">Maker</span>
             </span>
           </div>
-          <div className="hidden md:flex items-center gap-6 text-[14px] text-[#808088] font-medium">
-            <a href="#process" className="hover:text-[#e8e8ec] transition">제작 과정</a>
-            <a href="#compare" className="hover:text-[#e8e8ec] transition">비교</a>
-            <a href="#reviews" className="hover:text-[#e8e8ec] transition">후기</a>
+          <div className="hidden md:flex items-center gap-6 text-[15px] text-[#71717a] font-medium">
+            <a href="#process" className="hover:text-[#fafafa] transition">제작 과정</a>
+            <a href="#compare" className="hover:text-[#fafafa] transition">비교</a>
+            <a href="#reviews" className="hover:text-[#fafafa] transition">후기</a>
           </div>
           <button onClick={()=>router.push("/create")}
-            className="px-5 py-2 rounded-lg text-[14px] font-bold text-white transition hover:brightness-110"
+            className="px-5 py-2 rounded-lg text-[15px] font-bold text-white transition hover:brightness-110"
             style={{background:"linear-gradient(135deg,#b38600,#d4a537)"}}>
             무료 시작
           </button>
@@ -60,7 +60,7 @@ export default function HomePage() {
       {/* ═══ HERO ═══ */}
       <section className="hero relative flex flex-col items-center justify-center px-5 pt-28 pb-20 md:pt-36 md:pb-28 text-center overflow-hidden">
         <div className={`transition-all duration-700 ${v?"opacity-100 translate-y-0":"opacity-0 translate-y-6"}`}>
-          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[14px] font-bold text-[#d4a537] mb-6"
+          <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full text-[15px] font-bold text-[#d4a537] mb-6"
             style={{background:"rgba(212,165,55,0.1)",border:"1px solid rgba(212,165,55,0.15)"}}>
             ✨ 유튜브 수익화의 지름길
           </div>
@@ -73,7 +73,7 @@ export default function HomePage() {
           </span>이 완성됩니다
         </h1>
 
-        <p className={`text-[14px] md:text-[18px] text-white/45 max-w-lg mb-10 leading-relaxed transition-all duration-700 delay-300 ${v?"opacity-100 translate-y-0":"opacity-0 translate-y-6"}`}>
+        <p className={`text-[15px] md:text-[18px] text-white/45 max-w-lg mb-10 leading-relaxed transition-all duration-700 delay-300 ${v?"opacity-100 translate-y-0":"opacity-0 translate-y-6"}`}>
           블루오션 키워드 발굴 → 뉴스 큐레이션 → AI 대본 →<br className="hidden md:block"/>
           영상 합성 → 수익화 검증까지, 클릭 몇 번이면 끝.
         </p>
@@ -99,7 +99,7 @@ export default function HomePage() {
           ].map((s,i)=>(
             <div key={i} className="text-center">
               <div className="text-[22px] md:text-[28px] font-black text-white/90">{s.v}</div>
-              <div className="text-[12px] text-white/30 font-medium mt-0.5">{s.l}</div>
+              <div className="text-[15px] text-white/30 font-medium mt-0.5">{s.l}</div>
             </div>
           ))}
         </div>
@@ -109,22 +109,22 @@ export default function HomePage() {
       <section id="process" className="py-20 md:py-28 px-5" style={{background:"#1a1b20"}}>
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-14">
-            <span className="text-[14px] font-bold text-[#b38600] tracking-wider">PROCESS</span>
-            <h2 className="text-[24px] md:text-[36px] font-black text-[#e8e8ec] mt-2 mb-3">
+            <span className="text-[15px] font-bold text-[#b38600] tracking-wider">PROCESS</span>
+            <h2 className="text-[24px] md:text-[36px] font-black text-[#fafafa] mt-2 mb-3">
               키워드 하나면 완성까지 6단계
             </h2>
-            <p className="text-[14px] text-[#5a5a64]">복잡한 설정 없이, AI가 전부 처리합니다</p>
+            <p className="text-[15px] text-[#52525b]">복잡한 설정 없이, AI가 전부 처리합니다</p>
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
             {STEPS.map((s,i)=>(
               <div key={i} className="group p-6 rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[#1a1b20] hover:border-[rgba(255,255,255,0.12)] transition-all duration-300 hover:shadow-lg hover:-translate-y-1">
                 <div className="flex items-center gap-3 mb-4">
-                  <span className="text-[12px] font-black text-white w-7 h-7 rounded-lg flex items-center justify-center" style={{background:s.color}}>{s.n}</span>
+                  <span className="text-[15px] font-black text-white w-7 h-7 rounded-lg flex items-center justify-center" style={{background:s.color}}>{s.n}</span>
                   <span className="text-[22px]">{s.icon}</span>
                 </div>
-                <h3 className="text-[16px] font-bold text-[#e8e8ec] mb-2">{s.title}</h3>
-                <p className="text-[14px] text-[#808088] leading-relaxed">{s.desc}</p>
+                <h3 className="text-[16px] font-bold text-[#fafafa] mb-2">{s.title}</h3>
+                <p className="text-[15px] text-[#71717a] leading-relaxed">{s.desc}</p>
               </div>
             ))}
           </div>
@@ -135,8 +135,8 @@ export default function HomePage() {
       <section className="py-20 md:py-28 px-5" style={{background:"#0f1014"}}>
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-14">
-            <span className="text-[14px] font-bold text-[#b38600] tracking-wider">WHY ALGOMAKER</span>
-            <h2 className="text-[24px] md:text-[36px] font-black text-[#e8e8ec] mt-2 mb-3">
+            <span className="text-[15px] font-bold text-[#b38600] tracking-wider">WHY ALGOMAKER</span>
+            <h2 className="text-[24px] md:text-[36px] font-black text-[#fafafa] mt-2 mb-3">
               다른 도구에 없는 것들
             </h2>
           </div>
@@ -150,8 +150,8 @@ export default function HomePage() {
             ].map((f,i)=>(
               <div key={i} className="p-6 rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[#1a1b20]">
                 <div className="w-11 h-11 rounded-xl flex items-center justify-center text-[22px] mb-4" style={{background:f.bg}}>{f.icon}</div>
-                <h3 className="text-[16px] font-bold text-[#e8e8ec] mb-2">{f.title}</h3>
-                <p className="text-[14px] text-[#808088] leading-relaxed">{f.desc}</p>
+                <h3 className="text-[16px] font-bold text-[#fafafa] mb-2">{f.title}</h3>
+                <p className="text-[15px] text-[#71717a] leading-relaxed">{f.desc}</p>
               </div>
             ))}
           </div>
@@ -162,20 +162,20 @@ export default function HomePage() {
       <section id="compare" className="py-20 md:py-28 px-5" style={{background:"#1a1b20"}}>
         <div className="max-w-3xl mx-auto">
           <div className="text-center mb-14">
-            <span className="text-[14px] font-bold text-[#b38600] tracking-wider">COMPARISON</span>
-            <h2 className="text-[24px] md:text-[36px] font-black text-[#e8e8ec] mt-2 mb-3">
+            <span className="text-[15px] font-bold text-[#b38600] tracking-wider">COMPARISON</span>
+            <h2 className="text-[24px] md:text-[36px] font-black text-[#fafafa] mt-2 mb-3">
               직접 비교해보세요
             </h2>
           </div>
 
           <div className="overflow-x-auto rounded-2xl border border-[rgba(255,255,255,0.06)]">
-            <table className="w-full text-[14px]">
+            <table className="w-full text-[15px]">
               <thead>
                 <tr className="border-b border-[rgba(255,255,255,0.06)]" style={{background:"#222328"}}>
-                  <th className="text-left p-4 font-bold text-[#808088]">항목</th>
+                  <th className="text-left p-4 font-bold text-[#71717a]">항목</th>
                   <th className="p-4 font-bold text-[#b38600]">AlgoMaker</th>
-                  <th className="p-4 font-bold text-[#5a5a64]">직접 제작</th>
-                  <th className="p-4 font-bold text-[#5a5a64]">편집자 고용</th>
+                  <th className="p-4 font-bold text-[#52525b]">직접 제작</th>
+                  <th className="p-4 font-bold text-[#52525b]">편집자 고용</th>
                 </tr>
               </thead>
               <tbody>
@@ -183,8 +183,8 @@ export default function HomePage() {
                   <tr key={i} className="border-b border-[rgba(255,255,255,0.04)] last:border-0">
                     <td className="p-4 font-medium text-[#c0c0c8]">{r.item}</td>
                     <td className="p-4 text-center font-bold text-[#b38600]">{r.us}</td>
-                    <td className="p-4 text-center text-[#5a5a64]">{r.them}</td>
-                    <td className="p-4 text-center text-[#5a5a64]">{r.hire}</td>
+                    <td className="p-4 text-center text-[#52525b]">{r.them}</td>
+                    <td className="p-4 text-center text-[#52525b]">{r.hire}</td>
                   </tr>
                 ))}
               </tbody>
@@ -197,8 +197,8 @@ export default function HomePage() {
       <section id="reviews" className="py-20 md:py-28 px-5" style={{background:"#0f1014"}}>
         <div className="max-w-4xl mx-auto">
           <div className="text-center mb-14">
-            <span className="text-[14px] font-bold text-[#b38600] tracking-wider">TESTIMONIALS</span>
-            <h2 className="text-[24px] md:text-[36px] font-black text-[#e8e8ec] mt-2 mb-3">
+            <span className="text-[15px] font-bold text-[#b38600] tracking-wider">TESTIMONIALS</span>
+            <h2 className="text-[24px] md:text-[36px] font-black text-[#fafafa] mt-2 mb-3">
               실제 사용자들의 이야기
             </h2>
           </div>
@@ -207,13 +207,13 @@ export default function HomePage() {
             {REVIEWS.map((r,i)=>(
               <div key={i} className="p-6 rounded-2xl border border-[rgba(255,255,255,0.06)] bg-[#1a1b20]">
                 <div className="flex items-center gap-2 mb-4">
-                  <span className="text-[12px] font-bold px-2 py-0.5 rounded-md text-[#b38600]" style={{background:"#fef9eb"}}>{r.plan}</span>
-                  <div className="flex gap-0.5">{"★★★★★".split("").map((_,j)=><span key={j} className="text-[12px] text-[#b38600]">★</span>)}</div>
+                  <span className="text-[15px] font-bold px-2 py-0.5 rounded-md text-[#b38600]" style={{background:"#fef9eb"}}>{r.plan}</span>
+                  <div className="flex gap-0.5">{"★★★★★".split("").map((_,j)=><span key={j} className="text-[15px] text-[#b38600]">★</span>)}</div>
                 </div>
-                <p className="text-[14px] text-[#c0c0c8] leading-relaxed mb-5">&ldquo;{r.text}&rdquo;</p>
+                <p className="text-[15px] text-[#c0c0c8] leading-relaxed mb-5">&ldquo;{r.text}&rdquo;</p>
                 <div>
-                  <div className="text-[14px] font-bold text-[#e8e8ec]">{r.name}</div>
-                  <div className="text-[12px] text-[#5a5a64]">{r.role}</div>
+                  <div className="text-[15px] font-bold text-[#fafafa]">{r.name}</div>
+                  <div className="text-[15px] text-[#52525b]">{r.role}</div>
                 </div>
               </div>
             ))}
@@ -226,28 +226,22 @@ export default function HomePage() {
         <h3 className="text-[22px] md:text-[34px] font-black text-white mb-4">
           지금 바로 수익형 영상을 만들어보세요
         </h3>
+        <p className="text-[15px] text-white/40 mb-8">카드 등록 불필요. 무료로 시작하세요.</p>
         <button onClick={()=>router.push("/create")}
           className="gold-btn text-[16px] px-12 py-4">
           무료로 시작하기 →
         </button>
-        <p className="text-[12px] text-white/20 mt-8">AlgoMaker v2.1 · Powered by Gemini AI + ElevenLabs</p>
+        <p className="text-[15px] text-white/20 mt-8">AlgoMaker v2.1 · Powered by Gemini AI + ElevenLabs</p>
       </section>
 
       {/* ═══ FOOTER ═══ */}
-      <footer className="py-10 px-5 border-t" style={{borderColor:"rgba(255,255,255,0.06)",background:"#0c0d10"}}>
-        <div className="max-w-4xl mx-auto">
-          <div className="text-center space-y-1 mb-5" style={{fontSize:"10px",lineHeight:"1.9",color:"#5a5a64"}}>
-            <p><span style={{fontWeight:700,color:"#808088"}}>상호명: 한줄컴퍼니</span> | 대표자: 박예준 | 사업자등록번호: 450-07-03104</p>
-            <p>통신판매업 신고번호: 제 2025-인천서구-3321 호</p>
-            <p>사업장주소: 인천광역시 서구 청라커낼로 270, 커낼힐스빌 2층 2498호</p>
-            <p>고객센터: <a href="tel:01022284930" style={{color:"#5a5a64",textDecoration:"none"}}>010-2228-4930</a> | 이메일: <a href="mailto:edufix.contact@gmail.com" style={{color:"#5a5a64",textDecoration:"none"}}>edufix.contact@gmail.com</a></p>
+      <footer className="py-8 px-5 border-t" style={{borderColor:"rgba(255,255,255,0.06)",background:"#0f1014"}}>
+        <div className="max-w-4xl mx-auto flex flex-col md:flex-row items-center justify-between gap-4 text-[15px] text-[#52525b]">
+          <div className="flex items-center gap-2">
+            <div className="w-5 h-5 rounded flex items-center justify-center text-[15px] font-black text-white" style={{background:"#b38600"}}>AM</div>
+            <span className="font-bold text-[#71717a]">AlgoMaker</span>
           </div>
-          <div className="flex items-center justify-center gap-4 mb-4" style={{fontSize:"11px"}}>
-            <a href="/privacy" style={{color:"#808088",textDecoration:"none",fontWeight:600}}>개인정보처리방침</a>
-            <span style={{color:"#3a3a42"}}>|</span>
-            <a href="/terms" style={{color:"#808088",textDecoration:"none"}}>이용약관</a>
-          </div>
-          <p className="text-center" style={{fontSize:"10px",color:"#3a3a42"}}>© 2026 AlgoMaker. All rights reserved.</p>
+          <span>© 2026 AlgoMaker. All rights reserved.</span>
         </div>
       </footer>
     </div>
