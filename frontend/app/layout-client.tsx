@@ -89,13 +89,13 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex md:hidden items-center gap-2 shrink-0">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-black text-white" style={{background:"linear-gradient(135deg,#b38600,#d4a537)"}}>AM</div>
             <span className="text-[16px] font-extrabold tracking-tight">
-              <span className="text-[#e8e8ec]">Algo</span><span className="text-[#d4a537]">Maker</span>
+              <span className="text-[#fafafa]">Algo</span><span className="text-[#d4a537]">Maker</span>
             </span>
           </div>
 
           {/* PC: Page title */}
           <div className="hidden md:flex items-center gap-3">
-            <h1 className="text-[18px] font-extrabold text-[#e8e8ec]">
+            <h1 className="text-[18px] font-extrabold text-[#fafafa]">
               {activePage==="curation"?"뉴스 큐레이션":activePage==="script"?"AI 스크립트":activePage==="video"?"영상 제작":"검수 & 배포"}
             </h1>
           </div>
@@ -119,11 +119,11 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="flex items-center gap-2 shrink-0">
             <div className="flex rounded-lg overflow-hidden border" style={{borderColor:"rgba(255,255,255,0.08)"}}>
               <button onClick={()=>setMode("normal")}
-                className={`px-3 py-1.5 text-[13px] font-bold transition ${mode==="normal"?"text-[#d4a537] bg-[rgba(212,165,55,0.1)]":"text-[#5a5a64]"}`}>일반</button>
+                className={`px-3 py-1.5 text-[13px] font-bold transition ${mode==="normal"?"text-[#d4a537] bg-[rgba(212,165,55,0.1)]":"text-[#52525b]"}`}>일반</button>
               <button onClick={()=>setMode("senior")}
-                className={`px-3 py-1.5 text-[13px] font-bold transition ${mode==="senior"?"text-[#d4a537] bg-[rgba(212,165,55,0.1)]":"text-[#5a5a64]"}`}>시니어</button>
+                className={`px-3 py-1.5 text-[13px] font-bold transition ${mode==="senior"?"text-[#d4a537] bg-[rgba(212,165,55,0.1)]":"text-[#52525b]"}`}>시니어</button>
             </div>
-            <button onClick={()=>setShowSettings(true)} className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center text-[#5a5a64] text-[16px]">⚙</button>
+            <button onClick={()=>setShowSettings(true)} className="md:hidden w-8 h-8 rounded-lg flex items-center justify-center text-[#52525b] text-[16px]">⚙</button>
           </div>
         </header>
 
@@ -154,20 +154,20 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           <div className="absolute inset-0 bg-black/60 ani-in"/>
           <div className="relative w-full md:w-[420px] bg-[#1a1b20] rounded-t-2xl md:rounded-2xl p-6 max-h-[70vh] overflow-y-auto ani-up" onClick={e=>e.stopPropagation()}>
             <div className="flex items-center justify-between mb-5">
-              <h3 className="text-[18px] font-bold text-[#e8e8ec]">설정</h3>
-              <button onClick={()=>setShowSettings(false)} className="text-[20px] text-[#5a5a64] hover:text-[#e8e8ec]">✕</button>
+              <h3 className="text-[18px] font-bold text-[#fafafa]">설정</h3>
+              <button onClick={()=>setShowSettings(false)} className="text-[20px] text-[#52525b] hover:text-[#fafafa]">✕</button>
             </div>
             <div className="space-y-4">
               <div>
-                <label className="text-[13px] font-bold text-[#808088] mb-1.5 block">채널 이름</label>
+                <label className="text-[13px] font-bold text-[#71717a] mb-1.5 block">채널 이름</label>
                 <input value={profile.channelName} onChange={e=>setProfile({...profile,channelName:e.target.value})}
                   className="w-full px-3 py-2.5 rounded-lg text-[15px]" placeholder="채널 이름"/>
               </div>
               <div>
-                <label className="text-[13px] font-bold text-[#808088] mb-1.5 block">타겟 모드</label>
+                <label className="text-[13px] font-bold text-[#71717a] mb-1.5 block">타겟 모드</label>
                 <div className="flex gap-2">
-                  <button onClick={()=>setMode("normal")} className={`flex-1 py-2.5 rounded-lg text-[14px] font-bold border transition ${mode==="normal"?"border-[#d4a537] text-[#d4a537] bg-[rgba(212,165,55,0.08)]":"border-[rgba(255,255,255,0.08)] text-[#5a5a64]"}`}>일반</button>
-                  <button onClick={()=>setMode("senior")} className={`flex-1 py-2.5 rounded-lg text-[14px] font-bold border transition ${mode==="senior"?"border-[#d4a537] text-[#d4a537] bg-[rgba(212,165,55,0.08)]":"border-[rgba(255,255,255,0.08)] text-[#5a5a64]"}`}>시니어</button>
+                  <button onClick={()=>setMode("normal")} className={`flex-1 py-2.5 rounded-lg text-[14px] font-bold border transition ${mode==="normal"?"border-[#d4a537] text-[#d4a537] bg-[rgba(212,165,55,0.08)]":"border-[rgba(255,255,255,0.08)] text-[#52525b]"}`}>일반</button>
+                  <button onClick={()=>setMode("senior")} className={`flex-1 py-2.5 rounded-lg text-[14px] font-bold border transition ${mode==="senior"?"border-[#d4a537] text-[#d4a537] bg-[rgba(212,165,55,0.08)]":"border-[rgba(255,255,255,0.08)] text-[#52525b]"}`}>시니어</button>
                 </div>
               </div>
               <button onClick={()=>{reset();setShowSettings(false);}}
