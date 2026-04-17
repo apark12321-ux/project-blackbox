@@ -1,0 +1,204 @@
+/* frontend/app/keyword/keyword.module.css */
+
+.sectionHead {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  font-size: 12px;
+  color: #71717a;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  font-weight: 700;
+  margin-bottom: 10px;
+}
+.hint {
+  font-size: 11px;
+  color: #52525b;
+  text-transform: none;
+  letter-spacing: 0;
+  font-weight: 500;
+}
+
+.catGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+}
+.catBtn {
+  background: #17171b;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 14px 8px;
+  cursor: pointer;
+  text-align: center;
+  transition: all 0.15s;
+  font-family: inherit;
+  color: inherit;
+}
+.catBtn:hover {
+  border-color: rgba(212, 165, 55, 0.35);
+  background: #1e1e24;
+}
+.catSelected {
+  border-color: #d4a537 !important;
+  background: rgba(212, 165, 55, 0.08) !important;
+}
+.catIcon {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+.catLabel {
+  font-size: 13px;
+  font-weight: 800;
+  color: #e4e4e8;
+  margin-bottom: 2px;
+}
+.catSelected .catLabel { color: #d4a537; }
+.catCpm {
+  font-size: 10px;
+  color: #71717a;
+  font-family: ui-monospace, monospace;
+}
+
+/* Keyword cards */
+.kwList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+.kwCard {
+  background: #17171b;
+  border: 1px solid rgba(255,255,255,0.06);
+  border-radius: 10px;
+  padding: 14px;
+  cursor: pointer;
+  transition: all 0.2s;
+  animation: kwAppear 0.3s ease-out;
+}
+@keyframes kwAppear {
+  from { opacity: 0; transform: translateY(6px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.kwCard:hover {
+  border-color: rgba(255,255,255,0.14);
+}
+.kwSelected {
+  border-color: #d4a537 !important;
+  background: rgba(212, 165, 55, 0.04) !important;
+  box-shadow: 0 0 0 2px rgba(212, 165, 55, 0.15);
+}
+
+.kwTop {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 10px;
+}
+.kwIdx {
+  font-family: ui-monospace, monospace;
+  font-size: 11px;
+  font-weight: 800;
+  color: #52525b;
+  width: 20px;
+}
+.kwName {
+  flex: 1;
+  font-size: 15px;
+  font-weight: 800;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+.kwSelected .kwName { color: #d4a537; }
+.kwGrade {
+  font-size: 11px;
+  font-weight: 900;
+  padding: 2px 7px;
+  border-radius: 4px;
+  font-family: ui-monospace, monospace;
+}
+.kwTrend {
+  font-size: 14px;
+  font-weight: 700;
+}
+
+.kwBoi {
+  display: flex;
+  align-items: baseline;
+  gap: 8px;
+  font-size: 11px;
+  color: #71717a;
+  margin-bottom: 5px;
+}
+.kwBoiVal {
+  font-size: 13px;
+  font-weight: 800;
+  font-family: ui-monospace, monospace;
+}
+.kwRev {
+  margin-left: auto;
+  color: #16a34a;
+  font-weight: 700;
+  font-size: 11px;
+}
+
+.kwBar {
+  height: 4px;
+  background: rgba(255,255,255,0.04);
+  border-radius: 2px;
+  overflow: hidden;
+  margin-bottom: 10px;
+}
+.kwBarFill {
+  height: 100%;
+  border-radius: 2px;
+  transition: width 0.4s ease-out;
+}
+
+.kwStats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 6px;
+}
+.kwStats > div {
+  text-align: center;
+  padding: 5px 4px;
+  background: rgba(255,255,255,0.02);
+  border-radius: 5px;
+}
+.kwStatLabel {
+  font-size: 9.5px;
+  color: #52525b;
+  margin-bottom: 1px;
+  letter-spacing: 0.02em;
+}
+.kwStatVal {
+  font-size: 12px;
+  font-weight: 800;
+  color: #a8a8b0;
+  letter-spacing: -0.01em;
+}
+
+.empty {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  color: #52525b;
+  font-size: 14px;
+  gap: 8px;
+}
+.emptyIcon {
+  font-size: 36px;
+  opacity: 0.4;
+  animation: floatUp 3s ease-in-out infinite;
+}
+@keyframes floatUp {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@media (max-width: 900px) {
+  .catGrid { grid-template-columns: repeat(3, 1fr); }
+  .kwStats { grid-template-columns: repeat(2, 1fr); }
+}

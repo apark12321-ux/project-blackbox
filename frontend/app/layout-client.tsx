@@ -12,11 +12,14 @@ const NAV: { key: ActivePage; icon: string; label: string; sub: string; min: num
   { key: "deploy", icon: "🛡️", label: "검수·배포", sub: "수익화 검증", min: 5, color: "#10b981" },
 ];
 
+// 자체 앱바를 가진 페이지들은 사이드바 · 탑바를 안 씌움
+const STANDALONE_PATHS = ["/", "/keyword", "/news", "/plan", "/script", "/studio", "/publish", "/done"];
+
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { mode, setMode, step, activePage, setActivePage, reset, profile, setProfile } = useBlackboxStore();
   const [showSettings, setShowSettings] = useState(false);
   const pathname = usePathname();
-  if (pathname === "/") return <>{children}</>;
+  if (STANDALONE_PATHS.includes(pathname)) return <>{children}</>;
 
   const isDone = (k: string) =>
     (k==="curation"&&step>=3)||(k==="script"&&step>=4)||(k==="video"&&step>=5)||(k==="deploy"&&step>=6);
@@ -26,7 +29,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
       {/* ═══ PC Sidebar ═══ */}
       <nav className="hidden md:flex w-[240px] lg:w-[260px] shrink-0 flex-col py-6 sidebar" style={{borderRight:"1px solid rgba(255,255,255,0.06)"}}>
-        {/* Logo */}
         <Link href="/" onClick={reset} className="flex items-center gap-3 px-6 mb-8 group">
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-[16px] font-black text-white transition-transform group-hover:scale-105"
             style={{background:"linear-gradient(135deg,#b38600,#d4a537)",boxShadow:"0 6px 24px rgba(179,134,0,0.35)"}}>AM</div>
@@ -40,7 +42,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
 
         <div className="h-px mx-5 bg-white/[0.06] mb-3"/>
 
-        {/* Nav */}
         <div className="flex-1 px-3 space-y-1">
           {NAV.map((item) => {
             const active = activePage === item.key;
@@ -67,7 +68,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
           })}
         </div>
 
-        {/* Bottom */}
         <div className="px-4 pb-4 space-y-2">
           <div className="mx-2 h-px bg-white/[0.06]"/>
           <div className="flex items-center gap-2 px-3 py-2">
@@ -81,11 +81,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         </div>
       </nav>
 
-      {/* ═══ Main ═══ */}
       <div className="flex-1 flex flex-col overflow-hidden min-w-0">
-        {/* Header */}
         <header className="h-12 md:h-14 flex items-center px-4 md:px-6 gap-3 shrink-0 glass">
-          {/* Mobile logo */}
           <div className="flex md:hidden items-center gap-2 shrink-0">
             <div className="w-8 h-8 rounded-lg flex items-center justify-center text-[11px] font-black text-white" style={{background:"linear-gradient(135deg,#b38600,#d4a537)"}}>AM</div>
             <span className="text-[16px] font-extrabold tracking-tight">
@@ -93,14 +90,12 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             </span>
           </div>
 
-          {/* PC: Page title */}
           <div className="hidden md:flex items-center gap-3">
             <h1 className="text-[18px] font-extrabold text-[#fafafa]">
               {activePage==="curation"?"뉴스 큐레이션":activePage==="script"?"AI 스크립트":activePage==="video"?"영상 제작":"검수 & 배포"}
             </h1>
           </div>
 
-          {/* Progress dots */}
           <div className="flex items-center gap-2 flex-1 justify-center md:justify-start md:ml-4">
             {NAV.map((n,i)=>{
               const active=activePage===n.key;
@@ -115,7 +110,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
             })}
           </div>
 
-          {/* Right */}
           <div className="flex items-center gap-2 shrink-0">
             <div className="flex rounded-lg overflow-hidden border" style={{borderColor:"rgba(255,255,255,0.08)"}}>
               <button onClick={()=>setMode("normal")}
@@ -130,7 +124,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         <main className="flex-1 overflow-hidden">{children}</main>
       </div>
 
-      {/* ═══ Mobile Bottom Tab ═══ */}
       <nav className="md:hidden flex items-center justify-around shrink-0 sidebar safe-b" style={{borderTop:"1px solid rgba(255,255,255,0.06)",height:"56px"}}>
         {NAV.map((item)=>{
           const active=activePage===item.key;
@@ -148,7 +141,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
         })}
       </nav>
 
-      {/* ═══ Settings Modal ═══ */}
       {showSettings&&(
         <div className="fixed inset-0 z-50 flex items-end md:items-center justify-center" onClick={()=>setShowSettings(false)}>
           <div className="absolute inset-0 bg-black/60 ani-in"/>

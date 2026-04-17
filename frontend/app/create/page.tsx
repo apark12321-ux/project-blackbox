@@ -7,7 +7,7 @@ export default function CreatePage() {
   const router = useRouter();
 
   useEffect(() => {
-    router.replace('/plan');
+    router.replace('/keyword');
   }, [router]);
 
   return (

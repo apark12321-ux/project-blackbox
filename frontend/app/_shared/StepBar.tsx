@@ -9,11 +9,12 @@ import { useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import styles from './shared.module.css';
 
-export type StageId = 'plan' | 'script' | 'studio' | 'publish' | 'done';
+export type StageId = 'keyword' | 'news' | 'script' | 'studio' | 'publish' | 'done';
 export type AudienceMode = 'normal' | 'senior';
 
 const STAGES: { id: StageId; label: string; path: string }[] = [
-  { id: 'plan', label: '기획', path: '/plan' },
+  { id: 'keyword', label: '키워드', path: '/keyword' },
+  { id: 'news', label: '뉴스', path: '/news' },
   { id: 'script', label: '대본', path: '/script' },
   { id: 'studio', label: '영상', path: '/studio' },
   { id: 'publish', label: '배포', path: '/publish' },

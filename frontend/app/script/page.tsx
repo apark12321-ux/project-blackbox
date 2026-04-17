@@ -202,9 +202,9 @@ export default function ScriptPage() {
         <div className={shared.actions}>
           <button
             className={shared.btnBack}
-            onClick={() => router.push('/plan')}
+            onClick={() => router.push('/news')}
           >
-            ← 기획
+            ← 뉴스
           </button>
           <SeniorToggle onChange={handleSeniorChange} />
           <button
