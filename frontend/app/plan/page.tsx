@@ -9,6 +9,7 @@
  */
 
 import { useState, useMemo, useEffect, useRef } from 'react';
+import { useRouter } from 'next/navigation';
 import styles from './plan.module.css';
 import {
   STRUCTURES,
@@ -47,6 +48,7 @@ const SUGGESTIONS = [
 ];
 
 export default function PlanPage() {
+  const router = useRouter();
   const [plan, setPlan] = useState<Plan | null>(null);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [inputText, setInputText] = useState('');
@@ -227,8 +229,21 @@ export default function PlanPage() {
         </div>
         <div className={styles.actions}>
           <button className={styles.btn}>보기</button>
-          <button className={`${styles.btn} ${styles.btnPrimary}`}>
-            대본 만들기
+          <button
+            className={`${styles.btn} ${styles.btnPrimary}`}
+            onClick={() => {
+              // 기획서 완료 상태 저장 (다음 페이지에서 활용 가능)
+              try {
+                if (typeof window !== 'undefined' && plan) {
+                  (window as unknown as { __algomakerPlan?: Plan }).__algomakerPlan = plan;
+                }
+              } catch {
+                // 무시
+              }
+              router.push('/create');
+            }}
+          >
+            대본 만들기 →
           </button>
         </div>
       </header>
