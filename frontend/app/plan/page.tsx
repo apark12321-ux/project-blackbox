@@ -37,7 +37,7 @@ const INITIAL_RECOMMENDATION = {
   grade: 'A+',
   retention: 58,
   reason:
-    '"주식 급등 작전"은 의혹 요소가 강한 주제입니다. 평균보다 2배 이상 높은 시청 유지율을 보이는 구조입니다.',
+    '"주식 급등 작전"은 의혹 요소가 강한 주제입니다. 평균보다 2배 이상 높은 시청 유지율을 보이는 스타일입니다.',
 };
 
 export default function PlanPage() {
@@ -195,7 +195,7 @@ export default function PlanPage() {
           </div>
 
           <div className={styles.aiCard}>
-            <div className={styles.aiCardLabel}>이 구조를 추천합니다</div>
+            <div className={styles.aiCardLabel}>이 스타일을 추천합니다</div>
             <div className={styles.aiCardTitle}>
               {getStructureById(INITIAL_RECOMMENDATION.structure_id)?.name}
             </div>
@@ -235,7 +235,7 @@ export default function PlanPage() {
 
           <div className={styles.panelHead}>
             <div className={styles.panelTitle}>
-              <span>구조 목록</span>
+              <span>영상 스타일 고르기</span>
             </div>
             <span className={styles.countBadge}>12</span>
           </div>
@@ -244,7 +244,7 @@ export default function PlanPage() {
             <span className={styles.searchIcon}>⌕</span>
             <input
               type="text"
-              placeholder="구조 이름으로 찾기"
+              placeholder="스타일 이름으로 찾기"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -390,7 +390,7 @@ export default function PlanPage() {
                   lineHeight: 1.6,
                 }}
               >
-                이 구조는 따로 조정할 설정이 없습니다.
+                이 스타일은 따로 조정할 설정이 없습니다.
               </p>
             </div>
           )}
@@ -454,7 +454,10 @@ function StructItem({
       onClick={onClick}
     >
       <span className={styles.structEmoji}>{s.emoji}</span>
-      <span className={styles.structItemName}>{s.name}</span>
+      <span className={styles.structItemBody}>
+        <span className={styles.structItemName}>{s.name}</span>
+        <span className={styles.structItemDesc}>{s.tagline}</span>
+      </span>
       <span
         className={`${styles.affBadge} ${s.affinity >= 80 ? styles.hi : ''}`}
       >

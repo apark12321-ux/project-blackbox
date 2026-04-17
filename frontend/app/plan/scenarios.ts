@@ -1,5 +1,5 @@
 // frontend/app/plan/scenarios.ts
-// AlgoMaker v4 · 쉬운 한국말 + 다크 톤
+// AlgoMaker v5 · 직관적인 스타일 이름 + 한 줄 설명
 
 export type StructureCategory = 'economy' | 'analysis' | 'general';
 
@@ -30,17 +30,17 @@ export interface Structure {
 }
 
 // ──────────────────────────────────────────────────────
-// 12구조 라이브러리 (쉬운 한국말)
+// 영상 스타일 12종 (직관적 이름 + 쉬운 설명)
 // ──────────────────────────────────────────────────────
 export const STRUCTURES: Structure[] = [
   // 경제 · 사회 특화
   {
     id: 'clue-hunt',
-    name: '단서 찾기',
+    name: '사건 추적형',
     emoji: '🔍',
     category: 'economy',
     affinity: 95,
-    tagline: '궁금증 → 단서 하나씩 → 진실',
+    tagline: '의문 → 단서 공개 → 진실',
     subParams: [
       {
         key: 'clue_pace',
@@ -89,11 +89,11 @@ export const STRUCTURES: Structure[] = [
   },
   {
     id: 'reverse-narrative',
-    name: '거꾸로 이야기',
+    name: '결말 스포일러형',
     emoji: '📖',
     category: 'economy',
     affinity: 88,
-    tagline: '결말부터 → 처음으로 거슬러 올라가기',
+    tagline: '결말부터 → 과거로 거슬러',
     subParams: [
       {
         key: 'spoiler_intensity',
@@ -122,11 +122,11 @@ export const STRUCTURES: Structure[] = [
   },
   {
     id: 'origin-trail',
-    name: '뿌리 찾기',
+    name: '유래 추적형',
     emoji: '🏛️',
     category: 'economy',
     affinity: 85,
-    tagline: '지금 → 과거로 → 변천사 → 지금 의미',
+    tagline: '지금 현상 → 과거 원인 → 지금 의미',
     subParams: [
       {
         key: 'depth',
@@ -143,11 +143,11 @@ export const STRUCTURES: Structure[] = [
   },
   {
     id: 'what-if-world',
-    name: '만약 이렇다면',
+    name: '가상 시나리오형',
     emoji: '🔮',
     category: 'economy',
     affinity: 82,
-    tagline: '"만약에 이랬다면?" 가상 상황',
+    tagline: '"만약 이렇다면?" 가상 상황',
     subParams: [
       {
         key: 'scenario_count',
@@ -163,7 +163,7 @@ export const STRUCTURES: Structure[] = [
   // 정보 · 분석
   {
     id: 'experiment-log',
-    name: '실험 일지',
+    name: '실험 검증형',
     emoji: '🧪',
     category: 'analysis',
     affinity: 70,
@@ -184,7 +184,7 @@ export const STRUCTURES: Structure[] = [
   },
   {
     id: 'head-to-head',
-    name: '맞대결',
+    name: '비교 분석형',
     emoji: '⚖️',
     category: 'analysis',
     affinity: 68,
@@ -202,11 +202,11 @@ export const STRUCTURES: Structure[] = [
   },
   {
     id: 'flip-convention',
-    name: '상식 뒤집기',
+    name: '통념 뒤집기형',
     emoji: '🔄',
     category: 'analysis',
     affinity: 65,
-    tagline: '다들 믿는 것 → 흔들기 → 새로 정리',
+    tagline: '당연한 것 → 흔들기 → 재해석',
     subParams: [
       {
         key: 'controversy_level',
@@ -225,7 +225,7 @@ export const STRUCTURES: Structure[] = [
   // 범용
   {
     id: 'four-beats',
-    name: '4단계 흐름',
+    name: '기승전결형',
     emoji: '📐',
     category: 'general',
     affinity: 60,
@@ -234,11 +234,11 @@ export const STRUCTURES: Structure[] = [
   },
   {
     id: 'stage-arc',
-    name: '무대 전개',
+    name: '3막 구조형',
     emoji: '🎭',
     category: 'general',
     affinity: 58,
-    tagline: '도입 20% · 심화 60% · 결단 20%',
+    tagline: '도입 20% → 심화 60% → 결단 20%',
     subParams: [
       {
         key: 'midpoint_twist',
@@ -254,20 +254,20 @@ export const STRUCTURES: Structure[] = [
   },
   {
     id: 'empathy-remedy',
-    name: '공감 처방전',
+    name: '문제 해결형',
     emoji: '💡',
     category: 'general',
     affinity: 55,
-    tagline: '고민 → 원인 → 해결법 → 실천',
+    tagline: '고민 → 원인 → 해법 → 실천',
     subParams: [],
   },
   {
     id: 'countdown',
-    name: '카운트다운',
+    name: '순위 카운트다운',
     emoji: '📊',
     category: 'general',
     affinity: 50,
-    tagline: 'N위부터 1위까지 거꾸로',
+    tagline: 'N위부터 1위까지 역순 공개',
     subParams: [
       {
         key: 'item_count',
@@ -281,7 +281,7 @@ export const STRUCTURES: Structure[] = [
   },
   {
     id: 'field-record',
-    name: '현장 기록',
+    name: '다큐멘터리형',
     emoji: '🎬',
     category: 'general',
     affinity: 48,
@@ -411,7 +411,7 @@ export function generateMockPlan(
         notes: [
           '의심 가설 ("여론 확산") 제시 후 뒤집기',
           '리딩방 단톡방 로그 간접 제시',
-          '다시 보게 만드는 장치: 두 번 봐야 보이는 단서 심기',
+          '다시 보게 만드는 장치: 두 번 봐야 보이는 단서',
         ],
       },
       {
@@ -458,7 +458,7 @@ export function generateMockPlan(
       title: `${struct.name} — ${b.order}부`,
       pull_quote: `${struct.tagline} (${b.order}번째 흐름)`,
       notes: [
-        `${struct.name} 구조의 ${b.order}번째 섹션`,
+        `${struct.name} 스타일의 ${b.order}번째 섹션`,
         `세부 설정: ${JSON.stringify(subParams).slice(0, 60)}...`,
         '(예시 데이터 · 백엔드 연결 시 실제 내용 생성)',
       ],
@@ -482,7 +482,7 @@ export function generateMockPlan(
     beats,
     metrics: {
       grade,
-      grade_reason: `${struct.name} 구조는 ${struct.affinity}% 적합도로, 해당 주제에서 평균 이상의 시청 유지율을 보입니다.`,
+      grade_reason: `${struct.name}은 ${struct.affinity}% 적합도로, 해당 주제에서 평균 이상의 시청 유지율을 보입니다.`,
       avg_retention: Math.round(
         beats.reduce((a, b) => a + b.retention, 0) / beats.length,
       ),
