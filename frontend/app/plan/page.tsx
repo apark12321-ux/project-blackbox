@@ -21,7 +21,7 @@ import {
   type StructureCategory,
   type SubParamDef,
   type Plan,
-} from './lib/scenarios';
+} from './scenarios';
 
 // 웹폰트 (Fraunces + JetBrains Mono) 로드
 function FontPreload() {

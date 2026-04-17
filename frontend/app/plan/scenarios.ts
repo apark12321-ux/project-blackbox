@@ -1,4 +1,4 @@
-// frontend/app/plan/lib/scenarios.ts
+// frontend/app/plan/scenarios.ts
 // AlgoMaker 시나리오 엔진 v2 · 구조 12종 + 세부 파라미터 정의
 // Step 1: 프론트엔드 목업. Step 2에서 백엔드 API로 대체 예정.
 
