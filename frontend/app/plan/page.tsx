@@ -2,11 +2,14 @@
 
 /**
  * frontend/app/plan/page.tsx
+ * AlgoMaker v2 · SaaS 작업 도구 UI (v3)
  *
- * AlgoMaker 시나리오 엔진 v2 · Step 1 (프론트엔드 목업)
- * - 에디토리얼 디자인 (변종 A 확정)
- * - 12구조 라이브러리 + 세부 파라미터 + AI 추천 + 가변 섹션
- * - 목업 데이터로 동작 (Step 2에서 백엔드 API로 교체)
+ * 변경 사항:
+ * - 세리프 전면 제거 (Pretendard 단일)
+ * - 매거진 장식 요소 전부 제거
+ * - 앱 바 + 좌측 내비 + 중앙 편집기 + 우측 인스펙터 (3패널)
+ * - 모든 텍스트 편집 가능 (제목, 핵심, 불릿)
+ * - 섹션 추가/삭제/복제 액션 버튼
  */
 
 import { useState, useMemo, useEffect } from 'react';
@@ -21,42 +24,20 @@ import {
   type StructureCategory,
   type SubParamDef,
   type Plan,
+  type Beat,
 } from './scenarios';
 
-// 웹폰트 (Fraunces + JetBrains Mono) 로드
-function FontPreload() {
+function FontLoader() {
   useEffect(() => {
-    const preconnect = document.createElement('link');
-    preconnect.rel = 'preconnect';
-    preconnect.href = 'https://fonts.googleapis.com';
-    document.head.appendChild(preconnect);
-
-    const gstatic = document.createElement('link');
-    gstatic.rel = 'preconnect';
-    gstatic.href = 'https://fonts.gstatic.com';
-    gstatic.crossOrigin = 'anonymous';
-    document.head.appendChild(gstatic);
-
-    const fonts = document.createElement('link');
-    fonts.rel = 'stylesheet';
-    fonts.href =
-      'https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,300;9..144,400;9..144,500;9..144,600;9..144,700;9..144,800&family=JetBrains+Mono:wght@400;500;700&display=swap';
-    document.head.appendChild(fonts);
-
-    const pretendard = document.createElement('link');
-    pretendard.rel = 'stylesheet';
-    pretendard.href =
+    const link = document.createElement('link');
+    link.rel = 'stylesheet';
+    link.href =
       'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css';
-    document.head.appendChild(pretendard);
-
-    return () => {
-      // cleanup은 굳이 필요 없음 (SPA 내 단일 페이지 수명)
-    };
+    document.head.appendChild(link);
   }, []);
   return null;
 }
 
-// 초기 추천 (목업)
 const INITIAL_RECOMMENDATION = {
   structure_id: 'clue-hunt',
   confidence: 92,
@@ -73,11 +54,13 @@ export default function PlanPage() {
   const [subParams, setSubParams] = useState<Record<string, string | number>>(
     {},
   );
+  const [activeBeatId, setActiveBeatId] = useState<string | null>(null);
   const [isGenerating, setIsGenerating] = useState(false);
+  const [projectTitle, setProjectTitle] = useState('주식 급등 작전 · 8분 30초');
+  const [searchQuery, setSearchQuery] = useState('');
 
   const selected = useMemo(() => getStructureById(selectedId)!, [selectedId]);
 
-  // 구조가 바뀌면 해당 구조의 기본값으로 subParams 리셋
   useEffect(() => {
     const defaults: Record<string, string | number> = {};
     selected.subParams.forEach((p) => {
@@ -86,118 +69,311 @@ export default function PlanPage() {
     setSubParams(defaults);
   }, [selectedId, selected]);
 
-  const plan: Plan = useMemo(
+  const basePlan: Plan = useMemo(
     () => generateMockPlan(selectedId, subParams),
     [selectedId, subParams],
   );
 
+  const [beats, setBeats] = useState<Beat[]>(basePlan.beats);
+  useEffect(() => {
+    setBeats(basePlan.beats);
+  }, [basePlan]);
+
   const handleRegen = () => {
     setIsGenerating(true);
-    setTimeout(() => setIsGenerating(false), 700); // 목업 딜레이
+    setTimeout(() => {
+      setIsGenerating(false);
+      setBeats(basePlan.beats);
+    }, 600);
   };
+
+  const updateBeat = (id: string, patch: Partial<Beat>) => {
+    setBeats((prev) => prev.map((b) => (b.id === id ? { ...b, ...patch } : b)));
+  };
+  const updateBeatNote = (beatId: string, noteIdx: number, text: string) => {
+    setBeats((prev) =>
+      prev.map((b) => {
+        if (b.id !== beatId) return b;
+        const newNotes = [...b.notes];
+        newNotes[noteIdx] = text;
+        return { ...b, notes: newNotes };
+      }),
+    );
+  };
+  const addNote = (beatId: string) => {
+    setBeats((prev) =>
+      prev.map((b) =>
+        b.id === beatId ? { ...b, notes: [...b.notes, '새 항목'] } : b,
+      ),
+    );
+  };
+  const removeNote = (beatId: string, noteIdx: number) => {
+    setBeats((prev) =>
+      prev.map((b) => {
+        if (b.id !== beatId) return b;
+        return { ...b, notes: b.notes.filter((_, i) => i !== noteIdx) };
+      }),
+    );
+  };
+  const duplicateBeat = (id: string) => {
+    setBeats((prev) => {
+      const idx = prev.findIndex((b) => b.id === id);
+      if (idx < 0) return prev;
+      const original = prev[idx];
+      const copy: Beat = {
+        ...original,
+        id: `${original.id}-copy-${Date.now()}`,
+        order: original.order + 1,
+      };
+      const next = [...prev];
+      next.splice(idx + 1, 0, copy);
+      return next.map((b, i) => ({ ...b, order: i + 1 }));
+    });
+  };
+  const deleteBeat = (id: string) => {
+    if (beats.length <= 1) return;
+    setBeats((prev) =>
+      prev.filter((b) => b.id !== id).map((b, i) => ({ ...b, order: i + 1 })),
+    );
+  };
+
+  const filteredStructures = useMemo(() => {
+    const q = searchQuery.trim().toLowerCase();
+    if (!q) return null;
+    return STRUCTURES.filter(
+      (s) =>
+        s.name.toLowerCase().includes(q) ||
+        s.tagline.toLowerCase().includes(q),
+    );
+  }, [searchQuery]);
 
   return (
     <div className={styles.root}>
-      <FontPreload />
+      <FontLoader />
 
-      {/* ============ Masthead ============ */}
-      <header className={styles.masthead}>
-        <div className={styles.mastLeft}>Vol. II · No. 04 · 2026</div>
-        <div className={styles.mastCenter}>
-          <div className={styles.mastTitle}>AlgoMaker</div>
-          <div className={styles.mastSub}>The Longform Script Review</div>
+      {/* App Bar */}
+      <header className={styles.appbar}>
+        <div className={styles.brand}>
+          <div className={styles.brandMark}>A</div>
+          <div className={styles.brandText}>AlgoMaker</div>
         </div>
-        <div className={styles.mastRight}>Editorial Workbench</div>
+
+        <div className={styles.projectMeta}>
+          <div className={styles.crumb}>
+            <span>기획서</span>
+            <span className={styles.sep}>/</span>
+            <span>경제</span>
+            <span className={styles.sep}>/</span>
+          </div>
+          <input
+            className={styles.projectTitle}
+            value={projectTitle}
+            onChange={(e) => setProjectTitle(e.target.value)}
+          />
+          <span className={styles.saveStatus}>자동 저장됨</span>
+        </div>
+
+        <div className={styles.actions}>
+          <button className={styles.btn}>
+            <span>↩</span>
+            <span className="btnText">되돌리기</span>
+          </button>
+          <button className={styles.btn}>
+            <span>👁</span>
+            <span className="btnText">미리보기</span>
+          </button>
+          <button className={`${styles.btn} ${styles.primary}`}>
+            <span>→</span>
+            대본 생성
+          </button>
+        </div>
       </header>
 
-      {/* ============ Main Layout ============ */}
-      <div className={styles.editorial}>
-        {/* ---- Sidebar ---- */}
-        <aside className={styles.sidebar}>
-          {/* 에디터 추천 */}
-          <div className={styles.sideHead}>
-            <span>에디터 추천</span>
-            <span className={styles.sideNum}>01</span>
+      <div className={styles.layout}>
+        {/* Left Nav */}
+        <aside className={styles.nav}>
+          <div className={styles.panelHead}>
+            <div className={styles.panelHeadLeft}>
+              <span>AI 추천</span>
+            </div>
+            <span className={styles.countBadge}>1</span>
           </div>
-          <div className={styles.editorPick}>
-            <div className={styles.epLabel}>This Week's Pick</div>
-            <div className={styles.epTitle}>
+
+          <div className={styles.aiCard}>
+            <div className={styles.aiCardLabel}>추천 구조</div>
+            <div className={styles.aiCardTitle}>
               {getStructureById(INITIAL_RECOMMENDATION.structure_id)?.name}
             </div>
-            <div className={styles.epStats}>
-              <div>
-                <div className={styles.epStatVal}>
-                  {INITIAL_RECOMMENDATION.confidence}
-                  <span style={{ fontSize: '12px' }}>%</span>
+            <div className={styles.aiCardTagline}>
+              {getStructureById(INITIAL_RECOMMENDATION.structure_id)?.tagline}
+            </div>
+            <div className={styles.aiCardStats}>
+              <div className={styles.aiStat}>
+                <div className={styles.aiStatVal}>
+                  {INITIAL_RECOMMENDATION.confidence}%
                 </div>
-                <div className={styles.epStatLabel}>신뢰</div>
+                <div className={styles.aiStatLabel}>신뢰도</div>
               </div>
-              <div>
-                <div className={styles.epStatVal}>
+              <div className={styles.aiStat}>
+                <div className={styles.aiStatVal}>
                   {INITIAL_RECOMMENDATION.grade}
                 </div>
-                <div className={styles.epStatLabel}>등급</div>
+                <div className={styles.aiStatLabel}>등급</div>
               </div>
-              <div>
-                <div className={styles.epStatVal}>
-                  {INITIAL_RECOMMENDATION.retention}
-                  <span style={{ fontSize: '12px' }}>%</span>
+              <div className={styles.aiStat}>
+                <div className={styles.aiStatVal}>
+                  {INITIAL_RECOMMENDATION.retention}%
                 </div>
-                <div className={styles.epStatLabel}>리텐션</div>
+                <div className={styles.aiStatLabel}>리텐션</div>
               </div>
             </div>
-            <div className={styles.epReason}>
-              {INITIAL_RECOMMENDATION.reason}
+            <button
+              type="button"
+              className={styles.aiCardApply}
+              onClick={() =>
+                setSelectedId(INITIAL_RECOMMENDATION.structure_id)
+              }
+            >
+              <span>✓</span> 이 구조 적용
+            </button>
+          </div>
+
+          <div className={styles.panelHead}>
+            <div className={styles.panelHeadLeft}>
+              <span>구조 라이브러리</span>
+            </div>
+            <span className={styles.countBadge}>12</span>
+          </div>
+
+          <div className={styles.searchbar}>
+            <span className={styles.searchIcon}>⌕</span>
+            <input
+              type="text"
+              placeholder="구조 검색..."
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+          </div>
+
+          {filteredStructures ? (
+            <div>
+              {filteredStructures.map((s) => (
+                <StructItem
+                  key={s.id}
+                  s={s}
+                  selected={s.id === selectedId}
+                  onClick={() => setSelectedId(s.id)}
+                />
+              ))}
+              {filteredStructures.length === 0 && (
+                <div
+                  style={{
+                    padding: '24px 12px',
+                    textAlign: 'center',
+                    color: 'var(--ink-4)',
+                    fontSize: 12,
+                  }}
+                >
+                  검색 결과가 없습니다
+                </div>
+              )}
+            </div>
+          ) : (
+            (Object.keys(CATEGORY_LABELS) as StructureCategory[]).map((cat) => (
+              <div key={cat}>
+                <div className={styles.groupTitle}>
+                  {CATEGORY_LABELS[cat]}
+                </div>
+                {getStructuresByCategory(cat).map((s) => (
+                  <StructItem
+                    key={s.id}
+                    s={s}
+                    selected={s.id === selectedId}
+                    onClick={() => setSelectedId(s.id)}
+                  />
+                ))}
+              </div>
+            ))
+          )}
+        </aside>
+
+        {/* Center Editor */}
+        <main className={styles.editor}>
+          <div className={styles.editorHead}>
+            <div>
+              <div className={styles.editorTitle}>
+                <span>섹션 구성</span>
+                <span className={styles.structChip}>
+                  <span>{selected.emoji}</span>
+                  <span>{selected.name}</span>
+                </span>
+              </div>
+              <div className={styles.editorSub}>
+                <span>{beats.length}개 섹션</span>
+                <span className={styles.bullet}>·</span>
+                <span>총 {basePlan.total_duration}</span>
+                <span className={styles.bullet}>·</span>
+                <span>
+                  평균 리텐션{' '}
+                  {Math.round(
+                    beats.reduce((a, b) => a + b.retention, 0) / beats.length,
+                  )}
+                  %
+                </span>
+              </div>
             </div>
           </div>
 
-          {/* 구조 라이브러리 */}
-          <div className={styles.sideHead}>
-            <span>구조 라이브러리</span>
-            <span className={styles.sideNum}>02</span>
-          </div>
-          <div className={styles.structList}>
-            {(Object.keys(CATEGORY_LABELS) as StructureCategory[]).map(
-              (cat) => (
-                <div key={cat}>
-                  <div className={styles.structCategory}>
-                    — {CATEGORY_LABELS[cat]} —
-                  </div>
-                  {getStructuresByCategory(cat).map((s) => {
-                    const isSelected = s.id === selectedId;
-                    return (
-                      <button
-                        key={s.id}
-                        type="button"
-                        className={`${styles.structRow} ${isSelected ? styles.selected : ''}`}
-                        onClick={() => setSelectedId(s.id)}
-                      >
-                        <span className={styles.structNum}>
-                          {String(STRUCTURES.indexOf(s) + 1).padStart(2, '0')}
-                        </span>
-                        <span className={styles.structName}>
-                          {s.emoji} {s.name}
-                        </span>
-                        <span
-                          className={`${styles.structScore} ${s.affinity >= 80 ? styles.structScoreHi : ''}`}
-                        >
-                          {s.affinity}
-                        </span>
-                      </button>
-                    );
-                  })}
-                </div>
-              ),
-            )}
+          <div className={styles.beats}>
+            {beats.map((beat) => (
+              <BeatCard
+                key={beat.id}
+                beat={beat}
+                active={activeBeatId === beat.id}
+                onActivate={() => setActiveBeatId(beat.id)}
+                onUpdate={(patch) => updateBeat(beat.id, patch)}
+                onUpdateNote={(idx, text) =>
+                  updateBeatNote(beat.id, idx, text)
+                }
+                onRemoveNote={(idx) => removeNote(beat.id, idx)}
+                onAddNote={() => addNote(beat.id)}
+                onDuplicate={() => duplicateBeat(beat.id)}
+                onDelete={() => deleteBeat(beat.id)}
+                canDelete={beats.length > 1}
+              />
+            ))}
           </div>
 
-          {/* 세밀 조정 */}
-          {selected.subParams.length > 0 && (
-            <div className={styles.controls}>
-              <div className={styles.sideHead}>
-                <span>세밀 조정</span>
-                <span className={styles.sideNum}>03</span>
-              </div>
+          <button
+            type="button"
+            className={styles.addBeatBtn}
+            onClick={() => {
+              const last = beats[beats.length - 1];
+              const newBeat: Beat = {
+                id: `new-${Date.now()}`,
+                order: beats.length + 1,
+                kind: '새 섹션',
+                title: '제목 입력',
+                time_start: last?.time_end ?? '00:00',
+                time_end: '00:00',
+                retention: 50,
+                risk: 'med',
+                pull_quote: '',
+                notes: ['새 항목'],
+              };
+              setBeats([...beats, newBeat]);
+            }}
+          >
+            <span>+</span>
+            섹션 추가
+          </button>
+        </main>
+
+        {/* Right Inspector */}
+        <aside className={styles.inspector}>
+          {selected.subParams.length > 0 ? (
+            <div className={styles.inspSection}>
+              <div className={styles.inspTitle}>구조 옵션</div>
               {selected.subParams.map((p) => (
                 <SubParamControl
                   key={p.key}
@@ -209,30 +385,221 @@ export default function PlanPage() {
                 />
               ))}
             </div>
+          ) : (
+            <div className={styles.inspSection}>
+              <div className={styles.inspTitle}>구조 옵션</div>
+              <p
+                style={{
+                  fontSize: 12,
+                  color: 'var(--ink-4)',
+                  lineHeight: 1.6,
+                }}
+              >
+                이 구조에는 추가 조정 옵션이 없습니다.
+              </p>
+            </div>
           )}
 
-          <button
-            type="button"
-            className={styles.regen}
-            onClick={handleRegen}
-            disabled={isGenerating}
-          >
-            {isGenerating ? '생성 중...' : '기획서 다시 짜기 →'}
-          </button>
-        </aside>
+          <div className={styles.inspSection}>
+            <div className={styles.inspTitle}>수익화 예측</div>
 
-        {/* ---- Article ---- */}
-        <main>
-          <ArticleBody plan={plan} />
-        </main>
+            <div className={`${styles.metricTile} ${styles.grade}`}>
+              <span className={styles.metricKey}>등급</span>
+              <span className={styles.metricVal}>{basePlan.metrics.grade}</span>
+            </div>
+            <div className={styles.metricTile}>
+              <span className={styles.metricKey}>평균 리텐션</span>
+              <span className={styles.metricVal}>
+                {basePlan.metrics.avg_retention}%
+              </span>
+            </div>
+            <div className={styles.metricTile}>
+              <span className={styles.metricKey}>예상 CPM</span>
+              <span className={styles.metricVal}>
+                {basePlan.metrics.cpm_range}
+              </span>
+            </div>
+            <div className={styles.metricTile}>
+              <span className={styles.metricKey}>알고리즘 실드</span>
+              <span className={styles.metricVal}>
+                {basePlan.metrics.algo_shield}
+              </span>
+            </div>
+
+            <button
+              type="button"
+              className={styles.regenBtn}
+              onClick={handleRegen}
+              disabled={isGenerating}
+            >
+              {isGenerating ? '생성 중…' : '↻ 기획서 재생성'}
+            </button>
+          </div>
+        </aside>
       </div>
     </div>
   );
 }
 
-// ──────────────────────────────────────────────────────
-// Sub-param control: segments / stepper / dropdown
-// ──────────────────────────────────────────────────────
+function StructItem({
+  s,
+  selected,
+  onClick,
+}: {
+  s: Structure;
+  selected: boolean;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      className={`${styles.structItem} ${selected ? styles.selected : ''}`}
+      onClick={onClick}
+    >
+      <span className={styles.structEmoji}>{s.emoji}</span>
+      <span className={styles.structItemName}>{s.name}</span>
+      <span
+        className={`${styles.affBadge} ${s.affinity >= 80 ? styles.hi : ''}`}
+      >
+        {s.affinity}
+      </span>
+    </button>
+  );
+}
+
+function BeatCard({
+  beat,
+  active,
+  onActivate,
+  onUpdate,
+  onUpdateNote,
+  onRemoveNote,
+  onAddNote,
+  onDuplicate,
+  onDelete,
+  canDelete,
+}: {
+  beat: Beat;
+  active: boolean;
+  onActivate: () => void;
+  onUpdate: (patch: Partial<Beat>) => void;
+  onUpdateNote: (idx: number, text: string) => void;
+  onRemoveNote: (idx: number) => void;
+  onAddNote: () => void;
+  onDuplicate: () => void;
+  onDelete: () => void;
+  canDelete: boolean;
+}) {
+  const retClass =
+    beat.retention >= 70 ? '' : beat.retention >= 50 ? styles.med : styles.low;
+
+  return (
+    <div
+      className={`${styles.beatCard} ${active ? styles.active : ''}`}
+      onClick={onActivate}
+    >
+      <div className={styles.beatTop}>
+        <div className={styles.beatNum}>
+          {String(beat.order).padStart(2, '0')}
+        </div>
+        <div className={styles.beatMeta}>
+          <span className={styles.beatKind}>{beat.kind}</span>
+          <span className={styles.beatTime}>
+            {beat.time_start} — {beat.time_end}
+          </span>
+        </div>
+        <span className={styles.retentionPill}>
+          <span className={styles.retBar}>
+            <span
+              className={`${styles.retFill} ${retClass}`}
+              style={{ width: `${beat.retention}%` }}
+            />
+          </span>
+          <span className={styles.retText}>{beat.retention}%</span>
+        </span>
+        <div style={{ display: 'flex', gap: 2 }}>
+          <button
+            type="button"
+            className={styles.iconBtn}
+            title="복제"
+            onClick={(e) => {
+              e.stopPropagation();
+              onDuplicate();
+            }}
+          >
+            ⎘
+          </button>
+          <button
+            type="button"
+            className={styles.iconBtn}
+            title="삭제"
+            disabled={!canDelete}
+            onClick={(e) => {
+              e.stopPropagation();
+              onDelete();
+            }}
+          >
+            ×
+          </button>
+        </div>
+      </div>
+
+      <input
+        className={styles.beatTitleInput}
+        value={beat.title}
+        onChange={(e) => onUpdate({ title: e.target.value })}
+        onClick={(e) => e.stopPropagation()}
+      />
+
+      <div className={styles.beatCoreLabel}>핵심 메시지</div>
+      <textarea
+        className={styles.beatCoreInput}
+        value={beat.pull_quote}
+        onChange={(e) => onUpdate({ pull_quote: e.target.value })}
+        onClick={(e) => e.stopPropagation()}
+        rows={2}
+      />
+
+      <ul className={styles.beatNotes}>
+        {beat.notes.map((note, idx) => (
+          <li key={idx} className={styles.beatNoteItem}>
+            <span className={styles.beatNoteBullet} />
+            <input
+              className={styles.beatNoteText}
+              value={note}
+              onChange={(e) => onUpdateNote(idx, e.target.value)}
+              onClick={(e) => e.stopPropagation()}
+            />
+            <button
+              type="button"
+              className={styles.iconBtn}
+              style={{ width: 22, height: 22 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onRemoveNote(idx);
+              }}
+              title="항목 삭제"
+            >
+              ×
+            </button>
+          </li>
+        ))}
+      </ul>
+
+      <button
+        type="button"
+        className={styles.addNoteBtn}
+        onClick={(e) => {
+          e.stopPropagation();
+          onAddNote();
+        }}
+      >
+        <span>+</span> 항목 추가
+      </button>
+    </div>
+  );
+}
+
 function SubParamControl({
   def,
   value,
@@ -243,19 +610,21 @@ function SubParamControl({
   onChange: (v: string | number) => void;
 }) {
   return (
-    <div className={styles.controlRow}>
-      <div className={styles.controlLabel}>
+    <div className={styles.formRow}>
+      <div className={styles.formLabel}>
         <span>{def.label}</span>
-        {def.hint && <span className={styles.controlHint}>{def.hint}</span>}
+        {def.hint && <span className={styles.formHint}>{def.hint}</span>}
       </div>
 
       {def.kind === 'segments' && def.options && (
-        <div className={styles.pills}>
+        <div className={styles.segments}>
           {def.options.map((opt) => (
             <button
               key={opt.value}
               type="button"
-              className={`${styles.pill} ${value === opt.value ? styles.active : ''}`}
+              className={`${styles.segment} ${
+                value === opt.value ? styles.active : ''
+              }`}
               onClick={() => onChange(opt.value)}
             >
               {opt.label}
@@ -265,25 +634,27 @@ function SubParamControl({
       )}
 
       {def.kind === 'stepper' && (
-        <div className={styles.stepper}>
+        <div className={styles.stepperWrap}>
           <button
             type="button"
-            className={styles.stepBtn}
+            className={styles.stepperBtn}
             onClick={() => {
               const n = Number(value);
               if (n > (def.min ?? 0)) onChange(n - 1);
             }}
+            disabled={Number(value) <= (def.min ?? 0)}
           >
             −
           </button>
-          <span className={styles.stepVal}>{value}</span>
+          <div className={styles.stepperVal}>{value}</div>
           <button
             type="button"
-            className={styles.stepBtn}
+            className={styles.stepperBtn}
             onClick={() => {
               const n = Number(value);
               if (n < (def.max ?? 99)) onChange(n + 1);
             }}
+            disabled={Number(value) >= (def.max ?? 99)}
           >
             +
           </button>
@@ -292,7 +663,7 @@ function SubParamControl({
 
       {def.kind === 'dropdown' && def.options && (
         <select
-          className={styles.dropdown}
+          className={styles.dropdownSelect}
           value={String(value)}
           onChange={(e) => onChange(e.target.value)}
         >
@@ -304,104 +675,5 @@ function SubParamControl({
         </select>
       )}
     </div>
-  );
-}
-
-// ──────────────────────────────────────────────────────
-// Article body
-// ──────────────────────────────────────────────────────
-function ArticleBody({ plan }: { plan: Plan }) {
-  const struct = getStructureById(plan.structure_id)!;
-  return (
-    <>
-      <div className={styles.articleHead}>
-        <div className={styles.kicker}>
-          경제 · 주식 급등 작전 · {plan.total_duration}
-        </div>
-        <h1 className={styles.headline}>{plan.headline}</h1>
-        <p className={styles.dek}>{plan.dek}</p>
-        <div className={styles.byline}>
-          <span>
-            구조 <span className={styles.mono}>{struct.name}</span>
-          </span>
-          <span className={styles.sep}>·</span>
-          <span>{plan.beats.length} beats</span>
-          <span className={styles.sep}>·</span>
-          <span className={styles.mono}>
-            00:00 – {plan.total_duration.padStart(5, '0')}
-          </span>
-        </div>
-      </div>
-
-      {/* Timeline */}
-      <div className={styles.timelineWrap}>
-        <div className={styles.timelineSpine} />
-        {plan.beats.map((beat) => (
-          <div key={beat.id} className={styles.beat}>
-            <div className={styles.beatTime}>
-              <div className={styles.timeStart}>{beat.time_start}</div>
-              <div className={styles.timeEnd}>{beat.time_end}</div>
-              <div
-                className={`${styles.beatDot} ${
-                  beat.risk === 'low'
-                    ? styles.riskLow
-                    : beat.risk === 'med'
-                      ? styles.riskMed
-                      : styles.riskHi
-                }`}
-              />
-            </div>
-            <div className={styles.beatBody}>
-              <div className={styles.beatMeta}>
-                <span className={styles.beatIdx}>
-                  Beat {String(beat.order).padStart(2, '0')}
-                </span>
-                <span>{beat.kind}</span>
-                <span className={styles.beatRet}>
-                  <span className={styles.retBar}>
-                    <span
-                      className={styles.retFill}
-                      style={{ width: `${beat.retention}%` }}
-                    />
-                  </span>
-                  <span className={styles.retText}>{beat.retention}%</span>
-                </span>
-              </div>
-              <h2 className={styles.beatTitle}>{beat.title}</h2>
-              <p className={styles.pullQuote}>{beat.pull_quote}</p>
-              <ul className={styles.beatNotes}>
-                {beat.notes.map((note, idx) => (
-                  <li key={idx}>{note}</li>
-                ))}
-              </ul>
-            </div>
-          </div>
-        ))}
-      </div>
-
-      {/* Metrics */}
-      <div className={styles.metrics}>
-        <div className={styles.gradeBox}>
-          <div className={styles.gradeLetter}>{plan.metrics.grade}</div>
-          <div className={styles.gradeCaption}>Monetization</div>
-        </div>
-        <div className={styles.gradeDesc}>{plan.metrics.grade_reason}</div>
-        <div className={styles.metricCell}>
-          <div className={styles.mVal}>
-            {plan.metrics.avg_retention}
-            <span style={{ fontSize: '18px' }}>%</span>
-          </div>
-          <div className={styles.mLabel}>Retention</div>
-        </div>
-        <div className={styles.metricCell}>
-          <div className={styles.mVal}>{plan.metrics.cpm_range}</div>
-          <div className={styles.mLabel}>CPM</div>
-        </div>
-        <div className={styles.metricCell}>
-          <div className={styles.mVal}>{plan.metrics.algo_shield}</div>
-          <div className={styles.mLabel}>Shield</div>
-        </div>
-      </div>
-    </>
   );
 }
