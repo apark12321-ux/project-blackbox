@@ -1,0 +1,215 @@
+/* frontend/app/done/done.module.css */
+
+.root {
+  min-height: 100vh;
+  background: #0a0a0c;
+  color: #e4e4e8;
+  font-family: 'Pretendard', -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 20px;
+  position: relative;
+  overflow: hidden;
+}
+
+.container {
+  max-width: 640px;
+  width: 100%;
+  text-align: center;
+  animation: fadeInUp 0.8s ease-out;
+  position: relative;
+  z-index: 2;
+}
+
+@keyframes fadeInUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.celebration {
+  font-size: 72px;
+  margin-bottom: 16px;
+  animation: bounce 1.5s ease-out infinite;
+}
+@keyframes bounce {
+  0%, 100% { transform: translateY(0); }
+  50% { transform: translateY(-12px); }
+}
+
+.title {
+  font-size: 36px;
+  font-weight: 900;
+  letter-spacing: -0.03em;
+  color: #fff;
+  margin-bottom: 8px;
+  background: linear-gradient(135deg, #fff, #d4a537);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.subtitle {
+  font-size: 15px;
+  color: #a8a8b0;
+  margin-bottom: 32px;
+  line-height: 1.6;
+}
+
+.summary {
+  background: #17171b;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 12px;
+  padding: 20px 24px;
+  margin-bottom: 20px;
+  text-align: left;
+}
+.summaryRow {
+  display: flex;
+  justify-content: space-between;
+  padding: 9px 0;
+  border-bottom: 1px solid rgba(255,255,255,0.04);
+  font-size: 13px;
+}
+.summaryRow:last-child { border-bottom: none; }
+.summaryLabel {
+  color: #71717a;
+  font-weight: 500;
+}
+.summaryValue {
+  color: #fff;
+  font-weight: 700;
+}
+
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 10px;
+  margin-bottom: 20px;
+}
+.statCard {
+  background: #17171b;
+  border: 1px solid rgba(255,255,255,0.08);
+  border-radius: 10px;
+  padding: 14px 10px;
+  text-align: center;
+}
+.statValue {
+  font-size: 22px;
+  font-weight: 900;
+  color: #d4a537;
+  font-family: ui-monospace, monospace;
+  letter-spacing: -0.02em;
+  margin-bottom: 4px;
+}
+.statLabel {
+  font-size: 11px;
+  color: #71717a;
+  font-weight: 600;
+}
+
+.tips {
+  background: rgba(212, 165, 55, 0.04);
+  border: 1px solid rgba(212, 165, 55, 0.15);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 24px;
+  text-align: left;
+}
+.tipsHead {
+  font-size: 13px;
+  font-weight: 700;
+  color: #d4a537;
+  margin-bottom: 10px;
+}
+.tipsList {
+  margin: 0;
+  padding: 0 0 0 20px;
+  list-style: none;
+}
+.tipsList li {
+  font-size: 13px;
+  color: #a8a8b0;
+  line-height: 1.65;
+  position: relative;
+  padding-left: 12px;
+  margin-bottom: 6px;
+}
+.tipsList li::before {
+  content: '•';
+  position: absolute;
+  left: -4px;
+  color: #d4a537;
+  font-weight: 900;
+}
+
+.actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.primaryBtn {
+  background: #d4a537;
+  color: #000;
+  border: none;
+  padding: 13px 28px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 800;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.primaryBtn:hover {
+  filter: brightness(1.1);
+  transform: translateY(-2px);
+  box-shadow: 0 6px 20px rgba(212, 165, 55, 0.3);
+}
+.secondaryBtn {
+  background: #17171b;
+  color: #e4e4e8;
+  border: 1px solid rgba(255,255,255,0.1);
+  padding: 13px 24px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.secondaryBtn:hover {
+  border-color: rgba(255,255,255,0.2);
+  background: #1e1e24;
+}
+
+/* Confetti */
+.confetti {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+}
+.piece {
+  position: absolute;
+  top: -20px;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  animation: fall linear forwards;
+}
+@keyframes fall {
+  to {
+    transform: translateY(110vh) rotate(720deg);
+    opacity: 0;
+  }
+}
+
+@media (max-width: 640px) {
+  .title { font-size: 28px; }
+  .stats { grid-template-columns: repeat(2, 1fr); }
+  .statValue { font-size: 18px; }
+  .actions { flex-direction: column; }
+  .primaryBtn, .secondaryBtn { width: 100%; }
+}

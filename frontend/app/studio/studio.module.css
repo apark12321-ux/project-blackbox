@@ -1,0 +1,361 @@
+/* frontend/app/studio/studio.module.css */
+
+/* Video Player Placeholder */
+.videoPlayer {
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  background: linear-gradient(135deg, #1a1a20, #0a0a0c);
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 12px;
+  overflow: hidden;
+  position: relative;
+  margin-bottom: 20px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.playerContent {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center;
+  padding: 20px;
+}
+.playButton {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  background: rgba(212, 165, 55, 0.9);
+  color: #000;
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  padding-left: 6px;
+  cursor: pointer;
+  transition: all 0.15s;
+  box-shadow: 0 4px 24px rgba(212, 165, 55, 0.3);
+}
+.playButton:hover {
+  transform: scale(1.08);
+  background: #d4a537;
+}
+.playerTitle {
+  font-size: 18px;
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.02em;
+}
+.playerSub {
+  font-size: 12px;
+  color: #a8a8b0;
+}
+
+.playerControls {
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  padding: 10px 14px;
+  background: linear-gradient(180deg, transparent, rgba(0,0,0,0.7));
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  font-size: 12px;
+  color: #a8a8b0;
+  font-family: ui-monospace, monospace;
+}
+.playerProgress {
+  flex: 1;
+  height: 3px;
+  background: rgba(255,255,255,0.15);
+  border-radius: 2px;
+  overflow: hidden;
+}
+.playerProgressBar {
+  height: 100%;
+  background: #d4a537;
+  border-radius: 2px;
+}
+
+.playerBuilding {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+.shimmer {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(212, 165, 55, 0.1) 50%,
+    transparent 100%);
+  background-size: 200% 100%;
+  animation: shimmerMove 2s linear infinite;
+}
+@keyframes shimmerMove {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+.playerBuildingText {
+  position: relative;
+  z-index: 2;
+  color: #e4e4e8;
+  font-size: 14px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 22px;
+  background: rgba(0,0,0,0.6);
+  border-radius: 10px;
+  backdrop-filter: blur(10px);
+}
+.spinner {
+  width: 18px;
+  height: 18px;
+  border: 2px solid rgba(212, 165, 55, 0.3);
+  border-top-color: #d4a537;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+@keyframes spin {
+  to { transform: rotate(360deg); }
+}
+
+/* Phase box */
+.phaseBox {
+  background: #17171b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.phaseHead {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #e4e4e8;
+}
+.phaseProgress {
+  color: #d4a537;
+  font-family: ui-monospace, monospace;
+  font-size: 15px;
+  font-weight: 800;
+}
+.progressBar {
+  height: 6px;
+  background: rgba(255,255,255,0.05);
+  border-radius: 3px;
+  overflow: hidden;
+  margin-bottom: 14px;
+}
+.progressFill {
+  height: 100%;
+  background: linear-gradient(90deg, #b38600, #d4a537, #e8c84a);
+  background-size: 200% 100%;
+  animation: phaseShimmer 2s linear infinite;
+  transition: width 0.4s ease-out;
+  border-radius: 3px;
+}
+@keyframes phaseShimmer {
+  from { background-position: 200% 0; }
+  to { background-position: -200% 0; }
+}
+
+.phases {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.phaseRow {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 10px;
+  border-radius: 7px;
+  transition: all 0.15s;
+  font-size: 13px;
+}
+.phaseDone {
+  background: rgba(74, 222, 128, 0.06);
+}
+.phaseActive {
+  background: rgba(212, 165, 55, 0.08);
+  border: 1px solid rgba(212, 165, 55, 0.2);
+}
+.phaseIcon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 700;
+  background: rgba(255,255,255,0.05);
+  color: #71717a;
+}
+.phaseDone .phaseIcon {
+  background: rgba(74, 222, 128, 0.15);
+  color: #4ade80;
+}
+.phaseActive .phaseIcon {
+  background: rgba(212, 165, 55, 0.15);
+  color: #d4a537;
+}
+.phaseLabel {
+  flex: 1;
+  color: #a8a8b0;
+  font-weight: 500;
+}
+.phaseActive .phaseLabel {
+  color: #fff;
+  font-weight: 600;
+}
+.phaseStatus {
+  font-size: 11px;
+  color: #4ade80;
+  font-weight: 700;
+}
+.phaseDots {
+  display: inline-flex;
+  gap: 3px;
+}
+.phaseDots span {
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: #d4a537;
+  animation: dotBounce 1.3s infinite;
+}
+.phaseDots span:nth-child(2) { animation-delay: 0.15s; }
+.phaseDots span:nth-child(3) { animation-delay: 0.3s; }
+@keyframes dotBounce {
+  0%, 60%, 100% { opacity: 0.3; transform: translateY(0); }
+  30% { opacity: 1; transform: translateY(-3px); }
+}
+.miniSpinner {
+  display: inline-block;
+  width: 12px;
+  height: 12px;
+  border: 2px solid rgba(212, 165, 55, 0.2);
+  border-top-color: #d4a537;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+}
+
+/* Scenes */
+.scenesBox {
+  background: #17171b;
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 10px;
+  padding: 14px;
+  margin-bottom: 16px;
+}
+.scenesHead {
+  font-size: 12px;
+  font-weight: 700;
+  color: #71717a;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  margin-bottom: 10px;
+}
+.scenesGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+}
+.scene {
+  background: #0a0a0c;
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 8px;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  transition: all 0.15s;
+}
+.sceneDone {
+  background: rgba(74, 222, 128, 0.06);
+  border-color: rgba(74, 222, 128, 0.2);
+}
+.sceneActive {
+  background: rgba(212, 165, 55, 0.08);
+  border-color: rgba(212, 165, 55, 0.3);
+  box-shadow: 0 0 0 2px rgba(212, 165, 55, 0.15);
+}
+.sceneThumb {
+  aspect-ratio: 16 / 9;
+  background: rgba(255,255,255,0.04);
+  border-radius: 4px;
+  display: grid;
+  place-items: center;
+  font-size: 22px;
+  color: #71717a;
+}
+.sceneDone .sceneThumb {
+  background: rgba(74, 222, 128, 0.1);
+  color: #4ade80;
+}
+.sceneActive .sceneThumb {
+  background: rgba(212, 165, 55, 0.15);
+  color: #d4a537;
+}
+.sceneInfo {
+  padding: 2px 0;
+}
+.sceneTitle {
+  font-size: 12px;
+  font-weight: 700;
+  color: #e4e4e8;
+  line-height: 1.3;
+  margin-bottom: 2px;
+}
+.sceneTime {
+  font-size: 10px;
+  color: #71717a;
+  font-family: ui-monospace, monospace;
+}
+
+/* Download */
+.downloadBox {
+  margin-top: 20px;
+  padding: 18px;
+  background: linear-gradient(135deg, rgba(212, 165, 55, 0.08), transparent);
+  border: 1px solid rgba(212, 165, 55, 0.3);
+  border-radius: 12px;
+}
+.downloadBtn {
+  width: 100%;
+  height: 46px;
+  background: #d4a537;
+  color: #000;
+  border: none;
+  border-radius: 9px;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+.downloadBtn:hover { filter: brightness(1.1); }
+.fileStats {
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: #a8a8b0;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 900px) {
+  .scenesGrid { grid-template-columns: repeat(2, 1fr); }
+}

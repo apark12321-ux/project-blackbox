@@ -2,15 +2,13 @@
 
 /**
  * frontend/app/plan/page.tsx
- * AlgoMaker v6 · 대화형 채팅 UI
- *
- * 좌측: 기획서 미리보기 (AI가 수정한 섹션은 하이라이트)
- * 우측: AI 채팅창 (Gemini 기반)
+ * AlgoMaker v6 · 대화형 채팅 UI · 기획 단계
  */
 
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './plan.module.css';
+import { StepBar, FontLoader, setProject } from '../_shared/StepBar';
 import {
   STRUCTURES,
   getStructureById,
@@ -23,14 +21,7 @@ import {
   type ChatMessage,
 } from './scenarios';
 
-function FontLoader() {
-  useEffect(() => {
-    const link = document.createElement('link');
-    link.rel = 'stylesheet';
-    link.href =
-      'https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css';
-    document.head.appendChild(link);
-  }, []);
+function _FontLoaderLocal_unused() {
   return null;
 }
 
@@ -205,42 +196,22 @@ export default function PlanPage() {
             Algo<span className={styles.gold}>Maker</span>
           </div>
         </div>
-        <div className={styles.projectMeta}>
-          <span className={styles.projectName}>
-            {INITIAL_KEYWORD} · 8분 30초
-          </span>
-          <span className={styles.separator}>·</span>
-          <button
-            className={styles.stylePill}
-            onClick={() => setShowStylePicker((v) => !v)}
-            disabled={isGenerating}
-          >
-            <span>{selected.name}</span>
-            <span className={styles.stylePillArrow}>▾</span>
-          </button>
-          {plan?.metrics && (
-            <>
-              <span className={styles.separator}>·</span>
-              <span className={styles.gradeBadge}>
-                {plan.metrics.grade}
-              </span>
-            </>
-          )}
-        </div>
+
+        <StepBar current="plan" />
+
         <div className={styles.actions}>
-          <button className={styles.btn}>보기</button>
           <button
             className={`${styles.btn} ${styles.btnPrimary}`}
             onClick={() => {
-              // 기획서 완료 상태 저장 (다음 페이지에서 활용 가능)
-              try {
-                if (typeof window !== 'undefined' && plan) {
-                  (window as unknown as { __algomakerPlan?: Plan }).__algomakerPlan = plan;
-                }
-              } catch {
-                // 무시
+              if (plan) {
+                setProject({
+                  keyword: INITIAL_KEYWORD,
+                  category: INITIAL_CATEGORY,
+                  title: plan.headline,
+                  duration: '8분 30초',
+                });
               }
-              router.push('/create');
+              router.push('/script');
             }}
           >
             대본 만들기 →
