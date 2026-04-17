@@ -200,11 +200,16 @@ export default function ScriptPage() {
         </div>
         <StepBar current="script" />
         <div className={shared.actions}>
+          <button
+            className={shared.btnBack}
+            onClick={() => router.push('/plan')}
+          >
+            ← 기획
+          </button>
           <SeniorToggle onChange={handleSeniorChange} />
           <button
             className={`${shared.btn} ${shared.btnPrimary}`}
             onClick={() => router.push('/studio')}
-            disabled={initializing}
           >
             영상 만들기 →
           </button>

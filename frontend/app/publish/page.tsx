@@ -152,11 +152,16 @@ export default function PublishPage() {
         </div>
         <StepBar current="publish" />
         <div className={shared.actions}>
+          <button
+            className={shared.btnBack}
+            onClick={() => router.push('/studio')}
+          >
+            ← 영상
+          </button>
           <SeniorToggle onChange={setSenior} />
           <button
             className={`${shared.btn} ${shared.btnPrimary}`}
             onClick={() => router.push('/done')}
-            disabled={uploadStage !== 'published'}
           >
             완료 →
           </button>

@@ -182,11 +182,16 @@ export default function StudioPage() {
         </div>
         <StepBar current="studio" />
         <div className={shared.actions}>
+          <button
+            className={shared.btnBack}
+            onClick={() => router.push('/script')}
+          >
+            ← 대본
+          </button>
           <SeniorToggle onChange={setSenior} />
           <button
             className={`${shared.btn} ${shared.btnPrimary}`}
             onClick={() => router.push('/publish')}
-            disabled={!completed}
           >
             배포하기 →
           </button>

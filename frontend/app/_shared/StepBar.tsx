@@ -45,10 +45,12 @@ export function StepBar({ current }: { current: StageId }) {
       {STAGES.map((s, i) => {
         const isDone = i < currentIdx;
         const isActive = i === currentIdx;
+        const canNavigate = !isActive; // 현재 단계 빼고는 언제든 이동 가능
         const cls = [
           styles.stepItem,
           isDone ? styles.done : '',
           isActive ? styles.active : '',
+          !isActive && !isDone ? styles.future : '',
         ]
           .filter(Boolean)
           .join(' ');
@@ -58,10 +60,10 @@ export function StepBar({ current }: { current: StageId }) {
             <button
               className={cls}
               onClick={() => {
-                if (isDone) router.push(s.path);
+                if (canNavigate) router.push(s.path);
               }}
-              disabled={!isDone && !isActive}
-              style={{ cursor: isDone ? 'pointer' : 'default' }}
+              disabled={isActive}
+              style={{ cursor: canNavigate ? 'pointer' : 'default' }}
             >
               <span className={styles.stepIdx}>{isDone ? '✓' : i + 1}</span>
               <span>{s.label}</span>
