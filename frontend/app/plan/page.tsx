@@ -2,22 +2,24 @@
 
 /**
  * frontend/app/plan/page.tsx
- * AlgoMaker v4 · 다크 톤 + 쉬운 한국말 + 높은 가독성
+ * AlgoMaker v6 · 대화형 채팅 UI
+ *
+ * 좌측: 기획서 미리보기 (AI가 수정한 섹션은 하이라이트)
+ * 우측: AI 채팅창 (Gemini 기반)
  */
 
-import { useState, useMemo, useEffect } from 'react';
+import { useState, useMemo, useEffect, useRef } from 'react';
 import styles from './plan.module.css';
 import {
   STRUCTURES,
-  CATEGORY_LABELS,
   getStructureById,
-  getStructuresByCategory,
-  generateMockPlan,
-  type Structure,
-  type StructureCategory,
-  type SubParamDef,
+  apiInitPlan,
+  apiRefinePlan,
+  apiSwitchStructure,
+  newMsgId,
   type Plan,
-  type Beat,
+  type Structure,
+  type ChatMessage,
 } from './scenarios';
 
 function FontLoader() {
@@ -31,120 +33,169 @@ function FontLoader() {
   return null;
 }
 
-const INITIAL_RECOMMENDATION = {
-  structure_id: 'clue-hunt',
-  confidence: 92,
-  grade: 'A+',
-  retention: 58,
-  reason:
-    '"주식 급등 작전"은 의혹 요소가 강한 주제입니다. 평균보다 2배 이상 높은 시청 유지율을 보이는 스타일입니다.',
-};
+// 초기값
+const INITIAL_CATEGORY = '경제';
+const INITIAL_KEYWORD = '주식 급등 작전';
+const INITIAL_STRUCTURE = 'clue-hunt';
+
+const SUGGESTIONS = [
+  '2번째 섹션을 더 강하게 해주세요',
+  '전체적으로 더 긴장감 있게',
+  '통계 자료를 더 넣어주세요',
+  '3번 섹션을 2개로 나눠주세요',
+  '마지막 섹션에 행동 유도 추가',
+];
 
 export default function PlanPage() {
-  const [selectedId, setSelectedId] = useState<string>(
-    INITIAL_RECOMMENDATION.structure_id,
-  );
-  const [subParams, setSubParams] = useState<Record<string, string | number>>(
-    {},
-  );
-  const [activeBeatId, setActiveBeatId] = useState<string | null>(null);
+  const [plan, setPlan] = useState<Plan | null>(null);
+  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [inputText, setInputText] = useState('');
   const [isGenerating, setIsGenerating] = useState(false);
-  const [projectTitle, setProjectTitle] = useState('주식 급등 작전 · 8분 30초');
-  const [searchQuery, setSearchQuery] = useState('');
+  const [structureId, setStructureId] = useState(INITIAL_STRUCTURE);
+  const [showStylePicker, setShowStylePicker] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
-  const selected = useMemo(() => getStructureById(selectedId)!, [selectedId]);
+  const selected = getStructureById(structureId)!;
+  const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  // 최초 진입 시 기획서 초안 자동 생성
   useEffect(() => {
-    const defaults: Record<string, string | number> = {};
-    selected.subParams.forEach((p) => {
-      defaults[p.key] = p.default;
-    });
-    setSubParams(defaults);
-  }, [selectedId, selected]);
+    initFirstPlan();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
-  const basePlan: Plan = useMemo(
-    () => generateMockPlan(selectedId, subParams),
-    [selectedId, subParams],
-  );
-
-  const [beats, setBeats] = useState<Beat[]>(basePlan.beats);
+  // 메시지 스크롤 자동 하단
   useEffect(() => {
-    setBeats(basePlan.beats);
-  }, [basePlan]);
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isGenerating]);
 
-  const handleRegen = () => {
+  async function initFirstPlan() {
     setIsGenerating(true);
-    setTimeout(() => {
+    setError(null);
+    try {
+      const p = await apiInitPlan(
+        INITIAL_CATEGORY,
+        INITIAL_KEYWORD,
+        INITIAL_STRUCTURE,
+      );
+      setPlan(p);
+      setMessages([
+        {
+          id: newMsgId(),
+          role: 'ai',
+          text: p.ai_message,
+          timestamp: Date.now(),
+        },
+      ]);
+    } catch (e) {
+      setError(`초기 기획서 생성 실패: ${(e as Error).message}`);
+    } finally {
       setIsGenerating(false);
-      setBeats(basePlan.beats);
-    }, 600);
-  };
+    }
+  }
 
-  const updateBeat = (id: string, patch: Partial<Beat>) => {
-    setBeats((prev) => prev.map((b) => (b.id === id ? { ...b, ...patch } : b)));
-  };
-  const updateBeatNote = (beatId: string, noteIdx: number, text: string) => {
-    setBeats((prev) =>
-      prev.map((b) => {
-        if (b.id !== beatId) return b;
-        const newNotes = [...b.notes];
-        newNotes[noteIdx] = text;
-        return { ...b, notes: newNotes };
-      }),
-    );
-  };
-  const addNote = (beatId: string) => {
-    setBeats((prev) =>
-      prev.map((b) =>
-        b.id === beatId ? { ...b, notes: [...b.notes, '새 내용'] } : b,
-      ),
-    );
-  };
-  const removeNote = (beatId: string, noteIdx: number) => {
-    setBeats((prev) =>
-      prev.map((b) => {
-        if (b.id !== beatId) return b;
-        return { ...b, notes: b.notes.filter((_, i) => i !== noteIdx) };
-      }),
-    );
-  };
-  const duplicateBeat = (id: string) => {
-    setBeats((prev) => {
-      const idx = prev.findIndex((b) => b.id === id);
-      if (idx < 0) return prev;
-      const original = prev[idx];
-      const copy: Beat = {
-        ...original,
-        id: `${original.id}-copy-${Date.now()}`,
-        order: original.order + 1,
-      };
-      const next = [...prev];
-      next.splice(idx + 1, 0, copy);
-      return next.map((b, i) => ({ ...b, order: i + 1 }));
-    });
-  };
-  const deleteBeat = (id: string) => {
-    if (beats.length <= 1) return;
-    setBeats((prev) =>
-      prev.filter((b) => b.id !== id).map((b, i) => ({ ...b, order: i + 1 })),
-    );
-  };
+  async function handleSend() {
+    const text = inputText.trim();
+    if (!text || !plan || isGenerating) return;
 
-  const filteredStructures = useMemo(() => {
-    const q = searchQuery.trim().toLowerCase();
-    if (!q) return null;
-    return STRUCTURES.filter(
-      (s) =>
-        s.name.toLowerCase().includes(q) ||
-        s.tagline.toLowerCase().includes(q),
-    );
-  }, [searchQuery]);
+    setInputText('');
+    setError(null);
+
+    // 사용자 메시지 추가
+    const userMsg: ChatMessage = {
+      id: newMsgId(),
+      role: 'user',
+      text,
+      timestamp: Date.now(),
+    };
+    setMessages((prev) => [...prev, userMsg]);
+    setIsGenerating(true);
+
+    try {
+      const updated = await apiRefinePlan(text, plan, structureId);
+      setPlan(updated);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: newMsgId(),
+          role: 'ai',
+          text: updated.ai_message,
+          timestamp: Date.now(),
+        },
+      ]);
+    } catch (e) {
+      setError(`수정 실패: ${(e as Error).message}`);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: newMsgId(),
+          role: 'ai',
+          text: '죄송합니다. AI 응답에 문제가 있었습니다. 다시 시도해주세요.',
+          timestamp: Date.now(),
+        },
+      ]);
+    } finally {
+      setIsGenerating(false);
+    }
+  }
+
+  async function handleSwitchStructure(newId: string) {
+    if (newId === structureId || isGenerating) {
+      setShowStylePicker(false);
+      return;
+    }
+    setShowStylePicker(false);
+    setIsGenerating(true);
+    setError(null);
+
+    const prevId = structureId;
+    setStructureId(newId);
+    const struct = getStructureById(newId);
+
+    setMessages((prev) => [
+      ...prev,
+      {
+        id: newMsgId(),
+        role: 'user',
+        text: `스타일을 "${struct?.name}"으로 바꿔주세요`,
+        timestamp: Date.now(),
+      },
+    ]);
+
+    try {
+      const updated = await apiSwitchStructure(
+        INITIAL_CATEGORY,
+        INITIAL_KEYWORD,
+        newId,
+        plan,
+      );
+      setPlan(updated);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: newMsgId(),
+          role: 'ai',
+          text: updated.ai_message,
+          timestamp: Date.now(),
+        },
+      ]);
+    } catch (e) {
+      setError(`스타일 변경 실패: ${(e as Error).message}`);
+      setStructureId(prevId);
+    } finally {
+      setIsGenerating(false);
+    }
+  }
+
+  function handleSuggestion(text: string) {
+    setInputText(text);
+  }
 
   return (
     <div className={styles.root}>
       <FontLoader />
 
-      {/* 앱 바 */}
+      {/* App Bar */}
       <header className={styles.appbar}>
         <div className={styles.brand}>
           <div className={styles.brandMark}>AM</div>
@@ -152,363 +203,262 @@ export default function PlanPage() {
             Algo<span className={styles.gold}>Maker</span>
           </div>
         </div>
-
         <div className={styles.projectMeta}>
-          <div className={styles.crumb}>
-            <span>기획서</span>
-            <span className={styles.sep}>/</span>
-            <span>경제</span>
-            <span className={styles.sep}>/</span>
-          </div>
-          <input
-            className={styles.projectTitle}
-            value={projectTitle}
-            onChange={(e) => setProjectTitle(e.target.value)}
-          />
-          <span className={styles.saveStatus}>저장됨</span>
+          <span className={styles.projectName}>
+            {INITIAL_KEYWORD} · 8분 30초
+          </span>
+          <span className={styles.separator}>·</span>
+          <button
+            className={styles.stylePill}
+            onClick={() => setShowStylePicker((v) => !v)}
+            disabled={isGenerating}
+          >
+            <span>{selected.name}</span>
+            <span className={styles.stylePillArrow}>▾</span>
+          </button>
+          {plan?.metrics && (
+            <>
+              <span className={styles.separator}>·</span>
+              <span className={styles.gradeBadge}>
+                {plan.metrics.grade}
+              </span>
+            </>
+          )}
         </div>
-
         <div className={styles.actions}>
-          <button className={styles.btn}>
-            <span>↩</span>
-            <span className="btnText">실행 취소</span>
-          </button>
-          <button className={styles.btn}>
-            <span>👁</span>
-            <span className="btnText">보기</span>
-          </button>
-          <button className={`${styles.btn} ${styles.primary}`}>
-            <span>→</span>
+          <button className={styles.btn}>보기</button>
+          <button className={`${styles.btn} ${styles.btnPrimary}`}>
             대본 만들기
           </button>
         </div>
       </header>
 
-      <div className={styles.layout}>
-        {/* 좌측 */}
-        <aside className={styles.nav}>
-          <div className={styles.panelHead}>
-            <div className={styles.panelTitle}>
-              <span>AI 추천</span>
-            </div>
-            <span className={styles.countBadge}>1</span>
+      {/* Style picker dropdown */}
+      {showStylePicker && (
+        <div className={styles.stylePickerOverlay}>
+          <div className={styles.stylePicker}>
+            <div className={styles.stylePickerHead}>영상 스타일 바꾸기</div>
+            {STRUCTURES.map((s) => (
+              <button
+                key={s.id}
+                className={`${styles.stylePickerItem} ${
+                  s.id === structureId ? styles.stylePickerSelected : ''
+                }`}
+                onClick={() => handleSwitchStructure(s.id)}
+              >
+                <div className={styles.stylePickerName}>{s.name}</div>
+                <div className={styles.stylePickerDesc}>{s.tagline}</div>
+              </button>
+            ))}
           </div>
+        </div>
+      )}
 
-          <div className={styles.aiCard}>
-            <div className={styles.aiCardLabel}>이 스타일을 추천합니다</div>
-            <div className={styles.aiCardTitle}>
-              {getStructureById(INITIAL_RECOMMENDATION.structure_id)?.name}
+      {/* Split layout */}
+      <div className={styles.split}>
+        {/* LEFT: Preview */}
+        <div className={styles.preview}>
+          {error && (
+            <div className={styles.errorBox}>
+              <strong>⚠ 오류</strong>
+              <br />
+              {error}
+              <br />
+              <button
+                className={styles.retryBtn}
+                onClick={initFirstPlan}
+              >
+                다시 시도
+              </button>
             </div>
-            <div className={styles.aiCardTagline}>
-              {getStructureById(INITIAL_RECOMMENDATION.structure_id)?.tagline}
-            </div>
-            <div className={styles.aiCardStats}>
-              <div className={styles.aiStat}>
-                <div className={styles.aiStatVal}>
-                  {INITIAL_RECOMMENDATION.confidence}%
+          )}
+
+          {plan ? (
+            <>
+              <div className={styles.previewHead}>
+                <div className={styles.previewLabel}>기획서 미리보기</div>
+                <h1 className={styles.previewHeadline}>{plan.headline}</h1>
+                <p className={styles.previewDek}>{plan.dek}</p>
+                <div className={styles.previewStats}>
+                  <div className={styles.statPill}>
+                    수익 등급{' '}
+                    <strong className={styles.statValue}>
+                      {plan.metrics.grade}
+                    </strong>
+                  </div>
+                  <div className={styles.statPill}>
+                    시청 유지{' '}
+                    <strong className={styles.statValue}>
+                      {plan.metrics.avg_retention}%
+                    </strong>
+                  </div>
+                  <div className={styles.statPill}>
+                    CPM{' '}
+                    <strong className={styles.statValue}>
+                      {plan.metrics.cpm_range}
+                    </strong>
+                  </div>
+                  <div className={styles.statPill}>
+                    섹션{' '}
+                    <strong className={styles.statValue}>
+                      {plan.beats.length}
+                    </strong>
+                  </div>
                 </div>
-                <div className={styles.aiStatLabel}>확신도</div>
               </div>
-              <div className={styles.aiStat}>
-                <div className={styles.aiStatVal}>
-                  {INITIAL_RECOMMENDATION.grade}
-                </div>
-                <div className={styles.aiStatLabel}>수익 등급</div>
-              </div>
-              <div className={styles.aiStat}>
-                <div className={styles.aiStatVal}>
-                  {INITIAL_RECOMMENDATION.retention}%
-                </div>
-                <div className={styles.aiStatLabel}>시청 유지</div>
-              </div>
-            </div>
-            <button
-              type="button"
-              className={styles.aiCardApply}
-              onClick={() =>
-                setSelectedId(INITIAL_RECOMMENDATION.structure_id)
-              }
-            >
-              <span>✓</span> 이걸로 시작
-            </button>
-          </div>
 
-          <div className={styles.panelHead}>
-            <div className={styles.panelTitle}>
-              <span>영상 스타일 고르기</span>
-            </div>
-            <span className={styles.countBadge}>12</span>
-          </div>
-
-          <div className={styles.searchbar}>
-            <span className={styles.searchIcon}>⌕</span>
-            <input
-              type="text"
-              placeholder="스타일 이름으로 찾기"
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-            />
-          </div>
-
-          {filteredStructures ? (
-            <div>
-              {filteredStructures.map((s) => (
-                <StructItem
-                  key={s.id}
-                  s={s}
-                  selected={s.id === selectedId}
-                  onClick={() => setSelectedId(s.id)}
-                />
-              ))}
-              {filteredStructures.length === 0 && (
-                <div
-                  style={{
-                    padding: '24px 12px',
-                    textAlign: 'center',
-                    color: 'var(--text-4)',
-                    fontSize: 13,
-                  }}
-                >
-                  결과가 없습니다
-                </div>
-              )}
-            </div>
-          ) : (
-            (Object.keys(CATEGORY_LABELS) as StructureCategory[]).map((cat) => (
-              <div key={cat}>
-                <div className={styles.groupTitle}>
-                  {CATEGORY_LABELS[cat]}
-                </div>
-                {getStructuresByCategory(cat).map((s) => (
-                  <StructItem
-                    key={s.id}
-                    s={s}
-                    selected={s.id === selectedId}
-                    onClick={() => setSelectedId(s.id)}
+              <div className={styles.sections}>
+                {plan.beats.map((beat) => (
+                  <BeatCard
+                    key={beat.id}
+                    beat={beat}
+                    highlighted={plan.highlighted_beat_ids?.includes(
+                      beat.id,
+                    )}
                   />
                 ))}
               </div>
-            ))
+            </>
+          ) : (
+            <div className={styles.skeleton}>
+              {isGenerating && (
+                <div className={styles.skeletonPulse}>
+                  <div className={styles.skeletonLine} style={{ width: '60%' }} />
+                  <div className={styles.skeletonLine} style={{ width: '90%' }} />
+                  <div className={styles.skeletonLine} style={{ width: '75%' }} />
+                  <div style={{ height: 24 }} />
+                  <div className={styles.skeletonCard} />
+                  <div className={styles.skeletonCard} />
+                  <div className={styles.skeletonCard} />
+                </div>
+              )}
+            </div>
           )}
-        </aside>
+        </div>
 
-        {/* 중앙 */}
-        <main className={styles.editor}>
-          <div className={styles.editorHead}>
-            <div>
-              <div className={styles.editorTitle}>
-                <span>영상 기획서</span>
-                <span className={styles.structChip}>
-                  <span>{selected.emoji}</span>
-                  <span>{selected.name}</span>
-                </span>
-              </div>
-              <div className={styles.editorSub}>
-                <span>섹션 {beats.length}개</span>
-                <span className={styles.bullet}>·</span>
-                <span>총 {basePlan.total_duration}</span>
-                <span className={styles.bullet}>·</span>
-                <span>
-                  평균 시청 유지{' '}
-                  {Math.round(
-                    beats.reduce((a, b) => a + b.retention, 0) / beats.length,
-                  )}
-                  %
-                </span>
+        {/* RIGHT: Chat */}
+        <div className={styles.chat}>
+          <div className={styles.chatHead}>
+            <div className={styles.chatHeadLeft}>
+              <div className={styles.aiAvatar}>✦</div>
+              <div>
+                <div className={styles.chatHeadTitle}>AlgoMaker AI</div>
+                <div className={styles.chatHeadSub}>
+                  <span className={styles.chatDot}></span>
+                  {isGenerating ? '생각 중…' : '대기 중'}
+                </div>
               </div>
             </div>
           </div>
 
-          <div className={styles.beats}>
-            {beats.map((beat) => (
-              <BeatCard
-                key={beat.id}
-                beat={beat}
-                active={activeBeatId === beat.id}
-                onActivate={() => setActiveBeatId(beat.id)}
-                onUpdate={(patch) => updateBeat(beat.id, patch)}
-                onUpdateNote={(idx, text) =>
-                  updateBeatNote(beat.id, idx, text)
-                }
-                onRemoveNote={(idx) => removeNote(beat.id, idx)}
-                onAddNote={() => addNote(beat.id)}
-                onDuplicate={() => duplicateBeat(beat.id)}
-                onDelete={() => deleteBeat(beat.id)}
-                canDelete={beats.length > 1}
-              />
+          <div className={styles.messages}>
+            {messages.map((msg) => (
+              <MessageBubble key={msg.id} msg={msg} />
             ))}
+            {isGenerating && (
+              <div className={`${styles.msg} ${styles.msgAi}`}>
+                <div className={styles.msgHead}>
+                  <span className={styles.msgAuthor}>✦ AI</span>
+                </div>
+                <div className={styles.msgBubble}>
+                  <div className={styles.typing}>
+                    <span></span>
+                    <span></span>
+                    <span></span>
+                  </div>
+                </div>
+              </div>
+            )}
+            <div ref={messagesEndRef} />
           </div>
 
-          <button
-            type="button"
-            className={styles.addBeatBtn}
-            onClick={() => {
-              const last = beats[beats.length - 1];
-              const newBeat: Beat = {
-                id: `new-${Date.now()}`,
-                order: beats.length + 1,
-                kind: '새 섹션',
-                title: '제목을 입력하세요',
-                time_start: last?.time_end ?? '00:00',
-                time_end: '00:00',
-                retention: 50,
-                risk: 'med',
-                pull_quote: '',
-                notes: ['새 내용'],
-              };
-              setBeats([...beats, newBeat]);
-            }}
-          >
-            <span>+</span>
-            섹션 더하기
-          </button>
-        </main>
-
-        {/* 우측 */}
-        <aside className={styles.inspector}>
-          {selected.subParams.length > 0 ? (
-            <div className={styles.inspSection}>
-              <div className={styles.inspTitle}>세부 설정</div>
-              {selected.subParams.map((p) => (
-                <SubParamControl
-                  key={p.key}
-                  def={p}
-                  value={subParams[p.key] ?? p.default}
-                  onChange={(v) =>
-                    setSubParams((prev) => ({ ...prev, [p.key]: v }))
-                  }
-                />
+          <div className={styles.composer}>
+            <div className={styles.suggestions}>
+              {SUGGESTIONS.map((s, i) => (
+                <button
+                  key={i}
+                  className={styles.suggestChip}
+                  onClick={() => handleSuggestion(s)}
+                  disabled={isGenerating}
+                >
+                  {s}
+                </button>
               ))}
             </div>
-          ) : (
-            <div className={styles.inspSection}>
-              <div className={styles.inspTitle}>세부 설정</div>
-              <p
-                style={{
-                  fontSize: 13,
-                  color: 'var(--text-3)',
-                  lineHeight: 1.6,
+            <div className={styles.inputRow}>
+              <input
+                type="text"
+                placeholder="AI에게 요청하세요. 예: 오프닝을 더 강하게"
+                value={inputText}
+                onChange={(e) => setInputText(e.target.value)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    handleSend();
+                  }
                 }}
+                disabled={isGenerating}
+              />
+              <button
+                className={styles.sendBtn}
+                onClick={handleSend}
+                disabled={isGenerating || !inputText.trim()}
               >
-                이 스타일은 따로 조정할 설정이 없습니다.
-              </p>
+                →
+              </button>
             </div>
-          )}
-
-          <div className={styles.inspSection}>
-            <div className={styles.inspTitle}>예상 수익</div>
-
-            <div className={`${styles.metricTile} ${styles.grade}`}>
-              <span className={styles.metricKey}>수익 등급</span>
-              <span className={styles.metricVal}>
-                {basePlan.metrics.grade}
-              </span>
-            </div>
-            <div className={styles.metricTile}>
-              <span className={styles.metricKey}>평균 시청 유지율</span>
-              <span className={styles.metricVal}>
-                {basePlan.metrics.avg_retention}%
-              </span>
-            </div>
-            <div className={styles.metricTile}>
-              <span className={styles.metricKey}>예상 광고 단가</span>
-              <span className={styles.metricVal}>
-                {basePlan.metrics.cpm_range}
-              </span>
-            </div>
-            <div className={styles.metricTile}>
-              <span className={styles.metricKey}>알고리즘 안전도</span>
-              <span className={styles.metricVal}>
-                {basePlan.metrics.algo_shield}
-              </span>
-            </div>
-
-            <button
-              type="button"
-              className={styles.regenBtn}
-              onClick={handleRegen}
-              disabled={isGenerating}
-            >
-              {isGenerating ? '만드는 중…' : '↻ 기획서 다시 만들기'}
-            </button>
           </div>
-        </aside>
+        </div>
       </div>
     </div>
   );
 }
 
-function StructItem({
-  s,
-  selected,
-  onClick,
-}: {
-  s: Structure;
-  selected: boolean;
-  onClick: () => void;
-}) {
-  return (
-    <button
-      type="button"
-      className={`${styles.structItem} ${selected ? styles.selected : ''}`}
-      onClick={onClick}
-    >
-      <span className={styles.structEmoji}>{s.emoji}</span>
-      <span className={styles.structItemBody}>
-        <span className={styles.structItemName}>{s.name}</span>
-        <span className={styles.structItemDesc}>{s.tagline}</span>
-      </span>
-      <span
-        className={`${styles.affBadge} ${s.affinity >= 80 ? styles.hi : ''}`}
-      >
-        {s.affinity}
-      </span>
-    </button>
-  );
-}
+// ══════════════════════════════════════════════
+// Components
+// ══════════════════════════════════════════════
 
 function BeatCard({
   beat,
-  active,
-  onActivate,
-  onUpdate,
-  onUpdateNote,
-  onRemoveNote,
-  onAddNote,
-  onDuplicate,
-  onDelete,
-  canDelete,
+  highlighted,
 }: {
-  beat: Beat;
-  active: boolean;
-  onActivate: () => void;
-  onUpdate: (patch: Partial<Beat>) => void;
-  onUpdateNote: (idx: number, text: string) => void;
-  onRemoveNote: (idx: number) => void;
-  onAddNote: () => void;
-  onDuplicate: () => void;
-  onDelete: () => void;
-  canDelete: boolean;
+  beat: {
+    id: string;
+    order: number;
+    kind: string;
+    title: string;
+    time_start: string;
+    time_end: string;
+    retention: number;
+    risk: string;
+    pull_quote: string;
+    notes: string[];
+  };
+  highlighted?: boolean;
 }) {
   const retClass =
-    beat.retention >= 70 ? '' : beat.retention >= 50 ? styles.med : styles.low;
-
+    beat.retention >= 70
+      ? styles.retHigh
+      : beat.retention >= 50
+        ? styles.retMed
+        : styles.retLow;
   return (
     <div
-      className={`${styles.beatCard} ${active ? styles.active : ''}`}
-      onClick={onActivate}
+      className={`${styles.beatCard} ${
+        highlighted ? styles.beatHighlighted : ''
+      }`}
     >
       <div className={styles.beatTop}>
-        <div className={styles.beatNum}>
-          {String(beat.order).padStart(2, '0')}
-        </div>
-        <div className={styles.beatMeta}>
+        <div className={styles.beatTopLeft}>
+          <span className={styles.beatIdx}>
+            {String(beat.order).padStart(2, '0')}
+          </span>
           <span className={styles.beatKind}>{beat.kind}</span>
           <span className={styles.beatTime}>
-            {beat.time_start} — {beat.time_end}
+            {beat.time_start} – {beat.time_end}
           </span>
         </div>
-        <span className={styles.retentionPill}>
+        <div className={styles.beatRet}>
           <span className={styles.retBar}>
             <span
               className={`${styles.retFill} ${retClass}`}
@@ -516,164 +466,42 @@ function BeatCard({
             />
           </span>
           <span className={styles.retText}>{beat.retention}%</span>
-        </span>
-        <div style={{ display: 'flex', gap: 2 }}>
-          <button
-            type="button"
-            className={styles.iconBtn}
-            title="복제"
-            onClick={(e) => {
-              e.stopPropagation();
-              onDuplicate();
-            }}
-          >
-            ⎘
-          </button>
-          <button
-            type="button"
-            className={styles.iconBtn}
-            title="삭제"
-            disabled={!canDelete}
-            onClick={(e) => {
-              e.stopPropagation();
-              onDelete();
-            }}
-          >
-            ×
-          </button>
         </div>
       </div>
-
-      <input
-        className={styles.beatTitleInput}
-        value={beat.title}
-        onChange={(e) => onUpdate({ title: e.target.value })}
-        onClick={(e) => e.stopPropagation()}
-      />
-
-      <div className={styles.beatCoreLabel}>한 줄 요약</div>
-      <textarea
-        className={styles.beatCoreInput}
-        value={beat.pull_quote}
-        onChange={(e) => onUpdate({ pull_quote: e.target.value })}
-        onClick={(e) => e.stopPropagation()}
-        rows={2}
-      />
-
-      <ul className={styles.beatNotes}>
-        {beat.notes.map((note, idx) => (
-          <li key={idx} className={styles.beatNoteItem}>
-            <span className={styles.beatNoteBullet} />
-            <input
-              className={styles.beatNoteText}
-              value={note}
-              onChange={(e) => onUpdateNote(idx, e.target.value)}
-              onClick={(e) => e.stopPropagation()}
-            />
-            <button
-              type="button"
-              className={styles.iconBtn}
-              style={{ width: 24, height: 24 }}
-              onClick={(e) => {
-                e.stopPropagation();
-                onRemoveNote(idx);
-              }}
-              title="이 줄 삭제"
-            >
-              ×
-            </button>
-          </li>
-        ))}
-      </ul>
-
-      <button
-        type="button"
-        className={styles.addNoteBtn}
-        onClick={(e) => {
-          e.stopPropagation();
-          onAddNote();
-        }}
-      >
-        <span>+</span> 내용 더하기
-      </button>
+      <h3 className={styles.beatTitle}>{beat.title}</h3>
+      {beat.pull_quote && (
+        <div className={styles.beatQuote}>{beat.pull_quote}</div>
+      )}
+      {beat.notes && beat.notes.length > 0 && (
+        <ul className={styles.beatNotes}>
+          {beat.notes.map((note, idx) => (
+            <li key={idx}>{note}</li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
 
-function SubParamControl({
-  def,
-  value,
-  onChange,
-}: {
-  def: SubParamDef;
-  value: string | number;
-  onChange: (v: string | number) => void;
-}) {
+function MessageBubble({ msg }: { msg: ChatMessage }) {
+  const isAi = msg.role === 'ai';
+  const timeStr = new Date(msg.timestamp).toLocaleTimeString('ko-KR', {
+    hour: '2-digit',
+    minute: '2-digit',
+  });
   return (
-    <div className={styles.formRow}>
-      <div className={styles.formLabel}>
-        <span>{def.label}</span>
-        {def.hint && <span className={styles.formHint}>{def.hint}</span>}
+    <div className={`${styles.msg} ${isAi ? styles.msgAi : styles.msgUser}`}>
+      <div className={styles.msgHead}>
+        <span className={styles.msgAuthor}>
+          {isAi ? '✦ AI' : '나'}
+        </span>
+        <span className={styles.msgTime}>{timeStr}</span>
       </div>
-
-      {def.kind === 'segments' && def.options && (
-        <div className={styles.segments}>
-          {def.options.map((opt) => (
-            <button
-              key={opt.value}
-              type="button"
-              className={`${styles.segment} ${
-                value === opt.value ? styles.active : ''
-              }`}
-              onClick={() => onChange(opt.value)}
-            >
-              {opt.label}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {def.kind === 'stepper' && (
-        <div className={styles.stepperWrap}>
-          <button
-            type="button"
-            className={styles.stepperBtn}
-            onClick={() => {
-              const n = Number(value);
-              if (n > (def.min ?? 0)) onChange(n - 1);
-            }}
-            disabled={Number(value) <= (def.min ?? 0)}
-          >
-            −
-          </button>
-          <div className={styles.stepperVal}>{value}</div>
-          <button
-            type="button"
-            className={styles.stepperBtn}
-            onClick={() => {
-              const n = Number(value);
-              if (n < (def.max ?? 99)) onChange(n + 1);
-            }}
-            disabled={Number(value) >= (def.max ?? 99)}
-          >
-            +
-          </button>
-        </div>
-      )}
-
-      {def.kind === 'dropdown' && def.options && (
-        <select
-          className={styles.dropdownSelect}
-          value={String(value)}
-          onChange={(e) => onChange(e.target.value)}
-        >
-          {def.options.map((opt) => (
-            <option key={opt.value} value={opt.value}>
-              {opt.label}
-            </option>
-          ))}
-        </select>
-      )}
+      <div className={styles.msgBubble}>
+        {msg.text.split('\n').map((line, i) => (
+          <div key={i}>{line || <br />}</div>
+        ))}
+      </div>
     </div>
   );
 }
