@@ -8,6 +8,8 @@ COPY requirements.txt .
 RUN pip install -r requirements.txt
 RUN pip install Pillow
 
+# Cache bust: 2026-04-17 plan chat
+ARG CACHEBUST=1
 COPY . .
 
 EXPOSE 8080
