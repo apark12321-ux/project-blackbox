@@ -2,14 +2,21 @@
 
 /**
  * frontend/app/script/page.tsx
- * AlgoMaker · 대본 단계
+ * AlgoMaker · 대본 단계 (시니어 모드 지원)
  */
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import shared from '../_shared/shared.module.css';
 import styles from './script.module.css';
-import { FontLoader, StepBar, getProject } from '../_shared/StepBar';
+import {
+  FontLoader,
+  StepBar,
+  SeniorToggle,
+  getProject,
+  getAudienceMeta,
+  applySeniorText,
+} from '../_shared/StepBar';
 
 interface Block {
   id: string;
@@ -84,7 +91,15 @@ function buildInitialBlocks(keyword: string): Block[] {
 
 export default function ScriptPage() {
   const router = useRouter();
-  const [project, setProjectState] = useState(() => ({ keyword: '주식 급등 작전', category: '경제', title: '', duration: '8분 30초' }));
+  const [project, setProjectState] = useState(() => ({
+    keyword: '주식 급등 작전',
+    category: '경제',
+    title: '',
+    duration: '8분 30초',
+    seniorMode: false,
+  }));
+  const [senior, setSenior] = useState(false);
+  const [baseBlocks, setBaseBlocks] = useState<Block[]>([]); // 원본 저장 (일반 모드)
   const [blocks, setBlocks] = useState<Block[]>([]);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
@@ -92,17 +107,23 @@ export default function ScriptPage() {
   const [initializing, setInitializing] = useState(true);
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
+  const audienceMeta = getAudienceMeta(senior);
+
   useEffect(() => {
     const p = getProject();
     setProjectState(p);
-    // 대본 "생성" 시뮬레이션 (2초 딜레이)
+    setSenior(p.seniorMode);
     setTimeout(() => {
-      setBlocks(buildInitialBlocks(p.keyword));
+      const initial = buildInitialBlocks(p.keyword);
+      setBaseBlocks(initial);
+      setBlocks(p.seniorMode ? transformForSenior(initial) : initial);
       setMessages([
         {
           id: 'm1',
           role: 'ai',
-          text: `기획서를 바탕으로 "${p.keyword}" 대본을 작성했습니다. 총 6개 블록, ${p.duration} 분량입니다.\n\n각 블록의 내용이나 톤을 바꾸고 싶으시면 편하게 말씀해 주세요.`,
+          text: p.seniorMode
+            ? `기획서를 바탕으로 "${p.keyword}" 대본을 작성했습니다.\n\n👥 시니어 모드 적용 · 어려운 용어에 한자·해설 자동 병기, 문장 호흡 여유롭게 조정했어요.\n\n총 6개 블록, ${p.duration} 분량입니다.`
+            : `기획서를 바탕으로 "${p.keyword}" 대본을 작성했습니다. 총 6개 블록, ${p.duration} 분량입니다.\n\n각 블록의 내용이나 톤을 바꾸고 싶으시면 편하게 말씀해 주세요.`,
           time: Date.now(),
         },
       ]);
@@ -114,6 +135,25 @@ export default function ScriptPage() {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, generating]);
 
+  // 시니어 모드 변경 시 블록 재변환
+  const handleSeniorChange = (next: boolean) => {
+    setSenior(next);
+    if (baseBlocks.length > 0) {
+      setBlocks(next ? transformForSenior(baseBlocks) : baseBlocks);
+      setMessages((prev) => [
+        ...prev,
+        {
+          id: `m-sn-${Date.now()}`,
+          role: 'ai',
+          text: next
+            ? '👥 시니어 모드로 전환했습니다. 어려운 용어에 한자·해설을 자동으로 달았어요.'
+            : '일반 모드로 전환했습니다.',
+          time: Date.now(),
+        },
+      ]);
+    }
+  };
+
   const handleSend = () => {
     const text = input.trim();
     if (!text || generating || initializing) return;
@@ -124,9 +164,10 @@ export default function ScriptPage() {
     setGenerating(true);
 
     setTimeout(() => {
-      const { updatedBlocks, aiReply, highlightIds } = smartRefine(text, blocks);
+      const { updatedBlocks, aiReply, highlightIds } = smartRefine(text, baseBlocks);
+      setBaseBlocks(updatedBlocks);
       setBlocks(
-        updatedBlocks.map((b) => ({
+        (senior ? transformForSenior(updatedBlocks) : updatedBlocks).map((b) => ({
           ...b,
           highlighted: highlightIds.includes(b.id),
         })),
@@ -137,7 +178,6 @@ export default function ScriptPage() {
       ]);
       setGenerating(false);
 
-      // 하이라이트 제거 (애니메이션 후)
       setTimeout(() => {
         setBlocks((prev) => prev.map((b) => ({ ...b, highlighted: false })));
       }, 2000);
@@ -160,6 +200,7 @@ export default function ScriptPage() {
         </div>
         <StepBar current="script" />
         <div className={shared.actions}>
+          <SeniorToggle onChange={handleSeniorChange} />
           <button
             className={`${shared.btn} ${shared.btnPrimary}`}
             onClick={() => router.push('/studio')}
@@ -175,19 +216,38 @@ export default function ScriptPage() {
         <div className={shared.leftPane}>
           <div className={shared.previewHead}>
             <div className={shared.previewLabel}>대본 미리보기</div>
-            <h1 className={shared.previewHeadline}>{project.title || `${project.keyword}의 숨겨진 진실`}</h1>
+            {senior && (
+              <div className={shared.seniorBadge}>
+                👥 시니어 타겟 최적화 · 한자 병기 · TTS 0.85x
+              </div>
+            )}
+            <h1
+              className={`${shared.previewHeadline} ${senior ? shared.seniorPreviewHeadline : ''}`}
+            >
+              {project.title || `${project.keyword}의 숨겨진 진실`}
+            </h1>
             <p className={shared.previewDek}>
               {project.category} · {project.duration} · 6개 블록
             </p>
             <div className={shared.statsPills}>
               <div className={shared.statPill}>
-                글자수 <strong className={shared.statValue}>{totalChars.toLocaleString()}</strong>
+                글자수{' '}
+                <strong className={shared.statValue}>
+                  {totalChars.toLocaleString()}
+                </strong>
               </div>
               <div className={shared.statPill}>
-                재생시간 <strong className={shared.statValue}>{Math.floor(totalDur / 60)}:{String(totalDur % 60).padStart(2, '0')}</strong>
+                재생시간{' '}
+                <strong className={shared.statValue}>
+                  {Math.floor(totalDur / 60)}:
+                  {String(totalDur % 60).padStart(2, '0')}
+                </strong>
               </div>
               <div className={shared.statPill}>
                 블록 <strong className={shared.statValue}>{blocks.length}</strong>
+              </div>
+              <div className={shared.statPill}>
+                CPM <strong className={shared.statValue}>{audienceMeta.cpm}</strong>
               </div>
             </div>
           </div>
@@ -213,16 +273,25 @@ export default function ScriptPage() {
                     className={`${styles.block} ${b.highlighted ? styles.highlighted : ''}`}
                   >
                     <div className={styles.blockHeader}>
-                      <span className={styles.blockNum}>{String(i + 1).padStart(2, '0')}</span>
+                      <span className={styles.blockNum}>
+                        {String(i + 1).padStart(2, '0')}
+                      </span>
                       <span
                         className={styles.blockTag}
-                        style={{ color: meta.color, background: `${meta.color}18` }}
+                        style={{
+                          color: meta.color,
+                          background: `${meta.color}18`,
+                        }}
                       >
                         {meta.icon} {meta.label}
                       </span>
                       <span className={styles.blockDur}>{b.duration}초</span>
                     </div>
-                    <p className={styles.blockText}>{b.text}</p>
+                    <p
+                      className={`${styles.blockText} ${senior ? shared.seniorBlockText : ''}`}
+                    >
+                      {b.text}
+                    </p>
                   </div>
                 );
               })}
@@ -252,7 +321,9 @@ export default function ScriptPage() {
                 className={`${shared.msg} ${m.role === 'ai' ? shared.msgAi : shared.msgUser}`}
               >
                 <div className={shared.msgHead}>
-                  <span className={shared.msgAuthor}>{m.role === 'ai' ? '✦ AI' : '나'}</span>
+                  <span className={shared.msgAuthor}>
+                    {m.role === 'ai' ? '✦ AI' : '나'}
+                  </span>
                 </div>
                 <div className={shared.msgBubble}>
                   {m.text.split('\n').map((line, i) => (
@@ -320,7 +391,15 @@ export default function ScriptPage() {
   );
 }
 
-// ── Smart refine (프론트 로컬 로직, AI처럼 작동) ──
+// ═══ Senior Text Transform ═══
+function transformForSenior(blocks: Block[]): Block[] {
+  return blocks.map((b) => ({
+    ...b,
+    text: applySeniorText(b.text),
+  }));
+}
+
+// ═══ Smart refine (로컬 로직) ═══
 function smartRefine(
   userText: string,
   blocks: Block[],
@@ -329,11 +408,9 @@ function smartRefine(
   const updated = blocks.map((b) => ({ ...b }));
   const highlights: string[] = [];
 
-  // 섹션 번호 감지
   const numMatch = t.match(/(\d+)\s*번|(\d+)번째/);
   const targetIdx = numMatch ? Number(numMatch[1] || numMatch[2]) - 1 : -1;
 
-  // 의도 감지
   const isStrengthen = /(강하|강렬|임팩트|세게|긴장)/.test(t);
   const isSoften = /(부드|약하|완화|편안)/.test(t);
   const isAddStats = /(통계|데이터|숫자|자료)/.test(t);
@@ -348,44 +425,40 @@ function smartRefine(
   const apply = (b: Block): Block => {
     let newText = b.text;
     if (isStrengthen) newText = '놀랍게도, ' + newText;
-    if (isSoften) newText = newText.replace(/습니다\./g, '습니다. ').replace(/\. /g, '. ');
-    if (isAddStats) newText += ' 실제로 관련 데이터를 보면, 금융감독원 통계상 평균 건당 피해액이 1억 7천만 원에 달합니다.';
-    if (isAddTwist) newText += ' 그런데 여기서 반전이 있습니다. 사람들이 놓치는 결정적 단서가 하나 더 있어요.';
-    if (isAddCta) newText += ' 구독과 알림 설정, 그리고 댓글 한 마디가 저에게는 큰 힘이 됩니다.';
+    if (isSoften) newText = newText.replace(/습니다\./g, '습니다. ');
+    if (isAddStats)
+      newText +=
+        ' 실제로 관련 데이터를 보면, 금융감독원 통계상 평균 건당 피해액이 1억 7천만 원에 달합니다.';
+    if (isAddTwist)
+      newText += ' 그런데 여기서 반전이 있습니다. 결정적 단서가 하나 더 있어요.';
+    if (isAddCta)
+      newText += ' 구독과 알림 설정, 그리고 댓글 한 마디가 저에게는 큰 힘이 됩니다.';
     return { ...b, text: newText };
   };
 
-  // 1) 특정 섹션 번호가 있음
   if (targetIdx >= 0 && targetIdx < updated.length) {
     updated[targetIdx] = apply(updated[targetIdx]);
     highlights.push(updated[targetIdx].id);
-    reply = `${targetIdx + 1}번 블록을 요청하신 방향으로 수정했습니다. 왼쪽 화면에서 노란 하이라이트 된 부분 확인해보세요.`;
-  }
-  // 2) 오프닝 / 마무리
-  else if (isOpening) {
+    reply = `${targetIdx + 1}번 블록을 요청하신 방향으로 수정했습니다.`;
+  } else if (isOpening) {
     updated[0] = apply(updated[0]);
     highlights.push(updated[0].id);
-    reply = '오프닝을 더 강하게 수정했습니다. 시선을 잡는 데 훨씬 효과적일 거예요.';
+    reply = '오프닝을 더 강하게 수정했습니다.';
   } else if (isEnding) {
     const last = updated.length - 1;
     updated[last] = apply(updated[last]);
     highlights.push(updated[last].id);
-    reply = '마무리 블록을 반영해 수정했습니다. 시청자가 행동으로 이어지도록 조정했어요.';
-  }
-  // 3) 전체 적용
-  else if (isAll || isStrengthen || isSoften || isAddStats) {
+    reply = '마무리 블록을 반영해 수정했습니다.';
+  } else if (isAll || isStrengthen || isSoften || isAddStats) {
     updated.forEach((b, i) => {
       updated[i] = apply(b);
       highlights.push(b.id);
     });
-    reply = '전체 대본을 요청하신 방향으로 재구성했습니다. 전반적인 톤이 바뀌었어요.';
-  }
-  // 4) 기본
-  else {
-    // 첫 번째 블록을 대충 수정
+    reply = '전체 대본을 요청하신 방향으로 재구성했습니다.';
+  } else {
     updated[0] = { ...updated[0], text: updated[0].text + ' (수정 반영됨)' };
     highlights.push(updated[0].id);
-    reply = '요청을 반영해 대본을 조정했습니다. 특정 블록을 콕 집어 말씀해 주시면 더 정확하게 수정해드릴게요.';
+    reply = '요청을 반영했습니다.';
   }
 
   return { updatedBlocks: updated, aiReply: reply, highlightIds: highlights };

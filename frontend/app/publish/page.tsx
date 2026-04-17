@@ -9,7 +9,14 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import shared from '../_shared/shared.module.css';
 import styles from './publish.module.css';
-import { FontLoader, StepBar, getProject } from '../_shared/StepBar';
+import {
+  FontLoader,
+  StepBar,
+  SeniorToggle,
+  getProject,
+  getAudienceMeta,
+  getSeniorThumbnail,
+} from '../_shared/StepBar';
 
 interface SeoData {
   title: string;
@@ -44,25 +51,43 @@ type UploadStage = 'idle' | 'uploading' | 'processing' | 'published';
 
 export default function PublishPage() {
   const router = useRouter();
-  const [project, setProject] = useState(() => ({ keyword: '주식 급등 작전', category: '경제', title: '', duration: '8분 30초' }));
+  const [project, setProjectState] = useState(() => ({ keyword: '주식 급등 작전', category: '경제', title: '', duration: '8분 30초', seniorMode: false }));
+  const [senior, setSenior] = useState(false);
   const [seo, setSeo] = useState<SeoData>(PRESET_SEO);
   const [messages, setMessages] = useState<Msg[]>([]);
   const [input, setInput] = useState('');
   const [generating, setGenerating] = useState(false);
-  const [safetyScore] = useState(87);
   const [highlight, setHighlight] = useState<'title' | 'description' | 'tags' | null>(null);
   const [uploadStage, setUploadStage] = useState<UploadStage>('idle');
   const [uploadProgress, setUploadProgress] = useState(0);
   const [videoId, setVideoId] = useState('');
+
+  const audienceMeta = getAudienceMeta(senior);
+  const safetyScore = audienceMeta.algoShield;
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    setProject(getProject());
+    const p = getProject();
+    setProjectState(p);
+    setSenior(p.seniorMode);
+    const meta = getAudienceMeta(p.seniorMode);
+
+    // 시니어 모드일 때 SEO 프리셋 조정 (썸네일·태그)
+    if (p.seniorMode) {
+      setSeo({
+        ...PRESET_SEO,
+        thumbnail: getSeniorThumbnail(PRESET_SEO.thumbnail),
+        tags: ['주식', '주식투자', '시니어투자', '은퇴자산', '노후준비', '주식사기예방', '안전투자', '경제상식', '50대주식', '60대재테크'],
+      });
+    }
+
     setMessages([
       {
         id: 'm1',
         role: 'ai',
-        text: `SEO 최적화 분석을 완료했습니다.\n\n수익화 안전도: ${87}/100 (A+)\n제목은 클릭률 기준 상위 12% 수준이고, 태그 10개 중 9개가 고CPM 키워드예요.\n\n필요하면 수정 요청 주세요. 준비되면 오른쪽 [YouTube 업로드] 버튼을 눌러주시면 됩니다.`,
+        text: p.seniorMode
+          ? `SEO 최적화 분석을 완료했습니다.\n\n👥 시니어 타겟 모드\n수익화 안전도: ${meta.algoShield}/100 (${meta.grade}) — 시니어 대상은 광고주 친화도가 높아 점수가 올라갑니다.\n예상 CPM: ${meta.cpm} (일반 대비 +$3~4)\n태그 · 썸네일은 50+ 시청자 취향으로 재구성했어요.\n\n준비되면 [YouTube 업로드] 버튼을 눌러주시면 됩니다.`
+          : `SEO 최적화 분석을 완료했습니다.\n\n수익화 안전도: ${meta.algoShield}/100 (${meta.grade})\n제목은 클릭률 기준 상위 12% 수준이고, 태그 10개 중 9개가 고CPM 키워드예요.\n\n필요하면 수정 요청 주세요. 준비되면 오른쪽 [YouTube 업로드] 버튼을 눌러주시면 됩니다.`,
       },
     ]);
   }, []);
@@ -127,6 +152,7 @@ export default function PublishPage() {
         </div>
         <StepBar current="publish" />
         <div className={shared.actions}>
+          <SeniorToggle onChange={setSenior} />
           <button
             className={`${shared.btn} ${shared.btnPrimary}`}
             onClick={() => router.push('/done')}
@@ -142,8 +168,17 @@ export default function PublishPage() {
         <div className={shared.leftPane}>
           <div className={shared.previewHead}>
             <div className={shared.previewLabel}>YouTube 업로드 준비</div>
+            {senior && (
+              <div className={shared.seniorBadge}>
+                👥 시니어 타겟 · CPM {audienceMeta.cpm} · 안전도 {audienceMeta.algoShield}
+              </div>
+            )}
             <h1 className={shared.previewHeadline}>배포 최적화</h1>
-            <p className={shared.previewDek}>SEO · 수익화 안전도 · 업로드 스케줄</p>
+            <p className={shared.previewDek}>
+              {senior
+                ? '시니어 시청자 · 고CPM · 안전도 ·  SEO'
+                : 'SEO · 수익화 안전도 · 업로드 스케줄'}
+            </p>
           </div>
 
           {/* Safety Score */}
@@ -151,7 +186,7 @@ export default function PublishPage() {
             <div className={styles.scoreLeft}>
               <div className={styles.scoreLabel}>수익화 안전도</div>
               <div className={styles.scoreValue}>{safetyScore}</div>
-              <div className={styles.scoreGrade}>Grade A+</div>
+              <div className={styles.scoreGrade}>Grade {audienceMeta.grade}</div>
             </div>
             <div className={styles.scoreRight}>
               <div className={styles.scoreBar}>
@@ -188,7 +223,11 @@ export default function PublishPage() {
               {/* Thumbnail */}
               <div className={styles.thumbnail}>
                 <div className={styles.thumbOverlay}>
-                  <span className={styles.thumbTitle}>{seo.thumbnail}</span>
+                  <span
+                    className={`${styles.thumbTitle} ${senior ? styles.thumbTitleSenior : ''}`}
+                  >
+                    {seo.thumbnail}
+                  </span>
                 </div>
                 <div className={styles.thumbBadge}>{project.duration}</div>
               </div>
@@ -289,9 +328,9 @@ export default function PublishPage() {
               <span>📅 추천 업로드 시간</span>
             </div>
             <div className={styles.scheduleBody}>
-              <div className={styles.scheduleTime}>내일 오후 8:00 ~ 9:30</div>
+              <div className={styles.scheduleTime}>{audienceMeta.bestTime}</div>
               <div className={styles.scheduleReason}>
-                경제 카테고리 · 40-50대 시청자 피크 시간대 · 예상 노출 +31%
+                {audienceMeta.bestTimeReason}
               </div>
             </div>
           </div>

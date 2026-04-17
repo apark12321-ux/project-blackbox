@@ -2,13 +2,21 @@
 
 /**
  * frontend/app/plan/page.tsx
- * AlgoMaker v6 · 대화형 채팅 UI · 기획 단계
+ * AlgoMaker · 기획 단계 (채팅 + 시니어 모드)
  */
 
 import { useState, useMemo, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './plan.module.css';
-import { StepBar, FontLoader, setProject } from '../_shared/StepBar';
+import sharedStyles from '../_shared/shared.module.css';
+import {
+  StepBar,
+  FontLoader,
+  SeniorToggle,
+  setProject,
+  getProject,
+  getAudienceMeta,
+} from '../_shared/StepBar';
 import {
   STRUCTURES,
   getStructureById,
@@ -21,9 +29,7 @@ import {
   type ChatMessage,
 } from './scenarios';
 
-function _FontLoaderLocal_unused() {
-  return null;
-}
+// FontLoader는 _shared에서 import함
 
 // 초기값
 const INITIAL_CATEGORY = '경제';
@@ -47,12 +53,16 @@ export default function PlanPage() {
   const [structureId, setStructureId] = useState(INITIAL_STRUCTURE);
   const [showStylePicker, setShowStylePicker] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [senior, setSenior] = useState(false);
+
+  const audienceMeta = getAudienceMeta(senior);
 
   const selected = getStructureById(structureId)!;
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
-  // 최초 진입 시 기획서 초안 자동 생성
+  // 최초 진입 시 기획서 초안 자동 생성 + senior 설정 불러오기
   useEffect(() => {
+    setSenior(getProject().seniorMode);
     initFirstPlan();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -200,6 +210,7 @@ export default function PlanPage() {
         <StepBar current="plan" />
 
         <div className={styles.actions}>
+          <SeniorToggle onChange={setSenior} />
           <button
             className={`${styles.btn} ${styles.btnPrimary}`}
             onClick={() => {
@@ -209,6 +220,7 @@ export default function PlanPage() {
                   category: INITIAL_CATEGORY,
                   title: plan.headline,
                   duration: '8분 30초',
+                  seniorMode: senior,
                 });
               }
               router.push('/script');
@@ -263,25 +275,32 @@ export default function PlanPage() {
             <>
               <div className={styles.previewHead}>
                 <div className={styles.previewLabel}>기획서 미리보기</div>
-                <h1 className={styles.previewHeadline}>{plan.headline}</h1>
+                {senior && (
+                  <div className={sharedStyles.seniorBadge}>
+                    👥 시니어 타겟 최적화 · 50+ 시청자 전용
+                  </div>
+                )}
+                <h1 className={`${styles.previewHeadline} ${senior ? sharedStyles.seniorPreviewHeadline : ''}`}>
+                  {plan.headline}
+                </h1>
                 <p className={styles.previewDek}>{plan.dek}</p>
                 <div className={styles.previewStats}>
                   <div className={styles.statPill}>
                     수익 등급{' '}
                     <strong className={styles.statValue}>
-                      {plan.metrics.grade}
+                      {audienceMeta.grade}
                     </strong>
                   </div>
                   <div className={styles.statPill}>
                     시청 유지{' '}
                     <strong className={styles.statValue}>
-                      {plan.metrics.avg_retention}%
+                      {audienceMeta.retention}%
                     </strong>
                   </div>
                   <div className={styles.statPill}>
                     CPM{' '}
                     <strong className={styles.statValue}>
-                      {plan.metrics.cpm_range}
+                      {audienceMeta.cpm}
                     </strong>
                   </div>
                   <div className={styles.statPill}>

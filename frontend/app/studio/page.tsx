@@ -9,7 +9,7 @@ import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import shared from '../_shared/shared.module.css';
 import styles from './studio.module.css';
-import { FontLoader, StepBar, getProject } from '../_shared/StepBar';
+import { FontLoader, StepBar, SeniorToggle, getProject, getAudienceMeta } from '../_shared/StepBar';
 
 interface Phase {
   id: string;
@@ -53,18 +53,22 @@ interface Msg {
 
 export default function StudioPage() {
   const router = useRouter();
-  const [project, setProject] = useState(() => ({ keyword: '주식 급등 작전', category: '경제', title: '', duration: '8분 30초' }));
+  const [project, setProjectState] = useState(() => ({ keyword: '주식 급등 작전', category: '경제', title: '', duration: '8분 30초', seniorMode: false }));
+  const [senior, setSenior] = useState(false);
   const [phaseIdx, setPhaseIdx] = useState(0);
   const [progress, setProgress] = useState(0);
   const [elapsed, setElapsed] = useState(0);
   const [completed, setCompleted] = useState(false);
   const [scenes, setScenes] = useState<Scene[]>(buildScenes());
   const [messages, setMessages] = useState<Msg[]>([]);
+  const audienceMeta = getAudienceMeta(senior);
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const startedRef = useRef(false);
 
   useEffect(() => {
-    setProject(getProject());
+    const p = getProject();
+    setProjectState(p);
+    setSenior(p.seniorMode);
   }, []);
 
   useEffect(() => {
@@ -178,6 +182,7 @@ export default function StudioPage() {
         </div>
         <StepBar current="studio" />
         <div className={shared.actions}>
+          <SeniorToggle onChange={setSenior} />
           <button
             className={`${shared.btn} ${shared.btnPrimary}`}
             onClick={() => router.push('/publish')}
@@ -193,11 +198,19 @@ export default function StudioPage() {
         <div className={shared.leftPane}>
           <div className={shared.previewHead}>
             <div className={shared.previewLabel}>영상 제작</div>
-            <h1 className={shared.previewHeadline}>
+            {senior && (
+              <div className={shared.seniorBadge}>
+                👥 시니어 최적화 · TTS {audienceMeta.ttsSpeed} · 자막 {audienceMeta.subtitlePx}px
+              </div>
+            )}
+            <h1
+              className={`${shared.previewHeadline} ${senior ? shared.seniorPreviewHeadline : ''}`}
+            >
               {project.title || `${project.keyword}의 숨겨진 진실`}
             </h1>
             <p className={shared.previewDek}>
               {project.category} · {project.duration} · 1920×1080 · 30fps
+              {senior && ' · 시니어 자막'}
             </p>
           </div>
 

@@ -8,12 +8,14 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import styles from './done.module.css';
-import { FontLoader, getProject } from '../_shared/StepBar';
+import { FontLoader, getProject, getAudienceMeta } from '../_shared/StepBar';
 
 export default function DonePage() {
   const router = useRouter();
-  const [project, setProject] = useState(() => ({ keyword: '주식 급등 작전', category: '경제', title: '', duration: '8분 30초' }));
+  const [project, setProject] = useState(() => ({ keyword: '주식 급등 작전', category: '경제', title: '', duration: '8분 30초', seniorMode: false }));
   const [confettiActive, setConfettiActive] = useState(true);
+
+  const audienceMeta = getAudienceMeta(project.seniorMode);
 
   useEffect(() => {
     setProject(getProject());
@@ -64,8 +66,16 @@ export default function DonePage() {
           </div>
           <div className={styles.summaryRow}>
             <span className={styles.summaryLabel}>수익화 안전도</span>
-            <span className={styles.summaryValue} style={{ color: '#4ade80' }}>A+ (87/100)</span>
+            <span className={styles.summaryValue} style={{ color: '#4ade80' }}>
+              {audienceMeta.grade} ({audienceMeta.algoShield}/100)
+            </span>
           </div>
+          {project.seniorMode && (
+            <div className={styles.summaryRow}>
+              <span className={styles.summaryLabel}>타겟</span>
+              <span className={styles.summaryValue} style={{ color: '#60a5fa' }}>👥 시니어 (50+)</span>
+            </div>
+          )}
           <div className={styles.summaryRow}>
             <span className={styles.summaryLabel}>상태</span>
             <span className={styles.summaryValue} style={{ color: '#4ade80' }}>✓ YouTube 게시됨</span>
@@ -82,11 +92,11 @@ export default function DonePage() {
             <div className={styles.statLabel}>제작 블록</div>
           </div>
           <div className={styles.statCard}>
-            <div className={styles.statValue}>$15-22</div>
+            <div className={styles.statValue}>{audienceMeta.cpm}</div>
             <div className={styles.statLabel}>예상 CPM</div>
           </div>
           <div className={styles.statCard}>
-            <div className={styles.statValue}>72%</div>
+            <div className={styles.statValue}>{audienceMeta.retention}%</div>
             <div className={styles.statLabel}>시청 유지율</div>
           </div>
         </div>
