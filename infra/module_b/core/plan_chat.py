@@ -24,14 +24,15 @@ if _GEMINI_KEY:
     genai.configure(api_key=_GEMINI_KEY)
 
 
-def _get_model(model_name: str = "gemini-2.0-flash-exp"):
+def _get_model(model_name: str = "gemini-2.5-flash"):
     """
-    Gemini 모델 인스턴스. flash-exp가 실패하면 flash로 fallback.
+    Gemini 모델 인스턴스. 2.5-flash가 실패하면 2.5-flash-lite로 fallback.
+    (gemini-1.5-* 및 2.0-flash-exp 는 이미 deprecated/종료됨)
     """
     try:
         return genai.GenerativeModel(model_name)
     except Exception:
-        return genai.GenerativeModel("gemini-1.5-flash")
+        return genai.GenerativeModel("gemini-2.5-flash-lite")
 
 
 # ══════════════════════════════════════════════════════════════
