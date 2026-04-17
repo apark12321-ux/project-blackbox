@@ -49,7 +49,7 @@ export default function HomePage() {
             <a href="#compare" className="hover:text-[#fafafa] transition">비교</a>
             <a href="#reviews" className="hover:text-[#fafafa] transition">후기</a>
           </div>
-          <button onClick={()=>router.push("/create")}
+          <button onClick={()=>router.push("/plan")}
             className="px-5 py-2 rounded-lg text-[15px] font-bold text-white transition hover:brightness-110"
             style={{background:"linear-gradient(135deg,#b38600,#d4a537)"}}>
             무료 시작
@@ -79,7 +79,7 @@ export default function HomePage() {
         </p>
 
         <div className={`flex flex-col sm:flex-row gap-3 transition-all duration-700 delay-[450ms] ${v?"opacity-100 translate-y-0":"opacity-0 translate-y-6"}`}>
-          <button onClick={()=>router.push("/create")}
+          <button onClick={()=>router.push("/plan")}
             className="gold-btn text-[15px] px-10 py-3.5 ani-pulse">
             무료로 시작하기
           </button>
@@ -226,7 +226,7 @@ export default function HomePage() {
         <h3 className="text-[22px] md:text-[34px] font-black text-white mb-4">
           지금 바로 수익형 영상을 만들어보세요
         </h3>
-                <button onClick={()=>router.push("/create")}
+                <button onClick={()=>router.push("/plan")}
           className="gold-btn text-[16px] px-12 py-4">
           무료로 시작하기 →
         </button>
