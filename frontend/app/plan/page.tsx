@@ -2,14 +2,7 @@
 
 /**
  * frontend/app/plan/page.tsx
- * AlgoMaker v2 · SaaS 작업 도구 UI (v3)
- *
- * 변경 사항:
- * - 세리프 전면 제거 (Pretendard 단일)
- * - 매거진 장식 요소 전부 제거
- * - 앱 바 + 좌측 내비 + 중앙 편집기 + 우측 인스펙터 (3패널)
- * - 모든 텍스트 편집 가능 (제목, 핵심, 불릿)
- * - 섹션 추가/삭제/복제 액션 버튼
+ * AlgoMaker v4 · 다크 톤 + 쉬운 한국말 + 높은 가독성
  */
 
 import { useState, useMemo, useEffect } from 'react';
@@ -44,7 +37,7 @@ const INITIAL_RECOMMENDATION = {
   grade: 'A+',
   retention: 58,
   reason:
-    '"주식 급등 작전"은 의혹 요소가 강한 키워드. 평균 2.3배 높은 시청 지속률을 보이는 구조입니다.',
+    '"주식 급등 작전"은 의혹 요소가 강한 주제입니다. 평균보다 2배 이상 높은 시청 유지율을 보이는 구조입니다.',
 };
 
 export default function PlanPage() {
@@ -103,7 +96,7 @@ export default function PlanPage() {
   const addNote = (beatId: string) => {
     setBeats((prev) =>
       prev.map((b) =>
-        b.id === beatId ? { ...b, notes: [...b.notes, '새 항목'] } : b,
+        b.id === beatId ? { ...b, notes: [...b.notes, '새 내용'] } : b,
       ),
     );
   };
@@ -151,11 +144,13 @@ export default function PlanPage() {
     <div className={styles.root}>
       <FontLoader />
 
-      {/* App Bar */}
+      {/* 앱 바 */}
       <header className={styles.appbar}>
         <div className={styles.brand}>
-          <div className={styles.brandMark}>A</div>
-          <div className={styles.brandText}>AlgoMaker</div>
+          <div className={styles.brandMark}>AM</div>
+          <div className={styles.brandText}>
+            Algo<span className={styles.gold}>Maker</span>
+          </div>
         </div>
 
         <div className={styles.projectMeta}>
@@ -170,37 +165,37 @@ export default function PlanPage() {
             value={projectTitle}
             onChange={(e) => setProjectTitle(e.target.value)}
           />
-          <span className={styles.saveStatus}>자동 저장됨</span>
+          <span className={styles.saveStatus}>저장됨</span>
         </div>
 
         <div className={styles.actions}>
           <button className={styles.btn}>
             <span>↩</span>
-            <span className="btnText">되돌리기</span>
+            <span className="btnText">실행 취소</span>
           </button>
           <button className={styles.btn}>
             <span>👁</span>
-            <span className="btnText">미리보기</span>
+            <span className="btnText">보기</span>
           </button>
           <button className={`${styles.btn} ${styles.primary}`}>
             <span>→</span>
-            대본 생성
+            대본 만들기
           </button>
         </div>
       </header>
 
       <div className={styles.layout}>
-        {/* Left Nav */}
+        {/* 좌측 */}
         <aside className={styles.nav}>
           <div className={styles.panelHead}>
-            <div className={styles.panelHeadLeft}>
+            <div className={styles.panelTitle}>
               <span>AI 추천</span>
             </div>
             <span className={styles.countBadge}>1</span>
           </div>
 
           <div className={styles.aiCard}>
-            <div className={styles.aiCardLabel}>추천 구조</div>
+            <div className={styles.aiCardLabel}>이 구조를 추천합니다</div>
             <div className={styles.aiCardTitle}>
               {getStructureById(INITIAL_RECOMMENDATION.structure_id)?.name}
             </div>
@@ -212,19 +207,19 @@ export default function PlanPage() {
                 <div className={styles.aiStatVal}>
                   {INITIAL_RECOMMENDATION.confidence}%
                 </div>
-                <div className={styles.aiStatLabel}>신뢰도</div>
+                <div className={styles.aiStatLabel}>확신도</div>
               </div>
               <div className={styles.aiStat}>
                 <div className={styles.aiStatVal}>
                   {INITIAL_RECOMMENDATION.grade}
                 </div>
-                <div className={styles.aiStatLabel}>등급</div>
+                <div className={styles.aiStatLabel}>수익 등급</div>
               </div>
               <div className={styles.aiStat}>
                 <div className={styles.aiStatVal}>
                   {INITIAL_RECOMMENDATION.retention}%
                 </div>
-                <div className={styles.aiStatLabel}>리텐션</div>
+                <div className={styles.aiStatLabel}>시청 유지</div>
               </div>
             </div>
             <button
@@ -234,13 +229,13 @@ export default function PlanPage() {
                 setSelectedId(INITIAL_RECOMMENDATION.structure_id)
               }
             >
-              <span>✓</span> 이 구조 적용
+              <span>✓</span> 이걸로 시작
             </button>
           </div>
 
           <div className={styles.panelHead}>
-            <div className={styles.panelHeadLeft}>
-              <span>구조 라이브러리</span>
+            <div className={styles.panelTitle}>
+              <span>구조 목록</span>
             </div>
             <span className={styles.countBadge}>12</span>
           </div>
@@ -249,7 +244,7 @@ export default function PlanPage() {
             <span className={styles.searchIcon}>⌕</span>
             <input
               type="text"
-              placeholder="구조 검색..."
+              placeholder="구조 이름으로 찾기"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
             />
@@ -270,11 +265,11 @@ export default function PlanPage() {
                   style={{
                     padding: '24px 12px',
                     textAlign: 'center',
-                    color: 'var(--ink-4)',
-                    fontSize: 12,
+                    color: 'var(--text-4)',
+                    fontSize: 13,
                   }}
                 >
-                  검색 결과가 없습니다
+                  결과가 없습니다
                 </div>
               )}
             </div>
@@ -297,24 +292,24 @@ export default function PlanPage() {
           )}
         </aside>
 
-        {/* Center Editor */}
+        {/* 중앙 */}
         <main className={styles.editor}>
           <div className={styles.editorHead}>
             <div>
               <div className={styles.editorTitle}>
-                <span>섹션 구성</span>
+                <span>영상 기획서</span>
                 <span className={styles.structChip}>
                   <span>{selected.emoji}</span>
                   <span>{selected.name}</span>
                 </span>
               </div>
               <div className={styles.editorSub}>
-                <span>{beats.length}개 섹션</span>
+                <span>섹션 {beats.length}개</span>
                 <span className={styles.bullet}>·</span>
                 <span>총 {basePlan.total_duration}</span>
                 <span className={styles.bullet}>·</span>
                 <span>
-                  평균 리텐션{' '}
+                  평균 시청 유지{' '}
                   {Math.round(
                     beats.reduce((a, b) => a + b.retention, 0) / beats.length,
                   )}
@@ -353,27 +348,27 @@ export default function PlanPage() {
                 id: `new-${Date.now()}`,
                 order: beats.length + 1,
                 kind: '새 섹션',
-                title: '제목 입력',
+                title: '제목을 입력하세요',
                 time_start: last?.time_end ?? '00:00',
                 time_end: '00:00',
                 retention: 50,
                 risk: 'med',
                 pull_quote: '',
-                notes: ['새 항목'],
+                notes: ['새 내용'],
               };
               setBeats([...beats, newBeat]);
             }}
           >
             <span>+</span>
-            섹션 추가
+            섹션 더하기
           </button>
         </main>
 
-        {/* Right Inspector */}
+        {/* 우측 */}
         <aside className={styles.inspector}>
           {selected.subParams.length > 0 ? (
             <div className={styles.inspSection}>
-              <div className={styles.inspTitle}>구조 옵션</div>
+              <div className={styles.inspTitle}>세부 설정</div>
               {selected.subParams.map((p) => (
                 <SubParamControl
                   key={p.key}
@@ -387,40 +382,42 @@ export default function PlanPage() {
             </div>
           ) : (
             <div className={styles.inspSection}>
-              <div className={styles.inspTitle}>구조 옵션</div>
+              <div className={styles.inspTitle}>세부 설정</div>
               <p
                 style={{
-                  fontSize: 12,
-                  color: 'var(--ink-4)',
+                  fontSize: 13,
+                  color: 'var(--text-3)',
                   lineHeight: 1.6,
                 }}
               >
-                이 구조에는 추가 조정 옵션이 없습니다.
+                이 구조는 따로 조정할 설정이 없습니다.
               </p>
             </div>
           )}
 
           <div className={styles.inspSection}>
-            <div className={styles.inspTitle}>수익화 예측</div>
+            <div className={styles.inspTitle}>예상 수익</div>
 
             <div className={`${styles.metricTile} ${styles.grade}`}>
-              <span className={styles.metricKey}>등급</span>
-              <span className={styles.metricVal}>{basePlan.metrics.grade}</span>
+              <span className={styles.metricKey}>수익 등급</span>
+              <span className={styles.metricVal}>
+                {basePlan.metrics.grade}
+              </span>
             </div>
             <div className={styles.metricTile}>
-              <span className={styles.metricKey}>평균 리텐션</span>
+              <span className={styles.metricKey}>평균 시청 유지율</span>
               <span className={styles.metricVal}>
                 {basePlan.metrics.avg_retention}%
               </span>
             </div>
             <div className={styles.metricTile}>
-              <span className={styles.metricKey}>예상 CPM</span>
+              <span className={styles.metricKey}>예상 광고 단가</span>
               <span className={styles.metricVal}>
                 {basePlan.metrics.cpm_range}
               </span>
             </div>
             <div className={styles.metricTile}>
-              <span className={styles.metricKey}>알고리즘 실드</span>
+              <span className={styles.metricKey}>알고리즘 안전도</span>
               <span className={styles.metricVal}>
                 {basePlan.metrics.algo_shield}
               </span>
@@ -432,7 +429,7 @@ export default function PlanPage() {
               onClick={handleRegen}
               disabled={isGenerating}
             >
-              {isGenerating ? '생성 중…' : '↻ 기획서 재생성'}
+              {isGenerating ? '만드는 중…' : '↻ 기획서 다시 만들기'}
             </button>
           </div>
         </aside>
@@ -551,7 +548,7 @@ function BeatCard({
         onClick={(e) => e.stopPropagation()}
       />
 
-      <div className={styles.beatCoreLabel}>핵심 메시지</div>
+      <div className={styles.beatCoreLabel}>한 줄 요약</div>
       <textarea
         className={styles.beatCoreInput}
         value={beat.pull_quote}
@@ -573,12 +570,12 @@ function BeatCard({
             <button
               type="button"
               className={styles.iconBtn}
-              style={{ width: 22, height: 22 }}
+              style={{ width: 24, height: 24 }}
               onClick={(e) => {
                 e.stopPropagation();
                 onRemoveNote(idx);
               }}
-              title="항목 삭제"
+              title="이 줄 삭제"
             >
               ×
             </button>
@@ -594,7 +591,7 @@ function BeatCard({
           onAddNote();
         }}
       >
-        <span>+</span> 항목 추가
+        <span>+</span> 내용 더하기
       </button>
     </div>
   );

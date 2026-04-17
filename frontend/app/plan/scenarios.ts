@@ -1,6 +1,5 @@
 // frontend/app/plan/scenarios.ts
-// AlgoMaker 시나리오 엔진 v2 · 구조 12종 + 세부 파라미터 정의
-// Step 1: 프론트엔드 목업. Step 2에서 백엔드 API로 대체 예정.
+// AlgoMaker v4 · 쉬운 한국말 + 다크 톤
 
 export type StructureCategory = 'economy' | 'analysis' | 'general';
 
@@ -25,39 +24,39 @@ export interface Structure {
   name: string;
   emoji: string;
   category: StructureCategory;
-  affinity: number; // 0~100
+  affinity: number;
   tagline: string;
   subParams: SubParamDef[];
 }
 
 // ──────────────────────────────────────────────────────
-// 12구조 라이브러리 (리네이밍 완료 — Videoto 용어 없음)
+// 12구조 라이브러리 (쉬운 한국말)
 // ──────────────────────────────────────────────────────
 export const STRUCTURES: Structure[] = [
   // 경제 · 사회 특화
   {
     id: 'clue-hunt',
-    name: '단서 사냥',
+    name: '단서 찾기',
     emoji: '🔍',
     category: 'economy',
     affinity: 95,
-    tagline: '의문 제시 → 단서 공개 → 진실',
+    tagline: '궁금증 → 단서 하나씩 → 진실',
     subParams: [
       {
         key: 'clue_pace',
-        label: '단서 공개 속도',
+        label: '단서 푸는 속도',
         kind: 'segments',
         default: 'steady',
         options: [
-          { value: 'slow', label: '느림' },
-          { value: 'steady', label: '중간' },
-          { value: 'rapid', label: '빠름' },
+          { value: 'slow', label: '천천히' },
+          { value: 'steady', label: '보통' },
+          { value: 'rapid', label: '빠르게' },
         ],
       },
       {
         key: 'red_herrings',
-        label: '페이크 단서',
-        hint: '재시청 유도',
+        label: '함정 단서 개수',
+        hint: '다시 보게 만듦',
         kind: 'stepper',
         default: 2,
         min: 0,
@@ -65,94 +64,94 @@ export const STRUCTURES: Structure[] = [
       },
       {
         key: 'narrator',
-        label: '화자 톤',
+        label: '말투',
         kind: 'dropdown',
         default: 'skeptical',
         options: [
-          { value: 'neutral', label: '중립적 조사자' },
-          { value: 'skeptical', label: '회의적 관찰자' },
-          { value: 'empathetic', label: '공감형 내레이터' },
-          { value: 'prosecutorial', label: '검사 스타일' },
+          { value: 'neutral', label: '차분하게' },
+          { value: 'skeptical', label: '의심하듯이' },
+          { value: 'empathetic', label: '공감하듯이' },
+          { value: 'prosecutorial', label: '따지듯이' },
         ],
       },
       {
         key: 'resolution',
-        label: '결론 확정성',
+        label: '결론 방식',
         kind: 'segments',
         default: 'probable',
         options: [
-          { value: 'definitive', label: '확정' },
-          { value: 'probable', label: '개연' },
-          { value: 'open', label: '개방' },
+          { value: 'definitive', label: '단정' },
+          { value: 'probable', label: '추정' },
+          { value: 'open', label: '열어둠' },
         ],
       },
     ],
   },
   {
     id: 'reverse-narrative',
-    name: '역시간 서사',
+    name: '거꾸로 이야기',
     emoji: '📖',
     category: 'economy',
     affinity: 88,
-    tagline: '결말 먼저 → 거슬러 올라가기',
+    tagline: '결말부터 → 처음으로 거슬러 올라가기',
     subParams: [
       {
         key: 'spoiler_intensity',
-        label: '결말 스포 강도',
+        label: '결말 미리 보여주기',
         kind: 'segments',
         default: 'medium',
         options: [
-          { value: 'weak', label: '약' },
-          { value: 'medium', label: '중' },
-          { value: 'strong', label: '강' },
+          { value: 'weak', label: '살짝' },
+          { value: 'medium', label: '보통' },
+          { value: 'strong', label: '강하게' },
         ],
       },
       {
         key: 'pov',
-        label: '화자 시점',
+        label: '누구 입장에서',
         kind: 'dropdown',
         default: 'analyst',
         options: [
-          { value: 'victim', label: '피해자 시점' },
-          { value: 'observer', label: '관찰자 시점' },
-          { value: 'insider', label: '내부자 시점' },
-          { value: 'analyst', label: '분석가 시점' },
+          { value: 'victim', label: '피해자 입장' },
+          { value: 'observer', label: '지켜보는 사람' },
+          { value: 'insider', label: '내부자 입장' },
+          { value: 'analyst', label: '분석가 입장' },
         ],
       },
     ],
   },
   {
     id: 'origin-trail',
-    name: '기원 추적',
+    name: '뿌리 찾기',
     emoji: '🏛️',
     category: 'economy',
     affinity: 85,
-    tagline: '현재 → 기원 → 변천 → 현재 의미',
+    tagline: '지금 → 과거로 → 변천사 → 지금 의미',
     subParams: [
       {
         key: 'depth',
-        label: '시간 깊이',
+        label: '얼마나 과거로',
         kind: 'segments',
         default: 'decade',
         options: [
-          { value: 'year', label: '최근 1년' },
-          { value: 'decade', label: '10년' },
-          { value: 'century', label: '100년+' },
+          { value: 'year', label: '1년 전' },
+          { value: 'decade', label: '10년 전' },
+          { value: 'century', label: '100년 전+' },
         ],
       },
     ],
   },
   {
     id: 'what-if-world',
-    name: '만약의 세계',
+    name: '만약 이렇다면',
     emoji: '🔮',
     category: 'economy',
     affinity: 82,
-    tagline: '"만약 X라면" 가상 시나리오',
+    tagline: '"만약에 이랬다면?" 가상 상황',
     subParams: [
       {
         key: 'scenario_count',
-        label: '시나리오 개수',
+        label: '상황 개수',
         kind: 'stepper',
         default: 3,
         min: 2,
@@ -164,21 +163,21 @@ export const STRUCTURES: Structure[] = [
   // 정보 · 분석
   {
     id: 'experiment-log',
-    name: '실험 노트',
+    name: '실험 일지',
     emoji: '🧪',
     category: 'analysis',
     affinity: 70,
-    tagline: '가설 → 검증 → 결론',
+    tagline: '주장 → 실제 확인 → 결론',
     subParams: [
       {
         key: 'data_density',
-        label: '데이터 밀도',
+        label: '숫자·자료 많이 쓰기',
         kind: 'segments',
         default: 'medium',
         options: [
-          { value: 'low', label: '가볍게' },
-          { value: 'medium', label: '중간' },
-          { value: 'high', label: '집중' },
+          { value: 'low', label: '조금만' },
+          { value: 'medium', label: '보통' },
+          { value: 'high', label: '많이' },
         ],
       },
     ],
@@ -189,7 +188,7 @@ export const STRUCTURES: Structure[] = [
     emoji: '⚖️',
     category: 'analysis',
     affinity: 68,
-    tagline: 'A vs B 지표별 비교',
+    tagline: 'A vs B 항목별 비교',
     subParams: [
       {
         key: 'criteria_count',
@@ -207,7 +206,7 @@ export const STRUCTURES: Structure[] = [
     emoji: '🔄',
     category: 'analysis',
     affinity: 65,
-    tagline: '당연한 것 → 흔들기 → 재정의',
+    tagline: '다들 믿는 것 → 흔들기 → 새로 정리',
     subParams: [
       {
         key: 'controversy_level',
@@ -215,9 +214,9 @@ export const STRUCTURES: Structure[] = [
         kind: 'segments',
         default: 'moderate',
         options: [
-          { value: 'mild', label: '순함' },
-          { value: 'moderate', label: '중간' },
-          { value: 'bold', label: '과감' },
+          { value: 'mild', label: '부드럽게' },
+          { value: 'moderate', label: '보통' },
+          { value: 'bold', label: '과감하게' },
         ],
       },
     ],
@@ -226,11 +225,11 @@ export const STRUCTURES: Structure[] = [
   // 범용
   {
     id: 'four-beats',
-    name: '4장 흐름',
+    name: '4단계 흐름',
     emoji: '📐',
     category: 'general',
     affinity: 60,
-    tagline: '질문 → 설명 → 전환 → 결론',
+    tagline: '질문 → 설명 → 반전 → 마무리',
     subParams: [],
   },
   {
@@ -239,16 +238,16 @@ export const STRUCTURES: Structure[] = [
     emoji: '🎭',
     category: 'general',
     affinity: 58,
-    tagline: '도입 20% / 심화 60% / 결단 20%',
+    tagline: '도입 20% · 심화 60% · 결단 20%',
     subParams: [
       {
         key: 'midpoint_twist',
-        label: '중간 반전',
+        label: '중간에 반전 넣기',
         kind: 'segments',
         default: 'yes',
         options: [
-          { value: 'no', label: '없음' },
-          { value: 'yes', label: '있음' },
+          { value: 'no', label: '안 넣음' },
+          { value: 'yes', label: '넣음' },
         ],
       },
     ],
@@ -259,7 +258,7 @@ export const STRUCTURES: Structure[] = [
     emoji: '💡',
     category: 'general',
     affinity: 55,
-    tagline: '가려움 → 원인 → 해법 → 행동',
+    tagline: '고민 → 원인 → 해결법 → 실천',
     subParams: [],
   },
   {
@@ -268,11 +267,11 @@ export const STRUCTURES: Structure[] = [
     emoji: '📊',
     category: 'general',
     affinity: 50,
-    tagline: 'N위 → 1위 역순 공개',
+    tagline: 'N위부터 1위까지 거꾸로',
     subParams: [
       {
         key: 'item_count',
-        label: '순위 항목 수',
+        label: '순위 개수',
         kind: 'stepper',
         default: 5,
         min: 3,
@@ -286,13 +285,13 @@ export const STRUCTURES: Structure[] = [
     emoji: '🎬',
     category: 'general',
     affinity: 48,
-    tagline: '인터뷰 + 내레이션 + 자료화면',
+    tagline: '인터뷰 + 내레이션 + 자료 화면',
     subParams: [],
   },
 ];
 
 export const CATEGORY_LABELS: Record<StructureCategory, string> = {
-  economy: '경제 · 사회 특화',
+  economy: '경제 · 사회',
   analysis: '정보 · 분석',
   general: '범용',
 };
@@ -306,16 +305,16 @@ export function getStructuresByCategory(cat: StructureCategory): Structure[] {
 }
 
 // ──────────────────────────────────────────────────────
-// 섹션 (Beat) 타입
+// 섹션 타입
 // ──────────────────────────────────────────────────────
 export interface Beat {
   id: string;
   order: number;
-  kind: string; // "hook", "ground", "clue-i" 등
+  kind: string;
   title: string;
-  time_start: string; // "00:00"
-  time_end: string; // "00:30"
-  retention: number; // 0~100
+  time_start: string;
+  time_end: string;
+  retention: number;
   risk: 'low' | 'med' | 'hi';
   pull_quote: string;
   notes: string[];
@@ -337,7 +336,7 @@ export interface Plan {
 }
 
 // ──────────────────────────────────────────────────────
-// 목업 데이터 생성기 (Step 2에서 API로 교체 예정)
+// 목업 데이터 생성기
 // ──────────────────────────────────────────────────────
 export function generateMockPlan(
   structureId: string,
@@ -349,13 +348,12 @@ export function generateMockPlan(
     throw new Error(`Unknown structure: ${structureId}`);
   }
 
-  // 구조별 기본 섹션 템플릿 (여기는 목업, 실제는 백엔드 생성)
   const templates: Record<string, Beat[]> = {
     'clue-hunt': [
       {
         id: 'b1',
         order: 1,
-        kind: 'Hook · 훅',
+        kind: '도입 · 시선 잡기',
         title: '400%의 환상, 72시간의 침묵',
         time_start: '00:00',
         time_end: '00:30',
@@ -365,30 +363,29 @@ export function generateMockPlan(
         notes: [
           '차트 화면 오픈 — 급등 구간 시각적 충격',
           '"왜 이렇게 올랐을까?" 질문 던지기',
-          '결말 힌트만 살짝 (전액 손실) · 스포 강도 약',
+          '결말 힌트만 살짝 (전액 손실)',
         ],
       },
       {
         id: 'b2',
         order: 2,
-        kind: 'Ground · 배경',
+        kind: '배경 설명',
         title: '우연이라기엔 너무 많다',
         time_start: '00:30',
         time_end: '02:00',
         retention: 85,
         risk: 'med',
-        pull_quote:
-          '지난 2년, 유사 사례는 143건. 피해액은 이미 2조 원을 넘었다.',
+        pull_quote: '지난 2년, 유사 사례는 143건. 피해액은 이미 2조 원을 넘었다.',
         notes: [
-          '금감원 통계 인용 — 불공정거래 제재 증가 추이',
+          '금감원 통계 — 불공정거래 제재 건수 증가 추이',
           '개인 투자자 비중 확대 시점 명시',
-          '"우연의 일치가 아닌 구조적 문제" 제시',
+          '"우연이 아닌 구조적 문제" 제시',
         ],
       },
       {
         id: 'b3',
         order: 3,
-        kind: 'Clue I · 첫 단서',
+        kind: '첫 번째 단서',
         title: '거래량 없는 3일',
         time_start: '02:00',
         time_end: '04:00',
@@ -396,15 +393,15 @@ export function generateMockPlan(
         risk: 'med',
         pull_quote: '"거래가 거의 없었는데, 주가는 왜 오르고 있었을까?"',
         notes: [
-          '1단계 저점 매집 메커니즘 설명',
-          '증권사 리포트 2종 교차 검증',
+          '1단계 저점 매집 방식 설명',
+          '증권사 리포트 2종 교차 확인',
           '"소량으로 주가 올리는 기술" 도해',
         ],
       },
       {
         id: 'b4',
         order: 4,
-        kind: 'Clue II · 페이크',
+        kind: '두 번째 단서 · 함정',
         title: 'SNS 바이럴이 원인? 아니다',
         time_start: '04:00',
         time_end: '06:00',
@@ -412,65 +409,62 @@ export function generateMockPlan(
         risk: 'med',
         pull_quote: '진짜 트리거는 더 조용한 곳에서 시작됐다.',
         notes: [
-          '의심 가설 1 ("여론 확산") 제시 후 반박',
+          '의심 가설 ("여론 확산") 제시 후 뒤집기',
           '리딩방 단톡방 로그 간접 제시',
-          '재시청 유도 장치: 두 번 봐야 보이는 단서 심기',
+          '다시 보게 만드는 장치: 두 번 봐야 보이는 단서 심기',
         ],
       },
       {
         id: 'b5',
         order: 5,
-        kind: 'Reveal · 진실',
-        title: '매집·띄우기·탈출',
+        kind: '진실 공개',
+        title: '매집 · 띄우기 · 탈출',
         time_start: '06:00',
         time_end: '08:00',
         retention: 58,
         risk: 'low',
-        pull_quote: '3단계의 작전은 정확한 시간표를 따라 움직였다.',
+        pull_quote: '3단계 작전은 정확한 시간표대로 움직였다.',
         notes: [
-          '작전 3단계 시각화 — 주가 차트 오버레이',
+          '작전 3단계 시각화 — 주가 차트 겹쳐 보기',
           '개미 유입 타이밍 = 세력 탈출 타이밍',
-          '실제 사건 1개 익명 케이스 스터디',
+          '실제 사건 1개 익명 사례 소개',
         ],
       },
       {
         id: 'b6',
         order: 6,
-        kind: 'Closing · 결론',
+        kind: '마무리',
         title: '세 가지 경고 신호',
         time_start: '08:00',
         time_end: '08:30',
         retention: 50,
         risk: 'low',
-        pull_quote:
-          '"오를 종목을 찾기보다, 잃지 않을 원칙이 먼저다."',
+        pull_quote: '"오를 종목을 찾기보다, 잃지 않을 원칙이 먼저다."',
         notes: [
           '거래량 급변 · 정체불명 호재 · 리딩방 추천',
           '3대 경고 신호 체크리스트 제공',
-          '결론 확정성: 개연성 (댓글 토론 유도)',
+          '댓글 토론 유도 문구',
         ],
       },
     ],
   };
 
-  // 선택된 구조의 템플릿이 없으면 clue-hunt 템플릿 재사용하되 kind/title만 바꿈
   let beats = templates[structureId];
   if (!beats) {
     const fallback = templates['clue-hunt'];
     beats = fallback.map((b) => ({
       ...b,
-      kind: `Section ${b.order} · ${struct.name}`,
+      kind: `섹션 ${b.order} · ${struct.name}`,
       title: `${struct.name} — ${b.order}부`,
       pull_quote: `${struct.tagline} (${b.order}번째 흐름)`,
       notes: [
         `${struct.name} 구조의 ${b.order}번째 섹션`,
-        `세부 파라미터: ${JSON.stringify(subParams).slice(0, 60)}...`,
-        '(목업 데이터 · Step 2에서 실제 백엔드로 교체)',
+        `세부 설정: ${JSON.stringify(subParams).slice(0, 60)}...`,
+        '(예시 데이터 · 백엔드 연결 시 실제 내용 생성)',
       ],
     }));
   }
 
-  // 등급은 구조의 affinity로 단순 매핑 (목업)
   const grade =
     struct.affinity >= 85
       ? 'A+'
@@ -488,11 +482,12 @@ export function generateMockPlan(
     beats,
     metrics: {
       grade,
-      grade_reason: `${struct.name} 구조는 ${struct.affinity}% 적합도로, 해당 키워드에서 평균 이상의 시청 지속률을 보입니다.`,
+      grade_reason: `${struct.name} 구조는 ${struct.affinity}% 적합도로, 해당 주제에서 평균 이상의 시청 유지율을 보입니다.`,
       avg_retention: Math.round(
         beats.reduce((a, b) => a + b.retention, 0) / beats.length,
       ),
-      cpm_range: grade === 'A+' ? '$15–22' : grade === 'A' ? '$12–18' : '$8–14',
+      cpm_range:
+        grade === 'A+' ? '$15–22' : grade === 'A' ? '$12–18' : '$8–14',
       algo_shield: struct.affinity - 5,
     },
   };
