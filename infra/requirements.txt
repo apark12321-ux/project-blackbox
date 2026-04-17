@@ -19,8 +19,12 @@ httpx==0.28.0
 # ── Utilities ──
 python-dotenv==1.0.1
 python-multipart==0.0.12
+
 # ── TTS ──
 edge-tts
 Pillow
 # cache-bust-v4
 notebooklm-py
+
+# ── AI ──
+google-generativeai==0.8.3
