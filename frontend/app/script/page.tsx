@@ -17,6 +17,8 @@ import {
   getAudienceMeta,
   applySeniorText,
 } from '../_shared/StepBar';
+import { generateContent, type ScriptBlock } from '../_shared/contentEngine';
+import { fetchScript } from '../../lib/api';
 
 interface Block {
   id: string;
@@ -48,46 +50,6 @@ const SUGGESTIONS = [
   '마무리에 행동 유도 강화',
 ];
 
-function buildInitialBlocks(keyword: string): Block[] {
-  return [
-    {
-      id: 'b1',
-      section: 'hook',
-      duration: 28,
-      text: `여러분, 하루 만에 400% 오른 종목이 있다면 뛰어들 준비가 되어 있습니까? 많은 개인 투자자들이 그렇게 생각했습니다. 그러나 72시간 뒤, 그들의 계좌에는 손실만 남았습니다. ${keyword}은 그렇게 시작됩니다. 오늘 영상에서는 수많은 피해자를 만들어낸 이 사건의 전모를 파헤쳐 보려 합니다.`,
-    },
-    {
-      id: 'b2',
-      section: 'body',
-      duration: 95,
-      text: `먼저 배경부터 짚어보겠습니다. 금융감독원 자료에 따르면, 지난 2년간 ${keyword}과 유사한 사례는 무려 143건이 보고됐습니다. 피해액만 2조 원이 넘습니다. 개인 투자자 비중이 급격히 늘어난 2020년 이후, 이런 유형의 조작 사례는 매년 30퍼센트씩 증가하고 있는 상황입니다. 단순한 우연의 반복이 아니라 구조적인 문제라는 뜻입니다.`,
-    },
-    {
-      id: 'b3',
-      section: 'body',
-      duration: 120,
-      text: `이제 첫 번째 단서를 보겠습니다. 사건 3일 전, 해당 종목의 거래량은 거의 없었습니다. 그런데 주가는 조금씩 오르고 있었죠. 이게 바로 '저점 매집' 단계입니다. 세력이 시장에 눈에 띄지 않을 정도로 소량씩 매수하면서 주가를 서서히 끌어올리는 기법입니다. 증권사 두 곳의 리포트를 교차 확인한 결과, 이 시점에 특정 계좌들의 집중 매수 패턴이 포착됐습니다.`,
-    },
-    {
-      id: 'b4',
-      section: 'body',
-      duration: 110,
-      text: `많은 분들이 SNS 바이럴 때문이라고 생각하실 겁니다. 사실 저도 처음엔 그렇게 의심했어요. 그런데 조사해보니 진짜 트리거는 훨씬 조용한 곳에 있었습니다. 리딩방과 비공개 단톡방입니다. 이곳에서 먼저 '매수 신호'가 울리고, 2~3일 뒤에야 일반 커뮤니티로 퍼져 나갑니다. 그러니까 SNS에서 볼 때쯤이면 이미 늦은 거예요.`,
-    },
-    {
-      id: 'b5',
-      section: 'opinion',
-      duration: 90,
-      text: `제가 이 사건을 파고들면서 느낀 점은 하나입니다. 돈을 버는 사람과 잃는 사람의 차이는 정보의 속도가 아니라 '원칙'의 유무라는 겁니다. 아무리 정보가 빨라도 검증되지 않은 종목에 뛰어들면 결국 당합니다. 반대로 원칙을 지키는 사람은 기회가 지나가도 손실은 피할 수 있습니다.`,
-    },
-    {
-      id: 'b6',
-      section: 'cta',
-      duration: 35,
-      text: `세 가지 경고 신호 기억해 두시면 좋겠습니다. 거래량 급변, 정체불명 호재, 리딩방 추천. 이 세 가지가 겹치면 무조건 피하세요. 이 영상이 도움이 되셨다면 구독과 알림 설정 부탁드리고, 궁금한 점은 댓글로 남겨주세요. 다음 영상에서 또 만나요.`,
-    },
-  ];
-}
 
 export default function ScriptPage() {
   const router = useRouter();
@@ -113,8 +75,36 @@ export default function ScriptPage() {
     const p = getProject();
     setProjectState(p);
     setSenior(p.seniorMode);
-    setTimeout(() => {
-      const initial = buildInitialBlocks(p.keyword);
+    (async () => {
+      // 실제 Gemini API로 대본 생성 시도
+      const result = await fetchScript(p.keyword, p.category, undefined, p.seniorMode);
+      let initial: Block[];
+      let sourceLabel = '';
+
+      if (result.source === 'gemini' && result.data?.scriptBlocks) {
+        initial = result.data.scriptBlocks.map((b: any) => ({
+          id: b.id,
+          section: b.section,
+          text: b.text,
+          duration: b.duration,
+        }));
+        sourceLabel = 'Google Gemini AI';
+      } else {
+        // Fallback: 로컬 contentEngine
+        const content = generateContent({
+          keyword: p.keyword,
+          category: p.category,
+          senior: p.seniorMode,
+        });
+        initial = content.scriptBlocks.map((b: any) => ({
+          id: b.id,
+          section: b.section,
+          text: b.text,
+          duration: b.duration,
+        }));
+        sourceLabel = '시뮬레이션 (API 연결 실패 시 자동 전환)';
+      }
+
       setBaseBlocks(initial);
       setBlocks(p.seniorMode ? transformForSenior(initial) : initial);
       setMessages([
@@ -122,13 +112,13 @@ export default function ScriptPage() {
           id: 'm1',
           role: 'ai',
           text: p.seniorMode
-            ? `기획서를 바탕으로 "${p.keyword}" 대본을 작성했습니다.\n\n👥 시니어 모드 적용 · 어려운 용어에 한자·해설 자동 병기, 문장 호흡 여유롭게 조정했어요.\n\n총 6개 블록, ${p.duration} 분량입니다.`
-            : `기획서를 바탕으로 "${p.keyword}" 대본을 작성했습니다. 총 6개 블록, ${p.duration} 분량입니다.\n\n각 블록의 내용이나 톤을 바꾸고 싶으시면 편하게 말씀해 주세요.`,
+            ? `✨ ${sourceLabel}로 "${p.keyword}" 대본 생성 완료.\n\n👥 시니어 모드 적용 · 어려운 용어 한자·해설 자동 병기, 문장 호흡 여유롭게 조정했어요.\n\n총 6개 블록, ${p.duration} 분량입니다.`
+            : `✨ ${sourceLabel}로 "${p.keyword}" 대본 생성 완료.\n\n총 6개 블록, ${p.duration} 분량입니다. 내용이나 톤을 바꾸고 싶으시면 편하게 말씀해 주세요.`,
           time: Date.now(),
         },
       ]);
       setInitializing(false);
-    }, 1800);
+    })();
   }, []);
 
   useEffect(() => {
