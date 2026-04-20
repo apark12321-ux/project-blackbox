@@ -38,6 +38,13 @@ except Exception as e:
     errors.append(f"BPlan: {e}")
     print(f"Module B Plan Chat failed: {e}")
 try:
+    from module_b.api.beta_routes import router as beta_router
+    app.include_router(beta_router)
+    print("Beta API loaded")
+except Exception as e:
+    errors.append(f"Beta: {e}")
+    print(f"Beta API failed: {e}")
+try:
     from module_b2.api.routes import router as b2_router
     app.include_router(b2_router)
     print("Module B-2 loaded")
