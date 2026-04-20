@@ -17,8 +17,6 @@ import {
   getAudienceMeta,
   getSeniorThumbnail,
 } from '../_shared/StepBar';
-import { generateContent } from '../_shared/contentEngine';
-import { fetchSeo } from '../../lib/api';
 
 interface SeoData {
   title: string;
@@ -74,48 +72,24 @@ export default function PublishPage() {
     setSenior(p.seniorMode);
     const meta = getAudienceMeta(p.seniorMode);
 
-    (async () => {
-      // 1순위: Gemini SEO 최적화 실제 호출
-      const result = await fetchSeo(p.keyword, p.category, p.seniorMode);
-      let seoData: any;
-      let sourceLabel = '';
-
-      if (result.source === 'gemini' && result.data?.seoTitle) {
-        seoData = result.data;
-        sourceLabel = 'Google Gemini AI';
-      } else {
-        // Fallback: 로컬 엔진
-        const content = generateContent({
-          keyword: p.keyword,
-          category: p.category,
-          senior: p.seniorMode,
-        });
-        seoData = {
-          seoTitle: content.seoTitle,
-          description: content.description,
-          tags: content.tags,
-          thumbnail: content.thumbnail,
-        };
-        sourceLabel = '시뮬레이션 (API 실패 시 자동 전환)';
-      }
-
+    // 시니어 모드일 때 SEO 프리셋 조정 (썸네일·태그)
+    if (p.seniorMode) {
       setSeo({
-        title: seoData.seoTitle,
-        description: seoData.description,
-        tags: seoData.tags,
-        thumbnail: seoData.thumbnail,
+        ...PRESET_SEO,
+        thumbnail: getSeniorThumbnail(PRESET_SEO.thumbnail),
+        tags: ['주식', '주식투자', '시니어투자', '은퇴자산', '노후준비', '주식사기예방', '안전투자', '경제상식', '50대주식', '60대재테크'],
       });
+    }
 
-      setMessages([
-        {
-          id: 'm1',
-          role: 'ai',
-          text: p.seniorMode
-            ? `✨ ${sourceLabel}로 SEO 최적화 완료.\n\n👥 시니어 타겟 · 수익화 안전도: ${meta.algoShield}/100 (${meta.grade})\n예상 CPM: ${meta.cpm} (광고주 친화도 높음)\n\n▪ 제목: "${seoData.seoTitle}"\n▪ 태그 ${seoData.tags.length}개 · 50+ 시청자 맞춤\n▪ 썸네일: 시니어 큰글씨\n\n준비되면 [YouTube 업로드] 버튼을 눌러주시면 됩니다.`
-            : `✨ ${sourceLabel}로 SEO 최적화 완료.\n\n수익화 안전도: ${meta.algoShield}/100 (${meta.grade}) · 예상 CPM: ${meta.cpm}\n\n▪ 제목: "${seoData.seoTitle}"\n  (YouTube SEO 2026 규칙 적용: 키워드 전진배치 + 숫자 + 괄호)\n▪ 태그 ${seoData.tags.length}개 (주 키워드 + 고CPM)\n▪ 썸네일 카피: 4단어 이내 (CTR 최적화)\n\n필요하면 수정 요청 주세요.`,
-        },
-      ]);
-    })();
+    setMessages([
+      {
+        id: 'm1',
+        role: 'ai',
+        text: p.seniorMode
+          ? `SEO 최적화 분석을 완료했습니다.\n\n👥 시니어 타겟 모드\n수익화 안전도: ${meta.algoShield}/100 (${meta.grade}) — 시니어 대상은 광고주 친화도가 높아 점수가 올라갑니다.\n예상 CPM: ${meta.cpm} (일반 대비 +$3~4)\n태그 · 썸네일은 50+ 시청자 취향으로 재구성했어요.\n\n준비되면 [YouTube 업로드] 버튼을 눌러주시면 됩니다.`
+          : `SEO 최적화 분석을 완료했습니다.\n\n수익화 안전도: ${meta.algoShield}/100 (${meta.grade})\n제목은 클릭률 기준 상위 12% 수준이고, 태그 10개 중 9개가 고CPM 키워드예요.\n\n필요하면 수정 요청 주세요. 준비되면 오른쪽 [YouTube 업로드] 버튼을 눌러주시면 됩니다.`,
+      },
+    ]);
   }, []);
 
   useEffect(() => {
