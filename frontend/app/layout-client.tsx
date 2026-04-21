@@ -12,8 +12,8 @@ const NAV: { key: ActivePage; icon: string; label: string; sub: string; min: num
   { key: "deploy", icon: "🛡️", label: "검수·배포", sub: "수익화 검증", min: 5, color: "#10b981" },
 ];
 
-// 자체 앱바를 가진 페이지들은 사이드바 · 탑바를 안 씌움
-const STANDALONE_PATHS = ["/", "/keyword", "/news", "/plan", "/script", "/studio", "/publish", "/done"];
+// v10 자체 shell을 가진 페이지들 + 루트 랜딩
+const STANDALONE_PATHS = ["/", "/create", "/keyword", "/configure", "/processing", "/done"];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { mode, setMode, step, activePage, setActivePage, reset, profile, setProfile } = useBlackboxStore();
@@ -27,7 +27,6 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="flex flex-col md:flex-row h-[100dvh]">
 
-      {/* ═══ PC Sidebar ═══ */}
       <nav className="hidden md:flex w-[240px] lg:w-[260px] shrink-0 flex-col py-6 sidebar" style={{borderRight:"1px solid rgba(255,255,255,0.06)"}}>
         <Link href="/" onClick={reset} className="flex items-center gap-3 px-6 mb-8 group">
           <div className="w-12 h-12 rounded-2xl flex items-center justify-center text-[16px] font-black text-white transition-transform group-hover:scale-105"

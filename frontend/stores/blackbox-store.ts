@@ -1,103 +1,88 @@
-import { create } from "zustand";
+/**
+ * AlgoMaker · v10 Zustand Store
+ * 기존 layout-client.tsx 및 다른 컴포넌트가 기대하는 인터페이스 호환
+ */
 
-export type ActivePage = "curation" | "script" | "video" | "deploy" | "channel";
+import { create } from 'zustand';
+import { persist } from 'zustand/middleware';
 
-interface UserProfile {
+export type ActivePage = 'curation' | 'script' | 'video' | 'deploy';
+export type Mode = 'normal' | 'senior';
+
+export interface Profile {
   channelName: string;
-  introText: string;
-  outroText: string;
-  watermarkText: string;
-  ttsVoiceId: string;
-  ttsVoiceName: string;
-  avatarId: string;
-  avatarName: string;
+  targetAge?: string;
+  topic?: string;
 }
 
-const DEFAULT_PROFILE: UserProfile = {
-  channelName: "",
-  introText: "안녕하세요, 오늘도 핵심만 짚어드리겠습니다.",
-  outroText: "다음 영상에서 더 유익한 정보로 찾아뵙겠습니다.",
-  watermarkText: "",
-  ttsVoiceId: "jBpfuIE2acCO8z3wKNLl",
-  ttsVoiceName: "기본 한국어",
-  avatarId: "",
-  avatarName: "",
-};
-
-interface BlackboxState {
-  mode: "normal" | "senior";
-  setMode: (m: "normal" | "senior") => void;
-  profile: UserProfile;
-  setProfile: (p: Partial<UserProfile>) => void;
+export interface BlackboxState {
+  /** 진행 단계 0~6 */
   step: number;
-  setStep: (s: number) => void;
+  /** 현재 활성 페이지 */
   activePage: ActivePage;
-  setActivePage: (p: ActivePage) => void;
-  category: string | null;
-  setCategory: (c: string | null) => void;
-  keywords: string[];
-  setKeywords: (k: string[]) => void;
-  selectedKeyword: string | null;
-  setSelectedKeyword: (k: string | null) => void;
-  news: any[];
-  setNews: (n: any[]) => void;
-  selectedNews: any[];
-  setSelectedNews: (n: any[]) => void;
-  script: any | null;
-  setScript: (s: any | null) => void;
-  benchmarks: any | null;
-  setBenchmarks: (b: any | null) => void;
-  video: any | null;
-  setVideo: (v: any | null) => void;
-  shield: any | null;
-  setShield: (s: any | null) => void;
-  publish: any | null;
-  setPublish: (p: any | null) => void;
+  /** 일반/시니어 모드 */
+  mode: Mode;
+  /** 채널 프로필 */
+  profile: Profile;
+
+  /** v10용 · 선택된 카테고리 */
+  category?: string;
+  categoryLabel?: string;
+
+  /** v10용 · 선택된 키워드 */
+  keyword?: string;
+  keywordData?: any;
+
+  /** v10용 · 상세 설정 */
+  tone?: 'formal' | 'friendly' | 'casual' | 'slang';
+  duration?: number;
+  customTopic?: string;
+
+  // Actions
+  setStep: (step: number) => void;
+  setActivePage: (page: ActivePage) => void;
+  setMode: (mode: Mode) => void;
+  setProfile: (profile: Profile) => void;
+  setCategory: (category: string, label: string) => void;
+  setKeyword: (keyword: string, data?: any) => void;
+  setConfig: (cfg: { tone?: any; duration?: number; customTopic?: string }) => void;
   reset: () => void;
 }
 
-export const useBlackboxStore = create<BlackboxState>((set) => ({
-  mode: "normal",
-  setMode: (m) => set({ mode: m }),
-  profile: { ...DEFAULT_PROFILE },
-  setProfile: (p) => set((state) => ({ profile: { ...state.profile, ...p } })),
+const initialState = {
   step: 0,
-  setStep: (s) => set({ step: s }),
-  activePage: "curation",
-  setActivePage: (p) => set({ activePage: p }),
-  category: null,
-  setCategory: (c) => set({ category: c }),
-  keywords: [],
-  setKeywords: (k) => set({ keywords: k }),
-  selectedKeyword: null,
-  setSelectedKeyword: (k) => set({ selectedKeyword: k }),
-  news: [],
-  setNews: (n) => set({ news: n }),
-  selectedNews: [],
-  setSelectedNews: (n) => set({ selectedNews: n }),
-  script: null,
-  setScript: (s) => set({ script: s }),
-  benchmarks: null,
-  setBenchmarks: (b) => set({ benchmarks: b }),
-  video: null,
-  setVideo: (v) => set({ video: v }),
-  shield: null,
-  setShield: (s) => set({ shield: s }),
-  publish: null,
-  setPublish: (p) => set({ publish: p }),
-  reset: () =>
-    set({
-      step: 0,
-      activePage: "curation",
-      category: null,
-      keywords: [],
-      selectedKeyword: null,
-      news: [],
-      selectedNews: [],
-      script: null,
-      benchmarks: null,
-      video: null,
-      shield: null,
-      publish: null,
+  activePage: 'curation' as ActivePage,
+  mode: 'normal' as Mode,
+  profile: {
+    channelName: '',
+    targetAge: '',
+    topic: '',
+  },
+  category: undefined,
+  categoryLabel: undefined,
+  keyword: undefined,
+  keywordData: undefined,
+  tone: 'formal' as const,
+  duration: 10,
+  customTopic: '',
+};
+
+export const useBlackboxStore = create<BlackboxState>()(
+  persist(
+    (set) => ({
+      ...initialState,
+      setStep: (step) => set({ step }),
+      setActivePage: (page) => set({ activePage: page }),
+      setMode: (mode) => set({ mode }),
+      setProfile: (profile) => set({ profile }),
+      setCategory: (category, label) => set({ category, categoryLabel: label, step: 1 }),
+      setKeyword: (keyword, data) => set({ keyword, keywordData: data, step: 2 }),
+      setConfig: (cfg) => set(cfg as any),
+      reset: () => set(initialState),
     }),
-}));
+    {
+      name: 'blackbox-storage',
+      version: 1,
+    }
+  )
+);

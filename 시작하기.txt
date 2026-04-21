@@ -1,0 +1,74 @@
+╔═════════════════════════════════════════════════╗
+║   AlgoMaker v10 FINAL · 업로드만 하면 됨         ║
+╚═════════════════════════════════════════════════╝
+
+🎯 이번엔 "그냥 덮어쓰기" 한 번이면 끝
+
+Beta 찌꺼기(lib/supabase.ts 등)가 placeholder로
+대체되어 있어서 빌드 실패 안 함.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 배포 순서 (간단!)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. 이 ZIP 압축 풀기
+
+2. 윈도우 탐색기 두 창 열기:
+   창1: algomaker-v10-FINAL/frontend  (ZIP 푼 곳)
+   창2: 문서/GitHub/project-blackbox/frontend
+
+3. 창1의 모든 내용 선택 (Ctrl+A)
+   → 복사 (Ctrl+C)
+   → 창2에 붙여넣기 (Ctrl+V)
+   → "모두 예"
+
+4. GitHub Desktop:
+   Summary: v10 FINAL
+   Commit to main → Push origin
+
+5. 3~5분 대기 → 테스트:
+   https://project-blackbox-cpqy.vercel.app/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📁 포함 내용 (30개 파일)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+frontend/
+├── app/
+│   ├── _shared/          V10Shell 공용 사이드바
+│   ├── create/           [1] 카테고리 선택
+│   ├── keyword/          [2] 키워드 12개
+│   ├── configure/        [3] 상세 설정
+│   ├── processing/       [4] AI 자동 처리
+│   ├── done/             [5] 완료
+│   ├── login/            (Beta 덮어쓰기 · /create로 리다이렉트)
+│   ├── news/ plan/ script/ studio/ publish/
+│                         (옛 경로 · /create로 리다이렉트)
+│   ├── layout.tsx
+│   ├── layout-client.tsx
+│   ├── page.tsx          랜딩
+│   └── globals.css
+├── lib/
+│   ├── supabase.ts       Beta 덮어쓰기 (Supabase 의존 없앰)
+│   ├── useAuth.ts        Beta 덮어쓰기
+│   └── api.ts            백엔드 API 호출
+├── stores/blackbox-store.ts
+├── hooks/use-api.ts
+├── components/index.ts
+├── next.config.ts
+├── package.json
+├── postcss.config.js
+├── tailwind.config.js
+└── tsconfig.json
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ 중요 · 한 가지
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+기존 frontend 폴더에 있었을 수도 있는 특수 파일
+(예: VideoEditPanel.tsx 같은 것)은 이 ZIP에 없어서
+덮어쓰기 시 사라집니다.
+
+v10 플로우에선 쓰지 않으므로 영향 없음.
+기존 기능이 꼭 필요하면 별도로 말씀 주세요.
+

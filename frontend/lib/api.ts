@@ -1,46 +1,23 @@
-/**
- * AlgoMaker Beta API Client
- * 백엔드 API 호출. 실패 시 null 반환하므로 호출자가 fallback 처리.
- */
-
-import { getSupabase } from './supabase';
+// v10 · API Client (Supabase 의존 제거)
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE ||
   process.env.NEXT_PUBLIC_API_URL ||
   'https://project-blackbox-production.up.railway.app';
 
-async function authHeader(): Promise<Record<string, string>> {
-  const supabase = getSupabase();
-  if (!supabase) return {};
+async function apiCall(path: string, body: any): Promise<any> {
   try {
-    const { data } = await supabase.auth.getSession();
-    if (data.session?.access_token) {
-      return { Authorization: `Bearer ${data.session.access_token}` };
-    }
-  } catch {}
-  return {};
-}
-
-async function apiCall(path: string, body: any, needsAuth = false): Promise<any> {
-  try {
-    const headers: Record<string, string> = {
-      'Content-Type': 'application/json',
-      ...(needsAuth ? await authHeader() : {}),
-    };
     const resp = await fetch(`${API_BASE}${path}`, {
       method: 'POST',
-      headers,
+      headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify(body),
     });
     if (!resp.ok) {
       const err = await resp.json().catch(() => ({}));
-      console.warn(`[API ${path}] ${resp.status}:`, err);
       return { ok: false, fallback: true, error: (err as any).error || `HTTP ${resp.status}` };
     }
     return await resp.json();
   } catch (e: any) {
-    console.warn(`[API ${path}] 호출 실패:`, e?.message);
     return { ok: false, fallback: true, error: e?.message };
   }
 }
@@ -61,18 +38,8 @@ export async function fetchNews(keyword: string, limit: number = 6) {
   return { source: 'fallback' as const, news: [], error: result.error };
 }
 
-export async function fetchScript(
-  keyword: string,
-  category: string,
-  newsSummaries?: any[],
-  senior: boolean = false
-) {
-  const result = await apiCall('/api/script', {
-    keyword,
-    category,
-    news_summaries: newsSummaries,
-    senior_mode: senior,
-  });
+export async function fetchScript(keyword: string, category: string, newsSummaries?: any[], senior: boolean = false) {
+  const result = await apiCall('/api/script', { keyword, category, news_summaries: newsSummaries, senior_mode: senior });
   if (result.ok && result.data?.scriptBlocks) {
     return { source: 'gemini' as const, data: result.data };
   }
@@ -96,10 +63,6 @@ export async function fetchTts(text: string, senior: boolean = false) {
     };
   }
   return { source: 'fallback' as const, audioUrl: null, error: result.error };
-}
-
-export async function saveProject(data: any) {
-  return apiCall('/api/project/save', data, true);
 }
 
 export async function checkHealth() {
