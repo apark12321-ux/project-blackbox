@@ -1,0 +1,34 @@
+╔═══════════════════════════════════════════╗
+║   AlgoMaker FINAL · 전체 덮어쓰기용       ║
+╚═══════════════════════════════════════════╝
+
+이 ZIP을 푼 후:
+  1. algomaker-FINAL 폴더 열기
+  2. 3개 폴더를 복사:
+
+     frontend/app → project-blackbox/frontend/app 에 덮어쓰기
+     frontend/lib → project-blackbox/frontend/lib 에 덮어쓰기
+     infra/ → project-blackbox/infra 에 덮어쓰기
+     supabase/ → project-blackbox/ 에 새로 (이미 있으면 덮어쓰기)
+
+  3. 덮어쓰기 팝업 → "모두 예"
+
+  4. GitHub Desktop:
+     - Summary: Beta 최종판 덮어쓰기
+     - Commit to main → Push origin
+
+  5. Vercel·Railway 자동 재배포 3~5분 대기
+
+  6. 최종 테스트:
+     https://project-blackbox-cpqy.vercel.app/login
+
+이전에 변경한 것들:
+  ✓ Railway 환경변수 4개 (NAVER, SUPABASE)
+  ✓ Vercel 환경변수 3개 (NEXT_PUBLIC_*)
+  ✓ Supabase SQL 스키마 실행
+  ✓ package.json @supabase/supabase-js 추가
+  ✓ app_main.py beta_router 등록
+  ✓ layout-client.tsx /login 추가
+
+이것들은 그대로 유지됩니다!
+

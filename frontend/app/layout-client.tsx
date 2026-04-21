@@ -12,8 +12,8 @@ const NAV: { key: ActivePage; icon: string; label: string; sub: string; min: num
   { key: "deploy", icon: "🛡️", label: "검수·배포", sub: "수익화 검증", min: 5, color: "#10b981" },
 ];
 
-// 자체 앱바를 가진 페이지들은 사이드바·탑바를 안 씌움
-const STANDALONE_PATHS = ["/", "/login", "/keyword", "/news", "/plan", "/script", "/studio", "/publish", "/done"];
+// 자체 앱바를 가진 페이지들은 사이드바 · 탑바를 안 씌움
+const STANDALONE_PATHS = ["/", "/keyword", "/news", "/plan", "/script", "/studio", "/publish", "/done"];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const { mode, setMode, step, activePage, setActivePage, reset, profile, setProfile } = useBlackboxStore();
