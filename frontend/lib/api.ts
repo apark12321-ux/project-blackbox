@@ -1,4 +1,4 @@
-// v10 · API Client (Supabase 의존 제거)
+// v11 · 백엔드 API 호출 (Supabase 의존 없음)
 
 const API_BASE =
   process.env.NEXT_PUBLIC_API_BASE ||
@@ -22,53 +22,26 @@ async function apiCall(path: string, body: any): Promise<any> {
   }
 }
 
-export async function fetchKeywords(category: string, senior: boolean = false) {
-  const result = await apiCall('/api/keyword-analyze', { category, senior_mode: senior });
-  if (result.ok && result.data?.keywords) {
-    return { source: 'gemini' as const, keywords: result.data.keywords };
-  }
-  return { source: 'fallback' as const, keywords: [], error: result.error };
+export async function fetchKeywords(category: string, senior = false) {
+  const r = await apiCall('/api/keyword-analyze', { category, senior_mode: senior });
+  if (r.ok && r.data?.keywords) return { source: 'gemini' as const, keywords: r.data.keywords };
+  return { source: 'fallback' as const, keywords: [], error: r.error };
 }
 
-export async function fetchNews(keyword: string, limit: number = 6) {
-  const result = await apiCall('/api/news', { keyword, limit });
-  if (result.ok && result.data?.news) {
-    return { source: 'naver' as const, news: result.data.news };
-  }
-  return { source: 'fallback' as const, news: [], error: result.error };
+export async function fetchNews(keyword: string, limit = 6) {
+  const r = await apiCall('/api/news', { keyword, limit });
+  if (r.ok && r.data?.news) return { source: 'naver' as const, news: r.data.news };
+  return { source: 'fallback' as const, news: [], error: r.error };
 }
 
-export async function fetchScript(keyword: string, category: string, newsSummaries?: any[], senior: boolean = false) {
-  const result = await apiCall('/api/script', { keyword, category, news_summaries: newsSummaries, senior_mode: senior });
-  if (result.ok && result.data?.scriptBlocks) {
-    return { source: 'gemini' as const, data: result.data };
-  }
-  return { source: 'fallback' as const, data: null, error: result.error };
+export async function fetchScript(keyword: string, category: string, news?: any[], senior = false) {
+  const r = await apiCall('/api/script', { keyword, category, news_summaries: news, senior_mode: senior });
+  if (r.ok && r.data?.scriptBlocks) return { source: 'gemini' as const, data: r.data };
+  return { source: 'fallback' as const, data: null, error: r.error };
 }
 
-export async function fetchSeo(keyword: string, category: string, senior: boolean = false) {
-  const result = await apiCall('/api/seo', { keyword, category, senior_mode: senior });
-  if (result.ok && result.data?.seoTitle) {
-    return { source: 'gemini' as const, data: result.data };
-  }
-  return { source: 'fallback' as const, data: null, error: result.error };
-}
-
-export async function fetchTts(text: string, senior: boolean = false) {
-  const result = await apiCall('/api/tts', { text, senior_mode: senior });
-  if (result.ok && result.audio_base64) {
-    return {
-      source: result.source as 'elevenlabs' | 'edge-tts',
-      audioUrl: `data:audio/mp3;base64,${result.audio_base64}`,
-    };
-  }
-  return { source: 'fallback' as const, audioUrl: null, error: result.error };
-}
-
-export async function checkHealth() {
-  try {
-    const resp = await fetch(`${API_BASE}/api/health`);
-    if (resp.ok) return await resp.json();
-  } catch {}
-  return { ok: false };
+export async function fetchSeo(keyword: string, category: string, senior = false) {
+  const r = await apiCall('/api/seo', { keyword, category, senior_mode: senior });
+  if (r.ok && r.data?.seoTitle) return { source: 'gemini' as const, data: r.data };
+  return { source: 'fallback' as const, data: null, error: r.error };
 }

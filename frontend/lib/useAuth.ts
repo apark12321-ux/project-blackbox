@@ -1,6 +1,4 @@
-// v10 · Auth 미사용 (로그인 없는 버전)
-// (Beta 시절 파일 덮어씀)
-
+// v11 · Auth 미사용 placeholder
 export function useAuth() {
   return {
     user: null,

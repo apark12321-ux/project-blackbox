@@ -2,11 +2,10 @@
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
-import { V10Shell, getV10Project, setV10Project } from '../_shared/V10Shell';
+import { V11Shell, getProject, setProject } from '../_shared/V11Shell';
 import styles from './configure.module.css';
 
 type Tone = 'formal' | 'friendly' | 'casual' | 'slang';
-
 const TONES: { key: Tone; label: string; example: string }[] = [
   { key: 'formal',   label: '격식형',   example: '오늘은 ~에 대해 알아보겠습니다.' },
   { key: 'friendly', label: '친근형',   example: '안녕하세요~ 오늘은 ~을 알아볼게요!' },
@@ -23,11 +22,8 @@ export default function ConfigurePage() {
   const [mode, setMode] = useState<'normal' | 'senior'>('normal');
 
   useEffect(() => {
-    const p = getV10Project();
-    if (!p.keyword) {
-      router.replace('/keyword');
-      return;
-    }
+    const p = getProject();
+    if (!p.keyword) { router.replace('/keyword'); return; }
     setKeyword(p.keyword);
     if (p.tone) setTone(p.tone);
     if (p.duration) setDuration(p.duration);
@@ -36,142 +32,95 @@ export default function ConfigurePage() {
   }, [router]);
 
   const handleStart = () => {
-    setV10Project({
-      customTopic,
-      tone,
-      duration,
-      mode,
-      step: 3,
-    });
+    setProject({ customTopic, tone, duration, mode, step: 3 });
     router.push('/processing');
   };
 
   return (
-    <V10Shell step={2} title="상세 설정" showStepDots={true}>
-      <div className={styles.container}>
-        <div className={styles.stepBar}>
-          <span className={styles.stepBarItem}>
-            <span className={`${styles.stepBarNum} ${styles.stepBarDone}`}>✓</span>
-            <span>카테고리</span>
-          </span>
-          <span className={styles.stepBarArrow}>›</span>
-          <span className={styles.stepBarItem}>
-            <span className={`${styles.stepBarNum} ${styles.stepBarDone}`}>✓</span>
-            <span>키워드</span>
-          </span>
-          <span className={styles.stepBarArrow}>›</span>
-          <span className={`${styles.stepBarItem} ${styles.stepBarActive}`}>
-            <span className={styles.stepBarNum}>3</span>
-            <span>상세 설정</span>
-          </span>
-          <span className={styles.stepBarArrow}>›</span>
-          <span className={styles.stepBarItem}>
-            <span className={styles.stepBarNum}>4</span>
-            <span>자동 생성</span>
-          </span>
-        </div>
-
-        <div className={styles.selectedBox}>
-          <div className={styles.selectedLabel}>선택한 키워드</div>
-          <div className={styles.selectedKeyword}>
-            <span>🎯</span>
-            <strong>{keyword}</strong>
+    <V11Shell currentStep={3}>
+      <section className={styles.page}>
+        <div className={styles.container}>
+          <div className={styles.header}>
+            <div className={styles.eyebrow}>STEP 3 · 상세 설정</div>
+            <h1 className={styles.title}>영상 스타일 설정</h1>
+            <p className={styles.sub}>선택한 키워드에 맞춰 <strong>말투, 길이, 모드</strong>를 조정하세요</p>
           </div>
-        </div>
 
-        <h2 className={styles.title}>영상 상세 설정</h2>
-        <p className={styles.subtitle}>말투, 길이, 타겟을 조정하면 최적 콘텐츠가 생성됩니다</p>
-
-        {/* 직접 입력 */}
-        <div className={styles.section}>
-          <div className={styles.sectionLabel}>
-            📝 추가 주제 (선택사항)
-            <span className={styles.optional}>Optional</span>
+          <div className={styles.selectedKw}>
+            <span className={styles.selectedLabel}>선택한 키워드</span>
+            <strong className={styles.selectedValue}>{keyword}</strong>
           </div>
-          <input
-            type="text"
-            className={styles.input}
-            placeholder={`예: ${keyword} 관련 최신 이슈`}
-            value={customTopic}
-            onChange={(e) => setCustomTopic(e.target.value)}
-          />
-          <div className={styles.hint}>비워두면 AI가 키워드 기반으로 자동 구성합니다</div>
-        </div>
 
-        {/* 말투 */}
-        <div className={styles.section}>
-          <div className={styles.sectionLabel}>🗣️ 말투</div>
-          <div className={styles.toneGrid}>
-            {TONES.map((t) => (
+          <div className={styles.section}>
+            <div className={styles.sectionLabel}>
+              추가 주제 <span className={styles.optional}>선택사항</span>
+            </div>
+            <input
+              type="text"
+              className={styles.input}
+              placeholder={`예: ${keyword} 관련 최신 이슈`}
+              value={customTopic}
+              onChange={(e) => setCustomTopic(e.target.value)}
+            />
+            <div className={styles.hint}>비워두면 AI가 키워드 기반으로 자동 구성합니다</div>
+          </div>
+
+          <div className={styles.section}>
+            <div className={styles.sectionLabel}>말투</div>
+            <div className={styles.toneGrid}>
+              {TONES.map(t => (
+                <button
+                  key={t.key}
+                  className={`${styles.toneBtn} ${tone === t.key ? styles.toneBtnActive : ''}`}
+                  onClick={() => setTone(t.key)}
+                >
+                  <div className={styles.toneLabel}>{t.label}</div>
+                  <div className={styles.toneEx}>{t.example}</div>
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <div className={styles.section}>
+            <div className={styles.sectionLabel}>
+              영상 길이 <strong className={styles.durValue}>약 {duration}분</strong>
+            </div>
+            <input type="range" min={5} max={20} step={1} value={duration}
+              onChange={(e) => setDuration(parseInt(e.target.value))}
+              className={styles.slider} />
+            <div className={styles.sliderLabels}>
+              <span>5분</span><span>10분</span><span>15분</span><span>20분</span>
+            </div>
+          </div>
+
+          <div className={styles.section}>
+            <div className={styles.sectionLabel}>타겟 모드</div>
+            <div className={styles.modeGrid}>
               <button
-                key={t.key}
-                className={`${styles.toneBtn} ${tone === t.key ? styles.toneBtnActive : ''}`}
-                onClick={() => setTone(t.key)}
+                className={`${styles.modeBtn} ${mode === 'normal' ? styles.modeBtnActive : ''}`}
+                onClick={() => setMode('normal')}
               >
-                <div className={styles.toneLabel}>{t.label}</div>
-                <div className={styles.toneExample}>{t.example}</div>
+                <div className={styles.modeIcon}>👤</div>
+                <div className={styles.modeTitle}>일반</div>
+                <div className={styles.modeDesc}>전연령 대상 · 표준 톤</div>
               </button>
-            ))}
+              <button
+                className={`${styles.modeBtn} ${mode === 'senior' ? styles.modeBtnActive : ''}`}
+                onClick={() => setMode('senior')}
+              >
+                <div className={styles.modeIcon}>👴</div>
+                <div className={styles.modeTitle}>시니어</div>
+                <div className={styles.modeDesc}>50-70대 · 큰 글씨 · 느린 TTS · 고CPM</div>
+              </button>
+            </div>
           </div>
-        </div>
 
-        {/* 영상 길이 */}
-        <div className={styles.section}>
-          <div className={styles.sectionLabel}>
-            ⏱️ 영상 길이:&nbsp;
-            <strong className={styles.durationValue}>약 {duration}분</strong>
-          </div>
-          <input
-            type="range"
-            min={5}
-            max={20}
-            step={1}
-            value={duration}
-            onChange={(e) => setDuration(parseInt(e.target.value))}
-            className={styles.slider}
-          />
-          <div className={styles.sliderLabels}>
-            <span>5분</span>
-            <span>10분</span>
-            <span>15분</span>
-            <span>20분</span>
+          <div className={styles.footer}>
+            <button className={styles.btnBack} onClick={() => router.push('/keyword')}>← 키워드 변경</button>
+            <button className={styles.btnStart} onClick={handleStart}>영상 자동 생성 시작 →</button>
           </div>
         </div>
-
-        {/* 모드 */}
-        <div className={styles.section}>
-          <div className={styles.sectionLabel}>👥 타겟 모드</div>
-          <div className={styles.modeGrid}>
-            <button
-              className={`${styles.modeBtn} ${mode === 'normal' ? styles.modeBtnActive : ''}`}
-              onClick={() => setMode('normal')}
-            >
-              <div className={styles.modeIcon}>👤</div>
-              <div className={styles.modeTitle}>일반</div>
-              <div className={styles.modeDesc}>전연령 대상 표준 톤</div>
-            </button>
-            <button
-              className={`${styles.modeBtn} ${mode === 'senior' ? styles.modeBtnActive : ''}`}
-              onClick={() => setMode('senior')}
-            >
-              <div className={styles.modeIcon}>👴</div>
-              <div className={styles.modeTitle}>시니어</div>
-              <div className={styles.modeDesc}>50-70대 · 큰 글씨, 느린 TTS, 고CPM</div>
-            </button>
-          </div>
-        </div>
-
-        <div className={styles.bottomBar}>
-          <button className={styles.backBtn} onClick={() => router.push('/keyword')}>
-            ← 키워드 변경
-          </button>
-          <button className={styles.startBtn} onClick={handleStart}>
-            <span>🎬</span>
-            <span>영상 자동 생성 시작</span>
-            <span>→</span>
-          </button>
-        </div>
-      </div>
-    </V10Shell>
+      </section>
+    </V11Shell>
   );
 }
