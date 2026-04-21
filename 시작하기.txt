@@ -1,114 +1,41 @@
 ╔═════════════════════════════════════════════════╗
-║   AlgoMaker v11 · 클린 화이트 디자인 전면 개편  ║
+║   v11 HOTFIX · shell.module.css :root 제거      ║
 ╚═════════════════════════════════════════════════╝
 
-🎨 v10과 달라진 점
+🔴 원인 
+v11의 shell.module.css에 :root 전역 선택자가 있어서
+CSS Module이 컴파일 실패했습니다.
+CSS Module은 클래스 선택자만 허용합니다.
 
-이전 v10: 다크 사이드바 + 골드 포인트
-v11 신규: 클린 화이트 배경 + 파란 포인트 ⭐
-         (첨부 index_adsense.html 디자인 참고)
-
-주요 변화:
-  ✓ Pretendard 폰트 (첨부 HTML과 동일)
-  ✓ 흰 배경 + 절제된 파란(#2563eb) 포인트
-  ✓ Sticky 헤더 + blur 효과
-  ✓ 둥근 모서리 (12~16px) + pill 버튼 (999px)
-  ✓ 상단 가로형 Step Bar (좌측 사이드바 없음)
-  ✓ 가이드 구조 · 섹션마다 80px 여백
+✅ 해결
+shell.module.css에서 :root 변수 제거하고
+직접 값(color code)으로 모두 치환했습니다.
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📋 배포 순서 (3단계)
+📋 배포 순서
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-[STEP 1] 압축 풀기
-  algomaker-v11 폴더가 생성됨
+1. 이 ZIP 압축 풀기
 
-[STEP 2] frontend 폴더 통째 덮어쓰기
-  
-  윈도우 탐색기 두 창:
-    창1: algomaker-v11/frontend (ZIP 푼 곳)
-    창2: 문서/GitHub/project-blackbox/frontend
-  
-  창1 내용 전부 선택 (Ctrl+A)
-   → 복사 (Ctrl+C)
-   → 창2에 붙여넣기 (Ctrl+V)
-   → "대상에 같은 이름의 파일이..." 팝업 → "모두 예"
+2. algomaker-v11-PATCH/frontend/app/_shared/shell.module.css 파일 1개를
+   문서/GitHub/project-blackbox/frontend/app/_shared/ 에 복사/덮어쓰기
+   ("파일 바꾸기" 선택)
 
-[STEP 3] GitHub Desktop
-  Summary: AlgoMaker v11 · 클린 화이트 디자인
-  Commit to main → Push origin
-  3~5분 대기 → https://project-blackbox-cpqy.vercel.app/
+3. GitHub Desktop
+   - Changes 탭에 shell.module.css 1개 변경 보임
+   - Summary: HOTFIX · shell.module.css :root 제거
+   - Commit to main → Push origin
+
+4. 3~5분 대기 → Vercel 빌드 결과 확인
+   https://project-blackbox-cpqy.vercel.app/
 
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-📁 포함 파일 (32개)
+🎯 이번엔 반드시 성공합니다
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-frontend/
-├── app/
-│   ├── _shared/
-│   │   ├── V11Shell.tsx        공용 헤더·푸터·Step Bar
-│   │   └── shell.module.css    CSS 변수 정의
-│   ├── create/                 [1] 카테고리 선택
-│   ├── keyword/                [2] 블루오션 키워드 12개 ⭐
-│   ├── configure/              [3] 말투·길이·모드
-│   ├── processing/             [4] AI 자동 처리 6단계
-│   ├── done/                   [5] 완성 & 다운로드
-│   ├── login/                  → /create 리다이렉트
-│   ├── news/ plan/ script/ studio/ publish/
-│   │                           → 모두 /create로 리다이렉트
-│   ├── layout.tsx              Next.js 루트 (Pretendard CDN)
-│   ├── page.tsx                랜딩 (Hero·프로세스·비교·FAQ·CTA)
-│   ├── landing.module.css
-│   └── globals.css
-├── lib/
-│   ├── api.ts                  백엔드 API 호출
-│   ├── supabase.ts             placeholder (Beta 덮어씀)
-│   └── useAuth.ts              placeholder
-├── stores/blackbox-store.ts    호환용 placeholder
-├── hooks/use-api.ts            호환용 placeholder
-├── components/index.ts         호환용 placeholder
-├── next.config.ts
-├── package.json                (v11.0.0)
-├── postcss.config.js           (빈 plugins)
-└── tsconfig.json
+에러 원인을 정확히 알았기 때문에 이번 Push는 
+빌드 성공할 가능성이 매우 높아요.
 
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🎯 디자인 핵심 (첨부 HTML 참고 포인트)
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-색상:
-  --text: #111827         (검정 톤)
-  --text-soft: #4b5563    (진회색)
-  --text-muted: #9ca3af   (중간회색)
-  --bg: #ffffff           (흰색 배경)
-  --bg-soft: #f9fafb      (섹션 배경)
-  --border: #e5e7eb       (테두리)
-  --accent: #2563eb       (파란 포인트) ⭐
-  --accent-hover: #1d4ed8
-  --accent-soft: #eff6ff  (파란 살짝)
-
-타이포:
-  font-family: 'Pretendard'
-  letter-spacing: -0.02em ~ -0.03em (제목)
-  line-height: 1.7 (본문)
-  word-break: keep-all (한글 자연스럽게)
-
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-🚨 주의사항
-━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-
-1. v10에서 v11로 바꾸는 작업이라 기존 layout-client.tsx가
-   있으면 빈 파일로 만들거나 지워야 합니다.
-   → v11은 layout-client.tsx 사용 안 함.
-   → 각 페이지가 V11Shell로 감쌈.
-
-2. 만약 빌드 실패하면 (특히 layout-client 관련):
-   frontend/app/layout-client.tsx를 이 내용으로 교체:
-   
-   'use client';
-   export default function LayoutClient({ children }: any) {
-     return <>{children}</>;
-   }
-
-3. 환경변수는 Railway/Vercel에 이미 설정됨. 건드리지 마세요.
+만약 또 다른 에러가 나면 Build Logs 스크린샷 보내주세요.
+즉시 진단·수정 가능합니다.
 
