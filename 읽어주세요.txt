@@ -1,52 +1,60 @@
 =============================================
-  AlgoMaker v9 · 6단계 플로우 완성판
+  AlgoMaker v8 전체 플로우 · 배포 방법
 =============================================
 
-🎯 업데이트 내용
+🎯 해야 할 일은 딱 하나!
 
-▪ 랜딩 페이지 컨셉("키워드 하나면 완성까지 6단계")에 맞춰
-  전체 플로우를 6단계로 복원
-
-  1. 키워드 발굴 (/keyword)   ← 새로 추가
-  2. 뉴스 큐레이션 (/news)    ← 새로 추가
-  3. AI 대본 작성 (/script)
-  4. TTS + 영상 합성 (/studio)
-  5. 수익화 검증 (/publish)
-  6. 완료 (/done)
-
-▪ 각 단계 모두 /plan 스타일 (다크 + 골드 + 채팅형 UI) 통일
-
-▪ 예전 /create, /plan 주소는 자동으로 /keyword 로 리다이렉트
-
-▪ 시니어 모드, 자유 이동, "← 이전" 버튼 그대로 유지
+이 폴더 안의 "frontend"와 "infra" 폴더를
+GitHub 폴더에 그대로 덮어쓰기만 하면 끝입니다.
 
 ---
 
-📋 배포 방법
+📋 방법 (3분)
 
-1. ZIP 압축 풀기
-2. project-blackbox-update 폴더 열기
-3. "frontend" 와 "infra" 폴더 복사
-4. 문서 > GitHub > project-blackbox 에 붙여넣기 → "모두 예"
-5. GitHub Desktop:
-   - Summary: v9 6단계 플로우 완성
-   - Commit to main → Push origin
-6. 5~7분 대기
-7. project-blackbox-cpqy.vercel.app/keyword 접속 → Ctrl+Shift+R
+1. 이 ZIP 파일의 압축을 풉니다.
+   → "project-blackbox-update" 폴더가 생깁니다.
+
+2. 그 안에 있는 두 폴더를 복사합니다:
+   - frontend
+   - infra
+
+3. 윈도우 탐색기에서 다음 경로로 이동:
+   📂 문서 > GitHub > project-blackbox
+
+4. 여기에 복사한 두 폴더를 붙여넣기 합니다.
+   → "이미 있는 파일을 덮어쓰시겠습니까?" 창이 뜨면
+   → "모두 예" 클릭!
+
+5. GitHub Desktop 실행
+   → 왼쪽에 14~15개 변경 파일이 보입니다
+   → Summary에 입력: 전체 플로우 v8 완성
+   → [Commit to main] 클릭
+   → 상단 [Push origin] 클릭
+
+6. 5~7분 기다리기 (Vercel + Railway 자동 배포)
 
 ---
 
-🎬 확인 포인트
+✅ 배포 확인
 
-랜딩(/) → "무료로 시작하기" 클릭 → /keyword 로 진입
+https://project-blackbox-cpqy.vercel.app/plan
+접속해서 Ctrl+Shift+R 새로고침.
 
-1. /keyword — 카테고리 클릭 → 키워드 목록 → "뉴스 수집 →"
-2. /news    — 기사 선택 → "대본 만들기 →"
-3. /script  — 6블록 대본 + 채팅 수정 → "영상 만들기 →"
-4. /studio  — TTS → 자료화면 → 아바타 → 자막 → 합성 → "배포하기 →"
-5. /publish — SEO 최적화 + YouTube 업로드 시연 → "완료 →"
-6. /done    — 축하 + "새 영상 만들기"
+"대본 만들기 →" 버튼 누르면 /script 페이지로 이동하고,
+"영상 만들기 →" 누르면 영상 제작 시뮬레이션,
+"배포하기 →" 누르면 YouTube 업로드 시연,
+완료 후 "새 영상 만들기"로 다시 /plan 으로 돌아옵니다.
 
-상단 StepBar에서 언제든 자유 이동 가능.
-오른쪽 [일반/👥시니어] 토글로 시니어 모드 전환.
+---
+
+💡 참고
+
+- 기존 /create 페이지(뉴스 큐레이션)는 자동으로 /plan 으로
+  리다이렉트됩니다. 더 이상 예전 화면 안 보입니다.
+
+- Gemini API 없어도 잘 작동하는 "스마트 데모 모드"
+  입니다. 시연해도 티 안 나요.
+
+- YouTube 업로드도 시각적 연출입니다.
+  실제 업로드는 안 되지만 진행 과정이 잘 보입니다.
 

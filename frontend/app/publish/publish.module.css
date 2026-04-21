@@ -446,16 +446,3 @@
   color: #a8a8b0;
   line-height: 1.5;
 }
-
-/* Senior thumbnail — 큰 글씨, 짧은 텍스트 */
-.thumbTitleSenior {
-  font-size: 42px !important;
-  line-height: 1.1 !important;
-  font-weight: 900 !important;
-  white-space: pre-line !important;
-  background: linear-gradient(180deg, #ffffff, #fde047) !important;
-  -webkit-background-clip: text !important;
-  -webkit-text-fill-color: transparent !important;
-  background-clip: text !important;
-  text-shadow: 0 4px 24px rgba(0, 0, 0, 0.9) !important;
-}
