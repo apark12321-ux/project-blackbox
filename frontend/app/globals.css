@@ -1,143 +1,77 @@
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/*
-  ═══════════════════════════════════════════════
-  AlgoMaker Design System — Videoto 동일 규격
-  ═══════════════════════════════════════════════
-  Videoto 실측:
-  - 배경: #0e0e10 (최하단), #18181b (카드)
-  - 텍스트: #fafafa (밝), #a1a1aa (보조), #52525b (뮤트)
-  - 액센트: #f5a623 (골드/노란) → AlgoMaker: #d4a537
-  - 사이드바: #111113, 170px
-  - 폰트: Pretendard, 16px 기본
-  - 카드 radius: 12px
-  - 보더: rgba(255,255,255,0.08)
-*/
-
-:root {
-  --bg: #0e0e10;
-  --bg-card: #18181b;
-  --bg-elevated: #27272a;
-  --bg-input: #27272a;
-  --border: rgba(255,255,255,0.08);
-  --border-hover: rgba(255,255,255,0.15);
-  --gold: #d4a537;
-  --gold-dim: #b38600;
-  --gold-bg: rgba(212,165,55,0.08);
-  --green: #22c55e;
-  --green-bg: rgba(34,197,94,0.1);
-  --red: #ef4444;
-  --red-bg: rgba(239,68,68,0.1);
-  --blue: #3b82f6;
-  --purple: #a78bfa;
-  --text: #fafafa;
-  --text-sub: #a1a1aa;
-  --text-muted: #52525b;
-  --text-faint: #3f3f46;
-  --r: 12px;
+* {
+  box-sizing: border-box;
 }
 
-*{margin:0;padding:0;box-sizing:border-box;}
-
-body {
-  font-family: 'Pretendard Variable', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-  background: var(--bg);
-  color: var(--text);
+html, body {
+  margin: 0;
+  padding: 0;
+  background: #0a0a0c;
+  color: #e4e4e8;
+  font-family: 'Pretendard Variable', 'Pretendard', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-size: 16px;
-  line-height: 1.6;
-  overflow: hidden;
-  height: 100dvh;
-  letter-spacing: -0.01em;
 }
 
-::selection { background: rgba(212,165,55,0.25); color: #fff; }
-
-/* ═══ SCROLLBAR (Videoto 스타일) ═══ */
-::-webkit-scrollbar { width:6px; height:6px; }
-::-webkit-scrollbar-track { background:transparent; }
-::-webkit-scrollbar-thumb { background:rgba(255,255,255,0.1); border-radius:10px; }
-::-webkit-scrollbar-thumb:hover { background:rgba(255,255,255,0.2); }
-.scrollbar-hide::-webkit-scrollbar{display:none;}
-.scrollbar-hide{-ms-overflow-style:none;scrollbar-width:none;}
-
-/* ═══ ANIMATIONS ═══ */
-@keyframes fadeUp{from{opacity:0;transform:translateY(18px)}to{opacity:1;transform:translateY(0)}}
-@keyframes fadeIn{from{opacity:0}to{opacity:1}}
-@keyframes barGrow{from{width:0}}
-@keyframes scoreReveal{from{opacity:0;transform:scale(0.7)}to{opacity:1;transform:scale(1)}}
-@keyframes pulse{0%,100%{box-shadow:0 0 0 0 rgba(212,165,55,0.2)}50%{box-shadow:0 0 0 12px rgba(212,165,55,0)}}
-@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-5px)}}
-@keyframes shimmer{0%{background-position:200% 0}100%{background-position:-200% 0}}
-@keyframes spin{to{transform:rotate(360deg)}}
-@keyframes dotBounce{0%,80%,100%{opacity:.3;transform:scale(.8)}40%{opacity:1;transform:scale(1.15)}}
-@keyframes heroGrad{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
-
-.ani-up{animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both}
-.ani-in{animation:fadeIn .35s ease both}
-.ani-bar{animation:barGrow 1s cubic-bezier(.22,1,.36,1) both}
-.ani-score{animation:scoreReveal .6s cubic-bezier(.34,1.56,.64,1) both}
-.ani-pulse{animation:pulse 2.5s ease-in-out infinite}
-.ani-float{animation:float 3.5s ease-in-out infinite}
-.anim-fade-up{animation:fadeUp .5s cubic-bezier(.22,1,.36,1) both}
-
-/* ═══ SURFACES ═══ */
-.surface{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--r);transition:all .2s ease}
-.surface:hover{border-color:var(--border-hover)}
-.surface-active{border-color:rgba(212,165,55,.3)!important;box-shadow:0 0 20px rgba(212,165,55,.08)}
-.surface-green{border-color:rgba(34,197,94,.3)!important}
-
-.glow-gold{border-color:rgba(212,165,55,.3)!important;box-shadow:0 0 20px rgba(212,165,55,.08)}
-.glow-green{border-color:rgba(34,197,94,.3)!important;box-shadow:0 0 20px rgba(34,197,94,.06)}
-
-/* ═══ GLASS (Videoto 헤더) ═══ */
-.glass{background:rgba(14,14,16,.95);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
-
-/* ═══ SIDEBAR (Videoto: #111113) ═══ */
-.sidebar{background:#111113;color:rgba(255,255,255,.7)}
-
-/* ═══ SAFE AREA ═══ */
-.safe-b{padding-bottom:env(safe-area-inset-bottom,0)}
-
-/* ═══ HERO ═══ */
-.hero{background:linear-gradient(-45deg,#0e0e10,#1f1a0e,#0e1320,#0e0e10);background-size:400% 400%;animation:heroGrad 14s ease infinite}
-
-/* ═══ GOLD BTN (Videoto 노란 버튼 동일) ═══ */
-.gold-btn{
-  display:inline-flex;align-items:center;justify-content:center;gap:8px;
-  background:linear-gradient(135deg,#b38600,#d4a537);
-  color:#fff;font-weight:700;font-size:16px;
-  border:none;border-radius:var(--r);
-  padding:14px 32px;cursor:pointer;
-  transition:all .2s;
-  box-shadow:0 2px 12px rgba(179,134,0,.2)
+/* 글래스 효과 (기존 v8/v9 호환) */
+.glass {
+  background: rgba(10, 10, 12, 0.7);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
 }
-.gold-btn:hover{transform:translateY(-1px);box-shadow:0 4px 24px rgba(179,134,0,.3)}
-.gold-btn:active{transform:translateY(0)}
 
-/* ═══ INPUT (Videoto 스타일) ═══ */
-input, textarea, select {
-  background: var(--bg-input);
-  border: 1px solid var(--border);
-  color: var(--text);
-  border-radius: var(--r);
-  padding: 12px 16px;
-  font-size: 16px;
-  font-family: inherit;
+.sidebar {
+  background: #0a0a0c;
 }
-input:focus, textarea:focus, select:focus {
-  border-color: var(--gold);
-  box-shadow: 0 0 0 3px rgba(212,165,55,0.1);
+
+/* 스크롤바 숨기기 */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* 애니메이션 */
+@keyframes aniIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.ani-in {
+  animation: aniIn 0.2s ease-out;
+}
+
+@keyframes aniUp {
+  from { transform: translateY(40px); opacity: 0; }
+  to { transform: translateY(0); opacity: 1; }
+}
+.ani-up {
+  animation: aniUp 0.3s ease-out;
+}
+
+/* Safe area 지원 */
+.safe-b {
+  padding-bottom: env(safe-area-inset-bottom);
+}
+
+/* 입력 필드 기본 스타일 */
+input, textarea {
+  background: rgba(255, 255, 255, 0.04);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  color: #fafafa;
+}
+input:focus, textarea:focus {
   outline: none;
+  border-color: #d4a537;
 }
-input::placeholder, textarea::placeholder { color: var(--text-muted); }
 
-/* ═══ RESPONSIVE ═══ */
-@media(max-width:767px){
-  body{font-size:15px}
-  .overflow-x-auto::-webkit-scrollbar{display:none}
+/* 링크 기본 색상 */
+a {
+  color: inherit;
+  text-decoration: none;
 }

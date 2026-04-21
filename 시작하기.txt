@@ -1,0 +1,154 @@
+╔═════════════════════════════════════════════════╗
+║   AlgoMaker v10 · frontend 폴더 전체             ║
+╚═════════════════════════════════════════════════╝
+
+📁 포함된 파일 25개 (기존 frontend 구조 그대로)
+
+frontend/
+├── app/                          ← v10 새 페이지들
+│   ├── _shared/
+│   │   ├── V10Shell.tsx          공용 사이드바
+│   │   ├── sidebar.module.css    사이드바 스타일
+│   │   └── contentEngine.ts      백업용 콘텐츠 엔진
+│   ├── create/                   [1] 카테고리 선택
+│   ├── keyword/                  [2] 블루오션 키워드 ⭐
+│   ├── configure/                [3] 상세 설정
+│   ├── processing/               [4] AI 자동 처리
+│   ├── done/                     [5] 완료 & 다운로드
+│   ├── layout.tsx                Next.js 루트 레이아웃
+│   ├── layout-client.tsx         v10 호환 사이드바
+│   ├── page.tsx                  랜딩 (/ → /create)
+│   └── globals.css               전역 스타일
+├── components/
+│   └── index.ts                  플레이스홀더
+├── hooks/
+│   └── use-api.ts                백엔드 API 호출 훅
+├── stores/
+│   └── blackbox-store.ts         Zustand 상태 관리
+├── next.config.ts                Next.js 설정
+├── package.json                  의존성 목록
+├── postcss.config.js             PostCSS
+├── tailwind.config.js            Tailwind CSS
+└── tsconfig.json                 TypeScript
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 배포 순서 (frontend 폴더 통째 교체)
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+─────────────────────────────
+[STEP 1] ZIP 압축 풀기
+─────────────────────────────
+
+다운로드한 algomaker-v10-COMPLETE.zip 더블클릭해서
+압축 풀기 → "algomaker-v10-complete" 폴더 생성됨
+
+─────────────────────────────
+[STEP 2] 기존 frontend 폴더 교체 ⭐
+─────────────────────────────
+
+윈도우 탐색기 두 창 열기:
+
+창1: algomaker-v10-complete/frontend  (압축 푼 폴더)
+창2: 문서/GitHub/project-blackbox/frontend
+
+방법 A · 전체 덮어쓰기 (추천):
+  1. 창2(GitHub의 frontend)의 내용을 전부 선택 (Ctrl+A)
+  2. Delete 키로 삭제
+  3. 창1(v10-complete/frontend) 내용을 전부 선택 (Ctrl+A)
+  4. 복사 (Ctrl+C)
+  5. 창2에 붙여넣기 (Ctrl+V)
+
+방법 B · 선택 덮어쓰기:
+  1. 창1의 모든 파일/폴더 선택 (Ctrl+A)
+  2. 복사 (Ctrl+C)
+  3. 창2에서 붙여넣기 (Ctrl+V)
+  4. "대상에 같은 이름의 파일이..." 팝업
+  5. "파일 바꾸기" 또는 "모두 예"
+
+─────────────────────────────
+[STEP 3] GitHub Desktop Push
+─────────────────────────────
+
+GitHub Desktop 열기:
+  많은 변경사항이 보임 (정상)
+
+  Summary: v10 전체 리셋 · 5단계 플로우
+  Commit to main
+  Push origin
+
+─────────────────────────────
+[STEP 4] 3~5분 대기
+─────────────────────────────
+
+Vercel이 자동으로 새 빌드 시작합니다.
+
+https://vercel.com/dashboard
+ → project-blackbox-cpqy
+ → Deployments 탭
+ → 최신 배포가 Ready 로 변할 때까지 대기
+
+─────────────────────────────
+[STEP 5] 테스트
+─────────────────────────────
+
+https://project-blackbox-cpqy.vercel.app/
+
+흐름:
+  랜딩(/) → "무료 시작" 버튼
+    → /create    카테고리 선택 (5개 카드)
+    → /keyword   키워드 12개 추천 ⭐
+    → /configure 말투/길이/모드 설정
+    → /processing AI 자동 처리 (20초)
+    → /done      다운로드 & SEO
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+⚠️ 주의사항
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. 기존 components/, hooks/, stores/ 내용은 리셋됩니다.
+   만약 이전에 쓰던 특별한 컴포넌트가 있었다면 사라집니다.
+   (VideoEditPanel 등 예전 영상 편집 패널 등)
+
+2. package.json이 교체되므로 Vercel이 다시
+   npm install 합니다. 빌드 시간이 처음엔 좀 길어요.
+
+3. localStorage에 이전 데이터가 남아있으면 이상할 수 있어요.
+   브라우저 개발자 도구(F12) →
+   Application → Local Storage → Clear
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🆘 문제 발생 시
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+빌드 실패:
+  Vercel Deployments 최신 배포 → Building Logs
+  빨간색 에러 메시지 스크린샷 보내주세요
+
+404:
+  브라우저 캐시 문제 → Ctrl+Shift+R
+
+화면이 이상해보임:
+  localStorage 지우기 + 하드 리프레시
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎯 v10의 핵심 기능
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+✅ 5단계 간소화 플로우
+✅ 카테고리 5종 (경제/건강/자기계발/IT/라이프)
+✅ 카테고리별 블루오션 키워드 12개 추천
+✅ 각 키워드 상세 정보:
+   - 블루오션 점수 (0-5)
+   - 월 검색량, CPM ($8-22)
+   - 경쟁도, 트렌드, 예상 월수익
+   - 추천 이유
+   - 4가지 정렬 기준
+✅ AI 자동 처리 6단계
+✅ 실시간 미리보기
+✅ SEO 최적화
+✅ YouTube 업로드 시뮬레이션
+
+🟡 다음 세션 예정:
+  실제 Gemini/네이버/TTS API 연동
+  (환경변수는 그대로 살아있음)
+
