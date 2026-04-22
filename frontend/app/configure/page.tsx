@@ -1,6 +1,6 @@
 'use client';
 /**
- * /configure - 스타일 설정 + 실제 영상 생성 API 호출
+ * /configure - 스타일 설정 + 실제 영상 생성 API (v2 - 에러 안전 렌더링)
  */
 
 import { useState, useEffect } from 'react';
@@ -27,9 +27,9 @@ export default function ConfigurePage() {
   const [duration, setDuration] = useState<number>(10);
   const [mode, setMode] = useState<Mode>('normal');
 
-  // 실 API 호출 상태
   const [submitting, setSubmitting] = useState(false);
   const [errorMsg, setErrorMsg] = useState<string>('');
+  const [errorDetail, setErrorDetail] = useState<string>('');
 
   useEffect(() => {
     const p = getProject();
@@ -49,12 +49,11 @@ export default function ConfigurePage() {
     if (submitting) return;
     setSubmitting(true);
     setErrorMsg('');
+    setErrorDetail('');
 
-    // 1. 프로젝트 상태 저장
     setProject({ customTopic, tone, duration, mode, step: 3 });
 
     try {
-      // 2. 실제 API 호출
       const res = await startVideoGeneration({
         keyword,
         tone,
@@ -64,17 +63,17 @@ export default function ConfigurePage() {
         category: category || undefined,
       });
 
-      // 3. job_id 저장
-      if (!res.job_id) {
-        throw { status: 500, message: '백엔드가 job_id를 반환하지 않음', body: res };
-      }
       setProject({ jobId: res.job_id });
-
-      // 4. 처리 페이지로 이동
       router.push('/processing');
     } catch (err: any) {
       console.error('[configure] startVideoGeneration failed:', err);
+      // 에러를 반드시 문자열로 변환
       setErrorMsg(formatApiError(err));
+      try {
+        setErrorDetail(JSON.stringify(err?.body || err, null, 2));
+      } catch {
+        setErrorDetail(String(err));
+      }
       setSubmitting(false);
     }
   };
@@ -82,146 +81,34 @@ export default function ConfigurePage() {
   return (
     <V11Shell currentStep={3}>
       <style jsx>{`
-        .page {
-          max-width: 760px;
-          margin: 0 auto;
-          padding: 40px 24px 40px;
-        }
+        .page { max-width: 760px; margin: 0 auto; padding: 40px 24px; }
         .header { text-align: center; margin-bottom: 28px; }
-        .eyebrow {
-          font-size: 12px; font-weight: 700; color: #cc0000;
-          letter-spacing: 0.12em; margin-bottom: 8px;
-        }
-        .title {
-          font-size: 28px; font-weight: 800;
-          color: #0f0f0f; letter-spacing: -0.02em;
-          margin: 0 0 8px;
-        }
+        .eyebrow { font-size: 12px; font-weight: 700; color: #cc0000; letter-spacing: 0.12em; margin-bottom: 8px; }
+        .title { font-size: 28px; font-weight: 800; color: #0f0f0f; letter-spacing: -0.02em; margin: 0 0 8px; }
         .sub { font-size: 14px; color: #606060; line-height: 1.6; }
-
-        .kwBadge {
-          display: flex; align-items: center; gap: 10px;
-          padding: 14px 18px;
-          background: #fff0f0;
-          border-radius: 12px;
-          margin-bottom: 18px;
-        }
-        .kwLabel {
-          font-size: 12px; font-weight: 700;
-          color: #cc0000;
-          padding: 4px 10px;
-          background: #fff;
-          border-radius: 999px;
-          flex-shrink: 0;
-        }
+        .kwBadge { display: flex; align-items: center; gap: 10px; padding: 14px 18px; background: #fff0f0; border-radius: 12px; margin-bottom: 18px; }
+        .kwLabel { font-size: 12px; font-weight: 700; color: #cc0000; padding: 4px 10px; background: #fff; border-radius: 999px; flex-shrink: 0; }
         .kwValue { font-size: 15px; font-weight: 700; color: #0f0f0f; }
-
-        .card {
-          background: #fff;
-          border: 1px solid #e5e5e5;
-          border-radius: 12px;
-          padding: 20px;
-          margin-bottom: 14px;
-        }
-        .label {
-          font-size: 14px; font-weight: 700;
-          color: #0f0f0f; margin-bottom: 4px;
-          display: flex; align-items: center; gap: 6px;
-        }
-        .labelOpt {
-          font-size: 11px; font-weight: 500; color: #888;
-          padding: 2px 7px;
-          background: #f2f2f2;
-          border-radius: 4px;
-        }
-        .labelHelp {
-          font-size: 12px; color: #606060;
-          margin-bottom: 12px;
-        }
-        .input {
-          width: 100%;
-          padding: 12px 14px;
-          background: #fff; color: #0f0f0f;
-          border: 1px solid #e5e5e5;
-          border-radius: 10px;
-          font-size: 14px; font-family: inherit;
-          transition: border-color 0.15s;
-        }
+        .card { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; margin-bottom: 14px; }
+        .label { font-size: 14px; font-weight: 700; color: #0f0f0f; margin-bottom: 4px; display: flex; align-items: center; gap: 6px; }
+        .labelOpt { font-size: 11px; font-weight: 500; color: #888; padding: 2px 7px; background: #f2f2f2; border-radius: 4px; }
+        .labelHelp { font-size: 12px; color: #606060; margin-bottom: 12px; }
+        .input { width: 100%; padding: 12px 14px; background: #fff; color: #0f0f0f; border: 1px solid #e5e5e5; border-radius: 10px; font-size: 14px; font-family: inherit; }
         .input:focus { outline: none; border-color: #0f0f0f; }
-
-        .toneGrid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 8px;
-        }
-        .toneBtn {
-          padding: 14px 12px;
-          background: #f9f9f9;
-          border: 2px solid transparent;
-          border-radius: 12px;
-          cursor: pointer;
-          font-family: inherit;
-          text-align: left;
-          transition: all 0.15s;
-        }
+        .toneGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .toneBtn { padding: 14px 12px; background: #f9f9f9; border: 2px solid transparent; border-radius: 12px; cursor: pointer; font-family: inherit; text-align: left; transition: all 0.15s; }
         .toneBtn:hover { background: #f2f2f2; }
         .toneBtnActive { border-color: #cc0000; background: #fff; }
         .toneEmoji { font-size: 22px; margin-bottom: 6px; }
         .toneLabel { font-size: 14px; font-weight: 700; color: #0f0f0f; margin-bottom: 3px; }
         .toneExample { font-size: 12px; color: #606060; line-height: 1.5; }
-
-        .slider {
-          width: 100%; height: 6px;
-          background: #e5e5e5;
-          border-radius: 999px;
-          -webkit-appearance: none;
-          appearance: none;
-          margin: 14px 0 10px;
-        }
-        .slider::-webkit-slider-thumb {
-          -webkit-appearance: none;
-          appearance: none;
-          width: 22px; height: 22px;
-          background: #cc0000;
-          border-radius: 50%;
-          cursor: pointer;
-          border: 3px solid #fff;
-          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
-        }
-        .slider::-moz-range-thumb {
-          width: 22px; height: 22px;
-          background: #cc0000;
-          border-radius: 50%;
-          cursor: pointer;
-          border: 3px solid #fff;
-        }
-        .ticks {
-          display: flex; justify-content: space-between;
-          font-size: 11px; color: #888;
-        }
-        .duration {
-          font-size: 24px; font-weight: 800;
-          color: #cc0000;
-          text-align: right;
-          margin-top: -30px;
-          margin-bottom: 8px;
-        }
-
-        .modeGrid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 8px;
-        }
-        .modeBtn {
-          padding: 18px 14px;
-          background: #f9f9f9;
-          border: 2px solid transparent;
-          border-radius: 12px;
-          cursor: pointer;
-          font-family: inherit;
-          text-align: center;
-          transition: all 0.15s;
-        }
+        .slider { width: 100%; height: 6px; background: #e5e5e5; border-radius: 999px; -webkit-appearance: none; appearance: none; margin: 14px 0 10px; }
+        .slider::-webkit-slider-thumb { -webkit-appearance: none; appearance: none; width: 22px; height: 22px; background: #cc0000; border-radius: 50%; cursor: pointer; border: 3px solid #fff; box-shadow: 0 2px 6px rgba(0,0,0,0.2); }
+        .slider::-moz-range-thumb { width: 22px; height: 22px; background: #cc0000; border-radius: 50%; cursor: pointer; border: 3px solid #fff; }
+        .ticks { display: flex; justify-content: space-between; font-size: 11px; color: #888; }
+        .duration { font-size: 24px; font-weight: 800; color: #cc0000; text-align: right; margin-top: -30px; margin-bottom: 8px; }
+        .modeGrid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 8px; }
+        .modeBtn { padding: 18px 14px; background: #f9f9f9; border: 2px solid transparent; border-radius: 12px; cursor: pointer; font-family: inherit; text-align: center; transition: all 0.15s; }
         .modeBtn:hover { background: #f2f2f2; }
         .modeBtnActive { border-color: #cc0000; background: #fff; }
         .modeIcon { font-size: 28px; margin-bottom: 6px; }
@@ -230,7 +117,7 @@ export default function ConfigurePage() {
 
         .errorBox {
           margin-bottom: 14px;
-          padding: 12px 14px;
+          padding: 14px 16px;
           background: #fff0f0;
           border: 1px solid #ffcccc;
           border-radius: 10px;
@@ -238,46 +125,33 @@ export default function ConfigurePage() {
           color: #cc0000;
           line-height: 1.6;
         }
-        .errorTitle { font-weight: 700; margin-bottom: 4px; }
+        .errorTitle { font-weight: 700; margin-bottom: 6px; }
+        .errorText {
+          color: #660000;
+          word-break: break-word;
+          white-space: pre-wrap;
+        }
+        .errorDetail {
+          margin-top: 10px;
+          padding: 10px;
+          background: #fff;
+          border-radius: 8px;
+          font-size: 11px;
+          color: #888;
+          font-family: monospace;
+          max-height: 200px;
+          overflow: auto;
+          white-space: pre-wrap;
+          word-break: break-all;
+        }
 
-        .footerBar {
-          display: flex; gap: 8px;
-          margin-top: 20px;
-        }
-        .backBtn {
-          padding: 14px 18px;
-          background: #f2f2f2; color: #0f0f0f;
-          border: none; border-radius: 999px;
-          font-size: 14px; font-weight: 600;
-          cursor: pointer; font-family: inherit;
-          white-space: nowrap;
-        }
+        .footerBar { display: flex; gap: 8px; margin-top: 20px; }
+        .backBtn { padding: 14px 18px; background: #f2f2f2; color: #0f0f0f; border: none; border-radius: 999px; font-size: 14px; font-weight: 600; cursor: pointer; font-family: inherit; white-space: nowrap; }
         .backBtn:hover { background: #e5e5e5; }
-        .startBtn {
-          flex: 1; padding: 14px;
-          background: #cc0000; color: #fff;
-          border: none; border-radius: 999px;
-          font-size: 15px; font-weight: 700;
-          cursor: pointer; font-family: inherit;
-          min-height: 52px;
-          transition: background 0.15s;
-        }
+        .startBtn { flex: 1; padding: 14px; background: #cc0000; color: #fff; border: none; border-radius: 999px; font-size: 15px; font-weight: 700; cursor: pointer; font-family: inherit; min-height: 52px; }
         .startBtn:hover:not(:disabled) { background: #a80000; }
-        .startBtn:disabled {
-          background: #888;
-          cursor: not-allowed;
-          opacity: 0.7;
-        }
-        .spinner {
-          display: inline-block;
-          width: 14px; height: 14px;
-          border: 2px solid rgba(255,255,255,0.3);
-          border-top-color: #fff;
-          border-radius: 50%;
-          animation: spin 1s linear infinite;
-          margin-right: 6px;
-          vertical-align: middle;
-        }
+        .startBtn:disabled { background: #888; cursor: not-allowed; opacity: 0.7; }
+        .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 6px; vertical-align: middle; }
         @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 640px) {
@@ -304,7 +178,7 @@ export default function ConfigurePage() {
 
         <div className="kwBadge">
           <span className="kwLabel">▶ 키워드</span>
-          <span className="kwValue">{keyword || '-'}</span>
+          <span className="kwValue">{String(keyword || '-')}</span>
         </div>
 
         <div className="card">
@@ -389,10 +263,15 @@ export default function ConfigurePage() {
         {errorMsg && (
           <div className="errorBox">
             <div className="errorTitle">⚠️ 영상 생성 요청 실패</div>
-            <div>{errorMsg}</div>
-            <div style={{ marginTop: 8, fontSize: 11, color: '#888' }}>
-              잠시 후 다시 시도하거나, 브라우저 F12 → Console에서 상세 로그 확인
-            </div>
+            <div className="errorText">{String(errorMsg)}</div>
+            {errorDetail && (
+              <details style={{ marginTop: 8 }}>
+                <summary style={{ cursor: 'pointer', fontSize: 11, color: '#888' }}>
+                  기술 상세 보기
+                </summary>
+                <div className="errorDetail">{String(errorDetail)}</div>
+              </details>
+            )}
           </div>
         )}
 
