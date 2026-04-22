@@ -1,20 +1,11 @@
 /**
- * Video API Client (v5) - 3개 API 모두 정확한 스키마 적용
+ * Video API Client (v6) - 시나리오 스타일 프롬프트 실제 반영
  * 
- * 0. POST /api/v1/curation/news/search
- *    req: { keyword, days_back, max_results }
- *    res: { articles: [{title, summary, ...}] }
- * 
- * 1. POST /api/v1/script/generate
- *    req: { keyword, category, news_summary, core_facts[], opinion_seeds[], hook_triggers[], target_duration_sec }
- *    res: { blocks: [...] }
- * 
- * 2. POST /api/v1/video/generate-real
- *    req: { keyword, category, mode, script_blocks, channel_name, watermark_text, tts_voice_id }
- *    res: { job_id, status, download_url, ... }
- * 
- * 3. GET /api/v1/video/status/{job_id} → polling
+ * 핵심: scenarioStyleId에 따라 hook_triggers, opinion_seeds, core_facts를
+ *       다르게 백엔드에 전달하여 실제 대본 스타일이 달라지게 함
  */
+
+import { getScenarioById } from './scenarios';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://project-blackbox-production.up.railway.app';
 
@@ -29,15 +20,13 @@ export interface GenerateRealRequest {
   custom_topic?: string;
   category?: string;
   channel_name?: string;
+  scenarioStyleId?: string;   // NEW: 시나리오 스타일 ID
 }
 
 export interface GenerateRealResponse {
   job_id: string;
   status?: string;
   download_url?: string;
-  duration_sec?: number;
-  file_size_bytes?: number;
-  error?: string;
   [key: string]: any;
 }
 
@@ -67,9 +56,6 @@ export interface ApiError {
   body?: any;
 }
 
-// ============================================================
-// FastAPI validation error → 문자열
-// ============================================================
 function stringifyFastApiError(detail: any): string {
   if (!detail) return '';
   if (typeof detail === 'string') return detail;
@@ -87,9 +73,6 @@ function stringifyFastApiError(detail: any): string {
   return String(detail);
 }
 
-// ============================================================
-// fetch wrapper
-// ============================================================
 async function apiCall<T>(
   method: 'GET' | 'POST',
   path: string,
@@ -144,47 +127,39 @@ async function apiCall<T>(
 // Step 0: 뉴스 검색
 // ============================================================
 async function searchNewsAndSummarize(keyword: string): Promise<string> {
-  const body = {
-    keyword,
-    days_back: 7,
-    max_results: 10,
-  };
-
+  const body = { keyword, days_back: 7, max_results: 10 };
   const res = await apiCall<any>('POST', '/api/v1/curation/news/search', body, 30000);
-
-  // 응답 구조: { keyword, total_count, articles: [{title, summary, source_name, ...}] }
   const articles: any[] = Array.isArray(res?.articles) ? res.articles : [];
-
   if (articles.length === 0) {
     return `"${keyword}" 관련 최근 뉴스가 없어, 일반 상식 기반으로 제작합니다.`;
   }
-
-  // 상위 5건을 텍스트로 합치기
-  const summary = articles.slice(0, 5).map((a, i) => {
+  return articles.slice(0, 5).map((a, i) => {
     const title = a.title || '';
     const src = a.source_name || '';
     const desc = a.summary || '';
     const prefix = `${i + 1}. [${src}] ${title}`;
     return desc ? `${prefix}\n   ${String(desc).slice(0, 300)}` : prefix;
   }).join('\n\n');
-
-  return summary;
 }
 
 // ============================================================
-// Step 1: 대본 생성
+// Step 1: 대본 생성 (스타일 프롬프트 주입!)
 // ============================================================
 async function generateScript(
   req: GenerateRealRequest,
   newsSummary: string
 ): Promise<any> {
+  // 선택된 스타일의 프롬프트 가져오기
+  const style = getScenarioById(req.scenarioStyleId);
+
   const body = {
     keyword: req.keyword,
     category: req.category || 'economy',
     news_summary: newsSummary,
-    core_facts: [],
-    opinion_seeds: [],
-    hook_triggers: [],
+    // ⭐ 스타일별 프롬프트 실제 주입
+    core_facts: style?.core_facts || [],
+    opinion_seeds: style?.opinion_seeds || [],
+    hook_triggers: style?.hook_triggers || [],
     target_duration_sec: (req.duration || 10) * 60,
   };
 
@@ -215,7 +190,6 @@ async function generateVideoWithScript(
     watermark_text: '',
     tts_voice_id: '',
   };
-
   return apiCall<GenerateRealResponse>('POST', '/api/v1/video/generate-real', body, 60000);
 }
 
@@ -226,7 +200,9 @@ export async function startVideoGeneration(
   req: GenerateRealRequest,
   onProgress?: (step: string) => void
 ): Promise<GenerateRealResponse> {
-  // Step 0: 뉴스 검색
+  const style = getScenarioById(req.scenarioStyleId);
+
+  // Step 0
   onProgress?.('📰 관련 뉴스 수집 중... (10~20초)');
   let newsSummary: string;
   try {
@@ -236,8 +212,9 @@ export async function startVideoGeneration(
     newsSummary = `"${req.keyword}" 주제에 대한 일반 상식 기반 영상입니다.`;
   }
 
-  // Step 1: 대본 생성
-  onProgress?.('✍️ AI 대본 작성 중... (1~2분 소요)');
+  // Step 1
+  const styleMsg = style ? `✍️ ${style.name} 스타일로 대본 작성 중... (1~2분)` : '✍️ AI 대본 작성 중... (1~2분)';
+  onProgress?.(styleMsg);
   const scriptRes = await generateScript(req, newsSummary);
 
   const scriptBlocks = extractScriptBlocks(scriptRes);
@@ -249,7 +226,7 @@ export async function startVideoGeneration(
     } as ApiError;
   }
 
-  // Step 2: 영상 생성
+  // Step 2
   onProgress?.('🎬 영상 생성 요청 중...');
   const videoRes = await generateVideoWithScript(scriptBlocks, req);
 
@@ -276,9 +253,6 @@ export async function getDownloadUrl(jobId: string): Promise<DownloadResponse> {
   return apiCall<DownloadResponse>('GET', `/api/v1/video/download/${encodeURIComponent(jobId)}`, undefined, 15000);
 }
 
-// ============================================================
-// Helpers
-// ============================================================
 export function extractVideoUrl(
   statusRes?: JobStatusResponse | null,
   downloadRes?: DownloadResponse | null,
@@ -307,7 +281,6 @@ export function extractVideoUrl(
 export function formatApiError(err: any): string {
   if (!err) return '알 수 없는 오류';
   if (typeof err === 'string') return err;
-
   if (err.status !== undefined) {
     if (err.status === 0) return `네트워크 오류: ${err.message || ''}`.trim();
     if (err.status === 404) return '요청한 리소스를 찾을 수 없습니다';
@@ -316,7 +289,6 @@ export function formatApiError(err: any): string {
     if (err.status === 500) return `서버 오류: ${err.message || 'Internal Server Error'}`;
     return `오류 (${err.status}): ${err.message || ''}`;
   }
-
   if (err.message) return String(err.message);
   try { return JSON.stringify(err); } catch { return String(err); }
 }
