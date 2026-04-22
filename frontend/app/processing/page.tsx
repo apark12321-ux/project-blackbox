@@ -1,8 +1,6 @@
 'use client';
 /**
- * /processing - AI 처리 시연 (STEP 4)
- * 시연 버전 (실제 API는 다음 세션에 연결)
- * 모바일 최적화
+ * /processing - AI 처리 (YouTube 스타일)
  */
 
 import { useState, useEffect } from 'react';
@@ -46,15 +44,9 @@ export default function ProcessingPage() {
         `✍️ 6개 블록 대본 작성 완료 (약 10분 분량)`,
         `[오프닝 28초] "안녕하세요! 오늘은 ${kw}에 대해 꼭 알아야 할 진실을 알려드리겠습니다..."`,
       ],
-      tts: [
-        `🎤 한국어 여성 음성(ElevenLabs)으로 10분 분량 음성 생성 완료.`,
-      ],
-      graphic: [
-        `🎨 핵심 장면 4컷 인포그래픽 생성 완료.`,
-      ],
-      video: [
-        `🎬 영상 합성 완료 (1920×1080, 30fps). 길이 10분 12초.`,
-      ],
+      tts: [`🎤 한국어 여성 음성(ElevenLabs)으로 10분 분량 음성 생성 완료.`],
+      graphic: [`🎨 핵심 장면 4컷 인포그래픽 생성 완료.`],
+      video: [`🎬 영상 합성 완료 (1920×1080, 30fps). 길이 10분 12초.`],
       seo: [
         `🔍 YouTube SEO 2026 규칙 적용 완료`,
         `제목/태그/설명/썸네일 자동 최적화.`,
@@ -78,9 +70,9 @@ export default function ProcessingPage() {
     <V11Shell currentStep={4}>
       <style jsx>{`
         .page {
-          max-width: 960px;
+          max-width: 1000px;
           margin: 0 auto;
-          padding: 32px 20px 60px;
+          padding: 32px 24px 60px;
         }
         .header {
           text-align: center;
@@ -89,20 +81,20 @@ export default function ProcessingPage() {
         .eyebrow {
           font-size: 12px;
           font-weight: 700;
-          color: #2563eb;
+          color: #ff0000;
           letter-spacing: 0.12em;
-          margin-bottom: 10px;
+          margin-bottom: 8px;
         }
         .title {
           font-size: 28px;
           font-weight: 800;
-          color: #0f172a;
+          color: #0f0f0f;
           letter-spacing: -0.02em;
-          margin: 0 0 10px;
+          margin: 0 0 8px;
         }
         .sub {
           font-size: 14px;
-          color: #64748b;
+          color: #606060;
           line-height: 1.6;
         }
         .kwBadge {
@@ -110,11 +102,11 @@ export default function ProcessingPage() {
           align-items: center;
           gap: 8px;
           padding: 8px 16px;
-          background: #eff6ff;
+          background: #ffebeb;
           border-radius: 999px;
           font-size: 13px;
           font-weight: 700;
-          color: #2563eb;
+          color: #cc0000;
           margin-bottom: 28px;
         }
         .layout {
@@ -124,18 +116,19 @@ export default function ProcessingPage() {
         }
         .panel {
           background: #fff;
-          border: 1px solid #e5e7eb;
-          border-radius: 14px;
+          border: 1px solid #e5e5e5;
+          border-radius: 12px;
           padding: 22px;
         }
         .panelDark {
-          background: #0f172a;
+          background: #0f0f0f;
           color: #fff;
+          border: none;
         }
         .panelTitle {
           font-size: 14px;
           font-weight: 700;
-          color: #0f172a;
+          color: #0f0f0f;
           margin-bottom: 16px;
           display: flex;
           align-items: center;
@@ -146,7 +139,7 @@ export default function ProcessingPage() {
           display: inline-block;
           width: 8px;
           height: 8px;
-          background: #ef4444;
+          background: #ff0000;
           border-radius: 50%;
           animation: pulse 1.5s infinite;
         }
@@ -165,13 +158,13 @@ export default function ProcessingPage() {
           align-items: center;
           gap: 12px;
           padding: 12px 14px;
-          background: #f8fafc;
+          background: #f9f9f9;
           border-radius: 10px;
           transition: all 0.3s;
         }
         .stepActive {
-          background: #eff6ff;
-          border: 1px solid #bfdbfe;
+          background: #ffebeb;
+          border: 1px solid #ffcccc;
         }
         .stepCompleted {
           background: #f0fdf4;
@@ -180,16 +173,16 @@ export default function ProcessingPage() {
           width: 28px;
           height: 28px;
           border-radius: 8px;
-          background: #e5e7eb;
+          background: #e5e5e5;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
-          color: #94a3b8;
+          color: #888;
           font-weight: 700;
         }
         .stepActive .stepCheck {
-          background: #2563eb;
+          background: #ff0000;
           color: #fff;
           animation: spin 1s linear infinite;
         }
@@ -211,7 +204,7 @@ export default function ProcessingPage() {
         .stepRowLabel {
           font-size: 14px;
           font-weight: 600;
-          color: #0f172a;
+          color: #0f0f0f;
         }
         .stepBadge {
           font-size: 11px;
@@ -223,15 +216,15 @@ export default function ProcessingPage() {
           flex-shrink: 0;
         }
         .stepBadgeRun {
-          background: #dbeafe;
-          color: #2563eb;
+          background: #ff0000;
+          color: #fff;
         }
         .totalTime {
           font-size: 12px;
-          color: #64748b;
+          color: #606060;
           text-align: center;
           padding: 10px;
-          background: #f8fafc;
+          background: #f9f9f9;
           border-radius: 8px;
           margin-bottom: 12px;
         }
@@ -241,7 +234,7 @@ export default function ProcessingPage() {
           background: #22c55e;
           color: #fff;
           border: none;
-          border-radius: 10px;
+          border-radius: 999px;
           font-size: 15px;
           font-weight: 700;
           cursor: pointer;
@@ -267,8 +260,9 @@ export default function ProcessingPage() {
           background: rgba(255, 255, 255, 0.05);
           border-radius: 10px;
           font-size: 13px;
-          color: #cbd5e1;
+          color: #ddd;
           line-height: 1.6;
+          border-left: 3px solid #ff0000;
         }
 
         @media (max-width: 768px) {
@@ -290,7 +284,7 @@ export default function ProcessingPage() {
         </div>
 
         <div style={{ textAlign: 'center' }}>
-          <div className="kwBadge">🎯 {keyword || '-'}</div>
+          <div className="kwBadge">▶ {keyword || '-'}</div>
         </div>
 
         <div className="layout">
@@ -318,13 +312,13 @@ export default function ProcessingPage() {
                 );
               })}
             </div>
-            <div className="totalTime">총 소요 시간: 시연 약 20초 · 실서비스 5~8분</div>
+            <div className="totalTime">시연 약 20초 · 실서비스 5~8분</div>
             <button
               className={`nextBtn ${completedSteps.size === STEPS.length ? 'nextBtnActive' : ''}`}
               disabled={completedSteps.size !== STEPS.length}
               onClick={() => router.push('/done')}
             >
-              {completedSteps.size === STEPS.length ? '완성된 영상 확인하기 →' : '처리 중...'}
+              {completedSteps.size === STEPS.length ? '▶ 완성된 영상 확인' : '처리 중...'}
             </button>
           </div>
 

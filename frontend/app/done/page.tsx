@@ -1,7 +1,6 @@
 'use client';
 /**
- * /done - 영상 제작 완료 (STEP 5)
- * 모바일 최적화
+ * /done - 완료 (YouTube 스타일 영상 카드)
  */
 
 import { useState, useEffect } from 'react';
@@ -61,9 +60,9 @@ export default function DonePage() {
     <V11Shell currentStep={5}>
       <style jsx>{`
         .page {
-          max-width: 1100px;
+          max-width: 1200px;
           margin: 0 auto;
-          padding: 32px 20px 60px;
+          padding: 32px 24px 60px;
         }
         .header {
           text-align: center;
@@ -71,26 +70,26 @@ export default function DonePage() {
         }
         .celebrate { font-size: 48px; margin-bottom: 12px; }
         .title {
-          font-size: 30px;
+          font-size: 32px;
           font-weight: 800;
-          color: #0f172a;
+          color: #0f0f0f;
           letter-spacing: -0.02em;
           margin: 0 0 10px;
         }
         .subText {
           font-size: 15px;
-          color: #64748b;
+          color: #606060;
           margin: 0 0 16px;
         }
-        .subText strong { color: #2563eb; }
+        .subText strong { color: #ff0000; }
         .meta {
           display: inline-flex;
           align-items: center;
           gap: 10px;
           font-size: 12px;
-          color: #64748b;
+          color: #606060;
           padding: 8px 16px;
-          background: #f8fafc;
+          background: #f9f9f9;
           border-radius: 999px;
           flex-wrap: wrap;
           justify-content: center;
@@ -104,55 +103,129 @@ export default function DonePage() {
           font-weight: 700;
           font-size: 11px;
         }
+        
+        /* YouTube-style video card */
         .layout {
           display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 20px;
+          grid-template-columns: 1.2fr 1fr;
+          gap: 24px;
           margin-bottom: 28px;
         }
-        .videoBox {
-          background: linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%);
-          border-radius: 14px;
+        .videoCard {
+          background: #fff;
+          border-radius: 12px;
+          overflow: hidden;
+        }
+        .videoThumb {
+          position: relative;
           aspect-ratio: 16/9;
+          background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
           display: flex;
           align-items: center;
           justify-content: center;
           color: #fff;
-          position: relative;
           overflow: hidden;
+          border-radius: 12px;
         }
-        .videoTitle {
+        .playBtn {
+          width: 72px;
+          height: 72px;
+          background: rgba(255, 0, 0, 0.9);
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 28px;
+          color: #fff;
+          cursor: pointer;
+          transition: transform 0.2s;
+          z-index: 2;
+        }
+        .playBtn:hover {
+          transform: scale(1.1);
+          background: #ff0000;
+        }
+        .videoThumbText {
+          position: absolute;
+          bottom: 20px;
+          left: 20px;
+          right: 20px;
           text-align: center;
-          font-size: 26px;
+        }
+        .videoThumbMain {
+          font-size: 32px;
           font-weight: 800;
+          margin-bottom: 4px;
           letter-spacing: -0.02em;
-          padding: 20px;
-          line-height: 1.3;
+        }
+        .videoThumbSub {
+          font-size: 16px;
+          font-weight: 500;
+          opacity: 0.9;
         }
         .videoDuration {
           position: absolute;
-          bottom: 10px;
-          right: 10px;
-          background: rgba(0,0,0,0.7);
+          bottom: 12px;
+          right: 12px;
+          background: rgba(0,0,0,0.8);
           color: #fff;
           padding: 4px 8px;
-          border-radius: 6px;
-          font-size: 12px;
+          border-radius: 4px;
+          font-size: 13px;
           font-weight: 600;
+          z-index: 3;
         }
+        .videoInfo {
+          padding: 16px 4px;
+          display: flex;
+          gap: 12px;
+        }
+        .videoAvatar {
+          width: 40px;
+          height: 40px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #ff0000 0%, #cc0000 100%);
+          color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 800;
+          font-size: 16px;
+          flex-shrink: 0;
+        }
+        .videoMeta { flex: 1; min-width: 0; }
+        .videoTitle {
+          font-size: 16px;
+          font-weight: 700;
+          color: #0f0f0f;
+          margin: 0 0 4px;
+          line-height: 1.3;
+        }
+        .videoChannel {
+          font-size: 13px;
+          color: #606060;
+          margin: 0 0 2px;
+        }
+        .videoStats {
+          font-size: 13px;
+          color: #606060;
+        }
+        
+        /* Download actions */
         .downloadBox {
-          background: #2563eb;
+          background: #ff0000;
           color: #fff;
           border-radius: 12px;
-          padding: 14px 18px;
+          padding: 16px 20px;
           display: flex;
           align-items: center;
           justify-content: space-between;
           cursor: pointer;
           margin-bottom: 10px;
-          font-weight: 600;
+          font-weight: 700;
+          transition: background 0.15s;
         }
-        .downloadBox:hover { background: #1d4ed8; }
+        .downloadBox:hover { background: #cc0000; }
         .subDownloads {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
@@ -161,22 +234,24 @@ export default function DonePage() {
         }
         .subDlBtn {
           padding: 10px;
-          background: #f8fafc;
-          border: 1px solid #e5e7eb;
-          border-radius: 10px;
+          background: #f2f2f2;
+          border: none;
+          border-radius: 999px;
           font-size: 12px;
           font-weight: 600;
-          color: #64748b;
+          color: #0f0f0f;
           cursor: pointer;
           font-family: inherit;
           text-align: center;
+          transition: background 0.15s;
         }
-        .subDlBtn:hover { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+        .subDlBtn:hover { background: #e5e5e5; }
+        
         .ytBox {
-          background: #fff;
-          border: 1px solid #e5e7eb;
+          background: #0f0f0f;
+          color: #fff;
           border-radius: 12px;
-          padding: 14px;
+          padding: 16px;
         }
         .ytHeader {
           display: flex;
@@ -189,27 +264,26 @@ export default function DonePage() {
           align-items: center;
           gap: 8px;
           font-weight: 700;
-          color: #0f172a;
           font-size: 14px;
         }
         .ytDot {
-          font-size: 18px;
-          color: #dc2626;
+          font-size: 20px;
+          color: #ff0000;
         }
         .ytStatus {
           font-size: 11px;
-          color: #94a3b8;
+          color: #aaa;
           padding: 3px 8px;
-          background: #f8fafc;
+          background: rgba(255,255,255,0.1);
           border-radius: 999px;
         }
         .ytUpload {
           width: 100%;
           padding: 12px;
-          background: #dc2626;
+          background: #ff0000;
           color: #fff;
           border: none;
-          border-radius: 8px;
+          border-radius: 999px;
           font-size: 14px;
           font-weight: 700;
           cursor: pointer;
@@ -218,12 +292,15 @@ export default function DonePage() {
           align-items: center;
           justify-content: center;
           gap: 6px;
+          transition: background 0.15s;
         }
-        .ytUpload:hover { background: #b91c1c; }
+        .ytUpload:hover { background: #cc0000; }
+        
+        /* SEO panel */
         .seoPanel {
           background: #fff;
-          border: 1px solid #e5e7eb;
-          border-radius: 14px;
+          border: 1px solid #e5e5e5;
+          border-radius: 12px;
           padding: 22px;
         }
         .seoHeader {
@@ -235,7 +312,7 @@ export default function DonePage() {
         .seoTitle {
           font-size: 15px;
           font-weight: 700;
-          color: #0f172a;
+          color: #0f0f0f;
         }
         .seoGrade {
           padding: 4px 10px;
@@ -255,16 +332,15 @@ export default function DonePage() {
         .seoLabel {
           font-size: 12px;
           font-weight: 700;
-          color: #0f172a;
+          color: #0f0f0f;
         }
-        .seoCount { font-size: 11px; color: #94a3b8; }
+        .seoCount { font-size: 11px; color: #888; }
         .seoBox {
-          background: #f8fafc;
-          border: 1px solid #e5e7eb;
+          background: #f9f9f9;
           border-radius: 8px;
           padding: 10px 12px;
           font-size: 13px;
-          color: #0f172a;
+          color: #0f0f0f;
           position: relative;
           line-height: 1.6;
         }
@@ -275,15 +351,15 @@ export default function DonePage() {
           right: 6px;
           padding: 5px 10px;
           background: #fff;
-          border: 1px solid #e5e7eb;
-          border-radius: 6px;
+          border: 1px solid #e5e5e5;
+          border-radius: 999px;
           font-size: 11px;
           cursor: pointer;
           font-family: inherit;
-          color: #64748b;
+          color: #606060;
           font-weight: 600;
         }
-        .copyBtn:hover { background: #eff6ff; color: #2563eb; border-color: #bfdbfe; }
+        .copyBtn:hover { background: #f2f2f2; color: #0f0f0f; }
         .tagList {
           display: flex;
           flex-wrap: wrap;
@@ -291,8 +367,8 @@ export default function DonePage() {
         }
         .tag {
           padding: 4px 10px;
-          background: #eff6ff;
-          color: #2563eb;
+          background: #f2f2f2;
+          color: #0f0f0f;
           border-radius: 999px;
           font-size: 12px;
           font-weight: 500;
@@ -302,7 +378,7 @@ export default function DonePage() {
           grid-template-columns: repeat(4, 1fr);
           gap: 10px;
           padding-top: 16px;
-          border-top: 1px solid #e5e7eb;
+          border-top: 1px solid #e5e5e5;
           margin-top: 14px;
         }
         .metric { text-align: center; }
@@ -312,34 +388,37 @@ export default function DonePage() {
           color: #16a34a;
           letter-spacing: -0.02em;
         }
-        .metricNumBlue { color: #2563eb; }
+        .metricNumRed { color: #ff0000; }
         .metricLabel {
           font-size: 11px;
-          color: #64748b;
+          color: #606060;
           margin-top: 2px;
         }
         .newBtn {
           display: block;
           margin: 28px auto 0;
           padding: 14px 32px;
-          background: #fff;
-          color: #2563eb;
-          border: 1px solid #bfdbfe;
-          border-radius: 12px;
+          background: #f2f2f2;
+          color: #0f0f0f;
+          border: none;
+          border-radius: 999px;
           font-size: 14px;
           font-weight: 700;
           cursor: pointer;
           font-family: inherit;
+          transition: background 0.15s;
         }
-        .newBtn:hover { background: #eff6ff; }
+        .newBtn:hover { background: #e5e5e5; }
 
         @media (max-width: 768px) {
           .page { padding: 24px 14px 40px; }
           .celebrate { font-size: 40px; }
           .title { font-size: 24px; }
           .subText { font-size: 14px; }
-          .layout { grid-template-columns: 1fr; gap: 14px; }
-          .videoTitle { font-size: 20px; padding: 16px; }
+          .layout { grid-template-columns: 1fr; gap: 18px; }
+          .videoThumbMain { font-size: 24px; }
+          .videoThumbSub { font-size: 14px; }
+          .playBtn { width: 56px; height: 56px; font-size: 22px; }
           .seoPanel { padding: 18px; }
           .metricsGrid { grid-template-columns: repeat(2, 1fr); gap: 12px; }
           .metricNum { font-size: 18px; }
@@ -365,12 +444,23 @@ export default function DonePage() {
 
         <div className="layout">
           <div>
-            <div className="videoBox">
-              <div className="videoTitle">
-                {keyword}<br />
-                위험한 3가지 신호
+            <div className="videoCard">
+              <div className="videoThumb">
+                <div className="playBtn">▶</div>
+                <div className="videoThumbText">
+                  <div className="videoThumbMain">{keyword || '영상'}</div>
+                  <div className="videoThumbSub">위험한 3가지 신호</div>
+                </div>
+                <div className="videoDuration">{duration}:12</div>
               </div>
-              <div className="videoDuration">{duration}:12</div>
+              <div className="videoInfo">
+                <div className="videoAvatar">AM</div>
+                <div className="videoMeta">
+                  <div className="videoTitle">{videoTitle}</div>
+                  <div className="videoChannel">AlgoMaker · AI 생성</div>
+                  <div className="videoStats">방금 생성됨 · 수익화 준비 완료</div>
+                </div>
+              </div>
             </div>
 
             <div style={{ marginTop: 14 }}>
@@ -412,7 +502,7 @@ export default function DonePage() {
               <div className="seoBox">
                 {videoTitle}
                 <button className="copyBtn" onClick={() => handleCopy(videoTitle, 'title')}>
-                  {titleCopied ? '✓' : '📋'}
+                  {titleCopied ? '✓' : '복사'}
                 </button>
               </div>
             </div>
@@ -425,7 +515,7 @@ export default function DonePage() {
               <div className="seoBox seoBoxTextarea">
                 {videoDesc}
                 <button className="copyBtn" onClick={() => handleCopy(videoDesc, 'desc')}>
-                  {descCopied ? '✓' : '📋'}
+                  {descCopied ? '✓' : '복사'}
                 </button>
               </div>
             </div>
@@ -448,7 +538,7 @@ export default function DonePage() {
                 <div className="metricLabel">안전도</div>
               </div>
               <div className="metric">
-                <div className="metricNum metricNumBlue">$18</div>
+                <div className="metricNum metricNumRed">$18</div>
                 <div className="metricLabel">예상 CPM</div>
               </div>
               <div className="metric">

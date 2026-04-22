@@ -1,44 +1,28 @@
-# AlgoMaker 리디자인 파일 적용 가이드
+# AlgoMaker v12 - YouTube 스타일 카드형 디자인
 
-## 파일 배치 위치
+## 적용 방법
 
-압축 풀고 아래처럼 **각 파일을 해당 폴더에 덮어쓰기**:
+아래 6개 파일을 **해당 폴더에 덮어쓰기**:
 
+| zip 안 파일 | → 덮어쓸 위치 |
+|-----------|------------|
+| page.tsx | frontend/app/page.tsx |
+| _shared/shell.module.css | frontend/app/_shared/shell.module.css |
+| create/page.tsx | frontend/app/create/page.tsx |
+| configure/page.tsx | frontend/app/configure/page.tsx |
+| processing/page.tsx | frontend/app/processing/page.tsx |
+| done/page.tsx | frontend/app/done/page.tsx |
+
+⚠️ keyword 폴더는 건드리지 마세요 (이미 실제 API 연결됨)
+
+## Commit 메시지
 ```
-project-blackbox/frontend/app/
-├── page.tsx                        ← 이 zip의 page.tsx 로 덮어쓰기 (홈)
-├── _shared/
-│   └── shell.module.css            ← 덮어쓰기
-├── create/
-│   └── page.tsx                    ← 덮어쓰기
-├── configure/
-│   └── page.tsx                    ← 덮어쓰기
-├── processing/
-│   └── page.tsx                    ← 덮어쓰기
-└── done/
-    └── page.tsx                    ← 덮어쓰기
-```
-
-## 주의
-- keyword/page.tsx 는 **건드리지 말 것** (이미 실제 API 연결됨)
-- 모든 파일 한번에 덮어쓰고 Push 하면 끝
-
-## Commit 메시지 예시
-```
-feat: redesign all pages with mobile optimization
+feat: YouTube-style card layout
 ```
 
-## 적용 후 확인
-시크릿 창에서 확인:
-- /  (홈)
-- /create
-- /keyword (건드리지 않음)
-- /configure
-- /processing
-- /done
-
-모든 페이지에서:
-- ✅ 헤더 가로 정렬
-- ✅ 푸터 깔끔한 3열 구조  
-- ✅ 모바일에서 반응형 작동
-- ✅ 단계바 정상 표시
+## 주요 변경
+- 흰 배경 + 빨간 포인트 (YouTube 공식 컬러)
+- 16:9 썸네일 카드 레이아웃
+- 둥근 알약 버튼
+- 카테고리/프로세스 전부 카드로
+- /done 페이지: 유튜브 영상 카드 스타일 + 재생 버튼

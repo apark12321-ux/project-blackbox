@@ -1,7 +1,6 @@
 'use client';
 /**
- * /configure - 스타일 설정 (STEP 3)
- * 중복 문제 해결 + 모바일 최적화
+ * /configure - 스타일 설정 (YouTube 카드 스타일)
  */
 
 import { useState, useEffect } from 'react';
@@ -11,11 +10,11 @@ import { V11Shell, getProject, setProject } from '../_shared/V11Shell';
 type Tone = 'formal' | 'friendly' | 'casual' | 'slang';
 type Mode = 'normal' | 'senior';
 
-const TONE_OPTIONS: { key: Tone; label: string; example: string }[] = [
-  { key: 'formal', label: '격식형', example: '오늘은 ~에 대해 알아보겠습니다.' },
-  { key: 'friendly', label: '친근형', example: '안녕하세요! 오늘은 ~을 알아봐요!' },
-  { key: 'casual', label: '반말', example: '오늘 ~ 얘기해볼게, 끝까지 봐!' },
-  { key: 'slang', label: '음슴체', example: '오늘 주제는 ~임. 핵심만 정리함.' },
+const TONE_OPTIONS: { key: Tone; label: string; example: string; emoji: string }[] = [
+  { key: 'formal', label: '격식형', example: '오늘은 ~에 대해 알아보겠습니다.', emoji: '🎩' },
+  { key: 'friendly', label: '친근형', example: '안녕하세요! 오늘은 ~을 알아봐요!', emoji: '😊' },
+  { key: 'casual', label: '반말', example: '오늘 ~ 얘기해볼게, 끝까지 봐!', emoji: '👋' },
+  { key: 'slang', label: '음슴체', example: '오늘 주제는 ~임. 핵심만 정리함.', emoji: '⚡' },
 ];
 
 export default function ConfigurePage() {
@@ -48,9 +47,9 @@ export default function ConfigurePage() {
     <V11Shell currentStep={3}>
       <style jsx>{`
         .page {
-          max-width: 720px;
+          max-width: 760px;
           margin: 0 auto;
-          padding: 36px 20px 40px;
+          padding: 40px 24px 40px;
         }
         .header {
           text-align: center;
@@ -59,20 +58,20 @@ export default function ConfigurePage() {
         .eyebrow {
           font-size: 12px;
           font-weight: 700;
-          color: #2563eb;
+          color: #ff0000;
           letter-spacing: 0.12em;
-          margin-bottom: 10px;
+          margin-bottom: 8px;
         }
         .title {
           font-size: 28px;
           font-weight: 800;
-          color: #0f172a;
+          color: #0f0f0f;
           letter-spacing: -0.02em;
-          margin: 0 0 10px;
+          margin: 0 0 8px;
         }
         .sub {
           font-size: 14px;
-          color: #64748b;
+          color: #606060;
           line-height: 1.6;
         }
         .kwBadge {
@@ -80,15 +79,14 @@ export default function ConfigurePage() {
           align-items: center;
           gap: 10px;
           padding: 14px 18px;
-          background: #eff6ff;
-          border: 1px solid #bfdbfe;
+          background: #ffebeb;
           border-radius: 12px;
           margin-bottom: 18px;
         }
         .kwLabel {
           font-size: 12px;
-          font-weight: 600;
-          color: #2563eb;
+          font-weight: 700;
+          color: #cc0000;
           padding: 4px 10px;
           background: #fff;
           border-radius: 999px;
@@ -97,19 +95,19 @@ export default function ConfigurePage() {
         .kwValue {
           font-size: 15px;
           font-weight: 700;
-          color: #0f172a;
+          color: #0f0f0f;
         }
         .card {
           background: #fff;
-          border: 1px solid #e5e7eb;
-          border-radius: 14px;
+          border: 1px solid #e5e5e5;
+          border-radius: 12px;
           padding: 20px;
           margin-bottom: 14px;
         }
         .label {
           font-size: 14px;
           font-weight: 700;
-          color: #0f172a;
+          color: #0f0f0f;
           margin-bottom: 4px;
           display: flex;
           align-items: center;
@@ -118,30 +116,30 @@ export default function ConfigurePage() {
         .labelOpt {
           font-size: 11px;
           font-weight: 500;
-          color: #94a3b8;
+          color: #888;
           padding: 2px 7px;
-          background: #f1f5f9;
+          background: #f2f2f2;
           border-radius: 4px;
         }
         .labelHelp {
           font-size: 12px;
-          color: #64748b;
+          color: #606060;
           margin-bottom: 12px;
         }
         .input {
           width: 100%;
           padding: 12px 14px;
           background: #fff;
-          color: #0f172a;
-          border: 1px solid #e5e7eb;
+          color: #0f0f0f;
+          border: 1px solid #e5e5e5;
           border-radius: 10px;
           font-size: 14px;
           font-family: inherit;
+          transition: border-color 0.15s;
         }
         .input:focus {
           outline: none;
-          border-color: #2563eb;
-          box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+          border-color: #0f0f0f;
         }
         .toneGrid {
           display: grid;
@@ -150,33 +148,38 @@ export default function ConfigurePage() {
         }
         .toneBtn {
           padding: 14px 12px;
-          background: #fff;
-          border: 1px solid #e5e7eb;
-          border-radius: 10px;
+          background: #f9f9f9;
+          border: 2px solid transparent;
+          border-radius: 12px;
           cursor: pointer;
           font-family: inherit;
           text-align: left;
-          transition: all 0.2s;
+          transition: all 0.15s;
         }
+        .toneBtn:hover { background: #f2f2f2; }
         .toneBtnActive {
-          border-color: #2563eb;
-          background: #eff6ff;
+          border-color: #ff0000;
+          background: #fff;
+        }
+        .toneEmoji {
+          font-size: 22px;
+          margin-bottom: 6px;
         }
         .toneLabel {
           font-size: 14px;
           font-weight: 700;
-          color: #0f172a;
-          margin-bottom: 4px;
+          color: #0f0f0f;
+          margin-bottom: 3px;
         }
         .toneExample {
           font-size: 12px;
-          color: #64748b;
+          color: #606060;
           line-height: 1.5;
         }
         .slider {
           width: 100%;
           height: 6px;
-          background: #e5e7eb;
+          background: #e5e5e5;
           border-radius: 999px;
           -webkit-appearance: none;
           appearance: none;
@@ -187,16 +190,16 @@ export default function ConfigurePage() {
           appearance: none;
           width: 22px;
           height: 22px;
-          background: #2563eb;
+          background: #ff0000;
           border-radius: 50%;
           cursor: pointer;
           border: 3px solid #fff;
-          box-shadow: 0 2px 6px rgba(37, 99, 235, 0.3);
+          box-shadow: 0 2px 6px rgba(0,0,0,0.2);
         }
         .slider::-moz-range-thumb {
           width: 22px;
           height: 22px;
-          background: #2563eb;
+          background: #ff0000;
           border-radius: 50%;
           cursor: pointer;
           border: 3px solid #fff;
@@ -205,14 +208,14 @@ export default function ConfigurePage() {
           display: flex;
           justify-content: space-between;
           font-size: 11px;
-          color: #94a3b8;
+          color: #888;
         }
         .duration {
-          font-size: 22px;
+          font-size: 24px;
           font-weight: 800;
-          color: #2563eb;
+          color: #ff0000;
           text-align: right;
-          margin-top: -28px;
+          margin-top: -30px;
           margin-bottom: 8px;
         }
         .modeGrid {
@@ -222,17 +225,18 @@ export default function ConfigurePage() {
         }
         .modeBtn {
           padding: 18px 14px;
-          background: #fff;
-          border: 1px solid #e5e7eb;
-          border-radius: 10px;
+          background: #f9f9f9;
+          border: 2px solid transparent;
+          border-radius: 12px;
           cursor: pointer;
           font-family: inherit;
           text-align: center;
-          transition: all 0.2s;
+          transition: all 0.15s;
         }
+        .modeBtn:hover { background: #f2f2f2; }
         .modeBtnActive {
-          border-color: #2563eb;
-          background: #eff6ff;
+          border-color: #ff0000;
+          background: #fff;
         }
         .modeIcon {
           font-size: 28px;
@@ -241,12 +245,12 @@ export default function ConfigurePage() {
         .modeLabel {
           font-size: 14px;
           font-weight: 700;
-          color: #0f172a;
+          color: #0f0f0f;
           margin-bottom: 4px;
         }
         .modeDesc {
           font-size: 11px;
-          color: #64748b;
+          color: #606060;
           line-height: 1.5;
         }
         .footerBar {
@@ -254,40 +258,40 @@ export default function ConfigurePage() {
           gap: 8px;
           margin-top: 20px;
           position: sticky;
-          bottom: 20px;
+          bottom: 16px;
           background: #fff;
           padding: 10px;
-          border-radius: 14px;
-          box-shadow: 0 4px 20px rgba(15, 23, 42, 0.08);
-          border: 1px solid #e5e7eb;
+          border-radius: 999px;
+          box-shadow: 0 4px 24px rgba(0,0,0,0.1);
+          border: 1px solid #e5e5e5;
         }
         .backBtn {
           padding: 14px 18px;
-          background: #fff;
-          color: #64748b;
-          border: 1px solid #e5e7eb;
-          border-radius: 10px;
+          background: #f2f2f2;
+          color: #0f0f0f;
+          border: none;
+          border-radius: 999px;
           font-size: 14px;
           font-weight: 600;
           cursor: pointer;
           font-family: inherit;
           white-space: nowrap;
         }
-        .backBtn:hover { background: #f8fafc; }
+        .backBtn:hover { background: #e5e5e5; }
         .startBtn {
           flex: 1;
           padding: 14px;
-          background: #2563eb;
+          background: #ff0000;
           color: #fff;
           border: none;
-          border-radius: 10px;
+          border-radius: 999px;
           font-size: 15px;
           font-weight: 700;
           cursor: pointer;
           font-family: inherit;
           min-height: 52px;
         }
-        .startBtn:hover { background: #1d4ed8; }
+        .startBtn:hover { background: #cc0000; }
 
         @media (max-width: 640px) {
           .page { padding: 24px 14px 32px; }
@@ -312,7 +316,7 @@ export default function ConfigurePage() {
         </div>
 
         <div className="kwBadge">
-          <span className="kwLabel">선택한 키워드</span>
+          <span className="kwLabel">▶ 키워드</span>
           <span className="kwValue">{keyword || '-'}</span>
         </div>
 
@@ -332,7 +336,7 @@ export default function ConfigurePage() {
         </div>
 
         <div className="card">
-          <div className="label">말투</div>
+          <div className="label">🎙️ 말투</div>
           <div className="toneGrid">
             {TONE_OPTIONS.map((t) => (
               <button
@@ -340,6 +344,7 @@ export default function ConfigurePage() {
                 className={`toneBtn ${tone === t.key ? 'toneBtnActive' : ''}`}
                 onClick={() => setTone(t.key)}
               >
+                <div className="toneEmoji">{t.emoji}</div>
                 <div className="toneLabel">{t.label}</div>
                 <div className="toneExample">{t.example}</div>
               </button>
@@ -348,8 +353,8 @@ export default function ConfigurePage() {
         </div>
 
         <div className="card">
-          <div className="label">영상 길이</div>
-          <div className="duration">약 {duration}분</div>
+          <div className="label">⏱️ 영상 길이</div>
+          <div className="duration">{duration}분</div>
           <input
             type="range"
             className="slider"
@@ -368,7 +373,7 @@ export default function ConfigurePage() {
         </div>
 
         <div className="card">
-          <div className="label">타겟 모드</div>
+          <div className="label">🎯 타겟 모드</div>
           <div className="modeGrid">
             <button
               className={`modeBtn ${mode === 'normal' ? 'modeBtnActive' : ''}`}
@@ -391,7 +396,7 @@ export default function ConfigurePage() {
 
         <div className="footerBar">
           <button className="backBtn" onClick={() => router.push('/keyword')}>← 키워드</button>
-          <button className="startBtn" onClick={handleStart}>영상 생성 시작 →</button>
+          <button className="startBtn" onClick={handleStart}>▶ 영상 생성 시작</button>
         </div>
       </div>
     </V11Shell>
