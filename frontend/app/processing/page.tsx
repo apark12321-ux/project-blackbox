@@ -1,69 +1,170 @@
 'use client';
 /**
- * /processing - AI 처리 (YouTube 스타일)
+ * /processing - 실제 job_id 기반 polling
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { V11Shell, getProject } from '../_shared/V11Shell';
+import { V11Shell, getProject, setProject } from '../_shared/V11Shell';
+import { getJobStatus, formatApiError, type JobStatusResponse } from '../_shared/videoApi';
 
-const STEPS = [
-  { key: 'news', icon: '📰', label: '뉴스 수집', duration: 2500 },
-  { key: 'script', icon: '✍️', label: 'AI 대본 작성', duration: 3500 },
-  { key: 'tts', icon: '🎤', label: 'TTS 음성 생성', duration: 3000 },
-  { key: 'graphic', icon: '🎨', label: '인포그래픽 생성', duration: 2500 },
-  { key: 'video', icon: '🎬', label: '영상 합성', duration: 4000 },
-  { key: 'seo', icon: '🔍', label: 'YouTube SEO 최적화', duration: 2000 },
+const POLL_INTERVAL_MS = 3000;   // 3초마다
+const MAX_POLL_MINUTES = 15;     // 최대 15분 대기
+const MAX_CONSECUTIVE_ERRORS = 5;
+
+// 표시용 기본 단계 (백엔드가 current_step을 보내지 않을 때 진행률 기반으로 추정)
+const FALLBACK_STEPS = [
+  { min: 0,  label: '📰 뉴스 수집' },
+  { min: 15, label: '✍️ AI 대본 작성' },
+  { min: 35, label: '🎤 TTS 음성 생성' },
+  { min: 55, label: '🎨 인포그래픽 생성' },
+  { min: 75, label: '🎬 영상 합성' },
+  { min: 92, label: '🔍 YouTube SEO 최적화' },
 ];
+
+function inferStep(progress: number) {
+  let label = FALLBACK_STEPS[0].label;
+  for (const s of FALLBACK_STEPS) {
+    if (progress >= s.min) label = s.label;
+  }
+  return label;
+}
 
 export default function ProcessingPage() {
   const router = useRouter();
-  const [keyword, setKeyword] = useState<string>('');
-  const [currentStep, setCurrentStep] = useState<number>(-1);
-  const [completedSteps, setCompletedSteps] = useState<Set<string>>(new Set());
+  const [keyword, setKeyword] = useState('');
+  const [jobId, setJobId] = useState('');
+
+  const [status, setStatus] = useState<string>('queued');
+  const [progress, setProgress] = useState<number>(0);
+  const [currentStep, setCurrentStep] = useState<string>('');
   const [logs, setLogs] = useState<string[]>([]);
+  const [errorMsg, setErrorMsg] = useState<string>('');
+  const [elapsedSec, setElapsedSec] = useState(0);
+
+  const pollTimer = useRef<NodeJS.Timeout | null>(null);
+  const elapsedTimer = useRef<NodeJS.Timeout | null>(null);
+  const startedAt = useRef<number>(Date.now());
+  const consecutiveErrors = useRef(0);
+  const stoppedRef = useRef(false);
 
   useEffect(() => {
     const p = getProject();
-    if (!p.keyword) {
+    if (!p.keyword || !p.jobId) {
       router.replace('/create');
       return;
     }
     setKeyword(p.keyword);
-    startProcessing(p.keyword);
+    setJobId(p.jobId);
+    startedAt.current = Date.now();
+
+    // Polling 시작
+    startPolling(p.jobId);
+
+    // Elapsed time 카운터
+    elapsedTimer.current = setInterval(() => {
+      setElapsedSec(Math.floor((Date.now() - startedAt.current) / 1000));
+    }, 1000);
+
+    return () => {
+      stoppedRef.current = true;
+      if (pollTimer.current) clearTimeout(pollTimer.current);
+      if (elapsedTimer.current) clearInterval(elapsedTimer.current);
+    };
      
   }, [router]);
 
-  const startProcessing = async (kw: string) => {
-    const logMessages: Record<string, string[]> = {
-      news: [
-        `📰 "${kw}" 관련 최근 7일 기사 6건을 수집했습니다.`,
-        `고신뢰도 언론사(연합뉴스·KBS·MBC·한국경제) 위주로 필터링했습니다.`,
-      ],
-      script: [
-        `✍️ 6개 블록 대본 작성 완료 (약 10분 분량)`,
-        `[오프닝 28초] "안녕하세요! 오늘은 ${kw}에 대해 꼭 알아야 할 진실을 알려드리겠습니다..."`,
-      ],
-      tts: [`🎤 한국어 여성 음성(ElevenLabs)으로 10분 분량 음성 생성 완료.`],
-      graphic: [`🎨 핵심 장면 4컷 인포그래픽 생성 완료.`],
-      video: [`🎬 영상 합성 완료 (1920×1080, 30fps). 길이 10분 12초.`],
-      seo: [
-        `🔍 YouTube SEO 2026 규칙 적용 완료`,
-        `제목/태그/설명/썸네일 자동 최적화.`,
-        `수익화 안전도: 92/100 (A+)`,
-      ],
+  const startPolling = (id: string) => {
+    const poll = async () => {
+      if (stoppedRef.current) return;
+
+      // 타임아웃 체크
+      const elapsedMin = (Date.now() - startedAt.current) / 60000;
+      if (elapsedMin > MAX_POLL_MINUTES) {
+        setErrorMsg(`타임아웃: ${MAX_POLL_MINUTES}분 초과. 백엔드에서 영상이 아직 생성 중일 수 있습니다.`);
+        return;
+      }
+
+      try {
+        const res: JobStatusResponse = await getJobStatus(id);
+        consecutiveErrors.current = 0;
+
+        // status
+        const st = String(res.status || '').toLowerCase();
+        setStatus(st);
+
+        // progress (다양한 포맷 지원)
+        let prog = res.progress;
+        if (typeof prog !== 'number') {
+          prog = (res as any).percent ?? (res as any).progress_percent ?? undefined;
+        }
+        if (typeof prog === 'number') {
+          if (prog <= 1) prog = prog * 100; // 0~1 스케일 지원
+          setProgress(Math.max(0, Math.min(100, Math.round(prog))));
+        }
+
+        // current step
+        const step = res.current_step || (res as any).step || (res as any).stage;
+        if (step) setCurrentStep(step);
+        else if (typeof prog === 'number') setCurrentStep(inferStep(prog));
+
+        // logs (배열 또는 단일 메시지)
+        if (Array.isArray(res.logs) && res.logs.length > 0) {
+          setLogs(res.logs);
+        } else if (res.message && typeof res.message === 'string') {
+          setLogs((prev) => {
+            if (prev[prev.length - 1] === res.message) return prev;
+            return [...prev, res.message as string];
+          });
+        }
+
+        // 완료/실패
+        if (st === 'completed' || st === 'done' || st === 'success') {
+          setProgress(100);
+          stoppedRef.current = true;
+          // 잠깐 보여주고 이동
+          setTimeout(() => router.push('/done'), 800);
+          return;
+        }
+        if (st === 'failed' || st === 'error') {
+          setErrorMsg(res.error || res.message || '영상 생성에 실패했습니다.');
+          stoppedRef.current = true;
+          return;
+        }
+      } catch (err: any) {
+        consecutiveErrors.current += 1;
+        console.error('[processing] poll failed:', err);
+        if (consecutiveErrors.current >= MAX_CONSECUTIVE_ERRORS) {
+          setErrorMsg(`상태 조회 ${MAX_CONSECUTIVE_ERRORS}회 연속 실패: ${formatApiError(err)}`);
+          return;
+        }
+        // 일시적 오류는 다음 주기에 재시도
+      }
+
+      if (!stoppedRef.current) {
+        pollTimer.current = setTimeout(poll, POLL_INTERVAL_MS);
+      }
     };
 
-    for (let i = 0; i < STEPS.length; i++) {
-      setCurrentStep(i);
-      const step = STEPS[i];
-      await new Promise((resolve) => setTimeout(resolve, step.duration));
-      setCompletedSteps((prev) => new Set([...prev, step.key]));
-      setLogs((prev) => [...prev, ...logMessages[step.key]]);
-    }
+    // 첫 호출 즉시
+    poll();
+  };
 
-    setCurrentStep(-1);
-    setTimeout(() => router.push('/done'), 1200);
+  const formatTime = (s: number) => {
+    const m = Math.floor(s / 60);
+    const sec = s % 60;
+    return `${m}:${sec.toString().padStart(2, '0')}`;
+  };
+
+  const handleCancel = () => {
+    if (!confirm('영상 생성을 취소하시겠어요? (백엔드에선 계속 진행될 수 있습니다)')) return;
+    stoppedRef.current = true;
+    if (pollTimer.current) clearTimeout(pollTimer.current);
+    router.push('/');
+  };
+
+  const handleRetry = () => {
+    router.push('/configure');
   };
 
   return (
@@ -74,205 +175,185 @@ export default function ProcessingPage() {
           margin: 0 auto;
           padding: 32px 24px 60px;
         }
-        .header {
-          text-align: center;
-          margin-bottom: 28px;
-        }
+        .header { text-align: center; margin-bottom: 24px; }
         .eyebrow {
-          font-size: 12px;
-          font-weight: 700;
-          color: #ff0000;
-          letter-spacing: 0.12em;
-          margin-bottom: 8px;
+          font-size: 12px; font-weight: 700; color: #cc0000;
+          letter-spacing: 0.12em; margin-bottom: 8px;
         }
         .title {
-          font-size: 28px;
-          font-weight: 800;
-          color: #0f0f0f;
-          letter-spacing: -0.02em;
+          font-size: 28px; font-weight: 800;
+          color: #0f0f0f; letter-spacing: -0.02em;
           margin: 0 0 8px;
         }
-        .sub {
-          font-size: 14px;
-          color: #606060;
-          line-height: 1.6;
+        .sub { font-size: 14px; color: #606060; line-height: 1.6; }
+
+        .metaRow {
+          display: flex; justify-content: center;
+          gap: 8px; flex-wrap: wrap; margin-bottom: 24px;
         }
-        .kwBadge {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 8px 16px;
-          background: #ffebeb;
+        .metaChip {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 6px 12px;
+          background: #fff;
+          border: 1px solid #e5e5e5;
           border-radius: 999px;
-          font-size: 13px;
-          font-weight: 700;
-          color: #cc0000;
-          margin-bottom: 28px;
+          font-size: 12px; color: #606060;
         }
-        .layout {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 20px;
-        }
+        .chipKw { background: #fff0f0; color: #cc0000; border-color: #ffd4d4; }
+        .chipJob { font-family: monospace; }
+
+        /* 프로그레스 패널 */
         .panel {
           background: #fff;
           border: 1px solid #e5e5e5;
-          border-radius: 12px;
-          padding: 22px;
+          border-radius: 16px;
+          padding: 28px;
+          margin-bottom: 20px;
         }
-        .panelDark {
-          background: #0f0f0f;
-          color: #fff;
-          border: none;
-        }
-        .panelTitle {
-          font-size: 14px;
-          font-weight: 700;
-          color: #0f0f0f;
-          margin-bottom: 16px;
-          display: flex;
+        .progressLabel {
+          display: flex; justify-content: space-between;
           align-items: center;
-          gap: 8px;
+          margin-bottom: 12px;
         }
-        .panelDark .panelTitle { color: #fff; }
+        .progressText {
+          font-size: 15px; font-weight: 700;
+          color: #0f0f0f;
+        }
+        .progressPct {
+          font-size: 24px; font-weight: 800;
+          color: #cc0000; letter-spacing: -0.02em;
+        }
+        .progressBar {
+          width: 100%; height: 10px;
+          background: #f0f0f0;
+          border-radius: 999px;
+          overflow: hidden;
+          margin-bottom: 14px;
+        }
+        .progressFill {
+          height: 100%;
+          background: linear-gradient(90deg, #cc0000 0%, #ff3333 100%);
+          border-radius: 999px;
+          transition: width 0.5s ease;
+        }
+        .statusRow {
+          display: flex; justify-content: space-between;
+          align-items: center;
+          font-size: 13px; color: #606060;
+        }
+        .statusBadge {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 4px 10px;
+          background: #fff0f0;
+          color: #cc0000;
+          border-radius: 999px;
+          font-size: 11px; font-weight: 700;
+        }
         .livedot {
           display: inline-block;
-          width: 8px;
-          height: 8px;
-          background: #ff0000;
+          width: 7px; height: 7px;
+          background: #cc0000;
           border-radius: 50%;
           animation: pulse 1.5s infinite;
         }
         @keyframes pulse {
           0%, 100% { opacity: 1; }
-          50% { opacity: 0.4; }
+          50% { opacity: 0.3; }
         }
-        .stepList {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
+
+        /* 로그 패널 */
+        .logsPanel {
+          background: #0f0f0f;
+          color: #fff;
+          border-radius: 16px;
+          padding: 24px;
           margin-bottom: 20px;
         }
-        .stepRow {
-          display: flex;
+        .logsHead {
+          display: flex; justify-content: space-between;
           align-items: center;
-          gap: 12px;
-          padding: 12px 14px;
-          background: #f9f9f9;
-          border-radius: 10px;
-          transition: all 0.3s;
+          margin-bottom: 14px;
         }
-        .stepActive {
-          background: #ffebeb;
-          border: 1px solid #ffcccc;
+        .logsTitle {
+          font-size: 14px; font-weight: 700;
+          display: inline-flex; align-items: center; gap: 8px;
         }
-        .stepCompleted {
-          background: #f0fdf4;
-        }
-        .stepCheck {
-          width: 28px;
-          height: 28px;
-          border-radius: 8px;
-          background: #e5e5e5;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-          color: #888;
-          font-weight: 700;
-        }
-        .stepActive .stepCheck {
-          background: #ff0000;
-          color: #fff;
-          animation: spin 1s linear infinite;
-        }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
-        }
-        .stepCompleted .stepCheck {
-          background: #22c55e;
-          color: #fff;
-        }
-        .stepRowText {
-          flex: 1;
-          min-width: 0;
-          display: flex;
-          align-items: center;
+        .logsList {
+          max-height: 260px;
+          overflow-y: auto;
+          display: flex; flex-direction: column;
           gap: 8px;
         }
-        .stepRowIcon { font-size: 18px; }
-        .stepRowLabel {
-          font-size: 14px;
-          font-weight: 600;
-          color: #0f0f0f;
-        }
-        .stepBadge {
-          font-size: 11px;
-          padding: 3px 8px;
-          border-radius: 999px;
-          background: #dcfce7;
-          color: #16a34a;
-          font-weight: 700;
-          flex-shrink: 0;
-        }
-        .stepBadgeRun {
-          background: #ff0000;
-          color: #fff;
-        }
-        .totalTime {
-          font-size: 12px;
-          color: #606060;
-          text-align: center;
-          padding: 10px;
-          background: #f9f9f9;
-          border-radius: 8px;
-          margin-bottom: 12px;
-        }
-        .nextBtn {
-          width: 100%;
-          padding: 14px;
-          background: #22c55e;
-          color: #fff;
-          border: none;
-          border-radius: 999px;
-          font-size: 15px;
-          font-weight: 700;
-          cursor: pointer;
-          font-family: inherit;
-          min-height: 52px;
-          opacity: 0.5;
-          cursor: not-allowed;
-        }
-        .nextBtnActive {
-          opacity: 1;
-          cursor: pointer;
-        }
-        .nextBtnActive:hover { background: #16a34a; }
-        .logs {
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          max-height: 520px;
-          overflow-y: auto;
-        }
+        .logsList::-webkit-scrollbar { width: 6px; }
+        .logsList::-webkit-scrollbar-track { background: transparent; }
+        .logsList::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.2); border-radius: 3px; }
         .logItem {
           padding: 10px 14px;
-          background: rgba(255, 255, 255, 0.05);
+          background: rgba(255,255,255,0.05);
           border-radius: 10px;
           font-size: 13px;
           color: #ddd;
           line-height: 1.6;
-          border-left: 3px solid #ff0000;
+          border-left: 3px solid #cc0000;
         }
+        .logsEmpty {
+          padding: 20px;
+          text-align: center;
+          color: #666;
+          font-size: 13px;
+        }
+
+        /* 에러 박스 */
+        .errorPanel {
+          background: #fff0f0;
+          border: 1px solid #ffcccc;
+          border-radius: 16px;
+          padding: 20px;
+          margin-bottom: 20px;
+        }
+        .errorTitle {
+          font-size: 15px; font-weight: 700;
+          color: #cc0000; margin-bottom: 6px;
+        }
+        .errorMsg {
+          font-size: 13px; color: #990000;
+          line-height: 1.6; margin-bottom: 14px;
+        }
+        .errorActions { display: flex; gap: 8px; }
+        .errorBtn {
+          padding: 10px 18px;
+          border: none; border-radius: 999px;
+          font-size: 13px; font-weight: 600;
+          cursor: pointer; font-family: inherit;
+        }
+        .errorBtnPrimary { background: #cc0000; color: #fff; }
+        .errorBtnPrimary:hover { background: #a80000; }
+        .errorBtnSecondary { background: #fff; border: 1px solid #e5e5e5; }
+
+        /* 하단 안내 */
+        .footerNote {
+          text-align: center;
+          font-size: 12px;
+          color: #888;
+          line-height: 1.6;
+        }
+        .cancelBtn {
+          margin-top: 10px;
+          padding: 8px 18px;
+          background: transparent;
+          border: 1px solid #e5e5e5;
+          border-radius: 999px;
+          font-size: 12px; color: #606060;
+          cursor: pointer; font-family: inherit;
+        }
+        .cancelBtn:hover { color: #0f0f0f; border-color: #0f0f0f; }
 
         @media (max-width: 768px) {
           .page { padding: 24px 14px 40px; }
           .title { font-size: 22px; }
-          .layout { grid-template-columns: 1fr; gap: 14px; }
-          .panel { padding: 18px; }
-          .stepRow { padding: 10px 12px; gap: 10px; }
-          .stepRowLabel { font-size: 13px; }
-          .logs { max-height: 280px; }
+          .panel { padding: 20px; }
+          .logsPanel { padding: 18px; }
+          .progressPct { font-size: 20px; }
         }
       `}</style>
 
@@ -283,61 +364,78 @@ export default function ProcessingPage() {
           <p className="sub">AI가 뉴스 수집부터 영상 합성까지 자동으로 처리합니다</p>
         </div>
 
-        <div style={{ textAlign: 'center' }}>
-          <div className="kwBadge">▶ {keyword || '-'}</div>
+        <div className="metaRow">
+          <div className="metaChip chipKw">▶ {keyword || '-'}</div>
+          <div className="metaChip">⏱️ 경과 {formatTime(elapsedSec)}</div>
+          {jobId && <div className="metaChip chipJob">Job {jobId.slice(0, 8)}</div>}
         </div>
 
-        <div className="layout">
-          <div className="panel">
-            <div className="panelTitle">처리 단계</div>
-            <div className="stepList">
-              {STEPS.map((step, i) => {
-                const isCompleted = completedSteps.has(step.key);
-                const isActive = currentStep === i;
-                return (
-                  <div
-                    key={step.key}
-                    className={`stepRow ${isActive ? 'stepActive' : ''} ${isCompleted ? 'stepCompleted' : ''}`}
-                  >
-                    <div className="stepCheck">
-                      {isCompleted ? '✓' : isActive ? '⟳' : i + 1}
-                    </div>
-                    <div className="stepRowText">
-                      <span className="stepRowIcon">{step.icon}</span>
-                      <span className="stepRowLabel">{step.label}</span>
-                    </div>
-                    {isCompleted && <span className="stepBadge">완료</span>}
-                    {isActive && <span className="stepBadge stepBadgeRun">진행중</span>}
+        {errorMsg ? (
+          <div className="errorPanel">
+            <div className="errorTitle">⚠️ 처리 중단됨</div>
+            <div className="errorMsg">{errorMsg}</div>
+            <div className="errorActions">
+              <button className="errorBtn errorBtnPrimary" onClick={handleRetry}>
+                다시 시도
+              </button>
+              <button className="errorBtn errorBtnSecondary" onClick={() => router.push('/')}>
+                홈으로
+              </button>
+            </div>
+          </div>
+        ) : (
+          <>
+            <div className="panel">
+              <div className="progressLabel">
+                <div className="progressText">
+                  {currentStep || (progress === 0 ? '대기 중...' : '처리 중...')}
+                </div>
+                <div className="progressPct">{progress}%</div>
+              </div>
+              <div className="progressBar">
+                <div className="progressFill" style={{ width: `${progress}%` }} />
+              </div>
+              <div className="statusRow">
+                <div className="statusBadge">
+                  <span className="livedot"></span>
+                  {status === 'queued' ? '대기열' :
+                   status === 'processing' ? '진행 중' :
+                   status === 'completed' ? '완료' :
+                   status || '상태 확인 중'}
+                </div>
+                <div>실서비스 기준 5~8분 소요</div>
+              </div>
+            </div>
+
+            <div className="logsPanel">
+              <div className="logsHead">
+                <div className="logsTitle">
+                  <span className="livedot"></span>
+                  실시간 진행 로그
+                </div>
+              </div>
+              <div className="logsList">
+                {logs.length === 0 ? (
+                  <div className="logsEmpty">
+                    상태를 조회하는 중입니다... (3초마다 업데이트)
                   </div>
-                );
-              })}
+                ) : (
+                  logs.slice(-20).map((log, i) => (
+                    <div key={i} className="logItem">{log}</div>
+                  ))
+                )}
+              </div>
             </div>
-            <div className="totalTime">시연 약 20초 · 실서비스 5~8분</div>
-            <button
-              className={`nextBtn ${completedSteps.size === STEPS.length ? 'nextBtnActive' : ''}`}
-              disabled={completedSteps.size !== STEPS.length}
-              onClick={() => router.push('/done')}
-            >
-              {completedSteps.size === STEPS.length ? '▶ 완성된 영상 확인' : '처리 중...'}
-            </button>
-          </div>
 
-          <div className="panel panelDark">
-            <div className="panelTitle">
-              <span className="livedot"></span>
-              실시간 미리보기
+            <div className="footerNote">
+              이 창을 닫아도 백엔드에서 영상은 계속 생성됩니다.<br />
+              Job ID: <code style={{ fontSize: 11 }}>{jobId}</code>
             </div>
-            <div className="logs">
-              {logs.length === 0 ? (
-                <div className="logItem">처리를 시작합니다...</div>
-              ) : (
-                logs.map((log, i) => (
-                  <div key={i} className="logItem">{log}</div>
-                ))
-              )}
+            <div style={{ textAlign: 'center' }}>
+              <button className="cancelBtn" onClick={handleCancel}>작업 취소</button>
             </div>
-          </div>
-        </div>
+          </>
+        )}
       </div>
     </V11Shell>
   );
