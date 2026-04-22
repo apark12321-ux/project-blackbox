@@ -1,19 +1,7 @@
 """
-AlgoMaker — 영상 생성 엔진 v17 (NEVER FAIL)
+AlgoMaker — 영상 생성 엔진 v17.1 (NEVER FAIL)
 ═══════════════════════════════════════════════
-설계 원칙: 비디오는 무조건 생성된다. 어떤 API가 실패해도 다음으로 넘어간다.
-
-이미지 소스 체인:
-  1. Gemini 2.5 Flash Image (무료, 인포그래픽)
-  2. fal.ai FLUX (유료, 고퀄리티)
-  3. Pexels HD 실사 (무료)
-  4. Pillow 자체 생성 (100% 성공 보장)
-
-TTS 체인:
-  1. ElevenLabs (고퀄리티)
-  2. 무음 fallback (100% 성공)
-
-합성: FFmpeg xfade 전환 → 실패 시 단순 concat → 실패 시 단일 클립
+Fix: _job_id 파라미터 추가 (v17.0의 TypeError 해결)
 """
 import os, uuid, subprocess, logging, random, re, asyncio, shutil, base64, json
 from dataclasses import dataclass
@@ -48,7 +36,6 @@ def _dur(p):
 #  1. TTS — Edge TTS (무료) → ElevenLabs (유료) → 무음
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
-# 한국어 Edge TTS 음성
 _EDGE_VOICES = {
     "female_warm": "ko-KR-SunHiNeural",
     "male_calm": "ko-KR-InJoonNeural",
@@ -58,15 +45,11 @@ _EDGE_VOICES = {
 
 async def _tts_block(text, path, voice_id="ko-KR-SunHiNeural", speed=1.0):
     est = len(text) / (8.0 * speed)
-
-    # 1순위: Edge TTS (완전 무료, 무제한)
     edge_ok = await _edge_tts(text, path, voice_id, speed)
     if edge_ok:
         d = _dur(path)
         logger.info(f"[TTS] ✓ Edge TTS {d:.1f}s")
         return path, d if d > 0 else est
-
-    # 2순위: ElevenLabs (유료)
     el_key = os.getenv("ELEVENLABS_API_KEY","").strip()
     if el_key:
         el_ok = await _elevenlabs_tts(text, path, el_key, speed)
@@ -74,15 +57,12 @@ async def _tts_block(text, path, voice_id="ko-KR-SunHiNeural", speed=1.0):
             d = _dur(path)
             logger.info(f"[TTS] ✓ ElevenLabs {d:.1f}s")
             return path, d if d > 0 else est
-
-    # 3순위: 무음 fallback
     logger.warning("[TTS] All TTS failed — silent fallback")
     _silent(path, est)
     return path, est
 
 
 async def _edge_tts(text, path, voice="ko-KR-SunHiNeural", speed=1.0):
-    """Edge TTS — 완전 무료, 무제한, 한국어 고퀄리티"""
     try:
         import edge_tts
         rate = f"+{int((speed-1)*100)}%" if speed >= 1 else f"{int((speed-1)*100)}%"
@@ -96,7 +76,6 @@ async def _edge_tts(text, path, voice="ko-KR-SunHiNeural", speed=1.0):
 
 
 async def _elevenlabs_tts(text, path, key, speed=1.0):
-    """ElevenLabs — 유료 프리미엄"""
     try:
         import httpx
         async with httpx.AsyncClient(timeout=120) as c:
@@ -128,7 +107,6 @@ async def _tts_all(blocks, jd, speed=1.0, voice_id="ko-KR-SunHiNeural"):
             for p in paths: f.write(f"file '{p}'\n")
         subprocess.run(["ffmpeg","-y","-f","concat","-safe","0","-i",lf,"-c:a","copy",comb],
                        capture_output=True, timeout=120)
-    # 스테레오 변환
     st = os.path.join(jd, "tts_stereo.mp3")
     subprocess.run(["ffmpeg","-y","-i",comb,"-ac","2","-c:a","libmp3lame","-b:a","192k",st],
                    capture_output=True, timeout=60)
@@ -172,7 +150,7 @@ def _build_style(keyword, category, blocks):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  3. 이미지 생성 체인 (fal.ai 키 라운드로빈 + 크로스 체인)
+#  3. 이미지 생성 체인
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 _VIS = {
@@ -190,8 +168,6 @@ _VIS = {
     "cta": "요약 카드 — 영상 핵심 3줄 요약 + 구독 유도.",
 }
 
-
-# fal.ai 키 라운드로빈
 _FAL_KEYS = []
 _fal_key_idx = 0
 
@@ -218,48 +194,40 @@ def _next_fal_key():
 
 
 async def _get_slide_image(keyword, text, idx, total, category, section, jd, style, prev_descs):
-    """이미지 생성 — fal.ai 최우선 + 크로스 체인. 절대 실패 불가."""
     slide = os.path.join(jd, f"slide_{idx}.png")
     vis = _VIS["body"][idx % len(_VIS["body"])] if section == "body" else _VIS.get(section, _VIS["body"][0])
     core = text[:250] if text else keyword
     pal = style.get("palette", _PALETTES["tech"])
 
-    # ── 1순위: fal.ai FLUX (키 라운드로빈) ──
     fal = await _try_fal(keyword, core, idx, total, section, vis, pal, style, jd)
     if fal:
         _add_overlay(fal, keyword, idx, total, slide)
         logger.info(f"[IMG] Block {idx+1}/{total}: fal.ai ✓")
         return slide, "fal.ai"
 
-    # ── 2순위: Gemini Image ──
     gem = await _try_gemini(keyword, core, idx, total, section, vis, pal, style, prev_descs, jd)
     if gem:
         _add_overlay(gem, keyword, idx, total, slide)
         logger.info(f"[IMG] Block {idx+1}/{total}: gemini ✓")
         return slide, "gemini"
 
-    # ── 3순위: Pexels ──
     pex = await _try_pexels(text, category, idx, jd)
     if pex:
         _add_overlay(pex, keyword, idx, total, slide)
         logger.info(f"[IMG] Block {idx+1}/{total}: pexels ✓")
         return slide, "pexels"
 
-    # ── 4순위: Pillow (100% 성공) ──
     _make_slide(slide, keyword, core, idx, total, section, pal)
     logger.info(f"[IMG] Block {idx+1}/{total}: pillow ✓")
     return slide, "pillow"
 
 
-# ── Gemini ──
 async def _try_gemini(keyword, core, idx, total, section, vis, pal, style, prev_descs, jd):
     key = os.getenv("GEMINI_API_KEY","").strip()
     if not key: return ""
-
     prev_ctx = ""
     if prev_descs:
         prev_ctx = "\nPREVIOUS SLIDES:\n" + "\n".join(f"- {d}" for d in prev_descs[-3:]) + "\nMaintain same style.\n"
-
     prompt = (
         f"Create professional Korean YouTube infographic (Slide {idx+1}/{total}).\n"
         f"TOPIC: {keyword}\nCONTENT: {core}\nVISUAL: {vis}\n"
@@ -267,7 +235,6 @@ async def _try_gemini(keyword, core, idx, total, section, vis, pal, style, prev_
         f"STYLE: {style.get('theme','')}\n{prev_ctx}"
         f"RULES: data viz, Korean labels, 16:9, NO photos, vector only, bottom 15% empty for subs.\n"
     )
-
     try:
         import httpx
         for attempt in range(3):
@@ -298,11 +265,9 @@ async def _try_gemini(keyword, core, idx, total, section, vis, pal, style, prev_
     return ""
 
 
-# ── fal.ai (키 라운드로빈) ──
 async def _try_fal(keyword, core, idx, total, section, vis, pal, style, jd):
     fal_key = _next_fal_key()
     if not fal_key: return ""
-
     prompt = (
         f"Professional Korean YouTube infographic slide. Clean modern flat design.\n"
         f"Topic: {keyword}. Content: {core}\n"
@@ -310,7 +275,6 @@ async def _try_fal(keyword, core, idx, total, section, vis, pal, style, jd):
         f"Style: {style.get('theme','')}. 16:9, vector graphics, Korean text, "
         f"bottom 15% empty. Slide {idx+1}/{total}"
     )
-
     for retry in range(min(3, len(_get_fal_keys()))):
         try:
             import httpx
@@ -360,7 +324,6 @@ async def _try_fal(keyword, core, idx, total, section, vis, pal, style, jd):
     return ""
 
 
-# ── Pexels ──
 _KR_EN = {"주식":"stock market","부동산":"real estate","투자":"investment","연금":"retirement",
     "절세":"tax planning","건강":"wellness","운동":"fitness","AI":"AI technology",
     "경제":"economy analytics","금리":"interest rate","창업":"startup business"}
@@ -376,7 +339,6 @@ _used_ids = set()
 async def _try_pexels(text, category, idx, jd):
     key = os.getenv("PEXELS_API_KEY","").strip()
     if not key: return ""
-    # 키워드 매칭
     query = ""
     for kr, en in _KR_EN.items():
         if kr in text: query = en; break
@@ -406,13 +368,10 @@ async def _try_pexels(text, category, idx, jd):
     return ""
 
 
-# ── Pillow 자체 생성 (100% 성공) ──
 def _make_slide(path, keyword, core, idx, total, section, pal):
-    """Pillow로 인포그래픽 스타일 슬라이드 자체 생성 — 절대 실패 불가"""
     try:
         from PIL import Image, ImageDraw, ImageFont
     except:
-        # Pillow 없으면 빈 이미지라도 생성
         subprocess.run(["ffmpeg","-y","-f","lavfi","-i",
             f"color=c=0x1a1d23:s=1920x1080:d=1","-frames:v","1",path],
             capture_output=True, timeout=10)
@@ -424,30 +383,22 @@ def _make_slide(path, keyword, core, idx, total, section, pal):
         try: return ImageFont.truetype(fp, sz)
         except: return ImageFont.load_default()
 
-    # 배경색 파싱
     bg_hex = pal.get("bg","#1a1d23").lstrip("#")
     try: bg_rgb = tuple(int(bg_hex[i:i+2],16) for i in (0,2,4))
     except: bg_rgb = (26,29,35)
-
     acc_hex = pal.get("accent1","#4A90D9").lstrip("#")
     try: acc_rgb = tuple(int(acc_hex[i:i+2],16) for i in (0,2,4))
     except: acc_rgb = (74,144,217)
-
     text_hex = pal.get("text","#1E293B").lstrip("#")
     try: text_rgb = tuple(int(text_hex[i:i+2],16) for i in (0,2,4))
     except: text_rgb = (30,41,59)
 
     img = Image.new("RGB",(1920,1080), bg_rgb)
     d = ImageDraw.Draw(img)
-
-    # 상단 액센트 바
     d.rectangle([0,0,1920,6], fill=acc_rgb)
-
-    # 스텝 번호 (좌상단)
     d.rectangle([40,30,180,80], fill=acc_rgb)
     d.text((55,35), f"STEP {idx+1}/{total}", fill=(255,255,255), font=font(22))
 
-    # 키워드 (중앙 상단)
     try:
         f_kw = font(52)
         bbox = d.textbbox((0,0), keyword, font=f_kw)
@@ -455,10 +406,8 @@ def _make_slide(path, keyword, core, idx, total, section, pal):
         d.text(((1920-tw)//2, 120), keyword, fill=acc_rgb, font=f_kw)
     except: pass
 
-    # 구분선
     d.rectangle([200, 200, 1720, 203], fill=(*acc_rgb, 80))
 
-    # 본문 텍스트 (줄바꿈 처리)
     lines = []
     words = core.split()
     cur = ""
@@ -477,19 +426,15 @@ def _make_slide(path, keyword, core, idx, total, section, pal):
         d.text((200, y), line, fill=text_rgb, font=f_body)
         y += 55
 
-    # 하단 그라디언트 영역 (자막용 빈 공간)
     for yy in range(880, 1080):
         alpha = int((yy-880)/200 * 150)
         d.rectangle([0,yy,1920,yy+1], fill=(bg_rgb[0]//2, bg_rgb[1]//2, bg_rgb[2]//2))
 
-    # 워터마크
     d.text((1780,1045), "AlgoMaker", fill=(*text_rgb[:2],text_rgb[2]//2), font=font(14))
-
     img.save(path, "PNG", quality=95)
     return path
 
 
-# ── 오버레이 (상단 바 + 하단 그라디언트) ──
 def _add_overlay(img_path, keyword, idx, total, out_path):
     try:
         from PIL import Image, ImageDraw, ImageFont
@@ -507,29 +452,23 @@ def _add_overlay(img_path, keyword, idx, total, out_path):
     img = img.resize((1920,1080), Image.LANCZOS)
     ov = Image.new("RGBA",(1920,1080),(0,0,0,0))
     d = ImageDraw.Draw(ov)
-
-    # 상단 바
     d.rectangle([0,0,1920,50], fill=(0,0,0,160))
     d.text((20,10), f"STEP {idx+1}/{total}", fill=(196,154,26), font=font(14))
     d.text((120,8), keyword, fill=(255,255,255,220), font=font(20))
     d.text((1780,12), "AlgoMaker", fill=(255,255,255,80), font=font(12))
-
-    # 하단 그라디언트 (자막 영역)
     for y in range(940,1080):
         a = int((y-940)/140 * 200)
         d.rectangle([0,y,1920,y+1], fill=(0,0,0,a))
-
     img = Image.alpha_composite(img, ov)
     img.convert("RGB").save(out_path, "PNG", quality=95)
     return out_path
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  4. FFmpeg — 클립 생성 + 전환
+#  4. FFmpeg
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def _img_to_clip(img, out, dur, idx=0):
-    """이미지 → 클립. 미세 줌 + 페이드."""
     frames = max(24, int(dur * 24))
     vf = (f"scale=1980:1114,zoompan=z='min(zoom+0.0001,1.03)'"
           f":x='iw/2-(iw/zoom/2)':y='ih/2-(ih/zoom/2)'"
@@ -542,7 +481,6 @@ def _img_to_clip(img, out, dur, idx=0):
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=240)
         if r.returncode == 0 and os.path.exists(out): return out
     except: pass
-    # fallback — 정적
     subprocess.run(["ffmpeg","-y","-loop","1","-i",img,"-t",str(dur),
         "-vf","scale=1920:1080,fade=in:0:12",
         "-c:v","libx264","-preset","fast","-crf","22","-pix_fmt","yuv420p",out],
@@ -551,7 +489,6 @@ def _img_to_clip(img, out, dur, idx=0):
 
 
 def _concat_with_transitions(clips, bg_path, jd):
-    """클립들을 xfade 전환으로 연결. 실패 시 단순 concat."""
     if len(clips) == 1:
         shutil.copy2(clips[0], bg_path)
         return bg_path
@@ -561,26 +498,21 @@ def _concat_with_transitions(clips, bg_path, jd):
     XDUR = 0.5
 
     try:
-        # xfade 체인
         inputs = []
         for c in clips: inputs.extend(["-i", c])
-
         clip_durs = []
         for c in clips:
             d = _dur(c)
             clip_durs.append(d if d > 0.5 else 5.0)
-
         parts = []
         cur = "[0:v]"
         offset = clip_durs[0] - XDUR
-
         for j in range(1, len(clips)):
             tr = transitions[j % len(transitions)]
             out_label = f"[v{j}]" if j < len(clips)-1 else "[vout]"
             parts.append(f"{cur}[{j}:v]xfade=transition={tr}:duration={XDUR}:offset={max(0.1,offset)}{out_label}")
             offset += clip_durs[j] - XDUR
             cur = out_label
-
         cmd = ["ffmpeg","-y"] + inputs + [
             "-filter_complex", ";".join(parts),
             "-map","[vout]","-c:v","libx264","-preset","medium","-crf","18",
@@ -593,7 +525,6 @@ def _concat_with_transitions(clips, bg_path, jd):
     except Exception as e:
         logger.warning(f"[FFmpeg] xfade failed: {e}, using concat")
 
-    # Fallback: 단순 concat
     lf = os.path.join(jd, "clips.txt")
     with open(lf,"w") as f:
         for c in clips: f.write(f"file '{c}'\n")
@@ -605,7 +536,6 @@ def _concat_with_transitions(clips, bg_path, jd):
 
 
 def _avatar_pip(bg, avatar, out):
-    """아바타 PIP 합성 (우측 하단)"""
     vf = ("[1:v]scale=320:-1,chromakey=0x00FF00:0.3:0.1[av];"
           "[0:v][av]overlay=W-w-40:H-h-40:shortest=1[out]")
     cmd = ["ffmpeg","-y","-i",bg,"-i",avatar,"-filter_complex",vf,
@@ -677,7 +607,6 @@ def _bgm(path, dur, vol=0.05):
     return path if os.path.exists(path) else ""
 
 def _compose(bg, audio, srt_path, output, bgm_path=""):
-    """최종 합성: 영상 + TTS + 자막 + BGM"""
     fp = _font()
     fn = "NanumGothicBold" if fp and "NanumGothicBold" in fp else "NanumGothic"
     srt_esc = srt_path.replace("\\","/").replace(":",r"\:")
@@ -709,7 +638,6 @@ def _compose(bg, audio, srt_path, output, bgm_path=""):
     except Exception as e:
         logger.warning(f"[Compose] {e}")
 
-    # Fallback: 자막 없이
     try:
         subprocess.run(["ffmpeg","-y","-i",bg,"-i",audio,"-map","0:v","-map","1:a",
             "-c:v","libx264","-preset","fast","-crf","20",
@@ -720,35 +648,28 @@ def _compose(bg, audio, srt_path, output, bgm_path=""):
             return output
     except: pass
 
-    # 최후: 오디오만이라도
     shutil.copy2(audio, output.replace(".mp4",".mp3"))
     return output.replace(".mp4",".mp3")
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  6b. 디지털 지문 변조 (Policy Shield)
+#  6b. 디지털 지문 변조
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 def _fingerprint(video_path, jd):
-    """영상의 픽셀/오디오를 미세 변조하여 유튜브 AI가 재사용 콘텐츠로 인식 못하게 처리"""
     out = os.path.join(jd, "fingerprinted.mp4")
-    
-    # 랜덤 시드
-    hue_shift = random.uniform(-2, 2)          # 색조 미세 변환
-    brightness = random.uniform(-0.02, 0.02)   # 밝기 미세 조정
-    contrast = random.uniform(0.98, 1.02)      # 대비 미세 조정
-    pitch_shift = random.randint(-50, 50)      # 오디오 피치 미세 변환 (Hz)
-    pad_ms = random.randint(50, 200)           # 앞뒤 무음 패딩 (ms)
-    
+    hue_shift = random.uniform(-2, 2)
+    brightness = random.uniform(-0.02, 0.02)
+    contrast = random.uniform(0.98, 1.02)
+    pitch_shift = random.randint(-50, 50)
+    pad_ms = random.randint(50, 200)
     vf = (f"eq=brightness={brightness}:contrast={contrast},"
           f"hue=h={hue_shift},"
-          f"noise=alls={random.randint(1,3)}:allf=t")  # 극미세 노이즈
-    
+          f"noise=alls={random.randint(1,3)}:allf=t")
     af = (f"apad=pad_dur={pad_ms/1000},"
           f"asetrate=44100*{1 + pitch_shift/44100},"
           f"aresample=44100,"
           f"volume={random.uniform(0.98, 1.02)}")
-    
     cmd = ["ffmpeg","-y","-i",video_path,
            "-vf",vf,"-af",af,
            "-c:v","libx264","-preset","medium","-crf","18",
@@ -761,29 +682,24 @@ def _fingerprint(video_path, jd):
         r = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
         if r.returncode == 0 and os.path.exists(out):
             os.replace(out, video_path)
-            logger.info(f"[Shield] ✓ Fingerprint applied (hue={hue_shift:.1f}, brt={brightness:.3f})")
+            logger.info(f"[Shield] ✓ Fingerprint applied")
             return video_path
     except Exception as e:
         logger.warning(f"[Shield] Fingerprint failed: {e}")
     return video_path
 
 def _random_time():
-    """랜덤 creation_time 메타데이터 생성"""
     import datetime
     base = datetime.datetime.now() - datetime.timedelta(hours=random.randint(1,72))
     return base.strftime("%Y-%m-%dT%H:%M:%S")
 
 def _uniqueness_grade(sources):
-    """수익화 등급 산출 (A+~F)"""
     total = sum(sources.values())
     if total == 0: return "F", 0
-    
     ai_ratio = (sources.get("gemini",0) + sources.get("fal.ai",0)) / total
     pexels_ratio = sources.get("pexels",0) / total
     pillow_ratio = sources.get("pillow",0) / total
-    
     score = ai_ratio * 100 + pexels_ratio * 50 + pillow_ratio * 20
-    
     if score >= 90: return "A+", score
     elif score >= 80: return "A", score
     elif score >= 70: return "B+", score
@@ -802,15 +718,12 @@ async def _heygen(full_text, jd):
     if not key: return ""
     try:
         import httpx
-        # 아바타 목록
         async with httpx.AsyncClient(timeout=30) as c:
             r = await c.get("https://api.heygen.com/v2/avatars",headers={"X-Api-Key":key})
             if r.status_code != 200: return ""
             avatars = r.json().get("data",{}).get("avatars",[])
             if not avatars: return ""
             aid = avatars[0].get("avatar_id","")
-
-        # 음성 목록
         async with httpx.AsyncClient(timeout=30) as c:
             voice_id = ""
             try:
@@ -824,8 +737,6 @@ async def _heygen(full_text, jd):
                         if voices: voice_id = voices[0].get("voice_id","")
             except: pass
             if not voice_id: return ""
-
-            # 생성 요청
             r = await c.post("https://api.heygen.com/v2/video/generate",
                 headers={"X-Api-Key":key,"Content-Type":"application/json"},
                 json={"video_inputs":[{
@@ -838,8 +749,6 @@ async def _heygen(full_text, jd):
                 return ""
             vid = r.json().get("data",{}).get("video_id","")
             if not vid: return ""
-
-        # 폴링
         ap = os.path.join(jd,"avatar.mp4")
         async with httpx.AsyncClient(timeout=60) as c:
             for _ in range(60):
@@ -866,14 +775,25 @@ async def _heygen(full_text, jd):
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
-#  메인 파이프라인 v17 — NEVER FAIL
+#  메인 파이프라인 v17.1 — BUG FIX
+#  ⭐ _job_id 파라미터 추가 (video_routes.py 호출과 맞춤)
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 
 async def generate_real_video(keyword, category, script_blocks, mode="normal",
-                               channel_name="", watermark_text="", tts_voice_id=""):
+                               channel_name="", watermark_text="", tts_voice_id="",
+                               _job_id=""):
+    """
+    ⭐ v17.1 FIX: _job_id 파라미터 추가
+    
+    video_routes.py에서 외부 job_id를 전달하면 그걸 사용.
+    전달 안 되면 자체 생성 (하위 호환).
+    """
     global _used_ids
     _used_ids = set()
-    job_id = str(uuid.uuid4())[:8]
+    
+    # ⭐ FIX: 외부에서 받은 job_id 우선 사용
+    job_id = _job_id if _job_id else str(uuid.uuid4())[:8]
+    
     jd = os.path.join(OUTPUT_DIR, job_id)
     os.makedirs(jd, exist_ok=True)
 
@@ -884,15 +804,15 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
         voice = tts_voice_id or "ko-KR-SunHiNeural"
         total = len(script_blocks)
 
-        logger.info(f"[V17] ═══ START: '{keyword}', {total} blocks, mode={mode} ═══")
+        logger.info(f"[V17.1] ═══ START: '{keyword}', job_id={job_id}, {total} blocks, mode={mode} ═══")
 
-        # ── Step 1: TTS (항상 성공) ──
+        # Step 1: TTS
         audio, adur, bdurs = await _tts_all(script_blocks, jd, speed, voice)
 
-        # ── Step 2: Style ──
+        # Step 2: Style
         style = _build_style(keyword, category, script_blocks)
 
-        # ── Step 3: 슬라이드 이미지 (항상 성공 — 4단계 체인) ──
+        # Step 3: 슬라이드
         clips = []
         prev_descs = []
         sources = {"gemini":0, "fal.ai":0, "pexels":0, "pillow":0}
@@ -909,45 +829,42 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
             sources[src] = sources.get(src, 0) + 1
             prev_descs.append(f"Slide {i+1}: {src} — {b.get('section','body')}")
 
-            # 클립 변환
             clip = os.path.join(jd, f"clip_{i}.mp4")
             _img_to_clip(slide, clip, clip_dur, idx=i)
             if os.path.exists(clip):
                 clips.append(clip)
 
-            # Gemini 쿼터 보호: 블록 간 대기
             if i < total - 1:
                 await asyncio.sleep(2)
 
-        logger.info(f"[V17] Slides: {sources}")
+        logger.info(f"[V17.1] Slides: {sources}")
 
-        # ── Step 4: 클립 연결 (전환 효과) ──
+        # Step 4: 클립 연결
         bg = os.path.join(jd, "bg.mp4")
         if clips:
             _concat_with_transitions(clips, bg, jd)
         else:
-            # 클립이 하나도 없으면 검정 배경이라도
             subprocess.run(["ffmpeg","-y","-f","lavfi","-i",
                 f"color=c=black:s=1920x1080:d={adur+2}",
                 "-c:v","libx264","-pix_fmt","yuv420p",bg],
                 capture_output=True, timeout=60)
 
-        # ── Step 5: HeyGen 아바타 ──
+        # Step 5: 아바타
         full = " ".join(b.get("text","") for b in script_blocks)
         avp = await _heygen(full, jd)
         if avp and os.path.exists(avp):
             pip = os.path.join(jd, "bg_pip.mp4")
             result = _avatar_pip(bg, avp, pip)
             if result: bg = pip
-            logger.info(f"[V17] Avatar: {'✓' if result else '✗'}")
+            logger.info(f"[V17.1] Avatar: {'✓' if result else '✗'}")
         else:
-            logger.info("[V17] Avatar: skipped")
+            logger.info("[V17.1] Avatar: skipped")
 
-        # ── Step 6: SRT 자막 ──
+        # Step 6: SRT
         srt = os.path.join(jd, "subs.srt")
         _srt(script_blocks, srt, pause, bdurs)
 
-        # ── Step 7: BGM + 최종 합성 ──
+        # Step 7: BGM + 최종 합성
         vdur = adur + pause * total + 2
         bgm = os.path.join(jd, "bgm.m4a")
         _bgm(bgm, vdur, 0.04 if is_sr else 0.05)
@@ -956,24 +873,20 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
         res = _compose(bg, audio, srt, out, bgm)
 
         if res and os.path.exists(res):
-            # ── Step 8: 디지털 지문 변조 (재사용 콘텐츠 필터 회피) ──
             _fingerprint(res, jd)
-            
-            # ── Step 9: 수익화 등급 산출 ──
             grade, score = _uniqueness_grade(sources)
-            logger.info(f"[V17] Shield Grade: {grade} ({score:.0f}/100)")
+            logger.info(f"[V17.1] Shield Grade: {grade} ({score:.0f}/100)")
 
             fs = os.path.getsize(res)
             rd = _dur(res) or vdur
-            logger.info(f"[V17] ═══ DONE: {fs/1024/1024:.1f}MB, {rd:.1f}s, Grade={grade} ═══")
+            logger.info(f"[V17.1] ═══ DONE: {fs/1024/1024:.1f}MB, {rd:.1f}s, Grade={grade} ═══")
             return RealVideoResult(
                 job_id=job_id, status="done", output_path=res,
                 download_url=f"/api/v1/video/download/{job_id}",
                 duration_sec=round(rd,1), file_size_bytes=fs,
                 tts_audio_path=audio, subtitle_path=srt)
 
-        # 최후: 오디오만이라도 반환
-        logger.warning("[V17] Video compose failed, returning audio only")
+        logger.warning("[V17.1] Video compose failed, returning audio only")
         return RealVideoResult(
             job_id=job_id, status="done", output_path=audio,
             download_url=f"/api/v1/video/download/{job_id}",
@@ -981,6 +894,5 @@ async def generate_real_video(keyword, category, script_blocks, mode="normal",
             tts_audio_path=audio)
 
     except Exception as e:
-        logger.error(f"[V17] FATAL: {e}")
-        # 에러에서도 뭐라도 반환
+        logger.error(f"[V17.1] FATAL: {e}")
         return RealVideoResult(job_id=job_id, status="error", error=str(e))
