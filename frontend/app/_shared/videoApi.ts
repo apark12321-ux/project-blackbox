@@ -5,7 +5,7 @@
  *       다르게 백엔드에 전달하여 실제 대본 스타일이 달라지게 함
  */
 
-import { getScenarioById } from './scenarios';
+import { getScenarioById, generateScenarioPrompts } from './scenarios';
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://project-blackbox-production.up.railway.app';
 
@@ -149,17 +149,18 @@ async function generateScript(
   req: GenerateRealRequest,
   newsSummary: string
 ): Promise<any> {
-  // 선택된 스타일의 프롬프트 가져오기
+  // ⭐ v2: 시나리오 + 키워드로 매번 다른 무한 변형 프롬프트 생성
   const style = getScenarioById(req.scenarioStyleId);
+  const prompts = generateScenarioPrompts(style, req.keyword);
 
   const body = {
     keyword: req.keyword,
     category: req.category || 'economy',
     news_summary: newsSummary,
-    // ⭐ 스타일별 프롬프트 실제 주입
-    core_facts: style?.core_facts || [],
-    opinion_seeds: style?.opinion_seeds || [],
-    hook_triggers: style?.hook_triggers || [],
+    // ⭐ 매 호출마다 새로 생성된 프롬프트 (시나리오 톤 유지 + 무한 변형)
+    core_facts: prompts.core_facts,
+    opinion_seeds: prompts.opinion_seeds,
+    hook_triggers: prompts.hook_triggers,
     target_duration_sec: (req.duration || 10) * 60,
   };
 
