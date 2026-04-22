@@ -1,5 +1,11 @@
 /**
- * Video API Client (v2 - FastAPI 422 에러 대응 + 다중 포맷 시도)
+ * Video API Client (v3)
+ * 
+ * 실제 백엔드 구조:
+ * 1. POST /api/v1/script/generate → script_blocks 생성
+ * 2. POST /api/v1/video/generate-real (script_blocks 포함) → job_id
+ * 3. GET /api/v1/video/status/{job_id} (polling)
+ * 4. GET /api/v1/video/download/{job_id}
  */
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://project-blackbox-production.up.railway.app';
@@ -46,18 +52,17 @@ export interface DownloadResponse {
 
 export interface ApiError {
   status: number;
-  message: string;   // 항상 문자열!
+  message: string;
   body?: any;
 }
 
 // ============================================================
-// FastAPI validation error → 읽기 쉬운 문자열
+// FastAPI validation error → 문자열
 // ============================================================
 function stringifyFastApiError(detail: any): string {
   if (!detail) return '';
   if (typeof detail === 'string') return detail;
   if (Array.isArray(detail)) {
-    // FastAPI 형식: [{type, loc, msg, input}, ...]
     return detail.map((item) => {
       if (typeof item === 'string') return item;
       const loc = Array.isArray(item.loc) ? item.loc.join('.') : (item.loc || '');
@@ -72,13 +77,13 @@ function stringifyFastApiError(detail: any): string {
 }
 
 // ============================================================
-// Internal: fetch wrapper (에러를 항상 문자열로)
+// fetch wrapper
 // ============================================================
 async function apiCall<T>(
   method: 'GET' | 'POST',
   path: string,
   body?: any,
-  timeoutMs: number = 30000
+  timeoutMs: number = 60000
 ): Promise<T> {
   const url = `${API_BASE}${path}`;
   const controller = new AbortController();
@@ -106,19 +111,15 @@ async function apiCall<T>(
     }
 
     if (!res.ok) {
-      // FastAPI의 422는 { detail: [...] } 구조
       let msg = '';
       if (parsed?.detail) {
         msg = stringifyFastApiError(parsed.detail);
       } else if (parsed?.message) {
         msg = typeof parsed.message === 'string' ? parsed.message : stringifyFastApiError(parsed.message);
-      } else if (parsed?.error) {
-        msg = typeof parsed.error === 'string' ? parsed.error : stringifyFastApiError(parsed.error);
       } else {
         msg = `HTTP ${res.status}`;
       }
-      const err: ApiError = { status: res.status, message: msg, body: parsed };
-      throw err;
+      throw { status: res.status, message: msg, body: parsed } as ApiError;
     }
 
     return parsed as T;
@@ -133,106 +134,170 @@ async function apiCall<T>(
 }
 
 // ============================================================
-// 여러 필드명 포맷으로 순차 시도 (백엔드 스키마 불확실 시)
+// Step 1: 대본 생성
 // ============================================================
-async function tryMultipleFormats<T>(
-  path: string,
-  formats: any[]
-): Promise<T> {
-  let lastError: ApiError | null = null;
-  for (const body of formats) {
-    try {
-      return await apiCall<T>('POST', path, body, 30000);
-    } catch (err: any) {
-      lastError = err;
-      // 422(validation)면 다음 포맷 시도, 그 외 에러(500 등)는 즉시 중단
-      if (err?.status !== 422) throw err;
-    }
-  }
-  throw lastError || { status: 500, message: '모든 포맷 시도 실패', body: null };
-}
-
-// ============================================================
-// Public API
-// ============================================================
-
-/**
- * 영상 생성 요청 - 다양한 body 포맷 시도
- */
-export async function startVideoGeneration(req: GenerateRealRequest): Promise<GenerateRealResponse> {
-  // 후보 body 포맷들 (백엔드가 어떤 이름을 기대하는지 모르니 순차 시도)
+async function generateScript(req: GenerateRealRequest): Promise<any> {
+  // 여러 포맷 시도
   const duration_seconds = (req.duration || 10) * 60;
-
   const formats = [
-    // Format 1: 현재 전달받은 그대로
-    {
-      keyword: req.keyword,
-      tone: req.tone,
-      duration: req.duration,
-      mode: req.mode,
-      custom_topic: req.custom_topic,
-      category: req.category,
-    },
-    // Format 2: 최소 필드만 (keyword만)
-    {
-      keyword: req.keyword,
-    },
-    // Format 3: query 필드명
-    {
-      query: req.keyword,
-      category: req.category,
-    },
-    // Format 4: topic 필드명
-    {
-      topic: req.keyword,
-      duration_minutes: req.duration,
-      category: req.category,
-    },
-    // Format 5: 영상 공통 스키마 추정
+    // 표준 포맷
     {
       keyword: req.keyword,
       category: req.category || 'economy',
-      duration_seconds,
       tone: req.tone || 'formal',
+      duration_seconds,
+      custom_topic: req.custom_topic,
+    },
+    // 최소
+    {
+      keyword: req.keyword,
+      category: req.category || 'economy',
+    },
+    // 다른 이름
+    {
+      topic: req.keyword,
+      category: req.category || 'economy',
+      tone: req.tone || 'formal',
+      duration_minutes: req.duration || 10,
     },
   ];
 
-  // null/undefined 필드 제거
-  const cleanedFormats = formats.map((f) => {
+  let lastErr: ApiError | null = null;
+  for (const body of formats) {
+    // null/undefined 제거
     const cleaned: any = {};
-    Object.keys(f).forEach((k) => {
-      if ((f as any)[k] !== undefined && (f as any)[k] !== null && (f as any)[k] !== '') {
-        cleaned[k] = (f as any)[k];
-      }
+    Object.keys(body).forEach((k) => {
+      const v = (body as any)[k];
+      if (v !== undefined && v !== null && v !== '') cleaned[k] = v;
     });
-    return cleaned;
-  });
 
-  const res = await tryMultipleFormats<any>('/api/v1/video/generate-real', cleanedFormats);
-
-  // job_id 추출 (다양한 필드명 지원)
-  const jobId = res.job_id || res.jobId || res.id || res.task_id || res.taskId;
-  if (!jobId) {
-    throw {
-      status: 500,
-      message: `job_id 필드를 찾을 수 없음. 백엔드 응답 키: ${Object.keys(res || {}).join(', ')}`,
-      body: res,
-    } as ApiError;
+    try {
+      return await apiCall<any>('POST', '/api/v1/script/generate', cleaned, 90000);
+    } catch (err: any) {
+      lastErr = err;
+      if (err?.status !== 422) throw err; // 422만 다음 포맷 시도
+    }
   }
-
-  return { ...res, job_id: jobId };
+  throw lastErr || { status: 500, message: '대본 생성 모든 포맷 실패', body: null };
 }
 
 /**
- * 영상 생성 상태 조회
+ * 대본 응답에서 script_blocks 추출 (다양한 포맷 지원)
  */
+function extractScriptBlocks(scriptRes: any): any[] | null {
+  if (!scriptRes) return null;
+  const candidates = [
+    scriptRes.script_blocks,
+    scriptRes.blocks,
+    scriptRes.script?.blocks,
+    scriptRes.script?.script_blocks,
+    scriptRes.result?.script_blocks,
+    scriptRes.result?.blocks,
+    scriptRes.data?.script_blocks,
+    scriptRes.data?.blocks,
+  ];
+  for (const c of candidates) {
+    if (Array.isArray(c) && c.length > 0) return c;
+  }
+  // 대본 자체가 배열이면
+  if (Array.isArray(scriptRes)) return scriptRes;
+  return null;
+}
+
+// ============================================================
+// Step 2: 영상 생성
+// ============================================================
+async function generateVideoWithScript(
+  scriptBlocks: any[],
+  req: GenerateRealRequest
+): Promise<GenerateRealResponse> {
+  const duration_seconds = (req.duration || 10) * 60;
+
+  const formats = [
+    // 표준
+    {
+      script_blocks: scriptBlocks,
+      keyword: req.keyword,
+      category: req.category,
+      tone: req.tone,
+      duration_seconds,
+      mode: req.mode,
+    },
+    // 최소
+    {
+      script_blocks: scriptBlocks,
+    },
+    // blocks 이름
+    {
+      blocks: scriptBlocks,
+      keyword: req.keyword,
+    },
+  ];
+
+  let lastErr: ApiError | null = null;
+  for (const body of formats) {
+    const cleaned: any = {};
+    Object.keys(body).forEach((k) => {
+      const v = (body as any)[k];
+      if (v !== undefined && v !== null && v !== '') cleaned[k] = v;
+    });
+
+    try {
+      return await apiCall<GenerateRealResponse>('POST', '/api/v1/video/generate-real', cleaned, 60000);
+    } catch (err: any) {
+      lastErr = err;
+      if (err?.status !== 422) throw err;
+    }
+  }
+  throw lastErr || { status: 500, message: '영상 생성 모든 포맷 실패', body: null };
+}
+
+// ============================================================
+// Public: 2-step orchestration
+// ============================================================
+/**
+ * 전체 영상 생성 흐름:
+ * 1. 대본 생성 (최대 90초)
+ * 2. 영상 생성 요청 (job_id 획득)
+ */
+export async function startVideoGeneration(
+  req: GenerateRealRequest,
+  onProgress?: (step: string) => void
+): Promise<GenerateRealResponse> {
+  onProgress?.('AI 대본 작성 중...');
+  const scriptRes = await generateScript(req);
+
+  const scriptBlocks = extractScriptBlocks(scriptRes);
+  if (!scriptBlocks) {
+    throw {
+      status: 500,
+      message: `대본 응답에서 script_blocks를 찾을 수 없습니다. 백엔드 응답 키: ${Object.keys(scriptRes || {}).join(', ')}`,
+      body: scriptRes,
+    } as ApiError;
+  }
+
+  onProgress?.('영상 생성 요청 중...');
+  const videoRes = await generateVideoWithScript(scriptBlocks, req);
+
+  const jobId = videoRes.job_id || (videoRes as any).jobId || (videoRes as any).id || (videoRes as any).task_id;
+  if (!jobId) {
+    throw {
+      status: 500,
+      message: `job_id를 찾을 수 없음. 응답 키: ${Object.keys(videoRes || {}).join(', ')}`,
+      body: videoRes,
+    } as ApiError;
+  }
+
+  return { ...videoRes, job_id: jobId };
+}
+
+// ============================================================
+// Status / Download
+// ============================================================
 export async function getJobStatus(jobId: string): Promise<JobStatusResponse> {
   return apiCall<JobStatusResponse>('GET', `/api/v1/video/status/${encodeURIComponent(jobId)}`, undefined, 15000);
 }
 
-/**
- * 영상 다운로드 URL 획득
- */
 export async function getDownloadUrl(jobId: string): Promise<DownloadResponse> {
   return apiCall<DownloadResponse>('GET', `/api/v1/video/download/${encodeURIComponent(jobId)}`, undefined, 15000);
 }
@@ -263,14 +328,10 @@ export function extractVideoUrl(
   return null;
 }
 
-/**
- * 에러를 사용자용 문자열로 (React 렌더 안전)
- */
 export function formatApiError(err: any): string {
   if (!err) return '알 수 없는 오류';
   if (typeof err === 'string') return err;
 
-  // ApiError
   if (err.status !== undefined) {
     if (err.status === 0) return `네트워크 오류: ${err.message || ''}`.trim();
     if (err.status === 404) return '영상 작업을 찾을 수 없습니다 (job_id 확인 필요)';
@@ -280,9 +341,6 @@ export function formatApiError(err: any): string {
     return `오류 (${err.status}): ${err.message || ''}`;
   }
 
-  // 일반 Error 객체
   if (err.message) return String(err.message);
-
-  // 최후: JSON stringify
   try { return JSON.stringify(err); } catch { return String(err); }
 }

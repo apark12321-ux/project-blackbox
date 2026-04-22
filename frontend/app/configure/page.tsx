@@ -1,6 +1,6 @@
 'use client';
 /**
- * /configure - 스타일 설정 + 실제 영상 생성 API (v2 - 에러 안전 렌더링)
+ * /configure v3 - 2단계 진행 메시지
  */
 
 import { useState, useEffect } from 'react';
@@ -28,6 +28,7 @@ export default function ConfigurePage() {
   const [mode, setMode] = useState<Mode>('normal');
 
   const [submitting, setSubmitting] = useState(false);
+  const [submitStep, setSubmitStep] = useState<string>('');
   const [errorMsg, setErrorMsg] = useState<string>('');
   const [errorDetail, setErrorDetail] = useState<string>('');
 
@@ -48,26 +49,29 @@ export default function ConfigurePage() {
   const handleStart = async () => {
     if (submitting) return;
     setSubmitting(true);
+    setSubmitStep('시작 중...');
     setErrorMsg('');
     setErrorDetail('');
 
     setProject({ customTopic, tone, duration, mode, step: 3 });
 
     try {
-      const res = await startVideoGeneration({
-        keyword,
-        tone,
-        duration,
-        mode,
-        custom_topic: customTopic || undefined,
-        category: category || undefined,
-      });
+      const res = await startVideoGeneration(
+        {
+          keyword,
+          tone,
+          duration,
+          mode,
+          custom_topic: customTopic || undefined,
+          category: category || undefined,
+        },
+        (step) => setSubmitStep(step)
+      );
 
       setProject({ jobId: res.job_id });
       router.push('/processing');
     } catch (err: any) {
       console.error('[configure] startVideoGeneration failed:', err);
-      // 에러를 반드시 문자열로 변환
       setErrorMsg(formatApiError(err));
       try {
         setErrorDetail(JSON.stringify(err?.body || err, null, 2));
@@ -75,6 +79,7 @@ export default function ConfigurePage() {
         setErrorDetail(String(err));
       }
       setSubmitting(false);
+      setSubmitStep('');
     }
   };
 
@@ -115,34 +120,39 @@ export default function ConfigurePage() {
         .modeLabel { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
         .modeDesc { font-size: 11px; color: #606060; line-height: 1.5; }
 
-        .errorBox {
+        .errorBox { margin-bottom: 14px; padding: 14px 16px; background: #fff0f0; border: 1px solid #ffcccc; border-radius: 10px; font-size: 13px; color: #cc0000; line-height: 1.6; }
+        .errorTitle { font-weight: 700; margin-bottom: 6px; }
+        .errorText { color: #660000; word-break: break-word; white-space: pre-wrap; }
+        .errorDetail { margin-top: 10px; padding: 10px; background: #fff; border-radius: 8px; font-size: 11px; color: #888; font-family: monospace; max-height: 200px; overflow: auto; white-space: pre-wrap; word-break: break-all; }
+
+        .progressBox {
           margin-bottom: 14px;
           padding: 14px 16px;
           background: #fff0f0;
           border: 1px solid #ffcccc;
           border-radius: 10px;
-          font-size: 13px;
+          display: flex;
+          align-items: center;
+          gap: 12px;
+        }
+        .progressIcon {
+          width: 32px; height: 32px;
+          border: 3px solid #ffcccc;
+          border-top-color: #cc0000;
+          border-radius: 50%;
+          animation: spin 1s linear infinite;
+          flex-shrink: 0;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .progressText {
+          font-size: 14px;
           color: #cc0000;
-          line-height: 1.6;
+          font-weight: 600;
         }
-        .errorTitle { font-weight: 700; margin-bottom: 6px; }
-        .errorText {
-          color: #660000;
-          word-break: break-word;
-          white-space: pre-wrap;
-        }
-        .errorDetail {
-          margin-top: 10px;
-          padding: 10px;
-          background: #fff;
-          border-radius: 8px;
+        .progressSub {
           font-size: 11px;
           color: #888;
-          font-family: monospace;
-          max-height: 200px;
-          overflow: auto;
-          white-space: pre-wrap;
-          word-break: break-all;
+          margin-top: 2px;
         }
 
         .footerBar { display: flex; gap: 8px; margin-top: 20px; }
@@ -152,7 +162,6 @@ export default function ConfigurePage() {
         .startBtn:hover:not(:disabled) { background: #a80000; }
         .startBtn:disabled { background: #888; cursor: not-allowed; opacity: 0.7; }
         .spinner { display: inline-block; width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3); border-top-color: #fff; border-radius: 50%; animation: spin 1s linear infinite; margin-right: 6px; vertical-align: middle; }
-        @keyframes spin { to { transform: rotate(360deg); } }
 
         @media (max-width: 640px) {
           .page { padding: 24px 14px 32px; }
@@ -260,6 +269,16 @@ export default function ConfigurePage() {
           </div>
         </div>
 
+        {submitting && submitStep && (
+          <div className="progressBox">
+            <div className="progressIcon"></div>
+            <div>
+              <div className="progressText">{String(submitStep)}</div>
+              <div className="progressSub">AI가 처리 중입니다. 1~2분 소요될 수 있어요.</div>
+            </div>
+          </div>
+        )}
+
         {errorMsg && (
           <div className="errorBox">
             <div className="errorTitle">⚠️ 영상 생성 요청 실패</div>
@@ -285,7 +304,7 @@ export default function ConfigurePage() {
           </button>
           <button className="startBtn" onClick={handleStart} disabled={submitting}>
             {submitting ? (
-              <><span className="spinner"></span>생성 요청 중...</>
+              <><span className="spinner"></span>{String(submitStep || '처리 중...')}</>
             ) : (
               '▶ 영상 생성 시작'
             )}
