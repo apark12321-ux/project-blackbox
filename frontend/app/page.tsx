@@ -1,802 +1,623 @@
 'use client';
 /**
- * AlgoMaker v12.1 - 홈 (개선판)
- * - 프로세스 카드 정렬 개선 (3+2 → 중앙 정렬 + 마지막 와이드)
- * - 빨강 톤 다운 (#E50914)
- * - 버튼 일관성
- * - 메타 정보 추가 (아바타, 조회수 스타일)
- * - 샘플 영상 카드 섹션 신규
- * - 통계 카드화
- * - 선언 섹션 (작게)
- * - FAQ 시각적 개선
+ * AlgoMaker v13 - 대시보드 홈 (템플릿 라이브러리)
+ * MagicLight 스타일: 카테고리 탭 + 카드 그리드
  */
 
 import Link from 'next/link';
 import { useState } from 'react';
-import { V11Shell } from './_shared/V11Shell';
+import { useRouter } from 'next/navigation';
+import { DashboardShell, setProject } from './_shared/V11Shell';
 
-export default function HomePage() {
-  const [openFaq, setOpenFaq] = useState<number | null>(null);
+type Category = 'all' | 'shorts' | 'longform' | 'news' | 'religion' | 'finance' | 'health' | 'tech';
+
+interface Template {
+  id: string;
+  title: string;
+  desc: string;
+  category: Exclude<Category, 'all'>;
+  categoryLabel: string;
+  duration: string;
+  cpm: string;
+  thumb: string;
+  icon: string;
+  badge?: 'NEW' | 'HOT' | 'BETA';
+  categorySlug: string; // /keyword 페이지가 기대하는 슬러그
+  defaultTone: 'formal' | 'friendly' | 'casual' | 'slang';
+}
+
+const TEMPLATES: Template[] = [
+  {
+    id: 't-news-1',
+    title: '오늘의 경제 브리핑',
+    desc: '실시간 뉴스 기반 5~10분 요약 영상',
+    category: 'news',
+    categoryLabel: '뉴스',
+    duration: '5~10분',
+    cpm: '$15~22',
+    thumb: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
+    icon: '📰',
+    badge: 'HOT',
+    categorySlug: 'economy',
+    defaultTone: 'formal',
+  },
+  {
+    id: 't-shorts-1',
+    title: '1분 재테크 상식',
+    desc: '짧고 강렬한 쇼츠용 팁 영상',
+    category: 'shorts',
+    categoryLabel: '쇼츠',
+    duration: '1분',
+    cpm: '$12~18',
+    thumb: 'linear-gradient(135deg, #FF6B6B 0%, #ee0979 100%)',
+    icon: '⚡',
+    badge: 'NEW',
+    categorySlug: 'economy',
+    defaultTone: 'friendly',
+  },
+  {
+    id: 't-finance-1',
+    title: '블루오션 재테크 가이드',
+    desc: '경쟁 낮고 수익 높은 주제 자동 발굴',
+    category: 'finance',
+    categoryLabel: '재테크',
+    duration: '10~15분',
+    cpm: '$12~18',
+    thumb: 'linear-gradient(135deg, #f2994a 0%, #f2c94c 100%)',
+    icon: '💰',
+    categorySlug: 'economy',
+    defaultTone: 'formal',
+  },
+  {
+    id: 't-health-1',
+    title: '시니어 건강 상식',
+    desc: '50~70대 타겟, 큰 글씨 + 느린 TTS',
+    category: 'health',
+    categoryLabel: '건강',
+    duration: '10~15분',
+    cpm: '$15~22',
+    thumb: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
+    icon: '🏥',
+    categorySlug: 'health',
+    defaultTone: 'formal',
+  },
+  {
+    id: 't-religion-1',
+    title: '오늘의 말씀',
+    desc: '성경 구절 기반 묵상 영상',
+    category: 'religion',
+    categoryLabel: '종교',
+    duration: '5~10분',
+    cpm: '$8~14',
+    thumb: 'linear-gradient(135deg, #4568dc 0%, #b06ab3 100%)',
+    icon: '🕊️',
+    badge: 'BETA',
+    categorySlug: 'selfdev',
+    defaultTone: 'formal',
+  },
+  {
+    id: 't-tech-1',
+    title: 'AI 트렌드 위클리',
+    desc: '최신 AI 도구 & 뉴스 큐레이션',
+    category: 'tech',
+    categoryLabel: 'IT',
+    duration: '10~15분',
+    cpm: '$10~16',
+    thumb: 'linear-gradient(135deg, #00c6ff 0%, #0072ff 100%)',
+    icon: '💻',
+    badge: 'NEW',
+    categorySlug: 'tech',
+    defaultTone: 'friendly',
+  },
+  {
+    id: 't-longform-1',
+    title: '자기계발 심층 분석',
+    desc: '15~20분 롱폼, 깊이 있는 콘텐츠',
+    category: 'longform',
+    categoryLabel: '롱폼',
+    duration: '15~20분',
+    cpm: '$8~14',
+    thumb: 'linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%)',
+    icon: '📚',
+    categorySlug: 'selfdev',
+    defaultTone: 'formal',
+  },
+  {
+    id: 't-news-2',
+    title: '주간 헤드라인',
+    desc: '일주일간 주요 뉴스 큐레이션',
+    category: 'news',
+    categoryLabel: '뉴스',
+    duration: '10분',
+    cpm: '$12~18',
+    thumb: 'linear-gradient(135deg, #373b44 0%, #4286f4 100%)',
+    icon: '📡',
+    categorySlug: 'economy',
+    defaultTone: 'formal',
+  },
+];
+
+const TABS: { key: Category; label: string }[] = [
+  { key: 'all', label: '전체' },
+  { key: 'shorts', label: '쇼츠' },
+  { key: 'longform', label: '롱폼' },
+  { key: 'news', label: '뉴스' },
+  { key: 'religion', label: '종교' },
+  { key: 'finance', label: '재테크' },
+  { key: 'health', label: '건강' },
+  { key: 'tech', label: 'IT' },
+];
+
+export default function DashboardPage() {
+  const router = useRouter();
+  const [activeTab, setActiveTab] = useState<Category>('all');
+  const [selectedTemplate, setSelectedTemplate] = useState<Template | null>(null);
+  const [topic, setTopic] = useState('');
+
+  const filteredTemplates = activeTab === 'all'
+    ? TEMPLATES
+    : TEMPLATES.filter((t) => t.category === activeTab);
+
+  const handleTemplateClick = (t: Template) => {
+    setSelectedTemplate(t);
+  };
+
+  const handleStart = () => {
+    if (!selectedTemplate) return;
+    setProject({
+      category: selectedTemplate.categorySlug,
+      categoryLabel: selectedTemplate.categoryLabel,
+      templateId: selectedTemplate.id,
+      customTopic: topic,
+      tone: selectedTemplate.defaultTone,
+      step: 1,
+    });
+    router.push('/keyword'); // 기존 실제 API 연결된 페이지로 이동
+  };
 
   return (
-    <V11Shell>
+    <DashboardShell>
       <style jsx>{`
-        /* ============ HERO ============ */
-        .hero {
-          max-width: 1200px;
+        .page {
+          padding: 32px;
+          max-width: 1400px;
           margin: 0 auto;
-          padding: 72px 24px 56px;
-          text-align: center;
         }
+        .hero {
+          background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+          border-radius: 16px;
+          padding: 36px;
+          color: #fff;
+          margin-bottom: 28px;
+          position: relative;
+          overflow: hidden;
+        }
+        .hero::after {
+          content: '';
+          position: absolute;
+          right: -50px;
+          top: -50px;
+          width: 300px;
+          height: 300px;
+          background: radial-gradient(circle, rgba(204, 0, 0, 0.25) 0%, transparent 70%);
+          pointer-events: none;
+        }
+        .heroInner { position: relative; z-index: 1; max-width: 640px; }
         .heroBadge {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          padding: 7px 14px;
-          background: #fff0f0;
-          color: #cc0000;
-          border: 1px solid #ffd4d4;
+          padding: 5px 12px;
+          background: rgba(204, 0, 0, 0.2);
+          color: #ff6b6b;
+          border: 1px solid rgba(204, 0, 0, 0.4);
           border-radius: 999px;
-          font-size: 13px;
-          font-weight: 600;
-          margin-bottom: 20px;
+          font-size: 11px;
+          font-weight: 700;
+          margin-bottom: 12px;
+          letter-spacing: 0.05em;
         }
         .heroTitle {
-          font-size: 52px;
+          font-size: 28px;
           font-weight: 800;
-          color: #0f0f0f;
-          letter-spacing: -0.03em;
-          line-height: 1.12;
-          margin: 0 0 18px;
+          letter-spacing: -0.02em;
+          line-height: 1.3;
+          margin-bottom: 8px;
         }
-        .heroTitleAccent { color: #cc0000; }
         .heroSub {
-          font-size: 17px;
-          color: #606060;
-          line-height: 1.7;
-          max-width: 600px;
-          margin: 0 auto 32px;
+          font-size: 14px;
+          color: #aaa;
+          margin-bottom: 18px;
+          line-height: 1.6;
         }
-        .heroCtas {
-          display: flex;
-          gap: 10px;
-          justify-content: center;
-          margin-bottom: 48px;
-          flex-wrap: wrap;
-        }
-        .primaryBtn {
-          padding: 14px 28px;
-          background: #cc0000;
-          color: #fff;
-          border-radius: 999px;
-          font-size: 15px;
-          font-weight: 700;
-          text-decoration: none;
-          min-height: 48px;
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          transition: all 0.15s;
-          border: 2px solid #cc0000;
-        }
-        .primaryBtn:hover { background: #a80000; border-color: #a80000; }
-        .secondaryBtn {
-          padding: 14px 28px;
-          background: #fff;
-          color: #0f0f0f;
-          border: 2px solid #e5e5e5;
-          border-radius: 999px;
-          font-size: 15px;
-          font-weight: 600;
-          text-decoration: none;
-          min-height: 48px;
+        .heroCta {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          transition: all 0.15s;
+          padding: 10px 20px;
+          background: #cc0000;
+          color: #fff;
+          border-radius: 999px;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          border: none;
+          transition: background 0.15s;
         }
-        .secondaryBtn:hover { border-color: #0f0f0f; }
+        .heroCta:hover { background: #a80000; }
 
-        /* Stats - card style */
-        .heroStats {
-          display: flex;
-          justify-content: center;
-          gap: 12px;
-          flex-wrap: wrap;
-          max-width: 620px;
-          margin: 0 auto;
-        }
-        .statBox {
-          flex: 1;
-          min-width: 140px;
-          padding: 18px 16px;
-          background: #f9f9f9;
-          border-radius: 14px;
-          text-align: center;
-          transition: all 0.15s;
-        }
-        .statBox:hover { background: #f2f2f2; }
-        .statIcon { font-size: 22px; margin-bottom: 6px; }
-        .statNum {
-          font-size: 26px;
+        .pageTitle {
+          font-size: 22px;
           font-weight: 800;
           color: #0f0f0f;
           letter-spacing: -0.02em;
-          line-height: 1;
+          margin-bottom: 6px;
         }
-        .statLabel { font-size: 12px; color: #606060; margin-top: 6px; }
+        .pageSub {
+          font-size: 13px;
+          color: #606060;
+          margin-bottom: 20px;
+        }
 
-        /* ============ MANIFEST (작은 선언) ============ */
-        .manifest {
+        .tabs {
+          display: flex;
+          gap: 6px;
+          margin-bottom: 24px;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+          scrollbar-width: none;
+          padding-bottom: 4px;
+        }
+        .tabs::-webkit-scrollbar { display: none; }
+        .tab {
+          padding: 8px 16px;
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 999px;
+          font-size: 13px;
+          font-weight: 600;
+          color: #606060;
+          cursor: pointer;
+          white-space: nowrap;
+          transition: all 0.15s;
+          flex-shrink: 0;
+        }
+        .tab:hover { border-color: #0f0f0f; color: #0f0f0f; }
+        .tabActive {
           background: #0f0f0f;
           color: #fff;
-          padding: 40px 24px;
-          text-align: center;
-        }
-        .manifestInner {
-          max-width: 780px;
-          margin: 0 auto;
-        }
-        .manifestLabel {
-          font-size: 11px;
-          font-weight: 700;
-          color: #cc0000;
-          letter-spacing: 0.2em;
-          margin-bottom: 10px;
-        }
-        .manifestText {
-          font-size: 18px;
-          font-weight: 600;
-          line-height: 1.7;
-          letter-spacing: -0.01em;
-          color: #fff;
-          margin: 0;
-        }
-        .manifestText em {
-          font-style: normal;
-          color: #ff6b6b;
+          border-color: #0f0f0f;
         }
 
-        /* ============ SECTION ============ */
-        .section {
-          padding: 64px 24px;
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        .sectionSoft {
-          background: #f9f9f9;
-          padding: 64px 24px;
-        }
-        .sectionSoftInner {
-          max-width: 1200px;
-          margin: 0 auto;
-        }
-        .sectionHead {
-          text-align: center;
-          margin-bottom: 40px;
-        }
-        .sectionLabel {
-          display: inline-block;
-          padding: 4px 12px;
-          background: #fff0f0;
-          color: #cc0000;
-          font-size: 11px;
-          font-weight: 800;
-          letter-spacing: 0.12em;
-          border-radius: 999px;
-          margin-bottom: 12px;
-        }
-        .sectionTitle {
-          font-size: 32px;
-          font-weight: 800;
-          color: #0f0f0f;
-          letter-spacing: -0.02em;
-          margin: 0 0 10px;
-        }
-        .sectionSub {
-          font-size: 15px;
-          color: #606060;
-          line-height: 1.7;
-          max-width: 560px;
-          margin: 0 auto;
-        }
-
-        /* ============ PROCESS CARDS (개선) ============ */
-        .processGrid {
+        .grid {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
+          grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
           gap: 18px;
-          max-width: 1100px;
-          margin: 0 auto;
-        }
-        .processCard {
-          grid-column: span 1;
-        }
-        .processLastRow {
-          display: grid;
-          grid-template-columns: 1.2fr 1fr;
-          gap: 18px;
-          margin-top: 18px;
-          max-width: 1100px;
-          margin-left: auto;
-          margin-right: auto;
         }
         .card {
-          cursor: default;
+          cursor: pointer;
           transition: transform 0.2s;
+          background: #fff;
+          border-radius: 12px;
+          overflow: hidden;
         }
-        .card:hover { transform: translateY(-2px); }
+        .card:hover { transform: translateY(-4px); }
         .thumb {
           width: 100%;
           aspect-ratio: 16/9;
-          border-radius: 12px;
-          overflow: hidden;
           position: relative;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 54px;
+          font-size: 52px;
           color: #fff;
+          overflow: hidden;
         }
-        .thumbWide { aspect-ratio: 21/9; }
-        .thumb1 { background: linear-gradient(135deg, #FF6B6B 0%, #ee0979 100%); }
-        .thumb2 { background: linear-gradient(135deg, #00c6ff 0%, #0072ff 100%); }
-        .thumb3 { background: linear-gradient(135deg, #ffa751 0%, #ffe259 100%); }
-        .thumb4 { background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%); }
-        .thumb5 { background: linear-gradient(135deg, #7F7FD5 0%, #86A8E7 100%); }
-        .thumbDuration {
+        .duration {
           position: absolute;
           bottom: 8px;
           right: 8px;
           background: rgba(0,0,0,0.85);
           color: #fff;
-          padding: 3px 6px;
+          padding: 3px 7px;
           border-radius: 4px;
           font-size: 11px;
-          font-weight: 600;
+          font-weight: 700;
         }
-        .thumbStep {
+        .badge {
           position: absolute;
           top: 10px;
           left: 10px;
-          background: rgba(0,0,0,0.75);
-          color: #fff;
-          width: 30px;
-          height: 30px;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 13px;
+          padding: 3px 8px;
+          border-radius: 999px;
+          font-size: 10px;
           font-weight: 800;
+          letter-spacing: 0.05em;
         }
-        .cardMeta {
-          padding: 12px 4px 0;
-          display: flex;
-          gap: 10px;
-        }
-        .avatar {
-          width: 32px;
-          height: 32px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, #cc0000 0%, #a80000 100%);
-          color: #fff;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 800;
-          font-size: 11px;
-          flex-shrink: 0;
-        }
-        .cardText { flex: 1; min-width: 0; }
-        .cardTitle {
-          font-size: 14px;
-          font-weight: 700;
-          color: #0f0f0f;
-          margin: 0 0 3px;
-          line-height: 1.35;
-          letter-spacing: -0.01em;
-        }
-        .cardSub {
-          font-size: 12px;
-          color: #606060;
-          line-height: 1.5;
-          margin: 0 0 2px;
-        }
-        .cardStats {
-          font-size: 11px;
-          color: #888;
-        }
+        .badgeNEW { background: #22c55e; color: #fff; }
+        .badgeHOT { background: #cc0000; color: #fff; }
+        .badgeBETA { background: #fff; color: #0f0f0f; border: 1px solid #e5e5e5; }
 
-        /* ============ SAMPLE VIDEOS ============ */
-        .sampleGrid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 18px;
+        .meta {
+          padding: 12px 12px 14px;
         }
-        .sampleCard {
-          cursor: pointer;
-          transition: transform 0.2s;
-        }
-        .sampleCard:hover { transform: translateY(-2px); }
-        .sampleThumb {
-          width: 100%;
-          aspect-ratio: 16/9;
-          border-radius: 12px;
-          position: relative;
-          overflow: hidden;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          color: #fff;
-        }
-        .sampleThumbA { background: linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%); }
-        .sampleThumbB { background: linear-gradient(135deg, #2d1b4e 0%, #5a189a 100%); }
-        .sampleThumbC { background: linear-gradient(135deg, #134e4a 0%, #042f2e 100%); }
-        .sampleHeading {
-          font-size: 22px;
-          font-weight: 800;
-          text-align: center;
-          padding: 20px;
-          line-height: 1.3;
-          letter-spacing: -0.02em;
-        }
-        .playBadge {
-          position: absolute;
-          top: 50%;
-          left: 50%;
-          transform: translate(-50%, -50%);
-          width: 56px;
-          height: 56px;
-          background: rgba(0,0,0,0.5);
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 20px;
-          opacity: 0;
-          transition: opacity 0.2s;
-        }
-        .sampleCard:hover .playBadge { opacity: 1; }
-
-        /* ============ TABLE ============ */
-        .tableWrap {
-          max-width: 900px;
-          margin: 0 auto;
-          background: #fff;
-          border-radius: 12px;
-          border: 1px solid #e5e5e5;
-          overflow-x: auto;
-          -webkit-overflow-scrolling: touch;
-        }
-        .table {
-          width: 100%;
-          border-collapse: collapse;
-          font-size: 14px;
-          min-width: 540px;
-        }
-        .th {
-          padding: 14px 16px;
-          text-align: center;
-          font-weight: 700;
-          color: #0f0f0f;
-          background: #f9f9f9;
-          border-bottom: 1px solid #e5e5e5;
-          font-size: 13px;
-        }
-        .thAccent { color: #cc0000; background: #fff0f0; }
-        .td {
-          padding: 12px 16px;
-          text-align: center;
-          color: #606060;
-          border-bottom: 1px solid #e5e5e5;
-        }
-        .tr:last-child .td { border-bottom: none; }
-        .tdLabel { text-align: left; color: #0f0f0f; font-weight: 500; }
-        .tdAccent { color: #cc0000; font-weight: 700; background: #fffafa; }
-
-        /* ============ FAQ ============ */
-        .faqList {
-          max-width: 760px;
-          margin: 0 auto;
-          display: flex;
-          flex-direction: column;
-          gap: 8px;
-        }
-        .faqItem {
-          padding: 16px 20px;
-          background: #fff;
-          border: 1px solid #e5e5e5;
-          border-radius: 12px;
-          cursor: pointer;
-          transition: all 0.15s;
-        }
-        .faqItem:hover { border-color: #cc0000; }
-        .faqItemOpen {
-          border-color: #cc0000;
-          background: #fffafa;
-        }
-        .faqQRow {
+        .metaTop {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          gap: 14px;
+          gap: 8px;
+          margin-bottom: 6px;
         }
-        .faqQ {
-          font-size: 15px;
+        .cat {
+          font-size: 11px;
+          font-weight: 700;
+          color: #cc0000;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+        .cpm {
+          font-size: 11px;
+          color: #888;
           font-weight: 600;
-          color: #0f0f0f;
-          flex: 1;
         }
-        .faqPlus {
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          background: #f2f2f2;
+        .title {
+          font-size: 14px;
+          font-weight: 700;
+          color: #0f0f0f;
+          margin-bottom: 3px;
+          letter-spacing: -0.01em;
+          line-height: 1.35;
+        }
+        .desc {
+          font-size: 12px;
           color: #606060;
+          line-height: 1.5;
+        }
+
+        /* MODAL */
+        .modalBack {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.5);
+          backdrop-filter: blur(4px);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-size: 18px;
-          font-weight: 400;
-          line-height: 1;
+          z-index: 200;
+          padding: 16px;
+        }
+        .modal {
+          background: #fff;
+          border-radius: 16px;
+          width: 100%;
+          max-width: 520px;
+          padding: 28px;
+          box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+        .modalHead {
+          display: flex;
+          gap: 14px;
+          margin-bottom: 20px;
+          align-items: center;
+        }
+        .modalThumb {
+          width: 72px;
+          height: 40px;
+          border-radius: 6px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 22px;
+          color: #fff;
           flex-shrink: 0;
-          transition: all 0.15s;
         }
-        .faqItemOpen .faqPlus {
-          background: #cc0000;
-          color: #fff;
-        }
-        .faqA {
-          margin-top: 12px;
-          padding-top: 12px;
-          border-top: 1px solid #e5e5e5;
-          font-size: 14px;
-          color: #606060;
-          line-height: 1.7;
-        }
-
-        /* ============ FINAL CTA (강화) ============ */
-        .finalCta {
-          background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
-          padding: 72px 24px;
-          text-align: center;
-          color: #fff;
-          position: relative;
-          overflow: hidden;
-        }
-        .finalCta::before {
-          content: '';
-          position: absolute;
-          top: -50%;
-          left: -10%;
-          width: 120%;
-          height: 200%;
-          background: radial-gradient(circle at 30% 50%, rgba(204, 0, 0, 0.15) 0%, transparent 50%);
-          pointer-events: none;
-        }
-        .finalInner { position: relative; z-index: 1; max-width: 720px; margin: 0 auto; }
-        .finalBadge {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          padding: 6px 14px;
-          background: rgba(204, 0, 0, 0.15);
-          color: #ff6b6b;
-          border: 1px solid rgba(204, 0, 0, 0.3);
-          border-radius: 999px;
-          font-size: 12px;
-          font-weight: 600;
-          margin-bottom: 16px;
-        }
-        .finalTitle {
-          font-size: 38px;
+        .modalTitle {
+          font-size: 17px;
           font-weight: 800;
-          color: #fff;
-          margin: 0 0 10px;
+          color: #0f0f0f;
           letter-spacing: -0.02em;
-          line-height: 1.2;
+          margin-bottom: 2px;
         }
-        .finalSub {
-          font-size: 15px;
-          color: #aaa;
-          margin: 0 0 28px;
-          line-height: 1.6;
+        .modalSub {
+          font-size: 12px;
+          color: #888;
         }
-        .finalBtn {
-          display: inline-flex;
-          align-items: center;
-          padding: 14px 32px;
+        .modalLabel {
+          font-size: 13px;
+          font-weight: 700;
+          color: #0f0f0f;
+          margin-bottom: 6px;
+        }
+        .modalHelp {
+          font-size: 12px;
+          color: #888;
+          margin-bottom: 10px;
+        }
+        .modalInput {
+          width: 100%;
+          padding: 12px 14px;
+          background: #fafafa;
+          border: 1px solid #e5e5e5;
+          border-radius: 10px;
+          font-size: 14px;
+          font-family: inherit;
+          margin-bottom: 16px;
+          transition: border-color 0.15s;
+        }
+        .modalInput:focus {
+          outline: none;
+          border-color: #cc0000;
+          background: #fff;
+        }
+        .modalDetail {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 8px;
+          margin-bottom: 20px;
+        }
+        .modalDetailItem {
+          padding: 10px;
+          background: #fafafa;
+          border-radius: 8px;
+          text-align: center;
+        }
+        .modalDetailLabel {
+          font-size: 10px;
+          color: #888;
+          margin-bottom: 2px;
+          text-transform: uppercase;
+          letter-spacing: 0.05em;
+        }
+        .modalDetailValue {
+          font-size: 13px;
+          font-weight: 700;
+          color: #0f0f0f;
+        }
+        .modalActions {
+          display: flex;
+          gap: 8px;
+        }
+        .modalCancel {
+          padding: 12px 18px;
+          background: #f5f5f5;
+          border: none;
+          border-radius: 999px;
+          font-size: 13px;
+          font-weight: 600;
+          color: #606060;
+          cursor: pointer;
+          flex-shrink: 0;
+        }
+        .modalCancel:hover { background: #e5e5e5; }
+        .modalStart {
+          flex: 1;
+          padding: 12px;
           background: #cc0000;
           color: #fff;
+          border: none;
           border-radius: 999px;
-          font-size: 15px;
+          font-size: 14px;
           font-weight: 700;
-          text-decoration: none;
-          min-height: 48px;
-          gap: 8px;
-          border: 2px solid #cc0000;
-          transition: all 0.15s;
+          cursor: pointer;
+          transition: background 0.15s;
         }
-        .finalBtn:hover { background: #a80000; border-color: #a80000; }
-        .finalNote {
-          margin-top: 18px;
-          font-size: 12px;
-          color: #666;
-          letter-spacing: -0.01em;
-        }
+        .modalStart:hover { background: #a80000; }
 
-        /* ============ MOBILE ============ */
-        @media (max-width: 1024px) {
-          .processGrid { grid-template-columns: repeat(2, 1fr); gap: 16px; }
-          .processLastRow { grid-template-columns: repeat(2, 1fr); gap: 16px; margin-top: 16px; }
-          .thumbWide { aspect-ratio: 16/9; }
-          .sampleGrid { grid-template-columns: repeat(2, 1fr); }
-        }
         @media (max-width: 768px) {
-          .hero { padding: 48px 18px 36px; }
-          .heroTitle { font-size: 32px; }
-          .heroSub { font-size: 15px; }
-          .heroCtas { flex-direction: column; align-items: stretch; gap: 8px; margin-bottom: 32px; }
-          .primaryBtn, .secondaryBtn { width: 100%; justify-content: center; }
-          .heroStats { gap: 8px; }
-          .statBox { min-width: 0; padding: 14px 10px; }
-          .statNum { font-size: 20px; }
-          .statIcon { font-size: 20px; margin-bottom: 4px; }
-
-          .manifest { padding: 32px 20px; }
-          .manifestText { font-size: 15px; }
-
-          .section, .sectionSoft { padding: 48px 18px; }
-          .sectionHead { margin-bottom: 28px; }
-          .sectionTitle { font-size: 24px; }
-          .sectionSub { font-size: 14px; }
-
-          .processGrid { grid-template-columns: 1fr; gap: 14px; }
-          .processLastRow { grid-template-columns: 1fr; gap: 14px; margin-top: 14px; }
-          .sampleGrid { grid-template-columns: 1fr; gap: 14px; }
-          .sampleHeading { font-size: 18px; padding: 16px; }
-
-          .faqItem { padding: 14px 16px; }
-          .faqQ { font-size: 14px; }
-          .faqA { font-size: 13px; }
-
-          .finalCta { padding: 52px 18px; }
-          .finalTitle { font-size: 26px; }
-          .finalBtn { width: 100%; justify-content: center; }
+          .page { padding: 18px 16px; }
+          .hero { padding: 24px; border-radius: 14px; }
+          .heroTitle { font-size: 22px; }
+          .grid { grid-template-columns: 1fr; gap: 14px; }
+          .modal { padding: 20px; }
+          .modalHead { flex-direction: row; gap: 10px; }
+          .modalDetail { grid-template-columns: 1fr; gap: 6px; }
         }
       `}</style>
 
-      {/* ============ HERO ============ */}
-      <section className="hero">
-        <div className="heroBadge">🎬 AI YouTube 자동화 플랫폼</div>
-        <h1 className="heroTitle">
-          키워드 하나로<br />
-          <span className="heroTitleAccent">영상이 완성됩니다</span>
-        </h1>
-        <p className="heroSub">
-          뉴스 수집부터 대본·음성·영상·SEO까지 AI가 전부 처리.
-          5분 안에 YouTube에 바로 업로드할 수 있는 MP4 완성.
-        </p>
-        <div className="heroCtas">
-          <Link href="/create" className="primaryBtn">▶ 무료로 시작하기</Link>
-          <a href="#process" className="secondaryBtn">프로세스 보기</a>
-        </div>
-        <div className="heroStats">
-          <div className="statBox">
-            <div className="statIcon">⏱️</div>
-            <div className="statNum">5~8분</div>
-            <div className="statLabel">영상 1편 제작</div>
-          </div>
-          <div className="statBox">
-            <div className="statIcon">💰</div>
-            <div className="statNum">0원</div>
-            <div className="statLabel">초기 비용</div>
-          </div>
-          <div className="statBox">
-            <div className="statIcon">🎯</div>
-            <div className="statNum">A+</div>
-            <div className="statLabel">수익화 안전도</div>
+      <div className="page">
+        <div className="hero">
+          <div className="heroInner">
+            <div className="heroBadge">🔥 NEW · 블루오션 AI 분석</div>
+            <h1 className="heroTitle">
+              AI가 수익 잘 나는 키워드부터<br />
+              찾아드립니다
+            </h1>
+            <p className="heroSub">
+              카테고리 고르고 템플릿 선택하면 끝. 5분 안에 YouTube 업로드 가능한 MP4 완성.
+            </p>
+            <button className="heroCta" onClick={() => router.push('/create')}>
+              ▶ 지금 시작하기
+            </button>
           </div>
         </div>
-      </section>
 
-      {/* ============ MANIFEST ============ */}
-      <section className="manifest">
-        <div className="manifestInner">
-          <div className="manifestLabel">OUR MISSION</div>
-          <p className="manifestText">
-            좋은 콘텐츠 만드는 게 <em>기술 장벽 때문에</em> 어려워선 안 됩니다.<br />
-            AI가 복잡한 제작을 맡고, 크리에이터는 아이디어에만 집중할 수 있게.
-          </p>
-        </div>
-      </section>
+        <h2 className="pageTitle">템플릿 라이브러리</h2>
+        <p className="pageSub">원하는 영상 스타일을 선택하세요. AI가 자동으로 제작합니다.</p>
 
-      {/* ============ PROCESS ============ */}
-      <section id="process" className="section">
-        <div className="sectionHead">
-          <div className="sectionLabel">PROCESS</div>
-          <h2 className="sectionTitle">5단계로 완성됩니다</h2>
-          <p className="sectionSub">
-            사용자는 <strong>처음 설정</strong>만 하시면 돼요. 나머진 AI가 알아서.
-          </p>
+        <div className="tabs">
+          {TABS.map((tab) => (
+            <button
+              key={tab.key}
+              className={`tab ${activeTab === tab.key ? 'tabActive' : ''}`}
+              onClick={() => setActiveTab(tab.key)}
+            >
+              {tab.label}
+            </button>
+          ))}
         </div>
 
-        <div className="processGrid">
-          {[
-            { n: 1, t: '카테고리 선택', d: '경제·건강·자기계발·IT·라이프 중 선택', thumb: 'thumb1', icon: '🎯', time: '30초', stats: '즉시 시작' },
-            { n: 2, t: '블루오션 키워드', d: 'AI가 경쟁도·CPM·트렌드 분석', thumb: 'thumb2', icon: '🔍', time: '1분', stats: '실시간 AI 추천' },
-            { n: 3, t: '말투·길이 설정', d: '격식/친근/반말/음슴체, 5~20분', thumb: 'thumb3', icon: '⚙️', time: '30초', stats: '4가지 톤' },
-          ].map((s) => (
-            <div key={s.n} className="card processCard">
-              <div className={`thumb ${s.thumb}`}>
-                <div className="thumbStep">{s.n}</div>
-                <span>{s.icon}</span>
-                <div className="thumbDuration">{s.time}</div>
+        <div className="grid">
+          {filteredTemplates.map((t) => (
+            <div key={t.id} className="card" onClick={() => handleTemplateClick(t)}>
+              <div className="thumb" style={{ background: t.thumb }}>
+                {t.badge && (
+                  <span className={`badge badge${t.badge}`}>{t.badge}</span>
+                )}
+                <span>{t.icon}</span>
+                <div className="duration">{t.duration}</div>
               </div>
-              <div className="cardMeta">
-                <div className="avatar">AM</div>
-                <div className="cardText">
-                  <h3 className="cardTitle">{s.t}</h3>
-                  <p className="cardSub">{s.d}</p>
-                  <div className="cardStats">{s.stats}</div>
+              <div className="meta">
+                <div className="metaTop">
+                  <span className="cat">{t.categoryLabel}</span>
+                  <span className="cpm">CPM {t.cpm}</span>
                 </div>
+                <h3 className="title">{t.title}</h3>
+                <p className="desc">{t.desc}</p>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="processLastRow">
-          <div className="card">
-            <div className="thumb thumb4 thumbWide">
-              <div className="thumbStep">4</div>
-              <span>🤖</span>
-              <div className="thumbDuration">5~8분</div>
-            </div>
-            <div className="cardMeta">
-              <div className="avatar">AM</div>
-              <div className="cardText">
-                <h3 className="cardTitle">AI 자동 처리</h3>
-                <p className="cardSub">뉴스 → 대본 → TTS → 인포그래픽 → 영상 합성</p>
-                <div className="cardStats">6단계 파이프라인 자동화</div>
-              </div>
-            </div>
-          </div>
-          <div className="card">
-            <div className="thumb thumb5">
-              <div className="thumbStep">5</div>
-              <span>✅</span>
-              <div className="thumbDuration">즉시</div>
-            </div>
-            <div className="cardMeta">
-              <div className="avatar">AM</div>
-              <div className="cardText">
-                <h3 className="cardTitle">다운로드 & 업로드</h3>
-                <p className="cardSub">MP4와 SEO 메타데이터 완성. 바로 YouTube 업로드</p>
-                <div className="cardStats">원클릭 게시</div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* ============ SAMPLE VIDEOS ============ */}
-      <section className="sectionSoft">
-        <div className="sectionSoftInner">
-          <div className="sectionHead">
-            <div className="sectionLabel">SAMPLES</div>
-            <h2 className="sectionTitle">이런 영상이 완성됩니다</h2>
-            <p className="sectionSub">
-              실제 AlgoMaker로 제작된 영상 샘플입니다. 카테고리별 스타일을 확인해보세요.
-            </p>
-          </div>
-
-          <div className="sampleGrid">
-            {[
-              { t: '2026 금리 전망', sub: '지금 꼭 알아야 할 3가지', thumb: 'sampleThumbA', cat: '경제', time: '10:12' },
-              { t: '간헐적 단식 진실', sub: '의사가 직접 말하는 부작용', thumb: 'sampleThumbB', cat: '건강', time: '8:45' },
-              { t: 'AI 도구 TOP 5', sub: '일상을 바꾸는 최신 앱', thumb: 'sampleThumbC', cat: 'IT', time: '12:30' },
-            ].map((s, i) => (
-              <div key={i} className="sampleCard">
-                <div className={`sampleThumb ${s.thumb}`}>
-                  <div className="sampleHeading">{s.t}</div>
-                  <div className="playBadge">▶</div>
-                  <div className="thumbDuration">{s.time}</div>
+        {selectedTemplate && (
+          <div className="modalBack" onClick={() => setSelectedTemplate(null)}>
+            <div className="modal" onClick={(e) => e.stopPropagation()}>
+              <div className="modalHead">
+                <div className="modalThumb" style={{ background: selectedTemplate.thumb }}>
+                  {selectedTemplate.icon}
                 </div>
-                <div className="cardMeta">
-                  <div className="avatar">AM</div>
-                  <div className="cardText">
-                    <h3 className="cardTitle">{s.t} - {s.sub}</h3>
-                    <p className="cardSub">AlgoMaker AI · {s.cat}</p>
-                    <div className="cardStats">예시 영상 · A+ 등급</div>
-                  </div>
+                <div>
+                  <div className="modalTitle">{selectedTemplate.title}</div>
+                  <div className="modalSub">{selectedTemplate.categoryLabel} · {selectedTemplate.duration}</div>
                 </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* ============ COMPARE ============ */}
-      <section className="section">
-        <div className="sectionHead">
-          <div className="sectionLabel">COMPARE</div>
-          <h2 className="sectionTitle">왜 AlgoMaker인가</h2>
-        </div>
-        <div className="tableWrap">
-          <table className="table">
-            <thead>
-              <tr>
-                <th className="th"></th>
-                <th className="th thAccent">ALGOMAKER</th>
-                <th className="th">수동 제작</th>
-                <th className="th">외주</th>
-              </tr>
-            </thead>
-            <tbody>
-              {[
-                ['영상 1편 제작 시간', '5~8분', '5시간+', '2~3일'],
-                ['초기 비용', '0원', '100만원+', '견적'],
-                ['월 비용', '무료~', '8~13만원', '100만원+'],
-                ['뉴스 기반 팩트체크', '✓ 자동', '수동', '×'],
-                ['YouTube SEO 2026', '✓ AI 자동', '수동', '별도비용'],
-                ['시니어 특화 모드', '✓ 내장', '×', '×'],
-              ].map((row, i) => (
-                <tr key={i} className="tr">
-                  <td className="td tdLabel">{row[0]}</td>
-                  <td className="td tdAccent">{row[1]}</td>
-                  <td className="td">{row[2]}</td>
-                  <td className="td">{row[3]}</td>
-                </tr>
-              ))}
-            </tbody>
-          </table>
-        </div>
-      </section>
+              <div className="modalLabel">주제 (선택)</div>
+              <div className="modalHelp">비워두면 AI가 블루오션 키워드를 자동 추천합니다</div>
+              <input
+                type="text"
+                className="modalInput"
+                placeholder="예: 2026년 금리 전망"
+                value={topic}
+                onChange={(e) => setTopic(e.target.value)}
+                maxLength={80}
+                autoFocus
+              />
 
-      {/* ============ FAQ ============ */}
-      <section id="faq" className="sectionSoft">
-        <div className="sectionSoftInner">
-          <div className="sectionHead">
-            <div className="sectionLabel">FAQ</div>
-            <h2 className="sectionTitle">자주 묻는 질문</h2>
-          </div>
-          <div className="faqList">
-            {[
-              { q: 'AI가 만든 영상도 수익화되나요?', a: '네. 2026년 YouTube 정책 기준 "실질적 변형·사실 기반·교육적 가치"가 있으면 수익화 가능합니다. AlgoMaker는 뉴스 기반 팩트체크와 SEO 최적화로 YPP 승인률을 높입니다.' },
-              { q: '실제로 얼마나 벌 수 있나요?', a: '카테고리에 따라 다릅니다. 경제 CPM $12~22, 건강 $15~22, IT $10~16. 월 조회수 10만~50만 시 월 $300~$2,000 수익이 관찰됩니다.' },
-              { q: '음성이 어색하지 않나요?', a: 'ElevenLabs 기반 한국어 TTS. 2026년 기준 사람 목소리와 구분이 어려운 수준입니다.' },
-              { q: '저작권 문제 없나요?', a: '뉴스 원문을 인용하지 않고 AI가 사실만 재구성. 영상 소스는 저작권 무료 라이브러리만 사용.' },
-              { q: 'YouTube 정책에 어긋나지 않나요?', a: '2026년 "합성·조작 콘텐츠 표시 의무"에 따라 AI 생성 영상은 자동으로 표시 태그가 추가됩니다.' },
-            ].map((item, i) => (
-              <div
-                key={i}
-                className={`faqItem ${openFaq === i ? 'faqItemOpen' : ''}`}
-                onClick={() => setOpenFaq(openFaq === i ? null : i)}
-              >
-                <div className="faqQRow">
-                  <span className="faqQ">{item.q}</span>
-                  <span className="faqPlus">{openFaq === i ? '−' : '+'}</span>
+              <div className="modalDetail">
+                <div className="modalDetailItem">
+                  <div className="modalDetailLabel">길이</div>
+                  <div className="modalDetailValue">{selectedTemplate.duration}</div>
                 </div>
-                {openFaq === i && <div className="faqA">{item.a}</div>}
+                <div className="modalDetailItem">
+                  <div className="modalDetailLabel">예상 CPM</div>
+                  <div className="modalDetailValue">{selectedTemplate.cpm}</div>
+                </div>
+                <div className="modalDetailItem">
+                  <div className="modalDetailLabel">소요</div>
+                  <div className="modalDetailValue">5~8분</div>
+                </div>
               </div>
-            ))}
-          </div>
-        </div>
-      </section>
 
-      {/* ============ FINAL CTA ============ */}
-      <section className="finalCta">
-        <div className="finalInner">
-          <div className="finalBadge">🔥 지금 가입하면 평생 무료</div>
-          <h2 className="finalTitle">오늘 첫 영상을 완성하세요</h2>
-          <p className="finalSub">
-            카테고리 고르고 키워드 선택하면 끝. 5분 후 유튜브 업로드 가능한 MP4가 준비됩니다.
-          </p>
-          <Link href="/create" className="finalBtn">▶ 무료로 시작하기</Link>
-          <div className="finalNote">신용카드 불필요 · 설치 불필요 · 바로 시작</div>
-        </div>
-      </section>
-    </V11Shell>
+              <div className="modalActions">
+                <button className="modalCancel" onClick={() => setSelectedTemplate(null)}>취소</button>
+                <button className="modalStart" onClick={handleStart}>
+                  ▶ 다음 (키워드 선택)
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+      </div>
+    </DashboardShell>
   );
 }

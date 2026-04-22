@@ -1,16 +1,16 @@
 'use client';
-
 /**
- * v11 공용 레이아웃 · 클린 화이트 + 파란 포인트
- * Pretendard + 절제된 디자인
+ * AlgoMaker v13 - MagicLight 스타일 Shell
+ * - 좌측 LNB 사이드바 + 우측 메인 컨텐츠
+ * - 크레딧 표시, 업그레이드 버튼
+ * - 모바일: 햄버거 메뉴
  */
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState, useEffect } from 'react';
-import styles from './shell.module.css';
 
-export interface V11ProjectState {
+export interface ProjectState {
   category?: string;
   categoryLabel?: string;
   keyword?: string;
@@ -19,22 +19,22 @@ export interface V11ProjectState {
   duration?: number;
   mode?: 'normal' | 'senior';
   customTopic?: string;
+  templateId?: string;
   step?: number;
+  jobId?: string;
 }
 
 const PROJECT_KEY = 'v11_project';
 
-export function getProject(): V11ProjectState {
+export function getProject(): ProjectState {
   if (typeof window === 'undefined') return {};
   try {
     const raw = localStorage.getItem(PROJECT_KEY);
     return raw ? JSON.parse(raw) : {};
-  } catch {
-    return {};
-  }
+  } catch { return {}; }
 }
 
-export function setProject(updates: Partial<V11ProjectState>) {
+export function setProject(updates: Partial<ProjectState>) {
   if (typeof window === 'undefined') return;
   try {
     const current = getProject();
@@ -47,154 +47,389 @@ export function clearProject() {
   try { localStorage.removeItem(PROJECT_KEY); } catch {}
 }
 
-export interface V11ShellProps {
-  children: React.ReactNode;
-  currentStep?: number;  // 1~5
+// V11Shell 호환 wrapper (기존 페이지 건드리지 않기 위해)
+export function V11Shell({ children, currentStep }: { children: React.ReactNode; currentStep?: number }) {
+  return <DashboardShell>{children}</DashboardShell>;
 }
 
-export function V11Shell({ children, currentStep }: V11ShellProps) {
+export function DashboardShell({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [sidebarOpen, setSidebarOpen] = useState(false);
+  const [credits] = useState(100); // 크레딧 (샘플)
+
+  const menu = [
+    { icon: '🏠', label: '홈', path: '/', key: 'home' },
+    { icon: '📋', label: '템플릿', path: '/templates', key: 'templates' },
+    { icon: '🎬', label: '내 영상', path: '/assets', key: 'assets' },
+    { icon: '📊', label: '분석', path: '/analytics', key: 'analytics' },
+  ];
+
+  const isActive = (path: string) => {
+    if (path === '/') return pathname === '/';
+    return pathname?.startsWith(path);
+  };
 
   return (
-    <div className={styles.root}>
-      <FontStyles />
+    <>
+      <style jsx global>{`
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        html, body {
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, 'Roboto', sans-serif;
+          background: #fafafa;
+          color: #0f0f0f;
+          -webkit-font-smoothing: antialiased;
+        }
+        a { color: inherit; text-decoration: none; }
+        button { font-family: inherit; }
+      `}</style>
 
-      <header className={styles.header}>
-        <div className={styles.headerInner}>
-          <Link href="/" className={styles.logo}>
-            Algo<span>Maker</span>
-          </Link>
-          <nav className={styles.navLinks}>
-            <a href="#guides" onClick={e => { e.preventDefault(); router.push('/'); }}>소개</a>
-            <a href="#process">프로세스</a>
-            <a href="#faq">FAQ</a>
-          </nav>
-          <button
-            className={styles.btnNav}
-            onClick={() => router.push('/create')}
-          >
-            무료 시작
+      <style jsx>{`
+        .app {
+          display: flex;
+          min-height: 100vh;
+          background: #fafafa;
+        }
+
+        /* ============ SIDEBAR ============ */
+        .sidebar {
+          width: 240px;
+          background: #fff;
+          border-right: 1px solid #e5e5e5;
+          padding: 20px 0;
+          display: flex;
+          flex-direction: column;
+          position: sticky;
+          top: 0;
+          height: 100vh;
+          flex-shrink: 0;
+        }
+        .sidebarHeader {
+          padding: 0 20px 20px;
+          border-bottom: 1px solid #f0f0f0;
+          margin-bottom: 16px;
+        }
+        .logo {
+          display: flex;
+          align-items: center;
+          font-size: 20px;
+          font-weight: 800;
+          letter-spacing: -0.02em;
+        }
+        .logoAccent { color: #cc0000; }
+        .logoSub {
+          font-size: 11px;
+          color: #888;
+          margin-top: 2px;
+          font-weight: 500;
+        }
+
+        .menuSection {
+          padding: 0 12px;
+          flex: 1;
+        }
+        .menuTitle {
+          font-size: 11px;
+          font-weight: 700;
+          color: #888;
+          letter-spacing: 0.1em;
+          padding: 8px 12px;
+          margin-top: 8px;
+        }
+        .menuItem {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 10px 12px;
+          border-radius: 10px;
+          cursor: pointer;
+          font-size: 14px;
+          font-weight: 500;
+          color: #0f0f0f;
+          margin-bottom: 2px;
+          transition: background 0.15s;
+        }
+        .menuItem:hover { background: #f5f5f5; }
+        .menuItemActive {
+          background: #fff0f0;
+          color: #cc0000;
+          font-weight: 700;
+        }
+        .menuIcon {
+          font-size: 18px;
+          flex-shrink: 0;
+        }
+
+        .createBtn {
+          margin: 16px 12px;
+          padding: 12px 16px;
+          background: #cc0000;
+          color: #fff;
+          border: none;
+          border-radius: 10px;
+          font-size: 14px;
+          font-weight: 700;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          transition: background 0.15s;
+        }
+        .createBtn:hover { background: #a80000; }
+
+        /* Credits */
+        .credits {
+          margin: 0 12px;
+          padding: 14px;
+          background: linear-gradient(135deg, #fafafa 0%, #f0f0f0 100%);
+          border: 1px solid #e5e5e5;
+          border-radius: 12px;
+        }
+        .creditsTop {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 8px;
+        }
+        .creditsLabel {
+          font-size: 11px;
+          font-weight: 700;
+          color: #888;
+          letter-spacing: 0.05em;
+        }
+        .creditsBadge {
+          font-size: 10px;
+          padding: 2px 6px;
+          background: #fff;
+          border-radius: 999px;
+          color: #666;
+          font-weight: 600;
+        }
+        .creditsValue {
+          font-size: 20px;
+          font-weight: 800;
+          color: #0f0f0f;
+          letter-spacing: -0.02em;
+          margin-bottom: 8px;
+        }
+        .upgradeBtn {
+          width: 100%;
+          padding: 8px;
+          background: #0f0f0f;
+          color: #fff;
+          border: none;
+          border-radius: 8px;
+          font-size: 12px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: background 0.15s;
+        }
+        .upgradeBtn:hover { background: #333; }
+
+        .sidebarFooter {
+          padding: 16px 20px 0;
+          margin-top: 16px;
+          border-top: 1px solid #f0f0f0;
+          font-size: 11px;
+          color: #888;
+          line-height: 1.6;
+        }
+        .techStack {
+          display: flex;
+          gap: 6px;
+          flex-wrap: wrap;
+          margin-top: 8px;
+        }
+        .techBadge {
+          padding: 3px 7px;
+          background: #f5f5f5;
+          border-radius: 4px;
+          font-size: 10px;
+          font-weight: 600;
+          color: #555;
+        }
+
+        /* ============ MAIN ============ */
+        .main {
+          flex: 1;
+          min-width: 0;
+        }
+        .topBar {
+          position: sticky;
+          top: 0;
+          z-index: 20;
+          background: rgba(250, 250, 250, 0.9);
+          backdrop-filter: blur(8px);
+          border-bottom: 1px solid #e5e5e5;
+          padding: 12px 32px;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 12px;
+        }
+        .hamburger {
+          display: none;
+          width: 36px;
+          height: 36px;
+          border: none;
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 8px;
+          cursor: pointer;
+          font-size: 18px;
+        }
+        .searchBar {
+          flex: 1;
+          max-width: 540px;
+          padding: 10px 16px;
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 999px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          color: #888;
+          font-size: 14px;
+        }
+        .topBtns {
+          display: flex;
+          gap: 8px;
+          align-items: center;
+        }
+        .iconBtn {
+          width: 38px;
+          height: 38px;
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 50%;
+          cursor: pointer;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+          transition: background 0.15s;
+        }
+        .iconBtn:hover { background: #f5f5f5; }
+        .profileBtn {
+          width: 36px;
+          height: 36px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, #cc0000 0%, #a80000 100%);
+          color: #fff;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 800;
+          font-size: 13px;
+          cursor: pointer;
+          border: none;
+        }
+
+        .content {
+          padding: 0;
+        }
+
+        /* ============ MOBILE ============ */
+        @media (max-width: 900px) {
+          .sidebar {
+            position: fixed;
+            left: 0;
+            top: 0;
+            z-index: 100;
+            transform: translateX(-100%);
+            transition: transform 0.2s;
+            box-shadow: 0 0 30px rgba(0,0,0,0.1);
+          }
+          .sidebarOpen { transform: translateX(0); }
+          .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            z-index: 99;
+            display: none;
+          }
+          .overlayVisible { display: block; }
+          .hamburger { display: flex; align-items: center; justify-content: center; }
+          .topBar { padding: 10px 16px; }
+          .searchBar { font-size: 13px; padding: 8px 14px; }
+          .iconBtn:nth-child(1) { display: none; }
+        }
+      `}</style>
+
+      <div className="app">
+        {sidebarOpen && (
+          <div
+            className="overlay overlayVisible"
+            onClick={() => setSidebarOpen(false)}
+          />
+        )}
+
+        <aside className={`sidebar ${sidebarOpen ? 'sidebarOpen' : ''}`}>
+          <div className="sidebarHeader">
+            <Link href="/" className="logo">
+              Algo<span className="logoAccent">Maker</span>
+            </Link>
+            <div className="logoSub">AI YouTube Studio</div>
+          </div>
+
+          <button className="createBtn" onClick={() => { router.push('/create'); setSidebarOpen(false); }}>
+            ▶ 새 영상 만들기
           </button>
-        </div>
-      </header>
 
-      {currentStep !== undefined && (
-        <div className={styles.stepBar}>
-          <div className={styles.stepBarInner}>
-            <StepItem num={1} label="카테고리" current={currentStep} target={1} onClick={() => currentStep > 1 && router.push('/create')} />
-            <StepArrow />
-            <StepItem num={2} label="키워드" current={currentStep} target={2} onClick={() => currentStep > 2 && router.push('/keyword')} />
-            <StepArrow />
-            <StepItem num={3} label="설정" current={currentStep} target={3} onClick={() => currentStep > 3 && router.push('/configure')} />
-            <StepArrow />
-            <StepItem num={4} label="AI 처리" current={currentStep} target={4} />
-            <StepArrow />
-            <StepItem num={5} label="완성" current={currentStep} target={5} />
-          </div>
-        </div>
-      )}
-
-      <main className={styles.main}>
-        {children}
-      </main>
-
-      <footer className={styles.footer}>
-        <div className={styles.footerInner}>
-          <div className={styles.footerTop}>
-            <div className={styles.footerCol}>
-              <div className={styles.logo} style={{ fontSize: 16 }}>
-                Algo<span>Maker</span>
+          <div className="menuSection">
+            <div className="menuTitle">MENU</div>
+            {menu.map((m) => (
+              <div
+                key={m.key}
+                className={`menuItem ${isActive(m.path) ? 'menuItemActive' : ''}`}
+                onClick={() => { router.push(m.path); setSidebarOpen(false); }}
+              >
+                <span className="menuIcon">{m.icon}</span>
+                <span>{m.label}</span>
               </div>
-              <p className={styles.footerBrandDesc}>
-                AI가 키워드 발굴부터 영상 제작, SEO까지 자동으로 처리하는
-                YouTube 콘텐츠 자동화 플랫폼.
-              </p>
-            </div>
-            <div className={styles.footerCol}>
-              <h5>제품</h5>
-              <ul>
-                <li><a href="/create">시작하기</a></li>
-                <li><a href="#process">프로세스</a></li>
-                <li><a href="#faq">FAQ</a></li>
-              </ul>
-            </div>
-            <div className={styles.footerCol}>
-              <h5>회사</h5>
-              <ul>
-                <li><a href="#about">소개</a></li>
-                <li><a href="mailto:contact@algomaker.kr">문의</a></li>
-              </ul>
-            </div>
+            ))}
           </div>
 
-          <div className={styles.bizInfo}>
-            <span className={styles.bizValueWrap}>
-              <span className={styles.bizLabel}>상호</span> 한줄컴퍼니
-            </span>
-            <span className={styles.bizValue}>
-              <span className={styles.bizLabel}>대표</span> 박예준
-            </span>
-            <span className={styles.bizValue}>
-              <span className={styles.bizLabel}>사업자등록번호</span> 450-07-03104
-            </span>
-            <br />
-            <span className={styles.bizValueWrap}>
-              <span className={styles.bizLabel}>통신판매업신고</span> 제 2025-인천서구-3321호
-            </span>
-            <br />
-            <span className={styles.bizValueWrap}>
-              <span className={styles.bizLabel}>주소</span> 인천광역시 서구 청라커낼로 270, 커낼힐스빌 2층 2498호
-            </span>
+          <div className="credits">
+            <div className="creditsTop">
+              <span className="creditsLabel">CREDITS</span>
+              <span className="creditsBadge">무료</span>
+            </div>
+            <div className="creditsValue">{credits}</div>
+            <button className="upgradeBtn" onClick={() => alert('업그레이드 기능 준비 중')}>
+              ⚡ 업그레이드
+            </button>
           </div>
 
-          <div className={styles.footerBottom}>
-            <span>© 2026 AlgoMaker · 한줄컴퍼니</span>
-            <span>
-              <a href="#">이용약관</a>
-              <a href="#">개인정보처리방침</a>
-            </span>
+          <div className="sidebarFooter">
+            <div>Powered by</div>
+            <div className="techStack">
+              <span className="techBadge">Gemini</span>
+              <span className="techBadge">ElevenLabs</span>
+              <span className="techBadge">Naver API</span>
+            </div>
           </div>
-        </div>
-      </footer>
-    </div>
-  );
-}
+        </aside>
 
-function StepItem({ num, label, current, target, onClick }: any) {
-  const isDone = current > target;
-  const isActive = current === target;
-  const isClickable = isDone && !!onClick;
-
-  return (
-    <button
-      className={`${styles.stepItem} ${isActive ? styles.stepActive : ''} ${isDone ? styles.stepDone : ''}`}
-      onClick={isClickable ? onClick : undefined}
-      disabled={!isClickable && !isActive}
-    >
-      <span className={styles.stepNum}>{isDone ? '✓' : num}</span>
-      <span className={styles.stepLabel}>{label}</span>
-    </button>
-  );
-}
-
-function StepArrow() {
-  return (
-    <span className={styles.stepArrow}>
-      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
-        <polyline points="9 18 15 12 9 6" />
-      </svg>
-    </span>
-  );
-}
-
-function FontStyles() {
-  return (
-    <style dangerouslySetInnerHTML={{ __html: `
-      @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
-      * { margin: 0; padding: 0; box-sizing: border-box; }
-      html { scroll-behavior: smooth; scroll-padding-top: 80px; -webkit-text-size-adjust: 100%; }
-      body { font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif; font-size: 16px; line-height: 1.7; color: #111827; background: #ffffff; -webkit-font-smoothing: antialiased; }
-    ` }} />
+        <main className="main">
+          <div className="topBar">
+            <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
+            <div className="searchBar">
+              <span>🔍</span>
+              <span>템플릿 검색... (예: 쇼츠, 뉴스, 종교)</span>
+            </div>
+            <div className="topBtns">
+              <button className="iconBtn" title="알림">🔔</button>
+              <button className="profileBtn">YJ</button>
+            </div>
+          </div>
+          <div className="content">
+            {children}
+          </div>
+        </main>
+      </div>
+    </>
   );
 }
