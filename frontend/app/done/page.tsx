@@ -1,49 +1,41 @@
 'use client';
 /**
- * /done - 완료 페이지 (실제 MP4 재생 + 다운로드)
+ * /done - 완료 페이지 (status 호출 생략, download만 사용)
  */
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { V11Shell, getProject, clearProject } from '../_shared/V11Shell';
-import {
-  getDownloadUrl,
-  getJobStatus,
-  extractVideoUrl,
-  formatApiError,
-  type JobStatusResponse,
-  type DownloadResponse,
-} from '../_shared/videoApi';
+import { getDownloadUrl, extractVideoUrl, formatApiError } from '../_shared/videoApi';
+import { getScenarioById } from '../_shared/scenarios';
 
 export default function DonePage() {
   const router = useRouter();
   const [keyword, setKeyword] = useState<string>('');
-  const [categoryLabel, setCategoryLabel] = useState<string>('');
   const [duration, setDuration] = useState<number>(10);
   const [jobId, setJobId] = useState<string>('');
+  const [styleName, setStyleName] = useState<string>('');
 
   const [videoUrl, setVideoUrl] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState('');
-  const [statusRes, setStatusRes] = useState<JobStatusResponse | null>(null);
+  const [downloadResRaw, setDownloadResRaw] = useState<any>(null);
 
   useEffect(() => {
     const p = getProject();
     if (!p.keyword) {
-      router.replace('/create');
+      router.replace('/');
       return;
     }
     setKeyword(p.keyword);
-    setCategoryLabel(p.categoryLabel || '');
     setDuration(p.duration || 10);
     setJobId(p.jobId || '');
 
-    if (p.jobId) {
-      fetchResult(p.jobId);
-    } else {
-      setErrorMsg('Job ID가 없어 영상을 찾을 수 없습니다.');
-      setLoading(false);
-    }
+    const style = getScenarioById(p.scenarioStyleId || p.templateId);
+    if (style) setStyleName(`${style.emoji} ${style.name}`);
+
+    if (p.jobId) fetchResult(p.jobId);
+    else { setErrorMsg('Job ID가 없어 영상을 찾을 수 없습니다.'); setLoading(false); }
      
   }, [router]);
 
@@ -51,30 +43,13 @@ export default function DonePage() {
     setLoading(true);
     setErrorMsg('');
     try {
-      // status에서 이미 video_url 있을 수 있음
-      let statusR: JobStatusResponse | null = null;
-      let downloadR: DownloadResponse | null = null;
-
-      try {
-        statusR = await getJobStatus(id);
-        setStatusRes(statusR);
-      } catch (e) {
-        // status 실패해도 download 시도
-        console.warn('[done] status fetch failed:', e);
-      }
-
-      try {
-        downloadR = await getDownloadUrl(id);
-      } catch (e) {
-        console.warn('[done] download fetch failed:', e);
-      }
-
-      const url = extractVideoUrl(statusR, downloadR);
+      const downloadR = await getDownloadUrl(id);
+      setDownloadResRaw(downloadR);
+      const url = extractVideoUrl(null, downloadR, null);
       if (url) {
         setVideoUrl(url);
       } else {
-        setErrorMsg('영상 URL을 찾지 못했습니다. 백엔드 응답을 확인해주세요.');
-        console.error('[done] status:', statusR, 'download:', downloadR);
+        setErrorMsg('영상 URL을 찾지 못했습니다. 아직 생성 중이거나 백엔드 응답 구조가 다를 수 있습니다.');
       }
     } catch (err: any) {
       setErrorMsg(formatApiError(err));
@@ -90,36 +65,34 @@ export default function DonePage() {
 
   const handleDownload = () => {
     if (!videoUrl) return;
-    // 다운로드 링크 열기
     window.open(videoUrl, '_blank');
   };
 
-  // SEO 데이터 (백엔드 응답에서 찾거나 기본값)
-  const seoData = (statusRes?.result as any)?.seo || (statusRes as any)?.seo || null;
-  const videoTitle = seoData?.title || `${keyword} | AlgoMaker로 만든 영상`;
-  const videoDesc = seoData?.description || `${keyword}에 대한 AI 제작 영상입니다.`;
-  const tags: string[] = seoData?.tags || [`#${keyword}`, '#AlgoMaker', '#AI'];
+  const videoTitle = `${keyword} | AlgoMaker로 만든 영상`;
 
   return (
     <V11Shell currentStep={5}>
       <style jsx>{`
-        .page {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 32px 24px 60px;
-        }
+        .page { max-width: 1000px; margin: 0 auto; padding: 32px 24px 60px; }
         .header { text-align: center; margin-bottom: 24px; }
         .celebrate { font-size: 48px; margin-bottom: 12px; }
-        .title {
-          font-size: 30px; font-weight: 800;
-          letter-spacing: -0.02em;
-          margin: 0 0 10px;
-        }
-        .subText {
-          font-size: 14px; color: #606060;
-          margin: 0 0 14px;
-        }
+        .title { font-size: 30px; font-weight: 800; letter-spacing: -0.02em; margin: 0 0 10px; }
+        .subText { font-size: 14px; color: #606060; margin: 0 0 14px; }
         .subText strong { color: #cc0000; }
+
+        .metaRow {
+          display: flex; justify-content: center;
+          gap: 8px; flex-wrap: wrap; margin-bottom: 24px;
+        }
+        .metaChip {
+          display: inline-flex; align-items: center; gap: 6px;
+          padding: 6px 12px;
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 999px;
+          font-size: 12px; color: #606060;
+        }
+        .chipStyle { background: #f0f0ff; color: #4338ca; border-color: #ddd6fe; font-weight: 600; }
 
         .loadingBox {
           background: #fff;
@@ -128,10 +101,7 @@ export default function DonePage() {
           padding: 48px 24px;
           text-align: center;
         }
-        .loadingTitle {
-          font-size: 16px; font-weight: 700;
-          margin-bottom: 8px;
-        }
+        .loadingTitle { font-size: 16px; font-weight: 700; margin-bottom: 8px; }
         .loadingSub { font-size: 13px; color: #888; }
         .loadingSpinner {
           width: 36px; height: 36px;
@@ -164,7 +134,7 @@ export default function DonePage() {
           background: #fff;
           padding: 10px;
           border-radius: 8px;
-          margin-top: 10px;
+          margin: 10px 0;
           text-align: left;
           max-height: 200px;
           overflow: auto;
@@ -172,6 +142,8 @@ export default function DonePage() {
         .errorActions {
           display: flex; gap: 8px;
           justify-content: center;
+          flex-wrap: wrap;
+          margin-top: 16px;
         }
         .btnPrimary {
           padding: 10px 20px;
@@ -189,32 +161,37 @@ export default function DonePage() {
           font-size: 13px; font-weight: 600;
           cursor: pointer; font-family: inherit;
         }
-
-        .layout {
-          display: grid;
-          grid-template-columns: 1.2fr 1fr;
-          gap: 24px;
+        .jobIdBox {
+          margin-top: 12px;
+          padding: 10px;
+          background: #fff;
+          border-radius: 8px;
+          font-size: 11px;
+          color: #888;
+          font-family: monospace;
         }
 
         .videoPanel {
           background: #fff;
+          border: 1px solid #e5e5e5;
           border-radius: 12px;
           overflow: hidden;
+          margin-bottom: 14px;
         }
         .videoWrap {
           position: relative;
           aspect-ratio: 16/9;
           background: #000;
-          border-radius: 12px;
-          overflow: hidden;
         }
         .videoWrap video {
           width: 100%; height: 100%;
           display: block;
         }
         .videoInfo {
-          padding: 16px 4px;
+          padding: 14px 18px;
           display: flex; gap: 12px;
+          align-items: center;
+          border-top: 1px solid #f0f0f0;
         }
         .avatar {
           width: 40px; height: 40px;
@@ -222,100 +199,58 @@ export default function DonePage() {
           background: linear-gradient(135deg, #cc0000 0%, #a80000 100%);
           color: #fff;
           display: flex; align-items: center; justify-content: center;
-          font-weight: 800; font-size: 16px;
+          font-weight: 800; font-size: 14px;
           flex-shrink: 0;
         }
         .videoMeta { flex: 1; min-width: 0; }
         .videoTitle {
-          font-size: 16px; font-weight: 700;
-          margin: 0 0 4px;
+          font-size: 15px; font-weight: 700;
+          margin: 0 0 3px;
           line-height: 1.3;
         }
-        .videoStats {
-          font-size: 13px; color: #606060;
-        }
+        .videoStats { font-size: 12px; color: #606060; }
 
-        .downloadBtn {
-          display: flex; align-items: center; justify-content: space-between;
-          padding: 14px 18px;
-          background: #cc0000; color: #fff;
+        .actionsGrid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+          margin-bottom: 24px;
+        }
+        .actionBtn {
+          padding: 14px;
+          border: none;
           border-radius: 12px;
           font-weight: 700;
           cursor: pointer;
-          border: none;
-          width: 100%;
           font-family: inherit;
           font-size: 14px;
-          margin-bottom: 10px;
-          transition: background 0.15s;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
         }
-        .downloadBtn:hover:not(:disabled) { background: #a80000; }
-        .downloadBtn:disabled {
-          background: #888;
-          cursor: not-allowed;
-        }
-        .openBtn {
-          display: flex; align-items: center; justify-content: center;
-          padding: 10px; width: 100%;
-          background: #f2f2f2;
-          color: #0f0f0f;
-          border: none; border-radius: 12px;
-          font-size: 13px; font-weight: 600;
-          cursor: pointer; font-family: inherit;
-        }
-        .openBtn:hover { background: #e5e5e5; }
-
-        .seoPanel {
-          background: #fff;
-          border: 1px solid #e5e5e5;
-          border-radius: 12px;
-          padding: 22px;
-        }
-        .seoHead {
-          display: flex; justify-content: space-between;
-          align-items: center; margin-bottom: 16px;
-        }
-        .seoTitle { font-size: 15px; font-weight: 700; }
-        .seoField { margin-bottom: 14px; }
-        .seoLabel {
-          font-size: 12px; font-weight: 700;
-          color: #0f0f0f; margin-bottom: 6px;
-        }
-        .seoBox {
-          background: #f9f9f9;
-          border-radius: 8px;
-          padding: 10px 12px;
-          font-size: 13px; color: #0f0f0f;
-          line-height: 1.6;
-          white-space: pre-wrap;
-        }
-        .tagList {
-          display: flex; flex-wrap: wrap; gap: 5px;
-        }
-        .tag {
-          padding: 4px 10px;
-          background: #f2f2f2;
-          border-radius: 999px;
-          font-size: 12px; font-weight: 500;
-        }
+        .actionBtnPrimary { background: #cc0000; color: #fff; }
+        .actionBtnPrimary:hover { background: #a80000; }
+        .actionBtnSecondary { background: #f2f2f2; color: #0f0f0f; }
+        .actionBtnSecondary:hover { background: #e5e5e5; }
 
         .newBtn {
           display: block;
           margin: 28px auto 0;
           padding: 14px 32px;
-          background: #f2f2f2;
-          border: none; border-radius: 999px;
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 999px;
           font-size: 14px; font-weight: 700;
           cursor: pointer; font-family: inherit;
         }
-        .newBtn:hover { background: #e5e5e5; }
+        .newBtn:hover { background: #f2f2f2; }
 
         @media (max-width: 768px) {
           .page { padding: 24px 14px 40px; }
           .celebrate { font-size: 40px; }
           .title { font-size: 22px; }
-          .layout { grid-template-columns: 1fr; gap: 18px; }
-          .seoPanel { padding: 18px; }
+          .actionsGrid { grid-template-columns: 1fr; }
         }
       `}</style>
 
@@ -332,11 +267,17 @@ export default function DonePage() {
           )}
         </div>
 
+        <div className="metaRow">
+          {styleName && <div className="metaChip chipStyle">{styleName}</div>}
+          <div className="metaChip">⏱️ {duration}분</div>
+          {jobId && <div className="metaChip" style={{ fontFamily: 'monospace' }}>Job {jobId.slice(0, 12)}</div>}
+        </div>
+
         {loading && (
           <div className="loadingBox">
             <div className="loadingSpinner"></div>
             <div className="loadingTitle">영상 URL을 가져오고 있어요</div>
-            <div className="loadingSub">Job ID: {jobId}</div>
+            <div className="loadingSub">백엔드에 확인 요청 중...</div>
           </div>
         )}
 
@@ -344,15 +285,19 @@ export default function DonePage() {
           <div className="errorBox">
             <div className="errorT">영상 URL을 가져오지 못했어요</div>
             <div className="errorM">{errorMsg}</div>
-            {statusRes && (
-              <div className="errorDetails">
-                <strong>백엔드 응답:</strong><br />
-                {JSON.stringify(statusRes, null, 2)}
-              </div>
+            {downloadResRaw && (
+              <details>
+                <summary style={{ cursor: 'pointer', fontSize: 11, color: '#888' }}>기술 상세</summary>
+                <div className="errorDetails">{JSON.stringify(downloadResRaw, null, 2)}</div>
+              </details>
             )}
-            <div className="errorActions" style={{ marginTop: 16 }}>
+            <div className="jobIdBox">Job ID: {jobId}</div>
+            <div className="errorActions">
               <button className="btnPrimary" onClick={() => jobId && fetchResult(jobId)}>
-                다시 시도
+                🔄 다시 확인
+              </button>
+              <button className="btnSecondary" onClick={() => router.push('/processing')}>
+                처리 중 페이지로
               </button>
               <button className="btnSecondary" onClick={handleNewVideo}>
                 홈으로
@@ -363,60 +308,28 @@ export default function DonePage() {
 
         {!loading && !errorMsg && videoUrl && (
           <>
-            <div className="layout">
-              <div>
-                <div className="videoPanel">
-                  <div className="videoWrap">
-                    <video src={videoUrl} controls playsInline preload="metadata">
-                      브라우저가 비디오 재생을 지원하지 않습니다.
-                    </video>
-                  </div>
-                  <div className="videoInfo">
-                    <div className="avatar">AM</div>
-                    <div className="videoMeta">
-                      <div className="videoTitle">{videoTitle}</div>
-                      <div className="videoStats">AlgoMaker AI · 방금 생성됨</div>
-                    </div>
-                  </div>
-                </div>
-
-                <button className="downloadBtn" onClick={handleDownload}>
-                  <span>⬇️ MP4 다운로드</span>
-                  <span style={{ fontSize: 12, opacity: 0.9 }}>새 탭에서 열기</span>
-                </button>
-                <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="openBtn">
-                  🔗 영상 URL 직접 열기
-                </a>
+            <div className="videoPanel">
+              <div className="videoWrap">
+                <video src={videoUrl} controls playsInline preload="metadata">
+                  브라우저가 비디오 재생을 지원하지 않습니다.
+                </video>
               </div>
-
-              <div className="seoPanel">
-                <div className="seoHead">
-                  <div className="seoTitle">🎯 YouTube SEO</div>
-                </div>
-
-                <div className="seoField">
-                  <div className="seoLabel">제목</div>
-                  <div className="seoBox">{videoTitle}</div>
-                </div>
-
-                <div className="seoField">
-                  <div className="seoLabel">설명</div>
-                  <div className="seoBox">{videoDesc}</div>
-                </div>
-
-                <div className="seoField">
-                  <div className="seoLabel">태그</div>
-                  <div className="tagList">
-                    {tags.map((tag, i) => (
-                      <span key={i} className="tag">{tag}</span>
-                    ))}
-                  </div>
-                </div>
-
-                <div style={{ marginTop: 14, padding: 10, background: '#f9f9f9', borderRadius: 8, fontSize: 11, color: '#888' }}>
-                  ℹ️ SEO 메타데이터는 백엔드 응답에 포함되지 않으면 기본값이 표시됩니다.
+              <div className="videoInfo">
+                <div className="avatar">AM</div>
+                <div className="videoMeta">
+                  <div className="videoTitle">{videoTitle}</div>
+                  <div className="videoStats">AlgoMaker AI · 방금 생성됨</div>
                 </div>
               </div>
+            </div>
+
+            <div className="actionsGrid">
+              <button className="actionBtn actionBtnPrimary" onClick={handleDownload}>
+                ⬇️ MP4 다운로드
+              </button>
+              <a href={videoUrl} target="_blank" rel="noopener noreferrer" className="actionBtn actionBtnSecondary" style={{ textDecoration: 'none' }}>
+                🔗 새 탭에서 열기
+              </a>
             </div>
 
             <button className="newBtn" onClick={handleNewVideo}>✨ 새 영상 만들기</button>
