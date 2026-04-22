@@ -1,36 +1,48 @@
-# AlgoMaker - 백엔드 status 버그 우회판
+# AlgoMaker - 사이드바 404 해결 (3개 페이지 추가)
 
-## 무엇을 바꾸나
-status API 호출을 제거하여 _job_id 에러 회피.
-대신 시간 기반 진행률 표시 + download API만 주기적 확인.
+## 문제
+사이드바의 "내 영상" / "분석" / "소개" 클릭 시 404
 
-## 적용 (2개 파일)
+## 해결
+3개 폴더 + page.tsx 파일 추가
 
-| zip 안 | 위치 |
-|--------|------|
-| processing/page.tsx | frontend/app/processing/page.tsx 덮어쓰기 |
-| done/page.tsx | frontend/app/done/page.tsx 덮어쓰기 |
+## 적용
 
-## 동작 방식
+frontend/app/ 폴더 아래에 다음 구조로 넣으세요:
 
-### /processing 
-- getJobStatus() 호출 안 함 (버그 회피)
-- 1초마다 경과 시간 카운트
-- 시간에 따라 "단계 메시지" 자동 갱신 (뉴스 → 대본 → TTS → 영상 → SEO)
-- 60초 후부터 2분마다 getDownloadUrl() 시도
-- URL 받으면 /done으로 이동
-- "지금 확인" 버튼으로 수동 체크도 가능
-- 최대 12분 대기
+```
+frontend/app/
+├── assets/
+│   └── page.tsx      ← 내 영상 (새 폴더 + 파일)
+├── analytics/
+│   └── page.tsx      ← 분석 Pro 유도 (새 폴더 + 파일)
+├── about/
+│   └── page.tsx      ← 서비스 소개 (새 폴더 + 파일)
+└── ... (기존 것들 그대로)
+```
 
-### /done
-- getDownloadUrl()만 호출 (status 생략)
-- URL 있으면 비디오 재생
-- 없으면 "다시 확인" 또는 "처리 중 페이지로" 버튼
+## 각 페이지 기능
 
-## 한계
-- 실제 백엔드 진행률은 모름 (시간 추정)
-- 완성 여부는 download API 응답으로만 판단
-- 백엔드가 download도 못 주면 실패 (그래도 Job ID 기록해서 나중에 확인 가능)
+### /assets (내 영상)
+- localStorage에 저장된 작업 이력 표시
+- 작업 없으면 "첫 영상 만들기" 빈 상태 CTA
+- 상단 통계 (영상 수/이번 달/총 길이)
+
+### /analytics (분석) ⭐ 결제 유도 핵심
+- Pro 업그레이드 히어로 (66% 세일 강조)
+- 4개 Pro 전용 기능 미리보기 (흐림 처리 + "Pro로 보기" 버튼)
+  - 경쟁 채널 분석
+  - 썸네일 A/B 테스트
+  - 트렌드 예측 AI
+  - 수익 시뮬레이션
+- Pro 사용자 후기 3개
+- 하단 최종 CTA
+
+### /about (소개)
+- 6단계 프로세스 설명
+- 수작업 vs AlgoMaker 비교표
+- FAQ 6개 (펼침/접힘)
+- 사업자 정보 (한줄컴퍼니)
 
 ## Commit
-fix: bypass buggy status endpoint with time-based progress
+feat: add assets/analytics/about pages
