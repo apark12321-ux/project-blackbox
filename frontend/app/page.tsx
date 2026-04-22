@@ -3,49 +3,73 @@
  * AlgoMaker v15 - 홈 (우리 고유 12개 시나리오)
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardShell, setProject } from './_shared/V11Shell';
 import { SCENARIOS, pickRecommendedScenarios, getScenarioById, type ScenarioStyle } from './_shared/scenarios';
 
-// "이번 주 사용 횟수" 소셜 프루프
-const USAGE_STATS: Record<string, number> = {
-  mystery: 1247, spoiler: 892, origin: 634, whatif: 521,
-  verify: 1089, match: 456, flip: 782, classic: 1523,
-  threeact: 387, solution: 945, ranking: 623, docu: 298,
-};
-
-const TREND_KEYWORDS = [
-  { kw: '2026 금리 전망', heat: 97, cpm: '$18~24' },
-  { kw: 'AI 도구 TOP 5', heat: 89, cpm: '$15~22' },
-  { kw: '시니어 건강 관리', heat: 82, cpm: '$16~22' },
-  { kw: '부동산 2026 전망', heat: 76, cpm: '$14~20' },
+// 시작 키워드 예시 (검색창 placeholder 보조 — 실제 트렌드 데이터 아님)
+const EXAMPLE_KEYWORDS = [
+  '2026 금리 전망',
+  'AI 도구 TOP 5',
+  '시니어 건강 관리',
+  '부동산 2026 전망',
 ];
 
 interface RecommendedScenario extends ScenarioStyle {
-  confidence: number;
-  grade: string;
-  retentionPredicted: number;
-  estimatedViews: number;
   sections: number;
 }
 
-function enrichScenarios(keyword: string, seed: string): RecommendedScenario[] {
-  const picked = pickRecommendedScenarios(seed);
-  return picked.map((s, i) => {
-    // seed 기반 안정된 "랜덤" 수치
-    const seedNum = (keyword + seed + s.id).split('').reduce((a, c) => a + c.charCodeAt(0), 0);
-    const rnd = (mod: number) => ((seedNum * (i + 1) * 31) % mod);
+function pickScenarios(seed: string): RecommendedScenario[] {
+  return pickRecommendedScenarios(seed).map((s) => ({
+    ...s,
+    sections: s.sectionPattern.length,
+  }));
+}
 
-    return {
-      ...s,
-      confidence: Math.max(82, Math.min(98, s.retention - 5 + rnd(15))),
-      grade: i === 0 ? 'A+' : i === 1 ? 'A' : 'A-',
-      retentionPredicted: Math.max(40, Math.min(98, s.retention + rnd(10) - 5)),
-      estimatedViews: 50000 + rnd(180000),
-      sections: s.sectionPattern.length,
-    };
-  });
+interface MyStats {
+  total: number;
+  thisMonth: number;
+  lastJobAt: number | null;
+}
+
+function readMyStats(): MyStats {
+  if (typeof window === 'undefined') return { total: 0, thisMonth: 0, lastJobAt: null };
+  try {
+    const raw = localStorage.getItem('algomaker_jobs');
+    if (!raw) return { total: 0, thisMonth: 0, lastJobAt: null };
+    const arr = JSON.parse(raw) as Array<{ created_at?: number | string }>;
+    if (!Array.isArray(arr)) return { total: 0, thisMonth: 0, lastJobAt: null };
+    const now = new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    let thisMonth = 0;
+    let lastJobAt: number | null = null;
+    for (const j of arr) {
+      const t = typeof j.created_at === 'number'
+        ? j.created_at
+        : j.created_at
+          ? new Date(j.created_at).getTime()
+          : 0;
+      if (t && t >= monthStart) thisMonth += 1;
+      if (t && (lastJobAt === null || t > lastJobAt)) lastJobAt = t;
+    }
+    return { total: arr.length, thisMonth, lastJobAt };
+  } catch {
+    return { total: 0, thisMonth: 0, lastJobAt: null };
+  }
+}
+
+function formatRelative(ts: number | null): string {
+  if (!ts) return '아직 없음';
+  const diff = Date.now() - ts;
+  const min = Math.floor(diff / 60000);
+  if (min < 1) return '방금 전';
+  if (min < 60) return `${min}분 전`;
+  const hr = Math.floor(min / 60);
+  if (hr < 24) return `${hr}시간 전`;
+  const day = Math.floor(hr / 24);
+  if (day < 30) return `${day}일 전`;
+  return new Date(ts).toLocaleDateString('ko-KR');
 }
 
 export default function HomePage() {
@@ -54,11 +78,22 @@ export default function HomePage() {
   const [activeKeyword, setActiveKeyword] = useState('');
   const [scenarios, setScenarios] = useState<RecommendedScenario[]>([]);
   const [rerollCount, setRerollCount] = useState(0);
+  const [myStats, setMyStats] = useState<MyStats>({ total: 0, thisMonth: 0, lastJobAt: null });
+
+  // 내 영상 이력에서 실제 통계 계산
+  useEffect(() => {
+    setMyStats(readMyStats());
+    const onStorage = (e: StorageEvent) => {
+      if (e.key === 'algomaker_jobs') setMyStats(readMyStats());
+    };
+    window.addEventListener('storage', onStorage);
+    return () => window.removeEventListener('storage', onStorage);
+  }, []);
 
   const handleAnalyze = () => {
     if (!keyword.trim()) return;
     setActiveKeyword(keyword);
-    setScenarios(enrichScenarios(keyword, keyword + Date.now()));
+    setScenarios(pickScenarios(keyword + Date.now()));
     setRerollCount(0);
     // 섹션 부드럽게 스크롤
     setTimeout(() => {
@@ -69,14 +104,14 @@ export default function HomePage() {
   const handleTrendClick = (kw: string) => {
     setKeyword(kw);
     setActiveKeyword(kw);
-    setScenarios(enrichScenarios(kw, kw + Date.now()));
+    setScenarios(pickScenarios(kw + Date.now()));
     setRerollCount(0);
   };
 
   const handleReroll = () => {
     if (!activeKeyword) return;
     const seed = activeKeyword + '_' + (rerollCount + 1) + '_' + Date.now();
-    setScenarios(enrichScenarios(activeKeyword, seed));
+    setScenarios(pickScenarios(seed));
     setRerollCount((r) => r + 1);
   };
 
@@ -684,10 +719,6 @@ export default function HomePage() {
                 <span className="livedot" />
                 AI ANALYSIS · LIVE
               </span>
-              <span className="liveBadge">
-                <span className="livedot" />
-                현재 <strong style={{ color: '#fff' }}>1,284명</strong>이 분석 중
-              </span>
             </div>
             <h1 className="heroTitle">어떤 영상을 만들까요?</h1>
             <p className="heroSub">
@@ -709,51 +740,45 @@ export default function HomePage() {
             </div>
 
             <div className="trends">
-              <span className="trendLabel">🔥 급상승</span>
-              {TREND_KEYWORDS.map((t, i) => (
-                <span key={i} className="trendChip" onClick={() => handleTrendClick(t.kw)}>
-                  <span className="heatBar"><span className="heatFill" style={{ width: `${t.heat}%` }} /></span>
-                  <span>{t.kw}</span>
-                  <span style={{ color: '#888' }}>{t.cpm}</span>
+              <span className="trendLabel">💡 예시 키워드</span>
+              {EXAMPLE_KEYWORDS.map((kw, i) => (
+                <span key={i} className="trendChip" onClick={() => handleTrendClick(kw)}>
+                  <span>{kw}</span>
                 </span>
               ))}
             </div>
           </div>
         </section>
 
-        {/* STATS */}
+        {/* MY STATS — 실제 내 영상 이력 기반 */}
         <section className="statsBar">
           <div className="statCard">
             <div className="statCardHead">
-              <span className="statCardLabel">누적 영상</span>
-              <span className="statCardDelta">+23%</span>
+              <span className="statCardLabel">내 누적 영상</span>
             </div>
-            <div className="statCardValue">47,892</div>
-            <div className="statCardSub">지난 30일 제작</div>
+            <div className="statCardValue">{myStats.total.toLocaleString()}</div>
+            <div className="statCardSub">전체 제작 횟수</div>
           </div>
           <div className="statCard">
             <div className="statCardHead">
-              <span className="statCardLabel">평균 CPM</span>
-              <span className="statCardDelta">+8%</span>
+              <span className="statCardLabel">이번 달</span>
             </div>
-            <div className="statCardValue">$14.2</div>
-            <div className="statCardSub">경쟁 평균 대비 +34%</div>
+            <div className="statCardValue">{myStats.thisMonth.toLocaleString()}</div>
+            <div className="statCardSub">{new Date().getMonth() + 1}월 제작</div>
           </div>
           <div className="statCard">
             <div className="statCardHead">
-              <span className="statCardLabel">승인률</span>
-              <span className="statCardDelta">+12%</span>
+              <span className="statCardLabel">최근 제작</span>
             </div>
-            <div className="statCardValue">94.7%</div>
-            <div className="statCardSub">YPP 수익화 통과</div>
+            <div className="statCardValue" style={{ fontSize: 16 }}>{formatRelative(myStats.lastJobAt)}</div>
+            <div className="statCardSub">마지막 영상</div>
           </div>
           <div className="statCard">
             <div className="statCardHead">
-              <span className="statCardLabel">평균 제작</span>
-              <span className="statCardDelta" style={{ background: '#dbeafe', color: '#2563eb' }}>−18%</span>
+              <span className="statCardLabel">시나리오</span>
             </div>
-            <div className="statCardValue">6분 42초</div>
-            <div className="statCardSub">영상 1편 소요</div>
+            <div className="statCardValue">{SCENARIOS.length}</div>
+            <div className="statCardSub">사용 가능한 스타일</div>
           </div>
         </section>
 
@@ -796,44 +821,24 @@ export default function HomePage() {
                   className={`scenario ${i === 0 ? 'scenarioBest' : ''}`}
                   onClick={() => handleStart(s.id)}
                 >
-                  {i === 0 && <div className="bestBadge">⭐ BEST MATCH</div>}
+                  {i === 0 && <div className="bestBadge">⭐ AI 추천</div>}
                   <div className="scenarioHead">
                     <div className="scenarioTitle">
                       <span className="scenarioEmoji">{s.emoji}</span>
                       <span>{s.name}</span>
                     </div>
-                    <span className={`scenarioGrade ${s.grade === 'A+' ? 'scenarioGradeA' : ''}`}>
-                      {s.grade}
-                    </span>
                   </div>
                   <div className="scenarioFlow">{s.flow}</div>
                   <div className="scenarioDesc">{s.desc}</div>
 
                   <div className="scenarioMetrics">
                     <div className="metric">
-                      <div className="metricLabel">확신도</div>
-                      <div className="metricValue metricValueAccent">{s.confidence}%</div>
-                    </div>
-                    <div className="metric">
                       <div className="metricLabel">섹션</div>
                       <div className="metricValue">{s.sections}개</div>
                     </div>
-                  </div>
-
-                  <div className="gauge">
-                    <div className="gaugeHead">
-                      <span>예상 시청 유지율</span>
-                      <span style={{ fontWeight: 700, color: '#0f0f0f' }}>{s.retentionPredicted}%</span>
-                    </div>
-                    <div className="gaugeBar">
-                      <div className="gaugeFill" style={{ width: `${s.retentionPredicted}%` }} />
-                    </div>
-                  </div>
-
-                  <div className="gauge">
-                    <div className="gaugeHead">
-                      <span>예상 조회수</span>
-                      <span style={{ fontWeight: 700, color: '#0f0f0f' }}>{s.estimatedViews.toLocaleString()}</span>
+                    <div className="metric">
+                      <div className="metricLabel">분류</div>
+                      <div className="metricValue" style={{ fontSize: 13 }}>{s.group}</div>
                     </div>
                   </div>
 
@@ -876,17 +881,6 @@ export default function HomePage() {
                         <span className="libItemName">{s.name}</span>
                       </div>
                       <div className="libItemFlow">{s.flow}</div>
-                      <div className="libItemFoot">
-                        <div className="libItemRetention">
-                          <div className="libRetBar">
-                            <div className="libRetFill" style={{ width: `${s.retention}%` }} />
-                          </div>
-                          <span>{s.retention}%</span>
-                        </div>
-                        <span className="libItemUsage">
-                          {USAGE_STATS[s.id]?.toLocaleString() || 0}회
-                        </span>
-                      </div>
                     </div>
                   ))}
                 </div>
