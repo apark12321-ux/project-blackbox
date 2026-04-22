@@ -1,10 +1,18 @@
 /**
- * Video API Client (v4) - 정확한 스키마 기반
+ * Video API Client (v5) - 3개 API 모두 정확한 스키마 적용
  * 
- * 백엔드 구조:
- * 0. POST /api/v1/curation/news/search → 뉴스 응답 (스키마 아직 추정)
- * 1. POST /api/v1/script/generate → { blocks: [...] }
- * 2. POST /api/v1/video/generate-real → { job_id, status, download_url, ... }
+ * 0. POST /api/v1/curation/news/search
+ *    req: { keyword, days_back, max_results }
+ *    res: { articles: [{title, summary, ...}] }
+ * 
+ * 1. POST /api/v1/script/generate
+ *    req: { keyword, category, news_summary, core_facts[], opinion_seeds[], hook_triggers[], target_duration_sec }
+ *    res: { blocks: [...] }
+ * 
+ * 2. POST /api/v1/video/generate-real
+ *    req: { keyword, category, mode, script_blocks, channel_name, watermark_text, tts_voice_id }
+ *    res: { job_id, status, download_url, ... }
+ * 
  * 3. GET /api/v1/video/status/{job_id} → polling
  */
 
@@ -16,7 +24,7 @@ const API_BASE = process.env.NEXT_PUBLIC_API_URL || 'https://project-blackbox-pr
 export interface GenerateRealRequest {
   keyword: string;
   tone?: 'formal' | 'friendly' | 'casual' | 'slang';
-  duration?: number;       // minutes
+  duration?: number;
   mode?: 'normal' | 'senior';
   custom_topic?: string;
   category?: string;
@@ -133,78 +141,38 @@ async function apiCall<T>(
 }
 
 // ============================================================
-// Step 0: 뉴스 검색 → news_summary 생성
+// Step 0: 뉴스 검색
 // ============================================================
-async function searchNewsAndSummarize(
-  keyword: string,
-  category?: string
-): Promise<string> {
-  // 여러 body 포맷 시도 (스키마 불확실)
-  const formats = [
-    { keyword, category },
-    { query: keyword, category },
-    { keyword },
-    { q: keyword },
-    { search: keyword },
-  ];
+async function searchNewsAndSummarize(keyword: string): Promise<string> {
+  const body = {
+    keyword,
+    days_back: 7,
+    max_results: 10,
+  };
 
-  let newsRes: any = null;
-  let lastErr: ApiError | null = null;
+  const res = await apiCall<any>('POST', '/api/v1/curation/news/search', body, 30000);
 
-  for (const body of formats) {
-    const cleaned: any = {};
-    Object.keys(body).forEach((k) => {
-      const v = (body as any)[k];
-      if (v !== undefined && v !== null && v !== '') cleaned[k] = v;
-    });
+  // 응답 구조: { keyword, total_count, articles: [{title, summary, source_name, ...}] }
+  const articles: any[] = Array.isArray(res?.articles) ? res.articles : [];
 
-    try {
-      newsRes = await apiCall<any>('POST', '/api/v1/curation/news/search', cleaned, 30000);
-      break;
-    } catch (err: any) {
-      lastErr = err;
-      if (err?.status !== 422) throw err;
-    }
+  if (articles.length === 0) {
+    return `"${keyword}" 관련 최근 뉴스가 없어, 일반 상식 기반으로 제작합니다.`;
   }
 
-  if (!newsRes) {
-    throw lastErr || { status: 500, message: '뉴스 검색 실패', body: null };
-  }
+  // 상위 5건을 텍스트로 합치기
+  const summary = articles.slice(0, 5).map((a, i) => {
+    const title = a.title || '';
+    const src = a.source_name || '';
+    const desc = a.summary || '';
+    const prefix = `${i + 1}. [${src}] ${title}`;
+    return desc ? `${prefix}\n   ${String(desc).slice(0, 300)}` : prefix;
+  }).join('\n\n');
 
-  // 응답에서 뉴스 목록 추출 (여러 구조 대응)
-  const newsList = extractNewsList(newsRes);
-  if (!newsList || newsList.length === 0) {
-    // 뉴스가 없으면 기본 요약 반환
-    return `"${keyword}"는 ${category || ''} 카테고리의 주제입니다. 최근 관련 이슈와 일반적 상식을 바탕으로 영상을 제작합니다.`;
-  }
-
-  // 뉴스 목록을 하나의 문자열로 합치기
-  const summary = newsList.slice(0, 5).map((n, i) => {
-    const title = n.title || n.headline || n.name || '';
-    const desc = n.description || n.summary || n.content || n.snippet || n.body || '';
-    return `${i + 1}. ${title}${desc ? ' - ' + String(desc).slice(0, 200) : ''}`;
-  }).join('\n');
-
-  return summary || `"${keyword}" 관련 뉴스 기반 영상 제작`;
-}
-
-function extractNewsList(res: any): any[] | null {
-  if (!res) return null;
-  if (Array.isArray(res)) return res;
-  const candidates = [
-    res.news, res.articles, res.items, res.results,
-    res.data, res.list,
-    res.news_list, res.article_list,
-    res.result?.news, res.result?.articles, res.result?.items,
-  ];
-  for (const c of candidates) {
-    if (Array.isArray(c) && c.length > 0) return c;
-  }
-  return null;
+  return summary;
 }
 
 // ============================================================
-// Step 1: 대본 생성 (정확한 스키마)
+// Step 1: 대본 생성
 // ============================================================
 async function generateScript(
   req: GenerateRealRequest,
@@ -223,26 +191,16 @@ async function generateScript(
   return apiCall<any>('POST', '/api/v1/script/generate', body, 120000);
 }
 
-// 대본 응답에서 blocks 추출 (스키마: { blocks: [...] })
 function extractScriptBlocks(scriptRes: any): any[] | null {
   if (!scriptRes) return null;
   if (Array.isArray(scriptRes.blocks) && scriptRes.blocks.length > 0) {
     return scriptRes.blocks;
   }
-  // fallback
-  const candidates = [
-    scriptRes.script_blocks,
-    scriptRes.script?.blocks,
-    scriptRes.result?.blocks,
-  ];
-  for (const c of candidates) {
-    if (Array.isArray(c) && c.length > 0) return c;
-  }
   return null;
 }
 
 // ============================================================
-// Step 2: 영상 생성 (정확한 스키마)
+// Step 2: 영상 생성
 // ============================================================
 async function generateVideoWithScript(
   scriptBlocks: any[],
@@ -255,7 +213,7 @@ async function generateVideoWithScript(
     script_blocks: scriptBlocks,
     channel_name: req.channel_name || '',
     watermark_text: '',
-    tts_voice_id: '',   // 기본값 사용
+    tts_voice_id: '',
   };
 
   return apiCall<GenerateRealResponse>('POST', '/api/v1/video/generate-real', body, 60000);
@@ -269,10 +227,10 @@ export async function startVideoGeneration(
   onProgress?: (step: string) => void
 ): Promise<GenerateRealResponse> {
   // Step 0: 뉴스 검색
-  onProgress?.('📰 관련 뉴스 수집 중...');
+  onProgress?.('📰 관련 뉴스 수집 중... (10~20초)');
   let newsSummary: string;
   try {
-    newsSummary = await searchNewsAndSummarize(req.keyword, req.category);
+    newsSummary = await searchNewsAndSummarize(req.keyword);
   } catch (err: any) {
     console.warn('[video] news search failed, using fallback:', err);
     newsSummary = `"${req.keyword}" 주제에 대한 일반 상식 기반 영상입니다.`;
@@ -286,7 +244,7 @@ export async function startVideoGeneration(
   if (!scriptBlocks) {
     throw {
       status: 500,
-      message: `대본 응답에서 blocks를 찾을 수 없습니다. 응답 키: ${Object.keys(scriptRes || {}).join(', ')}`,
+      message: `대본 응답에서 blocks를 찾을 수 없습니다.`,
       body: scriptRes,
     } as ApiError;
   }
@@ -295,11 +253,11 @@ export async function startVideoGeneration(
   onProgress?.('🎬 영상 생성 요청 중...');
   const videoRes = await generateVideoWithScript(scriptBlocks, req);
 
-  const jobId = videoRes.job_id || (videoRes as any).jobId || (videoRes as any).id;
+  const jobId = videoRes.job_id;
   if (!jobId) {
     throw {
       status: 500,
-      message: `job_id를 찾을 수 없음. 응답: ${JSON.stringify(videoRes).slice(0, 200)}`,
+      message: `job_id를 찾을 수 없음`,
       body: videoRes,
     } as ApiError;
   }
@@ -327,17 +285,13 @@ export function extractVideoUrl(
   startRes?: GenerateRealResponse | null
 ): string | null {
   const candidates: (string | undefined)[] = [
-    // status 응답에서 (확인된 스키마: download_url)
     statusRes?.download_url,
     statusRes?.result?.download_url,
     statusRes?.result?.video_url,
     (statusRes as any)?.video_url,
-    // download 엔드포인트
     downloadRes?.download_url,
     downloadRes?.video_url,
     downloadRes?.url,
-    (downloadRes as any)?.file_url,
-    // 시작 응답에 바로 포함될 수도
     startRes?.download_url,
     (startRes as any)?.video_url,
   ];
