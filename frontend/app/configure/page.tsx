@@ -76,6 +76,25 @@ export default function ConfigurePage() {
       );
 
       setProject({ jobId: res.job_id });
+
+      // /assets 페이지에서 보여줄 영상 이력에 저장 (localStorage 기반)
+      try {
+        const JOBS_KEY = 'algomaker_jobs';
+        const raw = localStorage.getItem(JOBS_KEY);
+        const jobs = raw ? JSON.parse(raw) : [];
+        jobs.unshift({
+          job_id: res.job_id,
+          keyword,
+          scenarioStyleId: scenarioStyleId || undefined,
+          duration,
+          createdAt: new Date().toISOString(),
+        });
+        // 최대 50개만 보관 (localStorage 크기 제한)
+        localStorage.setItem(JOBS_KEY, JSON.stringify(jobs.slice(0, 50)));
+      } catch (e) {
+        console.warn('[configure] failed to save job to history:', e);
+      }
+
       router.push('/processing');
     } catch (err: any) {
       console.error('[configure] failed:', err);
