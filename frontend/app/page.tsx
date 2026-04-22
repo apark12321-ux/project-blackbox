@@ -1,10 +1,8 @@
 'use client';
 /**
- * AlgoMaker v13 - 대시보드 홈 (템플릿 라이브러리)
- * MagicLight 스타일: 카테고리 탭 + 카드 그리드
+ * AlgoMaker v13 - 대시보드 홈 (중복 제거)
  */
 
-import Link from 'next/link';
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardShell, setProject } from './_shared/V11Shell';
@@ -22,119 +20,19 @@ interface Template {
   thumb: string;
   icon: string;
   badge?: 'NEW' | 'HOT' | 'BETA';
-  categorySlug: string; // /keyword 페이지가 기대하는 슬러그
+  categorySlug: string;
   defaultTone: 'formal' | 'friendly' | 'casual' | 'slang';
 }
 
 const TEMPLATES: Template[] = [
-  {
-    id: 't-news-1',
-    title: '오늘의 경제 브리핑',
-    desc: '실시간 뉴스 기반 5~10분 요약 영상',
-    category: 'news',
-    categoryLabel: '뉴스',
-    duration: '5~10분',
-    cpm: '$15~22',
-    thumb: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)',
-    icon: '📰',
-    badge: 'HOT',
-    categorySlug: 'economy',
-    defaultTone: 'formal',
-  },
-  {
-    id: 't-shorts-1',
-    title: '1분 재테크 상식',
-    desc: '짧고 강렬한 쇼츠용 팁 영상',
-    category: 'shorts',
-    categoryLabel: '쇼츠',
-    duration: '1분',
-    cpm: '$12~18',
-    thumb: 'linear-gradient(135deg, #FF6B6B 0%, #ee0979 100%)',
-    icon: '⚡',
-    badge: 'NEW',
-    categorySlug: 'economy',
-    defaultTone: 'friendly',
-  },
-  {
-    id: 't-finance-1',
-    title: '블루오션 재테크 가이드',
-    desc: '경쟁 낮고 수익 높은 주제 자동 발굴',
-    category: 'finance',
-    categoryLabel: '재테크',
-    duration: '10~15분',
-    cpm: '$12~18',
-    thumb: 'linear-gradient(135deg, #f2994a 0%, #f2c94c 100%)',
-    icon: '💰',
-    categorySlug: 'economy',
-    defaultTone: 'formal',
-  },
-  {
-    id: 't-health-1',
-    title: '시니어 건강 상식',
-    desc: '50~70대 타겟, 큰 글씨 + 느린 TTS',
-    category: 'health',
-    categoryLabel: '건강',
-    duration: '10~15분',
-    cpm: '$15~22',
-    thumb: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)',
-    icon: '🏥',
-    categorySlug: 'health',
-    defaultTone: 'formal',
-  },
-  {
-    id: 't-religion-1',
-    title: '오늘의 말씀',
-    desc: '성경 구절 기반 묵상 영상',
-    category: 'religion',
-    categoryLabel: '종교',
-    duration: '5~10분',
-    cpm: '$8~14',
-    thumb: 'linear-gradient(135deg, #4568dc 0%, #b06ab3 100%)',
-    icon: '🕊️',
-    badge: 'BETA',
-    categorySlug: 'selfdev',
-    defaultTone: 'formal',
-  },
-  {
-    id: 't-tech-1',
-    title: 'AI 트렌드 위클리',
-    desc: '최신 AI 도구 & 뉴스 큐레이션',
-    category: 'tech',
-    categoryLabel: 'IT',
-    duration: '10~15분',
-    cpm: '$10~16',
-    thumb: 'linear-gradient(135deg, #00c6ff 0%, #0072ff 100%)',
-    icon: '💻',
-    badge: 'NEW',
-    categorySlug: 'tech',
-    defaultTone: 'friendly',
-  },
-  {
-    id: 't-longform-1',
-    title: '자기계발 심층 분석',
-    desc: '15~20분 롱폼, 깊이 있는 콘텐츠',
-    category: 'longform',
-    categoryLabel: '롱폼',
-    duration: '15~20분',
-    cpm: '$8~14',
-    thumb: 'linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%)',
-    icon: '📚',
-    categorySlug: 'selfdev',
-    defaultTone: 'formal',
-  },
-  {
-    id: 't-news-2',
-    title: '주간 헤드라인',
-    desc: '일주일간 주요 뉴스 큐레이션',
-    category: 'news',
-    categoryLabel: '뉴스',
-    duration: '10분',
-    cpm: '$12~18',
-    thumb: 'linear-gradient(135deg, #373b44 0%, #4286f4 100%)',
-    icon: '📡',
-    categorySlug: 'economy',
-    defaultTone: 'formal',
-  },
+  { id: 't1', title: '오늘의 경제 브리핑', desc: '실시간 뉴스 기반 5~10분 요약 영상', category: 'news', categoryLabel: '뉴스', duration: '5~10분', cpm: '$15~22', thumb: 'linear-gradient(135deg, #1e3c72 0%, #2a5298 100%)', icon: '📰', badge: 'HOT', categorySlug: 'economy', defaultTone: 'formal' },
+  { id: 't2', title: '1분 재테크 상식', desc: '짧고 강렬한 쇼츠용 팁 영상', category: 'shorts', categoryLabel: '쇼츠', duration: '1분', cpm: '$12~18', thumb: 'linear-gradient(135deg, #FF6B6B 0%, #ee0979 100%)', icon: '⚡', badge: 'NEW', categorySlug: 'economy', defaultTone: 'friendly' },
+  { id: 't3', title: '블루오션 재테크 가이드', desc: '경쟁 낮고 수익 높은 주제 자동 발굴', category: 'finance', categoryLabel: '재테크', duration: '10~15분', cpm: '$12~18', thumb: 'linear-gradient(135deg, #f2994a 0%, #f2c94c 100%)', icon: '💰', categorySlug: 'economy', defaultTone: 'formal' },
+  { id: 't4', title: '시니어 건강 상식', desc: '50~70대 타겟, 큰 글씨 + 느린 TTS', category: 'health', categoryLabel: '건강', duration: '10~15분', cpm: '$15~22', thumb: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)', icon: '🏥', categorySlug: 'health', defaultTone: 'formal' },
+  { id: 't5', title: '오늘의 말씀', desc: '성경 구절 기반 묵상 영상', category: 'religion', categoryLabel: '종교', duration: '5~10분', cpm: '$8~14', thumb: 'linear-gradient(135deg, #4568dc 0%, #b06ab3 100%)', icon: '🕊️', badge: 'BETA', categorySlug: 'selfdev', defaultTone: 'formal' },
+  { id: 't6', title: 'AI 트렌드 위클리', desc: '최신 AI 도구 & 뉴스 큐레이션', category: 'tech', categoryLabel: 'IT', duration: '10~15분', cpm: '$10~16', thumb: 'linear-gradient(135deg, #00c6ff 0%, #0072ff 100%)', icon: '💻', badge: 'NEW', categorySlug: 'tech', defaultTone: 'friendly' },
+  { id: 't7', title: '자기계발 심층 분석', desc: '15~20분 롱폼, 깊이 있는 콘텐츠', category: 'longform', categoryLabel: '롱폼', duration: '15~20분', cpm: '$8~14', thumb: 'linear-gradient(135deg, #8e2de2 0%, #4a00e0 100%)', icon: '📚', categorySlug: 'selfdev', defaultTone: 'formal' },
+  { id: 't8', title: '주간 헤드라인', desc: '일주일간 주요 뉴스 큐레이션', category: 'news', categoryLabel: '뉴스', duration: '10분', cpm: '$12~18', thumb: 'linear-gradient(135deg, #373b44 0%, #4286f4 100%)', icon: '📡', categorySlug: 'economy', defaultTone: 'formal' },
 ];
 
 const TABS: { key: Category; label: string }[] = [
@@ -158,10 +56,6 @@ export default function DashboardPage() {
     ? TEMPLATES
     : TEMPLATES.filter((t) => t.category === activeTab);
 
-  const handleTemplateClick = (t: Template) => {
-    setSelectedTemplate(t);
-  };
-
   const handleStart = () => {
     if (!selectedTemplate) return;
     setProject({
@@ -172,17 +66,13 @@ export default function DashboardPage() {
       tone: selectedTemplate.defaultTone,
       step: 1,
     });
-    router.push('/keyword'); // 기존 실제 API 연결된 페이지로 이동
+    router.push('/keyword');
   };
 
   return (
     <DashboardShell>
       <style jsx>{`
-        .page {
-          padding: 32px;
-          max-width: 1400px;
-          margin: 0 auto;
-        }
+        .page { padding: 32px; max-width: 1400px; margin: 0 auto; }
         .hero {
           background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
           border-radius: 16px;
@@ -215,7 +105,6 @@ export default function DashboardPage() {
           font-size: 11px;
           font-weight: 700;
           margin-bottom: 12px;
-          letter-spacing: 0.05em;
         }
         .heroTitle {
           font-size: 28px;
@@ -224,12 +113,7 @@ export default function DashboardPage() {
           line-height: 1.3;
           margin-bottom: 8px;
         }
-        .heroSub {
-          font-size: 14px;
-          color: #aaa;
-          margin-bottom: 18px;
-          line-height: 1.6;
-        }
+        .heroSub { font-size: 14px; color: #aaa; margin-bottom: 18px; line-height: 1.6; }
         .heroCta {
           display: inline-flex;
           align-items: center;
@@ -246,25 +130,14 @@ export default function DashboardPage() {
         }
         .heroCta:hover { background: #a80000; }
 
-        .pageTitle {
-          font-size: 22px;
-          font-weight: 800;
-          color: #0f0f0f;
-          letter-spacing: -0.02em;
-          margin-bottom: 6px;
-        }
-        .pageSub {
-          font-size: 13px;
-          color: #606060;
-          margin-bottom: 20px;
-        }
+        .pageTitle { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 6px; }
+        .pageSub { font-size: 13px; color: #606060; margin-bottom: 20px; }
 
         .tabs {
           display: flex;
           gap: 6px;
           margin-bottom: 24px;
           overflow-x: auto;
-          -webkit-overflow-scrolling: touch;
           scrollbar-width: none;
           padding-bottom: 4px;
         }
@@ -283,11 +156,7 @@ export default function DashboardPage() {
           flex-shrink: 0;
         }
         .tab:hover { border-color: #0f0f0f; color: #0f0f0f; }
-        .tabActive {
-          background: #0f0f0f;
-          color: #fff;
-          border-color: #0f0f0f;
-        }
+        .tabActive { background: #0f0f0f; color: #fff; border-color: #0f0f0f; }
 
         .grid {
           display: grid;
@@ -338,9 +207,7 @@ export default function DashboardPage() {
         .badgeHOT { background: #cc0000; color: #fff; }
         .badgeBETA { background: #fff; color: #0f0f0f; border: 1px solid #e5e5e5; }
 
-        .meta {
-          padding: 12px 12px 14px;
-        }
+        .meta { padding: 12px 12px 14px; }
         .metaTop {
           display: flex;
           justify-content: space-between;
@@ -355,11 +222,7 @@ export default function DashboardPage() {
           text-transform: uppercase;
           letter-spacing: 0.05em;
         }
-        .cpm {
-          font-size: 11px;
-          color: #888;
-          font-weight: 600;
-        }
+        .cpm { font-size: 11px; color: #888; font-weight: 600; }
         .title {
           font-size: 14px;
           font-weight: 700;
@@ -368,13 +231,8 @@ export default function DashboardPage() {
           letter-spacing: -0.01em;
           line-height: 1.35;
         }
-        .desc {
-          font-size: 12px;
-          color: #606060;
-          line-height: 1.5;
-        }
+        .desc { font-size: 12px; color: #606060; line-height: 1.5; }
 
-        /* MODAL */
         .modalBack {
           position: fixed;
           inset: 0;
@@ -394,12 +252,7 @@ export default function DashboardPage() {
           padding: 28px;
           box-shadow: 0 20px 60px rgba(0,0,0,0.3);
         }
-        .modalHead {
-          display: flex;
-          gap: 14px;
-          margin-bottom: 20px;
-          align-items: center;
-        }
+        .modalHead { display: flex; gap: 14px; margin-bottom: 20px; align-items: center; }
         .modalThumb {
           width: 72px;
           height: 40px;
@@ -411,28 +264,10 @@ export default function DashboardPage() {
           color: #fff;
           flex-shrink: 0;
         }
-        .modalTitle {
-          font-size: 17px;
-          font-weight: 800;
-          color: #0f0f0f;
-          letter-spacing: -0.02em;
-          margin-bottom: 2px;
-        }
-        .modalSub {
-          font-size: 12px;
-          color: #888;
-        }
-        .modalLabel {
-          font-size: 13px;
-          font-weight: 700;
-          color: #0f0f0f;
-          margin-bottom: 6px;
-        }
-        .modalHelp {
-          font-size: 12px;
-          color: #888;
-          margin-bottom: 10px;
-        }
+        .modalTitle { font-size: 17px; font-weight: 800; letter-spacing: -0.02em; margin-bottom: 2px; }
+        .modalSub { font-size: 12px; color: #888; }
+        .modalLabel { font-size: 13px; font-weight: 700; margin-bottom: 6px; }
+        .modalHelp { font-size: 12px; color: #888; margin-bottom: 10px; }
         .modalInput {
           width: 100%;
           padding: 12px 14px;
@@ -444,39 +279,12 @@ export default function DashboardPage() {
           margin-bottom: 16px;
           transition: border-color 0.15s;
         }
-        .modalInput:focus {
-          outline: none;
-          border-color: #cc0000;
-          background: #fff;
-        }
-        .modalDetail {
-          display: grid;
-          grid-template-columns: 1fr 1fr 1fr;
-          gap: 8px;
-          margin-bottom: 20px;
-        }
-        .modalDetailItem {
-          padding: 10px;
-          background: #fafafa;
-          border-radius: 8px;
-          text-align: center;
-        }
-        .modalDetailLabel {
-          font-size: 10px;
-          color: #888;
-          margin-bottom: 2px;
-          text-transform: uppercase;
-          letter-spacing: 0.05em;
-        }
-        .modalDetailValue {
-          font-size: 13px;
-          font-weight: 700;
-          color: #0f0f0f;
-        }
-        .modalActions {
-          display: flex;
-          gap: 8px;
-        }
+        .modalInput:focus { outline: none; border-color: #cc0000; background: #fff; }
+        .modalDetail { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin-bottom: 20px; }
+        .modalDetailItem { padding: 10px; background: #fafafa; border-radius: 8px; text-align: center; }
+        .modalDetailLabel { font-size: 10px; color: #888; margin-bottom: 2px; text-transform: uppercase; letter-spacing: 0.05em; }
+        .modalDetailValue { font-size: 13px; font-weight: 700; color: #0f0f0f; }
+        .modalActions { display: flex; gap: 8px; }
         .modalCancel {
           padding: 12px 18px;
           background: #f5f5f5;
@@ -509,7 +317,6 @@ export default function DashboardPage() {
           .heroTitle { font-size: 22px; }
           .grid { grid-template-columns: 1fr; gap: 14px; }
           .modal { padding: 20px; }
-          .modalHead { flex-direction: row; gap: 10px; }
           .modalDetail { grid-template-columns: 1fr; gap: 6px; }
         }
       `}</style>
@@ -548,11 +355,9 @@ export default function DashboardPage() {
 
         <div className="grid">
           {filteredTemplates.map((t) => (
-            <div key={t.id} className="card" onClick={() => handleTemplateClick(t)}>
+            <div key={t.id} className="card" onClick={() => setSelectedTemplate(t)}>
               <div className="thumb" style={{ background: t.thumb }}>
-                {t.badge && (
-                  <span className={`badge badge${t.badge}`}>{t.badge}</span>
-                )}
+                {t.badge && <span className={`badge badge${t.badge}`}>{t.badge}</span>}
                 <span>{t.icon}</span>
                 <div className="duration">{t.duration}</div>
               </div>

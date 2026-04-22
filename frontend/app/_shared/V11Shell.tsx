@@ -1,14 +1,13 @@
 'use client';
 /**
- * AlgoMaker v13 - MagicLight 스타일 Shell
- * - 좌측 LNB 사이드바 + 우측 메인 컨텐츠
- * - 크레딧 표시, 업그레이드 버튼
- * - 모바일: 햄버거 메뉴
+ * AlgoMaker v13 - Shell (중복 렌더링 방지 버전)
+ * - Context로 중첩 감지, 이미 렌더링된 경우 children만 반환
+ * - 기존 V11Shell({children, currentStep}) 시그니처 호환
  */
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
-import { useState, useEffect } from 'react';
+import { useState, createContext, useContext } from 'react';
 
 export interface ProjectState {
   category?: string;
@@ -47,16 +46,34 @@ export function clearProject() {
   try { localStorage.removeItem(PROJECT_KEY); } catch {}
 }
 
-// V11Shell 호환 wrapper (기존 페이지 건드리지 않기 위해)
+// 중첩 감지용 Context
+const ShellContext = createContext<boolean>(false);
+
+// 기존 페이지 호환용
 export function V11Shell({ children, currentStep }: { children: React.ReactNode; currentStep?: number }) {
   return <DashboardShell>{children}</DashboardShell>;
 }
 
 export function DashboardShell({ children }: { children: React.ReactNode }) {
+  const alreadyInShell = useContext(ShellContext);
+
+  // 이미 Shell 안에 있으면 children만 반환 (중첩 방지)
+  if (alreadyInShell) {
+    return <>{children}</>;
+  }
+
+  return (
+    <ShellContext.Provider value={true}>
+      <ShellInner>{children}</ShellInner>
+    </ShellContext.Provider>
+  );
+}
+
+function ShellInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [credits] = useState(100); // 크레딧 (샘플)
+  const credits = 100;
 
   const menu = [
     { icon: '🏠', label: '홈', path: '/', key: 'home' },
@@ -91,8 +108,6 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           min-height: 100vh;
           background: #fafafa;
         }
-
-        /* ============ SIDEBAR ============ */
         .sidebar {
           width: 240px;
           background: #fff;
@@ -124,11 +139,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           margin-top: 2px;
           font-weight: 500;
         }
-
-        .menuSection {
-          padding: 0 12px;
-          flex: 1;
-        }
+        .menuSection { padding: 0 12px; flex: 1; }
         .menuTitle {
           font-size: 11px;
           font-weight: 700;
@@ -156,10 +167,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           color: #cc0000;
           font-weight: 700;
         }
-        .menuIcon {
-          font-size: 18px;
-          flex-shrink: 0;
-        }
+        .menuIcon { font-size: 18px; flex-shrink: 0; }
 
         .createBtn {
           margin: 16px 12px;
@@ -179,7 +187,6 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
         }
         .createBtn:hover { background: #a80000; }
 
-        /* Credits */
         .credits {
           margin: 0 12px;
           padding: 14px;
@@ -251,11 +258,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           color: #555;
         }
 
-        /* ============ MAIN ============ */
-        .main {
-          flex: 1;
-          min-width: 0;
-        }
+        .main { flex: 1; min-width: 0; }
         .topBar {
           position: sticky;
           top: 0;
@@ -327,11 +330,6 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
           border: none;
         }
 
-        .content {
-          padding: 0;
-        }
-
-        /* ============ MOBILE ============ */
         @media (max-width: 900px) {
           .sidebar {
             position: fixed;
@@ -348,22 +346,16 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             inset: 0;
             background: rgba(0,0,0,0.5);
             z-index: 99;
-            display: none;
           }
-          .overlayVisible { display: block; }
           .hamburger { display: flex; align-items: center; justify-content: center; }
           .topBar { padding: 10px 16px; }
           .searchBar { font-size: 13px; padding: 8px 14px; }
-          .iconBtn:nth-child(1) { display: none; }
         }
       `}</style>
 
       <div className="app">
         {sidebarOpen && (
-          <div
-            className="overlay overlayVisible"
-            onClick={() => setSidebarOpen(false)}
-          />
+          <div className="overlay" onClick={() => setSidebarOpen(false)} />
         )}
 
         <aside className={`sidebar ${sidebarOpen ? 'sidebarOpen' : ''}`}>
@@ -425,7 +417,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               <button className="profileBtn">YJ</button>
             </div>
           </div>
-          <div className="content">
+          <div>
             {children}
           </div>
         </main>
