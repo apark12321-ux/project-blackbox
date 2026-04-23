@@ -1,14 +1,17 @@
 'use client';
 /**
- * V11Shell v14 - 불필요한 UI 제거, 실용 위주
- * - 상단 검색창 → 트렌드/공지 띠로 교체
- * - 새 영상 만들기 버튼 → Pro 업그레이드 버튼으로 교체 (홈이 이미 영상 만드는 곳)
- * - 알림/프로필 단순화
+ * V11Shell v15 - AdSense 피벗 버전
+ * 변경:
+ * - Pro 업그레이드 카드 제거 → AdSense 사이드바 슬롯으로 교체
+ * - 무료 크레딧 100/100 제거 (무료 서비스라 의미 없음)
+ * - 프로필 "FREE" 라벨 단순화
+ * - 공지 띠/네비게이션 유지
  */
 
 import Link from 'next/link';
 import { useRouter, usePathname } from 'next/navigation';
 import { useState, createContext, useContext, useEffect } from 'react';
+import AdSlot from './AdSlot';
 
 export interface ProjectState {
   category?: string;
@@ -19,7 +22,7 @@ export interface ProjectState {
   duration?: number;
   mode?: 'normal' | 'senior';
   customTopic?: string;
-  templateId?: string;     // = scenarioStyleId
+  templateId?: string;
   scenarioStyleId?: string;
   step?: number;
   jobId?: string;
@@ -66,10 +69,10 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
 // 회전 공지·트렌드 메시지
 const TOP_NOTICES = [
-  { icon: '🔥', text: '오늘 급상승: "2026 금리 전망" · CPM $18~24' },
+  { icon: '🔥', text: '오늘 급상승: "2026 금리 전망" · 경제 카테고리' },
   { icon: '💡', text: 'AI 분석 통계: 사건 추적형이 평균 CTR +18%' },
   { icon: '🎯', text: '이번 주 블루오션: IT·자기계발 카테고리' },
-  { icon: '📈', text: '신규: 🎲 다른 시나리오 받기 버튼으로 무한 조합' },
+  { icon: '🎁', text: '모든 시나리오 무료 공개 중 · 가입 없이 바로 사용' },
 ];
 
 function ShellInner({ children }: { children: React.ReactNode }) {
@@ -77,9 +80,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [noticeIdx, setNoticeIdx] = useState(0);
-  const credits = 100;
 
-  // 공지 회전
   useEffect(() => {
     const t = setInterval(() => setNoticeIdx((i) => (i + 1) % TOP_NOTICES.length), 4500);
     return () => clearInterval(t);
@@ -88,7 +89,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   const mainMenu = [
     { icon: '🏠', label: '홈', path: '/', key: 'home' },
     { icon: '🎬', label: '내 영상', path: '/assets', key: 'assets' },
-    { icon: '📊', label: '분석', path: '/analytics', key: 'analytics' },
+    { icon: '📊', label: '경쟁 분석', path: '/analytics', key: 'analytics' },
   ];
 
   const infoMenu = [
@@ -132,6 +133,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           top: 0;
           height: 100vh;
           flex-shrink: 0;
+          overflow-y: auto;
         }
         .sidebarHeader {
           padding: 0 20px 20px;
@@ -179,94 +181,46 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         .menuIcon { font-size: 18px; flex-shrink: 0; }
 
         .divider { height: 1px; background: #f0f0f0; margin: 12px 20px; }
-        .sidebarSpacer { flex: 1; }
+        .sidebarSpacer { flex: 1; min-height: 16px; }
 
-        /* Pro upgrade button (대체) */
-        .proUpgrade {
+        /* 무료 배지 카드 (Pro 업그레이드 자리 대체) */
+        .freeBadgeCard {
           margin: 16px 12px 12px;
           padding: 14px;
-          background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 50%, #0f0f0f 100%);
-          color: #fff;
+          background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+          border: 1px solid #a7f3d0;
           border-radius: 12px;
-          cursor: pointer;
-          border: 1px solid #222;
-          position: relative;
-          overflow: hidden;
-          transition: transform 0.15s;
         }
-        .proUpgrade:hover { transform: translateY(-1px); }
-        .proUpgrade::before {
-          content: '';
-          position: absolute;
-          top: 0; right: 0; width: 100px; height: 100px;
-          background: radial-gradient(circle, rgba(204,0,0,0.3) 0%, transparent 60%);
-          pointer-events: none;
-        }
-        .proUpgradeInner { position: relative; z-index: 1; }
-        .proUpgradeTop {
+        .freeBadgeTop {
           display: flex;
-          justify-content: space-between;
           align-items: center;
-          margin-bottom: 6px;
+          gap: 6px;
+          margin-bottom: 4px;
         }
-        .proLabel {
+        .freeBadgeEmoji { font-size: 14px; }
+        .freeBadgeLabel {
           font-size: 10px;
           font-weight: 800;
-          color: #ff6b6b;
+          color: #047857;
           letter-spacing: 0.1em;
         }
-        .proPriceTag {
-          font-size: 10px;
-          color: #888;
-          text-decoration: line-through;
-        }
-        .proTitle {
-          font-size: 15px;
+        .freeBadgeTitle {
+          font-size: 14px;
           font-weight: 800;
-          letter-spacing: -0.02em;
-          margin-bottom: 2px;
+          color: #064e3b;
+          letter-spacing: -0.01em;
+          margin-bottom: 4px;
+          line-height: 1.3;
         }
-        .proDesc {
+        .freeBadgeDesc {
           font-size: 11px;
-          color: #999;
+          color: #047857;
           line-height: 1.5;
-          margin-bottom: 10px;
         }
-        .proCTA {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 7px 10px;
-          background: #cc0000;
-          border-radius: 6px;
-          font-size: 11px;
-          font-weight: 700;
-        }
-        .proPrice { font-size: 13px; font-weight: 800; }
 
-        /* Credits */
-        .credits {
-          margin: 0 12px 12px;
-          padding: 12px 14px;
-          background: #fafafa;
-          border: 1px solid #e5e5e5;
-          border-radius: 10px;
-        }
-        .creditsRow { display: flex; justify-content: space-between; align-items: center; }
-        .creditsLabel { font-size: 11px; color: #888; font-weight: 600; }
-        .creditsValue { font-size: 14px; font-weight: 800; color: #0f0f0f; }
-        .creditsBar {
-          margin-top: 8px;
-          width: 100%;
-          height: 4px;
-          background: #e5e5e5;
-          border-radius: 999px;
-          overflow: hidden;
-        }
-        .creditsFill {
-          height: 100%;
-          background: linear-gradient(90deg, #16a34a 0%, #22c55e 100%);
-          border-radius: 999px;
+        /* AdSense 사이드바 슬롯 */
+        .sidebarAd {
+          margin: 12px;
         }
 
         .sidebarFooter {
@@ -289,8 +243,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
         /* ============ MAIN ============ */
         .main { flex: 1; min-width: 0; }
-        
-        /* 상단바 - 검색창 제거, 공지 띠로 교체 */
+
         .topBar {
           position: sticky;
           top: 0;
@@ -348,8 +301,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         }
 
         .topBtns { display: flex; gap: 8px; align-items: center; }
-        
-        /* 단순화된 프로필 */
+
         .userChip {
           display: flex;
           align-items: center;
@@ -451,31 +403,19 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
           <div className="sidebarSpacer" />
 
-          {/* Pro 업그레이드 카드 (새 영상 만들기 대체) */}
-          <div className="proUpgrade" onClick={() => alert('🎉 Pro 업그레이드\n\n✓ 12가지 전체 시나리오\n✓ 무제한 영상 제작\n✓ 경쟁 채널 분석\n✓ 썸네일 A/B 테스트\n\n결제 기능은 곧 출시됩니다!')}>
-            <div className="proUpgradeInner">
-              <div className="proUpgradeTop">
-                <span className="proLabel">⚡ PRO</span>
-                <span className="proPriceTag">29,000원</span>
-              </div>
-              <div className="proTitle">전체 기능 열기</div>
-              <div className="proDesc">12개 스타일 + 무제한 영상 + 경쟁 분석</div>
-              <div className="proCTA">
-                <span>지금 시작하기</span>
-                <span className="proPrice">9,900원/월</span>
-              </div>
+          {/* 무료 배지 (Pro 카드 자리 대체) */}
+          <div className="freeBadgeCard">
+            <div className="freeBadgeTop">
+              <span className="freeBadgeEmoji">🎁</span>
+              <span className="freeBadgeLabel">ALL FREE</span>
             </div>
+            <div className="freeBadgeTitle">전체 기능 무료 공개</div>
+            <div className="freeBadgeDesc">12개 스타일 · 무제한 영상 · 가입 없이 사용</div>
           </div>
 
-          {/* Credits */}
-          <div className="credits">
-            <div className="creditsRow">
-              <span className="creditsLabel">무료 크레딧</span>
-              <span className="creditsValue">{credits}<span style={{ color: '#888', fontWeight: 500, fontSize: 11 }}>/100</span></span>
-            </div>
-            <div className="creditsBar">
-              <div className="creditsFill" style={{ width: `${credits}%` }} />
-            </div>
+          {/* AdSense 사이드바 슬롯 */}
+          <div className="sidebarAd">
+            <AdSlot slot="sidebar" variant="vertical" label="sidebar" />
           </div>
 
           <div className="sidebarFooter">
@@ -491,7 +431,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         <main className="main">
           <div className="topBar">
             <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>☰</button>
-            
+
             <div className="noticeBar" key={noticeIdx}>
               <span className="noticeIcon">{currentNotice.icon}</span>
               <span className="noticeText">{currentNotice.text}</span>
@@ -502,7 +442,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                 <div className="userAvatar">YJ</div>
                 <div className="userInfo">
                   <span className="userName">박예준</span>
-                  <span className="userTier">FREE</span>
+                  <span className="userTier">크리에이터</span>
                 </div>
               </div>
             </div>
