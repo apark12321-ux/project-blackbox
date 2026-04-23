@@ -1,124 +1,406 @@
+'use client';
+/**
+ * /privacy - 개인정보 처리방침
+ *
+ * AdSense 승인 필수 요소:
+ * - 쿠키 사용 명시 (Google AdSense, Analytics)
+ * - 제3자 광고 파트너 언급
+ * - DoubleClick DART 쿠키 설명
+ * - 사용자의 opt-out 권리 명시
+ * - GDPR / 한국 개인정보보호법 준수
+ *
+ * 중요: 이 내용은 AdSense 정책 페이지 참조하여 작성됨
+ * 운영자 이메일/업체명은 실제 정보로 교체 필수
+ */
+
+import Link from 'next/link';
+import { DashboardShell } from '../_shared/V11Shell';
+
+const LAST_UPDATED = '2026년 4월 23일';
+const CONTACT_EMAIL = 'contact@algomaker.kr';
+
 export default function PrivacyPage() {
   return (
-    <div style={{ background: "#f8f9fb", minHeight: "100vh", overflowY: "auto" }}>
-      <div style={{ maxWidth: "800px", margin: "0 auto", padding: "48px 20px 80px" }}>
-        <div style={{ marginBottom: "32px" }}>
-          <a href="/" style={{ fontSize: "12px", color: "#9ca3af", textDecoration: "none" }}>← AlgoMaker 홈으로</a>
+    <DashboardShell>
+      <style jsx>{`
+        .page {
+          padding: 32px 32px 60px;
+          max-width: 820px;
+          margin: 0 auto;
+        }
+        .pageHeader {
+          margin-bottom: 22px;
+          padding-bottom: 18px;
+          border-bottom: 1px solid #e8e8e8;
+        }
+        .pageBadge {
+          display: inline-block;
+          padding: 4px 12px;
+          background: #e0e7ff;
+          color: #3730a3;
+          border-radius: 999px;
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: 0.1em;
+          margin-bottom: 12px;
+        }
+        .pageTitle {
+          font-size: 28px;
+          font-weight: 800;
+          letter-spacing: -0.03em;
+          line-height: 1.2;
+          margin-bottom: 6px;
+          color: #0f0f0f;
+        }
+        .lastUpdated {
+          font-size: 12px;
+          color: #888;
+          font-weight: 500;
+        }
+
+        .intro {
+          padding: 16px 20px;
+          background: #fafafa;
+          border-radius: 12px;
+          font-size: 13.5px;
+          color: #333;
+          line-height: 1.7;
+          margin-bottom: 28px;
+          border-left: 3px solid #0f0f0f;
+        }
+
+        .section {
+          margin-bottom: 30px;
+        }
+        .sectionTitle {
+          font-size: 17px;
+          font-weight: 800;
+          letter-spacing: -0.02em;
+          margin-bottom: 10px;
+          color: #0f0f0f;
+          display: flex;
+          gap: 10px;
+          align-items: baseline;
+        }
+        .sectionNum {
+          font-size: 14px;
+          color: #cc0000;
+          font-weight: 800;
+          letter-spacing: 0;
+        }
+        .sectionBody {
+          font-size: 13.5px;
+          line-height: 1.75;
+          color: #333;
+        }
+        .sectionBody p {
+          margin-bottom: 12px;
+        }
+        .sectionBody ul {
+          margin-bottom: 14px;
+          padding-left: 22px;
+        }
+        .sectionBody li {
+          margin-bottom: 6px;
+          line-height: 1.7;
+        }
+        .sectionBody strong {
+          color: #0f0f0f;
+          font-weight: 700;
+        }
+        .sectionBody a {
+          color: #cc0000;
+          text-decoration: underline;
+        }
+
+        .noticeBox {
+          padding: 14px 18px;
+          background: #fef3c7;
+          border: 1px solid #fcd34d;
+          border-radius: 10px;
+          font-size: 12.5px;
+          color: #78350f;
+          line-height: 1.65;
+          margin: 14px 0;
+        }
+
+        @media (max-width: 640px) {
+          .page { padding: 22px 16px 40px; }
+          .pageTitle { font-size: 22px; }
+        }
+      `}</style>
+
+      <div className="page">
+        <header className="pageHeader">
+          <span className="pageBadge">PRIVACY POLICY</span>
+          <h1 className="pageTitle">개인정보 처리방침</h1>
+          <div className="lastUpdated">최종 수정일: {LAST_UPDATED}</div>
+        </header>
+
+        <div className="intro">
+          한줄컴퍼니가 운영하는 AlgoMaker("본 서비스")는 사용자의 개인정보를 중요하게 생각하며,
+          대한민국 개인정보보호법 및 관련 법령을 준수합니다.
+          본 방침은 본 서비스가 어떤 정보를 수집하고, 어떻게 사용·보관·보호하는지 설명합니다.
         </div>
-        <h1 style={{ fontSize: "26px", fontWeight: 800, color: "#111827", marginBottom: "8px" }}>개인정보처리방침</h1>
-        <p style={{ fontSize: "12px", color: "#9ca3af", marginBottom: "40px" }}>최종 수정일: 2026년 1월 1일</p>
 
-        {[
-          {
-            title: "제1조 (개인정보의 처리 목적)",
-            content: `한줄컴퍼니(이하 '회사')는 다음의 목적을 위하여 개인정보를 처리합니다. 처리하고 있는 개인정보는 다음의 목적 이외의 용도로는 이용되지 않으며, 이용 목적이 변경되는 경우에는 개인정보 보호법 제18조에 따라 별도의 동의를 받는 등 필요한 조치를 이행할 예정입니다.
+        {/* 1. 수집 정보 */}
+        <section className="section">
+          <div className="sectionTitle">
+            <span className="sectionNum">1.</span>
+            수집하는 정보
+          </div>
+          <div className="sectionBody">
+            <p>
+              본 서비스는 사용자 가입을 요구하지 않으며, 개인을 식별할 수 있는 정보
+              (이름, 주민등록번호, 휴대폰 번호 등)를 수집하지 않습니다. 다만 서비스 제공을 위해
+              아래 정보가 제한적으로 수집될 수 있습니다:
+            </p>
+            <ul>
+              <li>
+                <strong>익명 브라우저 식별자 (Anonymous ID)</strong>:
+                사용자가 제작한 영상 이력을 관리하기 위해 브라우저에 저장되는 임의의 식별자입니다.
+                개인 식별이 불가능하며, 브라우저 데이터 삭제 시 사라집니다.
+              </li>
+              <li>
+                <strong>사용자가 입력한 키워드</strong>:
+                영상 생성에 사용되는 키워드는 임시 로그에 기록될 수 있으나, 개인 식별 정보와 연결되지 않습니다.
+              </li>
+              <li>
+                <strong>접속 로그 및 쿠키</strong>:
+                IP 주소, 브라우저 종류, 접속 시간 등 서비스 운영에 필요한 기술적 정보를 수집합니다.
+              </li>
+              <li>
+                <strong>문의 양식 정보</strong>:
+                사용자가 직접 문의 양식에 입력한 이름, 이메일, 문의 내용은 답변 목적으로만 사용됩니다.
+              </li>
+            </ul>
+          </div>
+        </section>
 
-1. 서비스 제공: AI 유튜브 영상 자동 생성 서비스 이용에 따른 서비스 제공, 콘텐츠 제공, 맞춤 서비스 제공
-2. 회원 관리: 회원제 서비스 이용, 개인식별, 서비스 부정이용 방지, 만 14세 미만 아동의 개인정보 처리 시 법정대리인 동의 여부 확인
-3. 마케팅 및 광고: 신규 서비스 개발 및 맞춤 서비스 제공, 이벤트 및 광고성 정보 제공 및 참여기회 제공`
-          },
-          {
-            title: "제2조 (개인정보의 처리 및 보유기간)",
-            content: `회사는 법령에 따른 개인정보 보유·이용기간 또는 정보주체로부터 개인정보를 수집 시에 동의받은 개인정보 보유·이용기간 내에서 개인정보를 처리·보유합니다.
-
-1. 서비스 이용 기록: 3년 (통신비밀보호법)
-2. 소비자 불만 또는 분쟁처리에 관한 기록: 3년 (전자상거래법)
-3. 대금결제 및 재화 등의 공급에 관한 기록: 5년 (전자상거래법)
-4. 계약 또는 청약철회 등에 관한 기록: 5년 (전자상거래법)
-5. 회원 탈퇴 시: 즉시 삭제 (단, 관련 법령에 따른 보존 기간 동안 보관)`
-          },
-          {
-            title: "제3조 (처리하는 개인정보의 항목)",
-            content: `회사는 다음의 개인정보 항목을 처리하고 있습니다.
-
-필수항목: 이메일 주소, 서비스 이용 기록, 접속 로그, 쿠키, 접속 IP 정보
-선택항목: 채널 이름, 워터마크 텍스트
-
-결제 시 추가 수집 항목: 결제 수단 정보 (카드사, 결제 승인번호 등 — 직접 저장하지 않으며 PG사가 처리)`
-          },
-          {
-            title: "제4조 (개인정보의 제3자 제공)",
-            content: `회사는 정보주체의 개인정보를 제1조(개인정보의 처리 목적)에서 명시한 범위 내에서만 처리하며, 정보주체의 동의, 법률의 특별한 규정 등 개인정보 보호법 제17조 및 제18조에 해당하는 경우에만 개인정보를 제3자에게 제공합니다.
-
-현재 회사는 이용자의 개인정보를 제3자에게 제공하지 않습니다.`
-          },
-          {
-            title: "제5조 (개인정보처리의 위탁)",
-            content: `회사는 서비스 제공을 위해 아래와 같이 개인정보 처리 업무를 위탁하고 있습니다.
-
-- 수탁자: Google LLC / 위탁 업무: 클라우드 인프라 운영 (Firebase, Google Cloud)
-- 수탁자: OpenAI / 위탁 업무: AI 콘텐츠 생성
-- 수탁자: ElevenLabs / 위탁 업무: TTS(음성 합성) 처리
-
-수탁자들은 위탁받은 업무 이외의 목적으로 개인정보를 이용하지 않습니다.`
-          },
-          {
-            title: "제6조 (정보주체의 권리·의무 및 행사방법)",
-            content: `정보주체는 회사에 대해 언제든지 다음 각 호의 개인정보 보호 관련 권리를 행사할 수 있습니다.
-
-1. 개인정보 열람 요구
-2. 오류 등이 있을 경우 정정 요구
-3. 삭제 요구
-4. 처리 정지 요구
-
-권리 행사는 이메일(edufix.contact@gmail.com) 또는 전화(010-2228-4930)로 연락하시면 처리해 드립니다.`
-          },
-          {
-            title: "제7조 (개인정보의 파기)",
-            content: `회사는 개인정보 보유기간의 경과, 처리목적 달성 등 개인정보가 불필요하게 되었을 때에는 지체없이 해당 개인정보를 파기합니다.
-
-전자적 파일 형태로 기록·저장된 개인정보는 기록을 재생할 수 없도록 파기하며, 종이 문서에 기록·저장된 개인정보는 분쇄기로 분쇄하거나 소각하여 파기합니다.`
-          },
-          {
-            title: "제8조 (쿠키의 설치·운영 및 거부)",
-            content: `회사는 이용자에게 개별적인 맞춤서비스를 제공하기 위해 이용정보를 저장하고 수시로 불러오는 '쿠키(cookie)'를 사용합니다.
-
-쿠키는 웹사이트를 운영하는 데 이용되는 서버가 이용자의 컴퓨터 브라우저에 보내는 소량의 정보이며 이용자의 PC 또는 기기에 저장됩니다.
-
-이용자는 쿠키 설치에 대한 선택권을 가지고 있으며, 웹브라우저 설정을 통해 쿠키 허용/거부를 선택할 수 있습니다. 단, 쿠키 저장을 거부할 경우 일부 서비스 이용에 어려움이 있을 수 있습니다.`
-          },
-          {
-            title: "제9조 (개인정보 보호책임자)",
-            content: `회사는 개인정보 처리에 관한 업무를 총괄해서 책임지고, 개인정보 처리와 관련한 정보주체의 불만처리 및 피해구제 등을 위하여 아래와 같이 개인정보 보호책임자를 지정하고 있습니다.
-
-▶ 개인정보 보호책임자
-- 성명: 박예준
-- 직책: 대표
-- 연락처: 010-2228-4930 / edufix.contact@gmail.com
-
-정보주체께서는 회사의 서비스를 이용하시면서 발생한 모든 개인정보 보호 관련 문의, 불만처리, 피해구제 등에 관한 사항을 개인정보 보호책임자에게 문의하실 수 있습니다.`
-          },
-          {
-            title: "제10조 (개인정보 처리방침 변경)",
-            content: `이 개인정보처리방침은 2026년 1월 1일부터 적용됩니다. 이전의 개인정보 처리방침은 아래에서 확인하실 수 있습니다. 법령, 정책 또는 보안기술의 변경에 따라 내용의 추가·삭제 및 수정이 있을 시에는 변경사항의 시행일 최소 7일 이전부터 웹사이트를 통해 공지합니다.`
-          },
-          {
-            title: "제11조 (권익침해 구제방법)",
-            content: `정보주체는 개인정보침해로 인한 구제를 받기 위하여 개인정보분쟁조정위원회, 한국인터넷진흥원 개인정보침해신고센터 등에 분쟁해결이나 상담 등을 신청할 수 있습니다.
-
-- 개인정보분쟁조정위원회: (국번없이) 1833-6972 / www.kopico.go.kr
-- 개인정보침해신고센터: (국번없이) 118 / privacy.kisa.or.kr
-- 대검찰청: (국번없이) 1301 / www.spo.go.kr
-- 경찰청: (국번없이) 182 / ecrm.cyber.go.kr`
-          },
-        ].map((section, i) => (
-          <div key={i} style={{ marginBottom: "32px" }}>
-            <h2 style={{ fontSize: "15px", fontWeight: 700, color: "#111827", marginBottom: "12px", paddingBottom: "8px", borderBottom: "1px solid #eceef1" }}>
-              {section.title}
-            </h2>
-            <p style={{ fontSize: "13px", color: "#4b5563", lineHeight: "1.8", whiteSpace: "pre-line" }}>
-              {section.content}
+        {/* 2. 쿠키 */}
+        <section className="section">
+          <div className="sectionTitle">
+            <span className="sectionNum">2.</span>
+            쿠키 및 추적 기술
+          </div>
+          <div className="sectionBody">
+            <p>
+              본 서비스는 사용자 경험 개선과 서비스 운영을 위해 쿠키(Cookie)를 사용합니다.
+              쿠키는 서버가 사용자의 브라우저에 저장하는 작은 파일이며, 개인을 식별할 수 없는 형태로 사용됩니다.
+            </p>
+            <p><strong>본 서비스에서 사용하는 주요 쿠키:</strong></p>
+            <ul>
+              <li><strong>기능 쿠키</strong>: 사용자 설정(언어, 영상 이력 등)을 기억하는 쿠키</li>
+              <li><strong>분석 쿠키</strong>: 방문자 통계 및 서비스 개선을 위한 익명 분석 쿠키 (Google Analytics 등)</li>
+              <li><strong>광고 쿠키</strong>: Google AdSense를 통해 사용자에게 관련성 있는 광고를 제공하기 위한 쿠키</li>
+            </ul>
+            <p>
+              사용자는 브라우저 설정을 통해 쿠키 저장을 거부하거나 삭제할 수 있습니다.
+              다만 쿠키를 거부하면 일부 서비스 기능이 제한될 수 있습니다.
             </p>
           </div>
-        ))}
+        </section>
 
-        <div style={{ marginTop: "48px", padding: "20px", background: "#f3f4f7", borderRadius: "12px", fontSize: "12px", color: "#6b7280" }}>
-          <p style={{ fontWeight: 700, marginBottom: "4px" }}>한줄컴퍼니</p>
-          <p>대표자: 박예준 | 사업자등록번호: 450-07-03104</p>
-          <p>인천광역시 서구 청라커낼로 270, 커낼힐스빌 2층 2498호</p>
-          <p>Tel: 010-2228-4930 | Email: edufix.contact@gmail.com</p>
-        </div>
+        {/* 3. Google AdSense - 가장 중요! */}
+        <section className="section">
+          <div className="sectionTitle">
+            <span className="sectionNum">3.</span>
+            Google AdSense 광고에 관한 고지
+          </div>
+          <div className="sectionBody">
+            <p>
+              본 서비스는 Google AdSense를 통해 광고를 표시합니다.
+              Google은 제3자 광고 제공업체로서, 방문자의 관심사에 맞는 광고를 제공하기 위해
+              쿠키를 사용합니다.
+            </p>
+            <ul>
+              <li>
+                Google은 <strong>DoubleClick DART 쿠키</strong>를 사용하여 사용자가 본 서비스 및
+                인터넷 상 다른 사이트를 방문한 기록을 기반으로 광고를 게재합니다.
+              </li>
+              <li>
+                Google의 광고 쿠키 사용은 <strong>사용자가 본 서비스 및 기타 사이트를 방문할 때</strong>
+                Google 및 제3자 광고 파트너가 광고를 게재할 수 있게 합니다.
+              </li>
+              <li>
+                사용자는 <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer">
+                Google 광고 설정 페이지</a>에서 맞춤 광고를 거부(opt-out)할 수 있습니다.
+              </li>
+              <li>
+                또한 <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener noreferrer">
+                www.aboutads.info</a>에서 제3자 광고 제공업체의 맞춤 광고를 거부할 수 있습니다.
+              </li>
+            </ul>
+
+            <div className="noticeBox">
+              <strong>⚠️ 제3자 광고 서버 관련 안내</strong><br />
+              본 서비스의 광고는 Google AdSense 및 기타 광고 네트워크에 의해 관리됩니다.
+              이 광고 파트너들은 자체적인 개인정보 처리방침을 가지고 있으며,
+              본 서비스는 제3자 광고 서버의 정책에 대해 직접적인 통제력을 갖지 않습니다.
+              각 광고 파트너의 개인정보 처리방침은 해당 업체의 웹사이트를 참조하세요.
+            </div>
+
+            <p>
+              Google의 개인정보 정책 및 광고 관련 자세한 내용은{' '}
+              <a href="https://policies.google.com/technologies/ads" target="_blank" rel="noopener noreferrer">
+                Google 광고 및 정보 정책
+              </a>을 참고하시기 바랍니다.
+            </p>
+          </div>
+        </section>
+
+        {/* 4. 정보 이용 */}
+        <section className="section">
+          <div className="sectionTitle">
+            <span className="sectionNum">4.</span>
+            수집한 정보의 이용 목적
+          </div>
+          <div className="sectionBody">
+            <p>본 서비스는 수집한 정보를 다음 목적으로만 사용합니다:</p>
+            <ul>
+              <li>서비스 제공 및 운영 (영상 생성, 이력 관리 등)</li>
+              <li>서비스 품질 개선 및 신규 기능 개발</li>
+              <li>익명화된 통계 분석</li>
+              <li>사용자 문의에 대한 답변</li>
+              <li>서비스 이용약관 위반 행위 방지</li>
+              <li>관련성 있는 광고 제공 (Google AdSense 등)</li>
+            </ul>
+          </div>
+        </section>
+
+        {/* 5. 제3자 제공 */}
+        <section className="section">
+          <div className="sectionTitle">
+            <span className="sectionNum">5.</span>
+            제3자 정보 제공
+          </div>
+          <div className="sectionBody">
+            <p>
+              본 서비스는 사용자의 개인정보를 제3자에게 판매·임대·공유하지 않습니다.
+              다만 다음의 경우에는 예외적으로 제공될 수 있습니다:
+            </p>
+            <ul>
+              <li>법령에 의거하여 수사 기관의 요청이 있는 경우</li>
+              <li>사용자가 명시적으로 동의한 경우</li>
+              <li>
+                서비스 제공을 위해 필수적으로 이용하는 외부 API 호출
+                (Google Gemini, Pexels, Edge TTS, YouTube API 등).
+                이 경우 각 업체의 개인정보 처리방침이 적용됩니다.
+              </li>
+            </ul>
+          </div>
+        </section>
+
+        {/* 6. 보관 기간 */}
+        <section className="section">
+          <div className="sectionTitle">
+            <span className="sectionNum">6.</span>
+            정보 보관 기간
+          </div>
+          <div className="sectionBody">
+            <p>
+              수집된 정보는 해당 정보의 목적이 달성되면 지체 없이 파기됩니다.
+              구체적인 보관 기간은 다음과 같습니다:
+            </p>
+            <ul>
+              <li><strong>익명 식별자 및 영상 이력</strong>: 사용자가 브라우저 데이터를 삭제할 때까지</li>
+              <li><strong>문의 이메일</strong>: 답변 완료 후 3개월</li>
+              <li><strong>서버 로그</strong>: 최대 90일</li>
+              <li><strong>관련 법령에 따라 보관 의무가 있는 경우</strong>: 해당 법령이 정하는 기간</li>
+            </ul>
+          </div>
+        </section>
+
+        {/* 7. 사용자 권리 */}
+        <section className="section">
+          <div className="sectionTitle">
+            <span className="sectionNum">7.</span>
+            사용자의 권리
+          </div>
+          <div className="sectionBody">
+            <p>사용자는 언제든 다음 권리를 행사할 수 있습니다:</p>
+            <ul>
+              <li>본인의 정보 열람 요청</li>
+              <li>정보 수정 및 삭제 요청</li>
+              <li>서비스 이용 기록 삭제 (브라우저 데이터 초기화를 통해 직접 가능)</li>
+              <li>쿠키 수집 거부 (브라우저 설정)</li>
+              <li>맞춤 광고 거부 (위 3번 섹션의 Google 광고 설정)</li>
+            </ul>
+            <p>
+              권리 행사를 원하시는 경우{' '}
+              <Link href="/contact">문의 페이지</Link> 또는{' '}
+              <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>로 연락주시면 신속히 처리해드립니다.
+            </p>
+          </div>
+        </section>
+
+        {/* 8. 아동 정보 */}
+        <section className="section">
+          <div className="sectionTitle">
+            <span className="sectionNum">8.</span>
+            아동의 개인정보 보호
+          </div>
+          <div className="sectionBody">
+            <p>
+              본 서비스는 만 14세 미만 아동을 대상으로 하지 않습니다.
+              아동의 개인정보를 고의로 수집하지 않으며, 만일 아동의 정보가 수집된 사실이 확인되면
+              즉시 삭제 조치합니다.
+            </p>
+          </div>
+        </section>
+
+        {/* 9. 보안 */}
+        <section className="section">
+          <div className="sectionTitle">
+            <span className="sectionNum">9.</span>
+            정보 보호를 위한 기술적·관리적 조치
+          </div>
+          <div className="sectionBody">
+            <p>본 서비스는 수집한 정보의 안전을 위해 다음 조치를 취하고 있습니다:</p>
+            <ul>
+              <li>HTTPS 암호화 통신</li>
+              <li>접근 권한 제한 및 로그 관리</li>
+              <li>정기적인 보안 점검</li>
+              <li>개인정보 처리 시스템의 접근 통제</li>
+            </ul>
+          </div>
+        </section>
+
+        {/* 10. 정책 변경 */}
+        <section className="section">
+          <div className="sectionTitle">
+            <span className="sectionNum">10.</span>
+            개인정보 처리방침 변경
+          </div>
+          <div className="sectionBody">
+            <p>
+              본 방침은 관련 법령 또는 서비스 정책 변경에 따라 수정될 수 있습니다.
+              변경되는 경우 본 페이지를 통해 공지하며, 중대한 변경 시에는 별도 고지합니다.
+              최종 수정일은 본 문서 상단에 명시되어 있습니다.
+            </p>
+          </div>
+        </section>
+
+        {/* 11. 문의처 */}
+        <section className="section">
+          <div className="sectionTitle">
+            <span className="sectionNum">11.</span>
+            개인정보 보호 책임자 및 문의처
+          </div>
+          <div className="sectionBody">
+            <p>
+              본 방침 및 개인정보 처리에 관한 문의는 아래로 연락주시기 바랍니다.
+            </p>
+            <ul>
+              <li><strong>서비스명</strong>: AlgoMaker</li>
+              <li><strong>운영사</strong>: 한줄컴퍼니</li>
+              <li><strong>대표 / 개인정보 보호 책임자</strong>: 박예준</li>
+              <li><strong>이메일</strong>: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></li>
+              <li><strong>문의 양식</strong>: <Link href="/contact">/contact</Link></li>
+            </ul>
+          </div>
+        </section>
       </div>
-    </div>
+    </DashboardShell>
   );
 }
