@@ -1,367 +1,644 @@
 'use client';
 /**
- * AlgoMaker v11 - /keyword 페이지
- * ✨ 실제 API 연결 버전 (Mock 데이터 제거)
- * 
- * 백엔드: https://project-blackbox-production.up.railway.app
- * API: POST /api/v1/curation/keywords/search
- *      (실패 시 POST /api/keyword-analyze 로 자동 전환)
+ * Step 2: 키워드 입력 (+ 카테고리별 추천)
+ *
+ * 카테고리 선택 후 → 키워드 입력 → 시나리오 선택 (Step 3)
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { V11Shell, getProject, setProject } from '../_shared/V11Shell';
-import styles from './keyword.module.css';
+import Link from 'next/link';
+import { DashboardShell, getProject, setProject } from '../_shared/V11Shell';
+import { getCategoryById, CATEGORIES } from '../_shared/platforms';
+import { SCENARIOS, pickRecommendedScenarios, getScenarioById, type ScenarioStyle } from '../_shared/scenarios';
+import AdSlot from '../_shared/AdSlot';
 
-// 백엔드 주소 (환경변수 우선, 없으면 하드코딩 fallback)
-const API_BASE =
-  process.env.NEXT_PUBLIC_API_URL ||
-  process.env.NEXT_PUBLIC_API_BASE ||
-  'https://project-blackbox-production.up.railway.app';
-
-// 카테고리 라벨 ↔ 영문 키 매핑
-const CATEGORY_MAP: Record<string, string> = {
-  economy: '경제',
-  health: '건강',
-  selfdev: '자기계발',
-  tech: 'IT',
-  life: '라이프',
+const TRENDING_BY_CATEGORY: { [key: string]: Array<{ kw: string; level: string }> } = {
+  economy: [
+    { kw: '2026 금리 전망', level: '경쟁 낮음' },
+    { kw: 'N잡 재테크', level: '블루오션' },
+    { kw: 'AI 주식 투자', level: '트렌드' },
+    { kw: '부동산 전망', level: '인기' },
+  ],
+  health: [
+    { kw: '시니어 건강 관리', level: '블루오션' },
+    { kw: '2026 건강보험', level: '경쟁 낮음' },
+    { kw: '다이어트 식단', level: '인기' },
+    { kw: '면역력 강화법', level: '트렌드' },
+  ],
+  it: [
+    { kw: '2026 AI 도구', level: '트렌드' },
+    { kw: 'ChatGPT 활용법', level: '인기' },
+    { kw: '개발자 학습 로드맵', level: '블루오션' },
+    { kw: '스마트폰 꿀팁', level: '경쟁 낮음' },
+  ],
+  education: [
+    { kw: '독서법', level: '경쟁 낮음' },
+    { kw: '집중력 높이는 법', level: '블루오션' },
+    { kw: '아침 루틴', level: '인기' },
+    { kw: '시간관리', level: '트렌드' },
+  ],
+  food: [
+    { kw: '10분 레시피', level: '인기' },
+    { kw: '다이어트 도시락', level: '트렌드' },
+    { kw: '홈파티 요리', level: '블루오션' },
+    { kw: '1인 가구 간편식', level: '경쟁 낮음' },
+  ],
+  social: [
+    { kw: '2026 최저임금', level: '트렌드' },
+    { kw: '청년 복지 정책', level: '블루오션' },
+    { kw: '시사 이슈 정리', level: '인기' },
+    { kw: '정책 변경사항', level: '경쟁 낮음' },
+  ],
+  realestate: [
+    { kw: '2026 부동산 전망', level: '인기' },
+    { kw: '청약 당첨 전략', level: '트렌드' },
+    { kw: '자취방 꾸미기', level: '블루오션' },
+    { kw: '인테리어 아이디어', level: '경쟁 낮음' },
+  ],
+  game: [
+    { kw: '2026 무료 게임', level: '인기' },
+    { kw: '게임 추천 TOP', level: '트렌드' },
+    { kw: '인디 게임 리뷰', level: '블루오션' },
+    { kw: 'e스포츠 소식', level: '경쟁 낮음' },
+  ],
 };
 
-const CATEGORY_SLUGS = Object.keys(CATEGORY_MAP);
-
-interface Keyword {
-  id: string;
-  keyword: string;
-  boi: number;
-  boiGrade: string;
-  searchVol: number;
-  competition: number;
-  difficulty: '낮음' | '보통' | '높음';
-  cpm: number;
-  trend: '급상승' | '상승' | '유지' | '하락';
-  estRev: number;
+interface RecommendedScenario extends ScenarioStyle {
+  sections: number;
 }
 
-type SortKey = 'boi' | 'cpm' | 'trend' | 'estRev';
-const TREND_ORDER: Record<string, number> = {
-  급상승: 4,
-  상승: 3,
-  유지: 2,
-  하락: 1,
-};
+function pickScenarios(seed: string): RecommendedScenario[] {
+  return pickRecommendedScenarios(seed).map((s) => ({ ...s, sections: s.sectionPattern.length }));
+}
 
 export default function KeywordPage() {
   const router = useRouter();
   const [category, setCategory] = useState<string>('');
-  const [categoryLabel, setCategoryLabel] = useState<string>('');
-  const [selected, setSelected] = useState<string | null>(null);
-  const [sortKey, setSortKey] = useState<SortKey>('boi');
-  const [keywords, setKeywords] = useState<Keyword[]>([]);
-  const [loading, setLoading] = useState<boolean>(false);
-  const [error, setError] = useState<string>('');
+  const [keyword, setKeyword] = useState('');
+  const [activeKeyword, setActiveKeyword] = useState('');
+  const [scenarios, setScenarios] = useState<RecommendedScenario[]>([]);
+  const [analyzing, setAnalyzing] = useState(false);
+  const [rerollCount, setRerollCount] = useState(0);
+  const [showAllScenarios, setShowAllScenarios] = useState(false);
+  const inputRef = useRef<HTMLInputElement>(null);
 
-  // 프로젝트에서 선택된 카테고리 불러오기
   useEffect(() => {
-    const p = getProject();
-    if (!p.category) {
-      router.replace('/create');
+    const project = getProject();
+    if (!project.category) {
+      router.push('/');
       return;
     }
-    setCategory(p.category);
-    setCategoryLabel(CATEGORY_MAP[p.category] || p.category);
-    fetchKeywords(p.category);
-     
+    setCategory(project.category);
   }, [router]);
 
-  // ✨ 실제 API 호출 (백엔드에서 진짜 키워드 데이터 받아옴)
-  const fetchKeywords = async (cat: string) => {
-    setLoading(true);
-    setError('');
-    
-    const categoryKorean = CATEGORY_MAP[cat] || cat;
-    
-    // ① 먼저 Module A curation API 시도
-    try {
-      const res = await fetch(`${API_BASE}/api/v1/curation/keywords/search`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          category: cat,
-          category_slug: cat,
-          category_label: categoryKorean,
-          limit: 8,
-        }),
-      });
-      
-      if (res.ok) {
-        const data = await res.json();
-        const parsed = parseKeywords(data);
-        if (parsed.length > 0) {
-          setKeywords(parsed);
-          setLoading(false);
-          return;
-        }
-      }
-    } catch (e) {
-      console.warn('curation API 실패, beta API로 재시도', e);
-    }
+  const currentCategory = getCategoryById(category);
+  const trending = TRENDING_BY_CATEGORY[category] || [];
 
-    // ② 실패하면 beta keyword-analyze API 시도
-    try {
-      const res = await fetch(`${API_BASE}/api/keyword-analyze`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          category: cat,
-          category_label: categoryKorean,
-          limit: 8,
-        }),
-      });
-      
-      if (res.ok) {
-        const data = await res.json();
-        const parsed = parseKeywords(data);
-        if (parsed.length > 0) {
-          setKeywords(parsed);
-          setLoading(false);
-          return;
-        }
-      }
-      
-      throw new Error(`API 응답 실패 (${res.status})`);
-    } catch (e: any) {
-      console.error('키워드 API 호출 실패:', e);
-      setError(`AI 분석 중 문제가 발생했어요. 잠시 후 다시 시도해주세요. (${e.message || '네트워크 오류'})`);
-      setKeywords([]);
-      setLoading(false);
-    }
+  const handleAnalyze = () => {
+    if (!keyword.trim()) return;
+    setActiveKeyword(keyword);
+    setAnalyzing(true);
+    setTimeout(() => {
+      setScenarios(pickScenarios(keyword + Date.now()));
+      setRerollCount(0);
+      setAnalyzing(false);
+      document.getElementById('scenarios-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 700);
   };
 
-  // 백엔드 응답을 프론트 형식으로 파싱
-  const parseKeywords = (data: any): Keyword[] => {
-    // 응답 형식이 다양할 수 있어서 유연하게 파싱
-    let list: any[] = [];
-    
-    if (Array.isArray(data)) {
-      list = data;
-    } else if (Array.isArray(data.keywords)) {
-      list = data.keywords;
-    } else if (Array.isArray(data.results)) {
-      list = data.results;
-    } else if (Array.isArray(data.data)) {
-      list = data.data;
-    } else if (Array.isArray(data.items)) {
-      list = data.items;
-    }
-    
-    if (list.length === 0) return [];
-    
-    return list.slice(0, 8).map((item: any, idx: number) => {
-      const keyword = item.keyword || item.name || item.title || item.query || `키워드${idx + 1}`;
-      const boi = typeof item.boi === 'number' ? item.boi : (item.blueocean_score || item.score || 4.0);
-      const searchVol = item.searchVol || item.search_volume || item.volume || item.monthly_volume || 10000;
-      const competition = item.competition || item.comp || 5000;
-      const cpm = item.cpm || item.cost_per_mille || 15;
-      const trendRaw = item.trend || item.trend_label || '상승';
-      const difficultyRaw = item.difficulty || item.diff || '보통';
-      const estRev = item.estRev || item.estimated_revenue || item.rev || Math.round(cpm * searchVol / 1000);
-      
-      return {
-        id: item.id || `kw-${idx}`,
-        keyword,
-        boi: Number(boi),
-        boiGrade: item.boiGrade || item.grade || gradeFromBoi(Number(boi)),
-        searchVol: Number(searchVol),
-        competition: Number(competition),
-        difficulty: normalizeDifficulty(difficultyRaw),
-        cpm: Number(cpm),
-        trend: normalizeTrend(trendRaw),
-        estRev: Number(estRev),
-      };
+  const handleTrendClick = (kw: string) => {
+    setKeyword(kw);
+    setActiveKeyword(kw);
+    setAnalyzing(true);
+    setTimeout(() => {
+      setScenarios(pickScenarios(kw + Date.now()));
+      setRerollCount(0);
+      setAnalyzing(false);
+      document.getElementById('scenarios-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 700);
+  };
+
+  const handleReroll = () => {
+    if (!activeKeyword) return;
+    setScenarios(pickScenarios(activeKeyword + '_' + (rerollCount + 1) + '_' + Date.now()));
+    setRerollCount((r) => r + 1);
+  };
+
+  const handleStartScenario = (scenarioId: string) => {
+    setProject({
+      category,
+      keyword: activeKeyword,
+      scenarioStyleId: scenarioId,
+      templateId: scenarioId,
+      step: 3,
     });
+    router.push('/platform');
   };
 
-  const gradeFromBoi = (b: number): string => {
-    if (b >= 4.5) return 'A+';
-    if (b >= 4.0) return 'A';
-    if (b >= 3.5) return 'B+';
-    if (b >= 3.0) return 'B';
-    return 'C';
+  const levelColor = (level: string) => {
+    if (level === '블루오션') return { bg: '#eaf2ea', color: '#5e7e5d' };
+    if (level === '경쟁 낮음') return { bg: '#eaf0f5', color: '#5a7a99' };
+    if (level === '트렌드') return { bg: '#fbf3df', color: '#a67e1e' };
+    return { bg: '#fdf1e7', color: '#c65f3b' };
   };
 
-  const normalizeTrend = (t: string): Keyword['trend'] => {
-    const s = String(t);
-    if (s.includes('급상승') || s.includes('급등')) return '급상승';
-    if (s.includes('상승') || s.includes('up')) return '상승';
-    if (s.includes('하락') || s.includes('down')) return '하락';
-    return '유지';
-  };
-
-  const normalizeDifficulty = (d: string): Keyword['difficulty'] => {
-    const s = String(d);
-    if (s.includes('낮') || s.includes('low')) return '낮음';
-    if (s.includes('높') || s.includes('high')) return '높음';
-    return '보통';
-  };
-
-  const sorted = [...keywords].sort((a, b) => {
-    if (sortKey === 'boi') return b.boi - a.boi;
-    if (sortKey === 'cpm') return b.cpm - a.cpm;
-    if (sortKey === 'trend') return TREND_ORDER[b.trend] - TREND_ORDER[a.trend];
-    return b.estRev - a.estRev;
-  });
-
-  const handleNext = () => {
-    if (!selected) return;
-    const kw = keywords.find((k) => k.id === selected);
-    if (!kw) return;
-    setProject({ keyword: kw.keyword, keywordData: kw, step: 2 });
-    router.push('/configure');
-  };
-
-  const getDifficultyClass = (d: string) =>
-    d === '낮음' ? styles.diffLow : d === '보통' ? styles.diffMid : styles.diffHigh;
-  
-  const getTrendEmoji = (t: string) =>
-    t === '급상승' ? '🔥' : t === '상승' ? '📈' : t === '유지' ? '➡️' : '📉';
+  if (!currentCategory) return null;
 
   return (
-    <V11Shell currentStep={2}>
-      <section className={styles.page}>
-        <div className={styles.container}>
-          <div className={styles.header}>
-            <div className={styles.eyebrow}>STEP 2 · 키워드 선별</div>
-            <h1 className={styles.title}>
-              <span className={styles.titleCat}>{categoryLabel}</span> 블루오션 키워드
-            </h1>
-            <p className={styles.sub}>
-              AI가 실시간으로 분석한 <strong>블루오션 점수 상위 키워드</strong>입니다.
-            </p>
-          </div>
+    <DashboardShell>
+      <style jsx>{`
+        .page {
+          max-width: 960px;
+          margin: 0 auto;
+          padding: 36px 24px 48px;
+        }
 
-          {!loading && !error && keywords.length > 0 && (
-            <div className={styles.sortBar}>
-              <span className={styles.sortLabel}>정렬 →</span>
-              <div className={styles.sortBtns}>
-                {([
-                  { k: 'boi' as const, label: '블루오션 점수↓' },
-                  { k: 'cpm' as const, label: 'CPM↓' },
-                  { k: 'trend' as const, label: '트렌드↓' },
-                  { k: 'estRev' as const, label: '수익↓' },
-                ]).map((b) => (
-                  <button
-                    key={b.k}
-                    onClick={() => setSortKey(b.k)}
-                    className={`${styles.sortBtn} ${sortKey === b.k ? styles.sortBtnActive : ''}`}
+        .breadcrumb {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 20px;
+          font-size: 12px;
+          color: #8a7d6a;
+          font-weight: 500;
+        }
+        .breadcrumb a { color: #8a7d6a; transition: color 0.15s; }
+        .breadcrumb a:hover { color: #c65f3b; }
+        .breadcrumb .sep { color: #b8ad9b; }
+
+        .hero {
+          text-align: center;
+          margin-bottom: 36px;
+        }
+        .stepBadge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 5px 14px;
+          background: linear-gradient(135deg, #fdf1e7 0%, #fbf3df 100%);
+          color: #a64a2a;
+          border-radius: 999px;
+          font-size: 11px;
+          font-weight: 800;
+          margin-bottom: 16px;
+          letter-spacing: -0.01em;
+        }
+
+        .catChip {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 16px;
+          background: #faf8f4;
+          border: 1px solid rgba(90, 74, 58, 0.08);
+          border-radius: 999px;
+          font-size: 13px;
+          font-weight: 700;
+          color: #2a2419;
+          margin-bottom: 20px;
+        }
+        .catChip .change {
+          margin-left: 4px;
+          color: #8a7d6a;
+          font-weight: 500;
+          font-size: 11px;
+          cursor: pointer;
+        }
+        .catChip .change:hover { color: #c65f3b; }
+
+        .heroTitle {
+          font-size: 38px;
+          font-weight: 800;
+          color: #2a2419;
+          letter-spacing: -0.035em;
+          line-height: 1.2;
+          margin-bottom: 12px;
+        }
+        .heroTitle .accent { color: #c65f3b; }
+        .heroSub {
+          font-size: 15px;
+          color: #564a3a;
+          line-height: 1.6;
+          font-weight: 500;
+        }
+
+        /* 추천 키워드 */
+        .trendingSection {
+          margin-bottom: 32px;
+        }
+        .trendingLabel {
+          font-size: 13px;
+          color: #8a7d6a;
+          font-weight: 700;
+          margin-bottom: 12px;
+          text-align: center;
+        }
+        .trendingLabel strong {
+          color: #c65f3b;
+        }
+        .trendingGrid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 10px;
+        }
+        .trendChip {
+          background: #faf8f4;
+          border: 1px solid rgba(90, 74, 58, 0.08);
+          border-radius: 12px;
+          padding: 14px 16px;
+          cursor: pointer;
+          transition: all 0.18s;
+          text-align: left;
+        }
+        .trendChip:hover {
+          background: #fdf1e7;
+          border-color: rgba(198, 95, 59, 0.25);
+          transform: translateY(-2px);
+          box-shadow: 0 6px 14px rgba(198, 95, 59, 0.1);
+        }
+        .trendLevel {
+          display: inline-block;
+          padding: 2px 8px;
+          border-radius: 5px;
+          font-size: 10px;
+          font-weight: 800;
+          margin-bottom: 6px;
+          letter-spacing: -0.01em;
+        }
+        .trendKw {
+          font-size: 13.5px;
+          font-weight: 700;
+          color: #2a2419;
+          letter-spacing: -0.015em;
+          line-height: 1.3;
+        }
+
+        /* 직접 입력 */
+        .inputSection {
+          margin-bottom: 24px;
+        }
+        .inputLabel {
+          font-size: 13px;
+          color: #8a7d6a;
+          font-weight: 700;
+          margin-bottom: 10px;
+          text-align: center;
+        }
+        .kwForm {
+          display: flex;
+          gap: 10px;
+        }
+        .kwInputWrap { flex: 1; position: relative; }
+        .kwIcon {
+          position: absolute;
+          left: 20px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 18px;
+          pointer-events: none;
+          opacity: 0.55;
+        }
+        .kwInput {
+          width: 100%;
+          padding: 18px 20px 18px 52px;
+          background: #fff;
+          border: 2px solid rgba(90, 74, 58, 0.1);
+          border-radius: 14px;
+          font-size: 16px;
+          color: #2a2419;
+          font-family: inherit;
+          transition: all 0.18s;
+          font-weight: 500;
+          letter-spacing: -0.01em;
+          box-shadow: 0 2px 8px rgba(90, 74, 58, 0.04);
+        }
+        .kwInput:focus {
+          outline: none;
+          border-color: #c65f3b;
+          box-shadow: 0 0 0 4px rgba(198, 95, 59, 0.1), 0 2px 12px rgba(198, 95, 59, 0.1);
+        }
+        .kwBtn {
+          padding: 0 28px;
+          background: linear-gradient(135deg, #c65f3b 0%, #a64a2a 100%);
+          color: #fff;
+          border: none;
+          border-radius: 14px;
+          font-size: 15px;
+          font-weight: 800;
+          cursor: pointer;
+          font-family: inherit;
+          letter-spacing: -0.01em;
+          transition: all 0.18s;
+          box-shadow: 0 4px 14px rgba(198, 95, 59, 0.3);
+        }
+        .kwBtn:hover:not(:disabled) {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(198, 95, 59, 0.4);
+        }
+        .kwBtn:disabled {
+          background: #ece6db;
+          color: #b8ad9b;
+          cursor: not-allowed;
+          box-shadow: none;
+        }
+
+        /* 시나리오 섹션 */
+        .scenariosSection {
+          margin-top: 36px;
+          padding: 28px;
+          background: #faf8f4;
+          border-radius: 18px;
+        }
+        .scenHead {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 20px;
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+        .scenTitle {
+          font-size: 19px;
+          font-weight: 800;
+          color: #2a2419;
+          letter-spacing: -0.025em;
+        }
+        .scenSub {
+          font-size: 12.5px;
+          color: #8a7d6a;
+          font-weight: 500;
+          margin-top: 2px;
+        }
+        .scenSub strong { color: #c65f3b; font-weight: 700; }
+
+        .rerollBtn {
+          padding: 8px 16px;
+          background: #fff;
+          border: 1px solid rgba(90, 74, 58, 0.1);
+          border-radius: 999px;
+          font-size: 12px;
+          font-weight: 700;
+          cursor: pointer;
+          color: #564a3a;
+          font-family: inherit;
+          letter-spacing: -0.01em;
+        }
+        .rerollBtn:hover {
+          border-color: #c65f3b;
+          color: #c65f3b;
+        }
+
+        .analyzingBox {
+          padding: 40px 24px;
+          text-align: center;
+          background: linear-gradient(180deg, #fdf1e7 0%, #faf8f4 100%);
+          border-radius: 14px;
+        }
+        .analyzingIcon {
+          display: inline-block;
+          font-size: 34px;
+          animation: spin 1.2s linear infinite;
+          margin-bottom: 10px;
+        }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        .analyzingText {
+          font-size: 14px;
+          font-weight: 700;
+          color: #2a2419;
+        }
+
+        .scenGrid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 12px;
+        }
+        .scenCard {
+          background: #fff;
+          border: 1px solid rgba(90, 74, 58, 0.08);
+          border-radius: 12px;
+          padding: 18px;
+          cursor: pointer;
+          transition: all 0.18s;
+          position: relative;
+        }
+        .scenCard:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 14px rgba(90, 74, 58, 0.08);
+        }
+        .scenCardBest {
+          border: 2px solid #c65f3b;
+          background: linear-gradient(180deg, #fdf1e7 0%, #fff 40%);
+        }
+        .bestBadge {
+          position: absolute;
+          top: -10px; left: 14px;
+          padding: 4px 10px;
+          background: linear-gradient(135deg, #c65f3b 0%, #a64a2a 100%);
+          color: #fff;
+          border-radius: 999px;
+          font-size: 10px;
+          font-weight: 800;
+          box-shadow: 0 2px 6px rgba(198, 95, 59, 0.3);
+          letter-spacing: -0.01em;
+        }
+        .scenEmoji { font-size: 26px; margin-bottom: 10px; }
+        .scenName {
+          font-size: 15px;
+          font-weight: 800;
+          color: #2a2419;
+          letter-spacing: -0.02em;
+          margin-bottom: 8px;
+        }
+        .scenFlow {
+          font-size: 11.5px;
+          color: #564a3a;
+          line-height: 1.6;
+          padding: 8px 10px;
+          background: #faf8f4;
+          border-radius: 7px;
+          margin-bottom: 12px;
+          font-weight: 500;
+        }
+        .scenStats {
+          display: flex;
+          justify-content: space-between;
+          font-size: 10.5px;
+          color: #8a7d6a;
+          font-weight: 600;
+          margin-bottom: 12px;
+        }
+        .scenRet { color: #5e7e5d; font-weight: 700; }
+        .scenBtn {
+          width: 100%;
+          padding: 10px;
+          background: #faf8f4;
+          color: #2a2419;
+          border: 1px solid rgba(90, 74, 58, 0.1);
+          border-radius: 8px;
+          font-family: inherit;
+          font-size: 12px;
+          font-weight: 700;
+          cursor: pointer;
+          letter-spacing: -0.01em;
+        }
+        .scenBtn:hover {
+          border-color: #c65f3b;
+          color: #c65f3b;
+        }
+        .scenBtnBest {
+          background: #c65f3b;
+          color: #fff;
+          border-color: #c65f3b;
+        }
+        .scenBtnBest:hover {
+          background: #a64a2a;
+          color: #fff;
+        }
+
+        .adWrap { margin: 32px 0; }
+
+        @media (max-width: 768px) {
+          .page { padding: 24px 16px 40px; }
+          .heroTitle { font-size: 28px; }
+          .trendingGrid { grid-template-columns: repeat(2, 1fr); }
+          .kwForm { flex-direction: column; }
+          .kwBtn { padding: 14px; width: 100%; }
+          .scenGrid { grid-template-columns: 1fr; }
+        }
+      `}</style>
+
+      <div className="page">
+        <nav className="breadcrumb">
+          <Link href="/">홈</Link>
+          <span className="sep">/</span>
+          <span>키워드 입력</span>
+        </nav>
+
+        <section className="hero">
+          <div className="stepBadge">STEP 2 / 6 · 키워드 입력</div>
+          <Link href="/" className="catChip" style={{textDecoration: 'none'}}>
+            <span>{currentCategory.emoji}</span>
+            <span>{currentCategory.name}</span>
+            <span className="change">변경 →</span>
+          </Link>
+          <h1 className="heroTitle">
+            어떤 주제로<br />
+            <span className="accent">만들어볼까요?</span>
+          </h1>
+          <p className="heroSub">
+            아래 추천 키워드를 눌러도 되고, 직접 입력해도 돼요
+          </p>
+        </section>
+
+        {/* 추천 키워드 */}
+        <section className="trendingSection">
+          <div className="trendingLabel">
+            🔥 <strong>{currentCategory.name}</strong> 이번주 인기 키워드
+          </div>
+          <div className="trendingGrid">
+            {trending.map((t, i) => {
+              const colors = levelColor(t.level);
+              return (
+                <button
+                  key={i}
+                  className="trendChip"
+                  onClick={() => handleTrendClick(t.kw)}
+                >
+                  <span
+                    className="trendLevel"
+                    style={{ background: colors.bg, color: colors.color }}
                   >
-                    {b.label}
-                  </button>
+                    {t.level}
+                  </span>
+                  <div className="trendKw">{t.kw}</div>
+                </button>
+              );
+            })}
+          </div>
+        </section>
+
+        {/* 직접 입력 */}
+        <section className="inputSection">
+          <div className="inputLabel">또는 직접 입력하세요</div>
+          <div className="kwForm">
+            <div className="kwInputWrap">
+              <span className="kwIcon">🔍</span>
+              <input
+                ref={inputRef}
+                className="kwInput"
+                placeholder="예: 2026 신년 재테크 꿀팁"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAnalyze()}
+                maxLength={50}
+              />
+            </div>
+            <button
+              className="kwBtn"
+              onClick={handleAnalyze}
+              disabled={!keyword.trim() || analyzing}
+            >
+              {analyzing ? '분석 중...' : '분석 시작 →'}
+            </button>
+          </div>
+        </section>
+
+        {/* 시나리오 섹션 */}
+        {(activeKeyword || analyzing) && (
+          <section id="scenarios-section" className="scenariosSection">
+            <div className="scenHead">
+              <div>
+                <div className="scenTitle">"{activeKeyword}" AI 추천</div>
+                <div className="scenSub">
+                  AI가 고른 <strong>최적의 3가지 스타일</strong>을 보여드려요
+                </div>
+              </div>
+              {!analyzing && (
+                <button className="rerollBtn" onClick={handleReroll}>
+                  🎲 다시 추천{rerollCount > 0 ? ` · ${rerollCount}` : ''}
+                </button>
+              )}
+            </div>
+
+            {analyzing ? (
+              <div className="analyzingBox">
+                <div className="analyzingIcon">⚙️</div>
+                <div className="analyzingText">"{activeKeyword}" 분석 중...</div>
+              </div>
+            ) : (
+              <div className="scenGrid">
+                {scenarios.map((s, i) => (
+                  <div
+                    key={`${s.id}-${rerollCount}-${i}`}
+                    className={`scenCard ${i === 0 ? 'scenCardBest' : ''}`}
+                    onClick={() => handleStartScenario(s.id)}
+                  >
+                    {i === 0 && <div className="bestBadge">⭐ 최고 추천</div>}
+                    <div className="scenEmoji">{s.emoji}</div>
+                    <div className="scenName">{s.name}</div>
+                    <div className="scenFlow">{s.flow}</div>
+                    <div className="scenStats">
+                      <span>섹션 {s.sections}단</span>
+                      <span className="scenRet">유지율 {s.retention}%</span>
+                    </div>
+                    <button
+                      className={`scenBtn ${i === 0 ? 'scenBtnBest' : ''}`}
+                      onClick={(e) => { e.stopPropagation(); handleStartScenario(s.id); }}
+                    >
+                      {i === 0 ? '이 스타일로 →' : '이 스타일로'}
+                    </button>
+                  </div>
                 ))}
               </div>
-            </div>
-          )}
+            )}
+          </section>
+        )}
 
-          {loading ? (
-            <div className={styles.loading}>
-              <div className={styles.spinner} />
-              <div className={styles.loadingTitle}>AI가 실시간 분석 중...</div>
-              <div className={styles.loadingSub}>
-                {categoryLabel} 카테고리 · 검색량 · CPM · 트렌드 데이터 수집
-              </div>
-            </div>
-          ) : error ? (
-            <div className={styles.errorBox}>
-              <div className={styles.errorIcon}>⚠️</div>
-              <div className={styles.errorTitle}>분석 실패</div>
-              <div className={styles.errorMsg}>{error}</div>
-              <button
-                onClick={() => fetchKeywords(category)}
-                className={styles.retryBtn}
-              >
-                다시 시도
-              </button>
-            </div>
-          ) : (
-            <div className={styles.grid}>
-              {sorted.map((kw) => {
-                const isSelected = selected === kw.id;
-                return (
-                  <button
-                    key={kw.id}
-                    className={`${styles.card} ${isSelected ? styles.cardSelected : ''}`}
-                    onClick={() => setSelected(kw.id)}
-                  >
-                    <div className={styles.cardTop}>
-                      <span className={styles.cardNo}>#{sorted.indexOf(kw) + 1}</span>
-                      <span className={styles.cardGrade}>{kw.boiGrade}</span>
-                      <span className={styles.cardTrend}>{getTrendEmoji(kw.trend)} {kw.trend}</span>
-                    </div>
-
-                    <h3 className={styles.cardKeyword}>{kw.keyword}</h3>
-
-                    <div className={styles.boiBar}>
-                      <div
-                        className={styles.boiFill}
-                        style={{ width: `${(kw.boi / 5) * 100}%` }}
-                      />
-                    </div>
-                    <div className={styles.boiMeta}>
-                      <span>블루오션 점수</span>
-                      <strong>{kw.boi.toFixed(1)}/5.0</strong>
-                    </div>
-
-                    <div className={styles.stats}>
-                      <div className={styles.stat}>
-                        <div className={styles.statLabel}>월 검색량</div>
-                        <div className={styles.statValue}>
-                          {kw.searchVol >= 10000
-                            ? `${(kw.searchVol / 10000).toFixed(1)}만`
-                            : kw.searchVol.toLocaleString()}
-                        </div>
-                      </div>
-                      <div className={styles.stat}>
-                        <div className={styles.statLabel}>CPM</div>
-                        <div className={styles.statValueBlue}>${kw.cpm}</div>
-                      </div>
-                      <div className={styles.stat}>
-                        <div className={styles.statLabel}>경쟁</div>
-                        <div className={`${styles.statBadge} ${getDifficultyClass(kw.difficulty)}`}>
-                          {kw.difficulty}
-                        </div>
-                      </div>
-                      <div className={styles.stat}>
-                        <div className={styles.statLabel}>예상 월수익</div>
-                        <div className={styles.statValueGreen}>${kw.estRev.toLocaleString()}</div>
-                      </div>
-                    </div>
-
-                    {isSelected && <div className={styles.cardCheck}>✓</div>}
-                  </button>
-                );
-              })}
-            </div>
-          )}
+        <div className="adWrap">
+          <AdSlot slot="keyword-bottom" variant="horizontal" />
         </div>
-
-        <div className={styles.footer}>
-          <button
-            className={styles.btnBack}
-            onClick={() => router.push('/create')}
-          >
-            ← 카테고리 변경
-          </button>
-          <button
-            className={`${styles.btnNext} ${selected ? '' : styles.btnDisabled}`}
-            onClick={handleNext}
-            disabled={!selected}
-          >
-            {selected
-              ? `"${keywords.find((k) => k.id === selected)?.keyword}"로 진행 →`
-              : '키워드를 선택하세요'}
-          </button>
-        </div>
-      </section>
-    </V11Shell>
+      </div>
+    </DashboardShell>
   );
 }

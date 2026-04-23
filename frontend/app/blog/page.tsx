@@ -1,227 +1,336 @@
 'use client';
 /**
- * /blog - 블로그 목록
+ * 블로그 메인 페이지 — 보호 버전
  *
- * AdSense 심사용 콘텐츠 섹션.
- * MDX 대신 정적 메타 배열로 관리 (초기 간결함).
- * 글 추가 방법: blogPosts 배열에 추가 + /blog/[slug]/page.tsx에 내용
+ * 12개 노하우를 "왜 복잡한가" 톤으로 소개
+ * 각 글 제목이 템플릿이 아닌 "문제 제기" 식
  */
 
+import Link from 'next/link';
 import { DashboardShell } from '../_shared/V11Shell';
 import AdSlot from '../_shared/AdSlot';
-import Link from 'next/link';
 
-export const blogPosts = [
+const POSTS = [
   {
-    slug: 'youtube-algorithm-2026',
-    title: '2026년 유튜브 알고리즘 대격변 — 크리에이터가 꼭 알아야 할 4가지',
-    excerpt: '2026년 들어 유튜브 추천 알고리즘이 크게 바뀌었습니다. 조회수 중심에서 시청 유지율과 세션 시청 시간 중심으로 무게가 옮겨갔는데요, 이 변화가 일반 크리에이터에게 어떤 영향을 주는지 정리했습니다.',
-    category: '알고리즘',
-    readingTime: 6,
-    publishedAt: '2026-04-22',
+    id: 'first-30-seconds-hook',
+    num: '05',
+    phase: '제작 단계',
+    title: '첫 30초가 영상의 운명을 결정합니다',
+    sub: '왜 4명 중 3명이 30초 안에 떠나는가, 그리고 AlgoMaker의 해결법',
+    read: '5분',
+    tag: '🎬',
+    color: '#c65f3b',
   },
   {
-    slug: 'retention-rate-editing-tips',
-    title: '시청 유지율 40% 올린 실전 편집 기법 7가지',
-    excerpt: '영상 품질이 아무리 좋아도 유지율이 40% 미만이면 알고리즘이 추천해주지 않습니다. 실제로 유지율을 크게 개선한 7가지 편집 기법을 사례와 함께 공유합니다.',
-    category: '편집',
-    readingTime: 8,
-    publishedAt: '2026-04-21',
+    id: 'seo-title-formula',
+    num: '11',
+    phase: '업로드 단계',
+    title: '검색 1페이지 진입하는 제목의 비밀',
+    sub: 'SEO와 클릭 유도를 동시에 만족시키는 제목은 왜 어려운가',
+    read: '5분',
+    tag: '📤',
+    color: '#d4a545',
   },
   {
-    slug: 'thumbnail-ctr-guide',
-    title: '썸네일 CTR 2배 올리는 심리학 — 클릭 유발 요소 분석',
-    excerpt: '좋은 썸네일에는 공통된 심리적 장치가 있습니다. 전문가들이 공통적으로 꼽는 CTR을 올리는 6가지 디자인 원칙과 실패 사례들을 정리했어요.',
-    category: '썸네일',
-    readingTime: 7,
-    publishedAt: '2026-04-20',
+    id: 'ctr-thumbnail',
+    num: '10',
+    phase: '업로드 단계',
+    title: 'CTR 2배 차이, 썸네일에 숨은 과학',
+    sub: '0.5% 차이가 조회수 100배를 만드는 이유',
+    read: '4분',
+    tag: '📤',
+    color: '#d4a545',
   },
   {
-    slug: 'first-month-creator-checklist',
-    title: '유튜브 첫 달에 반드시 해야 할 10가지 체크리스트',
-    excerpt: '유튜브를 처음 시작하는 분들이 첫 달에 놓치기 쉬운 10가지 핵심 작업을 정리했습니다. 채널 설정부터 썸네일 템플릿 제작까지, 구독자 0명에서 시작하는 실전 가이드입니다.',
-    category: '초보 가이드',
-    readingTime: 9,
-    publishedAt: '2026-04-19',
+    id: 'viral-topic-formula',
+    num: '02',
+    phase: '기획 단계',
+    title: '같은 주제인데 조회수가 100배 차이나는 이유',
+    sub: '심리적 끌림을 만드는 주제 설계는 왜 복잡한가',
+    read: '6분',
+    tag: '🎯',
+    color: '#c65f3b',
   },
   {
-    slug: 'ai-video-automation-trends',
-    title: 'AI 영상 자동화는 유튜브 생태계를 어떻게 바꾸고 있나',
-    excerpt: 'AI가 대본·이미지·음성·편집까지 자동 생성하는 시대, 개인 크리에이터에게 이것이 위협인가 기회인가. 업계 변화와 현실적인 활용 전략을 솔직하게 짚어봅니다.',
-    category: 'AI 트렌드',
-    readingTime: 10,
-    publishedAt: '2026-04-18',
+    id: 'algorithm-script-structure',
+    num: '08',
+    phase: '제작 단계',
+    title: '영상 플랫폼 알고리즘이 좋아하는 대본 구조',
+    sub: '공개되지 않은 알고리즘을 어떻게 공략할 수 있을까',
+    read: '5분',
+    tag: '🎬',
+    color: '#c65f3b',
+  },
+  {
+    id: 'first-page-tags',
+    num: '12',
+    phase: '업로드 단계',
+    title: '태그 하나로 검색 노출이 10배 달라진다',
+    sub: '500자 제한 안에 담아야 하는 전략의 복잡성',
+    read: '4분',
+    tag: '📤',
+    color: '#d4a545',
+  },
+  {
+    id: '8min-hook-points',
+    num: '06',
+    phase: '제작 단계',
+    title: '롱폼 영상에서 50% 시청자가 중간에 떠나는 이유',
+    sub: '재몰입 장치 설계가 왜 감각만으로는 안 되는가',
+    read: '5분',
+    tag: '🎬',
+    color: '#c65f3b',
+  },
+  {
+    id: 'blue-ocean-keyword',
+    num: '01',
+    phase: '기획 단계',
+    title: '경쟁 낮고 수요 높은 블루오션 키워드 찾기',
+    sub: '데이터 접근 없이 블루오션을 찾는 건 왜 불가능에 가까운가',
+    read: '5분',
+    tag: '🎯',
+    color: '#c65f3b',
+  },
+  {
+    id: 'retention-editing-rhythm',
+    num: '07',
+    phase: '제작 단계',
+    title: '편집 리듬만 바꿔도 유지율 30% 차이',
+    sub: '전문 편집자 6개월 교육이 필요한 이유',
+    read: '4분',
+    tag: '🎬',
+    color: '#c65f3b',
+  },
+  {
+    id: '12-narrative-structures',
+    num: '03',
+    phase: '기획 단계',
+    title: '12가지 서사 구조, 당신 영상에 맞는 건?',
+    sub: '같은 정보도 구조에 따라 유지율 2배 차이나는 이유',
+    read: '6분',
+    tag: '🎯',
+    color: '#c65f3b',
+  },
+  {
+    id: 'target-viewer-design',
+    num: '04',
+    phase: '기획 단계',
+    title: '모두를 위한 영상은 아무도 보지 않습니다',
+    sub: '타겟 설계를 잘못하면 좋은 내용도 외면받는 이유',
+    read: '4분',
+    tag: '🎯',
+    color: '#c65f3b',
+  },
+  {
+    id: 'narration-tone-match',
+    num: '09',
+    phase: '제작 단계',
+    title: '내레이션 톤 하나로 신뢰가 무너질 수 있다',
+    sub: '주제와 음성이 안 맞으면 생기는 일',
+    read: '4분',
+    tag: '🎬',
+    color: '#c65f3b',
   },
 ];
 
-export default function BlogListPage() {
+export default function BlogPage() {
+  const phaseColors: { [key: string]: string } = {
+    '기획 단계': '#c65f3b',
+    '제작 단계': '#d4a545',
+    '업로드 단계': '#7d9b7c',
+  };
+
   return (
     <DashboardShell>
       <style jsx>{`
         .page {
-          padding: 32px 32px 48px;
-          max-width: 900px;
+          max-width: 1100px;
           margin: 0 auto;
-        }
-        .pageHeader {
-          margin-bottom: 24px;
-        }
-        .pageBadge {
-          display: inline-block;
-          padding: 3px 10px;
-          background: #fef3c7;
-          color: #92400e;
-          border-radius: 999px;
-          font-size: 10px;
-          font-weight: 800;
-          letter-spacing: 0.1em;
-          margin-bottom: 10px;
-        }
-        .pageTitle {
-          font-size: 30px;
-          font-weight: 800;
-          letter-spacing: -0.03em;
-          line-height: 1.2;
-          margin-bottom: 8px;
-          color: #0f0f0f;
-        }
-        .pageSub {
-          font-size: 14px;
-          color: #606060;
-          line-height: 1.6;
-          max-width: 640px;
+          padding: 40px 24px 64px;
         }
 
-        .adRow { margin: 20px 0; }
-
-        .postList {
-          display: flex;
-          flex-direction: column;
-          gap: 14px;
-        }
-        .postCard {
-          background: #fff;
-          border: 1px solid #e5e5e5;
-          border-radius: 14px;
-          padding: 22px 24px;
-          cursor: pointer;
-          transition: all 0.2s;
-          text-decoration: none;
-          color: inherit;
-          display: block;
-        }
-        .postCard:hover {
-          border-color: #cc0000;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 20px rgba(0,0,0,0.04);
-        }
-        .postMeta {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          font-size: 11px;
-          color: #888;
-          margin-bottom: 10px;
-        }
-        .postCategory {
-          padding: 2px 8px;
-          background: #fafafa;
-          border: 1px solid #e5e5e5;
-          border-radius: 999px;
-          font-weight: 600;
-          color: #555;
-        }
-        .postDot { color: #ddd; }
-        .postTitle {
-          font-size: 18px;
-          font-weight: 800;
-          color: #0f0f0f;
-          line-height: 1.3;
-          letter-spacing: -0.02em;
-          margin-bottom: 8px;
-        }
-        .postExcerpt {
-          font-size: 13px;
-          color: #606060;
-          line-height: 1.6;
-        }
-
-        .cta {
-          margin-top: 32px;
-          padding: 24px;
-          background: linear-gradient(135deg, #fff0f0 0%, #fafafa 100%);
-          border: 1px solid #fecaca;
-          border-radius: 14px;
+        .hero {
           text-align: center;
+          margin-bottom: 48px;
+          padding: 44px 24px;
+          background: linear-gradient(135deg, #fdf1e7 0%, #faf8f4 100%);
+          border-radius: 20px;
         }
-        .ctaTitle {
-          font-size: 15px;
-          font-weight: 800;
-          color: #0f0f0f;
-          margin-bottom: 6px;
-        }
-        .ctaSub {
+        .heroTag {
+          display: inline-block;
+          padding: 5px 14px;
+          background: rgba(198, 95, 59, 0.12);
+          color: #a64a2a;
+          border-radius: 999px;
           font-size: 12px;
-          color: #606060;
+          font-weight: 800;
+          letter-spacing: -0.01em;
           margin-bottom: 14px;
         }
-        .ctaBtn {
-          padding: 10px 22px;
-          background: #cc0000;
-          color: #fff;
-          border: none;
+        .heroTitle {
+          font-size: 34px;
+          font-weight: 800;
+          color: #2a2419;
+          letter-spacing: -0.035em;
+          line-height: 1.2;
+          margin-bottom: 14px;
+        }
+        .heroTitle .accent { color: #c65f3b; }
+        .heroSub {
+          font-size: 16px;
+          color: #564a3a;
+          line-height: 1.7;
+          font-weight: 500;
+          max-width: 640px;
+          margin: 0 auto;
+        }
+
+        .filterBar {
+          display: flex;
+          justify-content: center;
+          gap: 8px;
+          margin-bottom: 28px;
+          flex-wrap: wrap;
+        }
+        .filterChip {
+          padding: 8px 16px;
+          background: #faf8f4;
+          border: 1px solid rgba(90, 74, 58, 0.08);
           border-radius: 999px;
           font-size: 13px;
           font-weight: 700;
+          color: #564a3a;
           cursor: pointer;
-          text-decoration: none;
-          display: inline-block;
+          transition: all 0.15s;
+        }
+        .filterChip.active {
+          background: #c65f3b;
+          color: #fff;
+          border-color: #c65f3b;
         }
 
+        .grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 16px;
+        }
+        .card {
+          background: #faf8f4;
+          border: 1px solid rgba(90, 74, 58, 0.06);
+          border-radius: 14px;
+          padding: 24px 22px;
+          cursor: pointer;
+          transition: all 0.2s;
+          display: flex;
+          flex-direction: column;
+          min-height: 240px;
+        }
+        .card:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 20px rgba(90, 74, 58, 0.08);
+          border-color: rgba(198, 95, 59, 0.2);
+        }
+        .cardHead {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 14px;
+        }
+        .cardNum {
+          font-size: 11px;
+          font-weight: 800;
+          color: #c65f3b;
+          padding: 3px 8px;
+          background: #fdf1e7;
+          border-radius: 5px;
+          letter-spacing: 0.02em;
+        }
+        .cardPhase {
+          font-size: 10.5px;
+          font-weight: 700;
+          color: #8a7d6a;
+          letter-spacing: 0.03em;
+        }
+        .cardTag {
+          margin-left: auto;
+          font-size: 18px;
+        }
+        .cardTitle {
+          font-size: 16px;
+          font-weight: 800;
+          color: #2a2419;
+          letter-spacing: -0.025em;
+          line-height: 1.35;
+          margin-bottom: 10px;
+        }
+        .cardSub {
+          font-size: 13px;
+          color: #564a3a;
+          line-height: 1.6;
+          font-weight: 500;
+          margin-bottom: 16px;
+          flex: 1;
+        }
+        .cardFoot {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-top: 14px;
+          border-top: 1px dashed rgba(90, 74, 58, 0.1);
+          font-size: 11.5px;
+          color: #8a7d6a;
+          font-weight: 600;
+        }
+        .cardRead { color: #c65f3b; font-weight: 700; }
+
+        .adWrap { margin: 40px 0; }
+
+        @media (max-width: 1024px) {
+          .grid { grid-template-columns: repeat(2, 1fr); }
+        }
         @media (max-width: 640px) {
-          .page { padding: 20px 14px 40px; }
-          .pageTitle { font-size: 24px; }
-          .postCard { padding: 18px 20px; }
-          .postTitle { font-size: 16px; }
+          .grid { grid-template-columns: 1fr; }
+          .hero { padding: 32px 20px; }
+          .heroTitle { font-size: 26px; }
         }
       `}</style>
 
       <div className="page">
-        <header className="pageHeader">
-          <span className="pageBadge">📝 BLOG</span>
-          <h1 className="pageTitle">크리에이터 인사이트</h1>
-          <p className="pageSub">
-            유튜브 알고리즘, 편집 기법, 썸네일 심리학, AI 자동화 트렌드까지. 
-            구독자 0명에서 시작하는 크리에이터를 위한 실전 정보.
+        <section className="hero">
+          <div className="heroTag">🛡️ 전문가 노하우 시리즈</div>
+          <h1 className="heroTitle">
+            영상 제작이 <span className="accent">왜 어려운지</span>,<br />
+            그리고 AlgoMaker가 어떻게 해결하는지
+          </h1>
+          <p className="heroSub">
+            2026년 영상 플랫폼 알고리즘은 10년 전과 완전히 다릅니다.
+            첫 30초, 썸네일, 제목, 태그 — 모든 게 복잡한 최적화 대상입니다.
+            각 노하우가 얼마나 복잡한지, 그리고 AlgoMaker는 어떻게 자동화하는지 알아보세요.
           </p>
-        </header>
+        </section>
 
-        <div className="adRow">
-          <AdSlot slot="blog-top" variant="horizontal" label="blog-top" />
-        </div>
-
-        <div className="postList">
-          {blogPosts.map((post) => (
-            <Link key={post.slug} href={`/blog/${post.slug}`} className="postCard">
-              <div className="postMeta">
-                <span className="postCategory">{post.category}</span>
-                <span className="postDot">·</span>
-                <span>{post.publishedAt}</span>
-                <span className="postDot">·</span>
-                <span>{post.readingTime}분 읽기</span>
+        <div className="grid">
+          {POSTS.map((post) => (
+            <Link key={post.id} href={`/knowhow/${post.id}`} className="card" style={{textDecoration: 'none'}}>
+              <div className="cardHead">
+                <span className="cardNum">No.{post.num}</span>
+                <span className="cardPhase" style={{ color: phaseColors[post.phase] }}>
+                  {post.phase}
+                </span>
+                <span className="cardTag">{post.tag}</span>
               </div>
-              <h2 className="postTitle">{post.title}</h2>
-              <p className="postExcerpt">{post.excerpt}</p>
+              <h3 className="cardTitle">{post.title}</h3>
+              <p className="cardSub">{post.sub}</p>
+              <div className="cardFoot">
+                <span>📖 읽어보기</span>
+                <span className="cardRead">⏱ {post.read}</span>
+              </div>
             </Link>
           ))}
         </div>
 
-        <div className="cta">
-          <div className="ctaTitle">🎬 AlgoMaker로 영상 자동 생성</div>
-          <div className="ctaSub">키워드 하나로 AI가 완성된 유튜브 영상을 만들어드립니다 · 무료</div>
-          <Link href="/" className="ctaBtn">
-            영상 만들기 시작 →
-          </Link>
+        <div className="adWrap">
+          <AdSlot slot="blog-list" variant="horizontal" />
         </div>
       </div>
     </DashboardShell>

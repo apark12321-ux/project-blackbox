@@ -1,11 +1,11 @@
 'use client';
 /**
- * V11Shell v7 — 너튜브 NuTube 최종 버전
+ * V11Shell — 최종 안전 버전
  *
- * ✅ 새 로고: 너튜브 NuTube (정방형 심볼 + 재생 삼각형)
- * ✅ 브랜드명: 너튜브 (한글) + NuTube (영문)
- * ✅ 슬로건: "너튜브 시작, 이제 너도 할 수 있어"
- * ✅ 따뜻한 서재 감성 유지 (테라코타 + 베이지)
+ * ✅ 브랜드: AlgoMaker (독창적 조어, 상표권 안전)
+ * ✅ 도메인: nutube.kr 사용 (리다이렉트)
+ * ✅ YouTube 연상 단어 모두 제거
+ * ✅ 대체 단어: 영상, 콘텐츠, 크리에이터
  */
 
 import Link from 'next/link';
@@ -67,6 +67,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   );
 }
 
+// 공지 — YouTube 언급 제거, 중립 표현
 const NOTICES = [
   { dot: '🔥', text: '이번 주 인기 키워드: "2026 금리 전망" · 블루오션 지수 94점', tag: '인기' },
   { dot: '📈', text: '경제·사회 카테고리 조회수 평균 38% 상승 (지난주 대비)', tag: '트렌드' },
@@ -94,17 +95,15 @@ function useTodayCounter() {
   return count;
 }
 
-// ============ 너튜브 NuTube 로고 ============
-function NuTubeLogo({ size = 'md', showSubtitle = true }: { size?: 'sm' | 'md' | 'lg'; showSubtitle?: boolean }) {
-  const symbolSize = size === 'sm' ? 32 : size === 'md' ? 40 : 56;
-  const koreanSize = size === 'sm' ? 17 : size === 'md' ? 21 : 28;
-  const englishSize = size === 'sm' ? 11 : size === 'md' ? 13 : 15;
-  const subSize = size === 'sm' ? 10 : size === 'md' ? 10.5 : 12;
+// ============ AlgoMaker 로고 ============
+function AlgoMakerLogo({ size = 'md', showSubtitle = true }: { size?: 'sm' | 'md' | 'lg'; showSubtitle?: boolean }) {
+  const symbolSize = size === 'sm' ? 30 : size === 'md' ? 36 : 48;
+  const textSize = size === 'sm' ? 16 : size === 'md' ? 19 : 24;
+  const subSize = size === 'sm' ? 9 : size === 'md' ? 10 : 11;
   const borderRadius = symbolSize * 0.24;
 
   return (
-    <div style={{ display: 'inline-flex', alignItems: 'center', gap: symbolSize * 0.3 }}>
-      {/* 정방형 테라코타 심볼 */}
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: symbolSize * 0.32 }}>
       <div
         style={{
           width: symbolSize,
@@ -119,63 +118,48 @@ function NuTubeLogo({ size = 'md', showSubtitle = true }: { size?: 'sm' | 'md' |
           flexShrink: 0,
         }}
       >
-        {/* 재생 삼각형 (유튜브와 다른 각도/위치) */}
         <svg
-          width={symbolSize * 0.48}
-          height={symbolSize * 0.48}
+          width={symbolSize * 0.5}
+          height={symbolSize * 0.5}
           viewBox="0 0 20 20"
-          style={{ position: 'relative', left: 1 }}
+          style={{ position: 'relative', top: 0, left: 1 }}
         >
           <polygon points="4,3 4,17 17,10" fill="#ffffff" />
         </svg>
-        {/* 하단 바 (영상 표식) */}
         <div
           style={{
             position: 'absolute',
-            bottom: symbolSize * 0.15,
-            width: symbolSize * 0.42,
+            bottom: symbolSize * 0.18,
+            width: symbolSize * 0.4,
             height: 2,
-            background: 'rgba(255, 255, 255, 0.55)',
+            background: 'rgba(255, 255, 255, 0.5)',
             borderRadius: 1,
           }}
         />
       </div>
 
-      {/* 워드마크: 너튜브 NuTube */}
       <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
-        <div style={{ display: 'flex', alignItems: 'baseline', gap: 6 }}>
-          <span
-            style={{
-              fontSize: koreanSize,
-              fontWeight: 800,
-              color: '#2a2419',
-              letterSpacing: '-0.035em',
-            }}
-          >
-            너튜브
-          </span>
-          <span
-            style={{
-              fontSize: englishSize,
-              fontWeight: 600,
-              color: '#8a7d6a',
-              letterSpacing: '-0.01em',
-            }}
-          >
-            NuTube
-          </span>
+        <div
+          style={{
+            fontSize: textSize,
+            fontWeight: 800,
+            color: '#2a2419',
+            letterSpacing: '-0.025em',
+          }}
+        >
+          Algo<span style={{ fontWeight: 400 }}>Maker</span>
         </div>
         {showSubtitle && (
           <div
             style={{
               fontSize: subSize,
-              color: '#a67e1e',
-              fontWeight: 700,
-              letterSpacing: '-0.01em',
-              marginTop: 4,
+              color: '#8a7d6a',
+              fontWeight: 600,
+              letterSpacing: '0.06em',
+              marginTop: 3,
             }}
           >
-            너도 할 수 있어
+            AI 영상 스튜디오
           </div>
         )}
       </div>
@@ -295,7 +279,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         }
 
         .sidebar {
-          width: 248px;
+          width: 240px;
           background: var(--bg-cream);
           border-right: 1px solid var(--line-soft);
           padding: 20px 0 16px;
@@ -743,7 +727,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         <aside className={`sidebar ${sidebarOpen ? 'sidebarOpen' : ''}`}>
           <div className="sidebarHeader">
             <Link href="/">
-              <NuTubeLogo size="sm" showSubtitle={true} />
+              <AlgoMakerLogo size="sm" showSubtitle={true} />
             </Link>
             <span className="liveBadge">
               <span className="liveDot" />
@@ -788,7 +772,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
               <span className="statsLabel">오늘 · LIVE</span>
             </div>
             <div className="statsValue">{todayCount.toLocaleString()}</div>
-            <div className="statsSub">명이 너튜브 시작했어요</div>
+            <div className="statsSub">개 영상이 만들어졌어요</div>
           </div>
 
           <div className="sidebarAd">
@@ -827,10 +811,10 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
             <div className="topBtns">
               <div className="userChip">
-                <div className="userAvatar">너</div>
+                <div className="userAvatar">박</div>
                 <div className="userInfo">
-                  <span className="userName">너튜버</span>
-                  <span className="userRole">시작하는중</span>
+                  <span className="userName">박예준</span>
+                  <span className="userRole">크리에이터</span>
                 </div>
               </div>
             </div>
@@ -845,12 +829,11 @@ function ShellInner({ children }: { children: React.ReactNode }) {
               <div className="footerGrid">
                 <div>
                   <div className="footerLogoBlock">
-                    <NuTubeLogo size="md" showSubtitle={false} />
+                    <AlgoMakerLogo size="md" showSubtitle={false} />
                   </div>
                   <div className="fTag">
-                    너튜브 시작을 도와드리는 AI 스튜디오입니다.
-                    키워드 하나로 제목·대본·썸네일 모두 자동 생성,
-                    너도 할 수 있어요.
+                    키워드 하나로 영상을 자동으로 만들어드리는 AI 스튜디오.
+                    크리에이터의 시간을 돌려드립니다.
                   </div>
                   <div className="fCompany">
                     운영: 한줄컴퍼니<br />
@@ -873,7 +856,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                   <ul>
                     <li><Link href="/about" className="fLink">서비스 소개</Link></li>
                     <li><Link href="/contact" className="fLink">문의하기</Link></li>
-                    <li><Link href="/blog" className="fLink">너튜브 가이드</Link></li>
+                    <li><Link href="/blog" className="fLink">크리에이터 가이드</Link></li>
                   </ul>
                 </div>
 
@@ -889,7 +872,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
               <div className="footerBottom">
                 <div className="fCopy">
-                  © {currentYear} 너튜브 NuTube · 한줄컴퍼니. 모든 권리 보유.
+                  © {currentYear} AlgoMaker · 한줄컴퍼니. 모든 권리 보유.
                 </div>
                 <div className="fLegal">
                   <Link href="/privacy">개인정보 처리방침</Link>
@@ -905,4 +888,4 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   );
 }
 
-export { NuTubeLogo };
+export { AlgoMakerLogo };
