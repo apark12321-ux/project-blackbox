@@ -1,15 +1,9 @@
 'use client';
 /**
- * 홈 페이지 v2 — "살아있는 AI 스튜디오" 경험
+ * 홈 v3 — "Neural Lab" Mission Control
  *
- * 업그레이드 포인트:
- * - Hero: 로테이팅 키워드 + 실시간 분석 카운터
- * - "지금 AI가 찾은 트렌드" 섹션 — 라이브 느낌
- * - 통계 카드: 매끈한 숫자 카운트업 애니메이션
- * - 시나리오 카드: 각 카드에 "평균 조회수" 같은 증명 지표
- * - 광고 자리 2개 → 네이티브 추천 카드 스타일로
- * - 소셜 프루프: 최근 만들어진 영상 thumbnails
- * - Pro 배너 완전 제거
+ * NASA 미션 컨트롤 + Cursor + Midjourney 느낌
+ * 거대한 타이틀 + 네온 액센트 + 모노스페이스 데이터
  */
 
 import { useState, useEffect, useRef } from 'react';
@@ -18,31 +12,27 @@ import { DashboardShell, setProject } from './_shared/V11Shell';
 import { SCENARIOS, pickRecommendedScenarios, getScenarioById, type ScenarioStyle } from './_shared/scenarios';
 import AdSlot from './_shared/AdSlot';
 
-// 로테이팅 placeholder (Hero input)
 const PLACEHOLDER_KEYWORDS = [
-  '2026 금리 전망...',
-  'AI 도구 TOP 5...',
-  '시니어 건강 관리...',
-  '부동산 2026 전망...',
-  '재테크 초보 가이드...',
-  '2030 미래 직업...',
+  '2026 interest_rate forecast',
+  'AI tools TOP 5',
+  'senior health management',
+  'real_estate 2026',
+  'side_hustle investment',
 ];
 
-// 트렌드 키워드 (실제 서비스처럼 보이게)
-const TRENDING_NOW = [
-  { kw: '2026 금리 전망', delta: '+94%', hot: true },
-  { kw: 'AI 영상 자동화', delta: '+67%', hot: true },
-  { kw: '시니어 건강 관리', delta: '+52%', hot: false },
-  { kw: '부동산 전망', delta: '+41%', hot: false },
-  { kw: 'N잡러 재테크', delta: '+38%', hot: false },
+const TRENDING = [
+  { kw: '2026 금리 전망', delta: '+94%', priority: 'critical' as const },
+  { kw: 'AI 영상 자동화', delta: '+67%', priority: 'high' as const },
+  { kw: '시니어 건강 관리', delta: '+52%', priority: 'medium' as const },
+  { kw: '부동산 전망', delta: '+41%', priority: 'medium' as const },
+  { kw: 'N잡러 재테크', delta: '+38%', priority: 'low' as const },
 ];
 
-// 카테고리별 블루오션 지표
-const CATEGORY_STATS = [
-  { label: '경제·사회', score: 87, trend: '↑', color: '#cc0000' },
-  { label: '정보·분석', score: 76, trend: '↑', color: '#b45309' },
-  { label: 'IT·자기계발', score: 94, trend: '↑↑', color: '#047857' },
-  { label: '범용·라이프', score: 62, trend: '→', color: '#6b7280' },
+const CATEGORIES = [
+  { code: 'CAT-01', label: '경제·사회', score: 87, delta: '+12', accent: '#00e5ff' },
+  { code: 'CAT-02', label: '정보·분석', score: 76, delta: '+6', accent: '#a855f7' },
+  { code: 'CAT-03', label: 'IT·자기계발', score: 94, delta: '+24', accent: '#4ade80' },
+  { code: 'CAT-04', label: '범용·라이프', score: 62, delta: '-3', accent: '#fbbf24' },
 ];
 
 interface RecommendedScenario extends ScenarioStyle {
@@ -50,10 +40,7 @@ interface RecommendedScenario extends ScenarioStyle {
 }
 
 function pickScenarios(seed: string): RecommendedScenario[] {
-  return pickRecommendedScenarios(seed).map((s) => ({
-    ...s,
-    sections: s.sectionPattern.length,
-  }));
+  return pickRecommendedScenarios(seed).map((s) => ({ ...s, sections: s.sectionPattern.length }));
 }
 
 interface MyStats {
@@ -74,9 +61,7 @@ function readMyStats(): MyStats {
     let thisMonth = 0;
     let lastJobAt: number | null = null;
     for (const j of arr) {
-      const t = typeof j.created_at === 'number'
-        ? j.created_at
-        : j.created_at ? new Date(j.created_at).getTime() : 0;
+      const t = typeof j.created_at === 'number' ? j.created_at : j.created_at ? new Date(j.created_at).getTime() : 0;
       if (t && t >= monthStart) thisMonth += 1;
       if (t && (lastJobAt === null || t > lastJobAt)) lastJobAt = t;
     }
@@ -87,19 +72,17 @@ function readMyStats(): MyStats {
 }
 
 function formatRelative(ts: number | null): string {
-  if (!ts) return '아직 없음';
+  if (!ts) return '— IDLE';
   const diff = Date.now() - ts;
   const min = Math.floor(diff / 60000);
-  if (min < 1) return '방금 전';
-  if (min < 60) return `${min}분 전`;
+  if (min < 1) return 'T-00:00:01';
+  if (min < 60) return `T-00:${min.toString().padStart(2, '0')}:00`;
   const hr = Math.floor(min / 60);
-  if (hr < 24) return `${hr}시간 전`;
+  if (hr < 24) return `T-${hr.toString().padStart(2, '0')}:${(min % 60).toString().padStart(2, '0')}:00`;
   const day = Math.floor(hr / 24);
-  if (day < 30) return `${day}일 전`;
-  return new Date(ts).toLocaleDateString('ko-KR');
+  return `${day}d ago`;
 }
 
-// 숫자 카운트업 훅
 function useCountUp(target: number, duration = 1200) {
   const [current, setCurrent] = useState(0);
   useEffect(() => {
@@ -108,7 +91,7 @@ function useCountUp(target: number, duration = 1200) {
     let raf: number;
     const step = (now: number) => {
       const progress = Math.min((now - start) / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      const eased = 1 - Math.pow(1 - progress, 3);
       setCurrent(Math.floor(target * eased));
       if (progress < 1) raf = requestAnimationFrame(step);
       else setCurrent(target);
@@ -128,6 +111,7 @@ export default function HomePage() {
   const [myStats, setMyStats] = useState<MyStats>({ total: 0, thisMonth: 0, lastJobAt: null });
   const [placeholderIdx, setPlaceholderIdx] = useState(0);
   const [analyzing, setAnalyzing] = useState(false);
+  const [activeUsers, setActiveUsers] = useState(1384);
   const inputRef = useRef<HTMLInputElement>(null);
 
   const countUpTotal = useCountUp(myStats.total);
@@ -142,7 +126,17 @@ export default function HomePage() {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  // Placeholder 로테이션
+  // Active user counter — live feel
+  useEffect(() => {
+    const t = setInterval(() => {
+      setActiveUsers((u) => {
+        const delta = Math.floor(Math.random() * 7) - 3;
+        return Math.max(1200, Math.min(1800, u + delta));
+      });
+    }, 3500);
+    return () => clearInterval(t);
+  }, []);
+
   useEffect(() => {
     const t = setInterval(() => {
       setPlaceholderIdx((i) => (i + 1) % PLACEHOLDER_KEYWORDS.length);
@@ -154,7 +148,6 @@ export default function HomePage() {
     if (!keyword.trim()) return;
     setActiveKeyword(keyword);
     setAnalyzing(true);
-    // 분석하는 느낌 — 짧은 딜레이
     setTimeout(() => {
       setScenarios(pickScenarios(keyword + Date.now()));
       setRerollCount(0);
@@ -176,8 +169,7 @@ export default function HomePage() {
 
   const handleReroll = () => {
     if (!activeKeyword) return;
-    const seed = activeKeyword + '_' + (rerollCount + 1) + '_' + Date.now();
-    setScenarios(pickScenarios(seed));
+    setScenarios(pickScenarios(activeKeyword + '_' + (rerollCount + 1) + '_' + Date.now()));
     setRerollCount((r) => r + 1);
   };
 
@@ -186,7 +178,7 @@ export default function HomePage() {
     if (!style) return;
     if (!activeKeyword.trim()) {
       inputRef.current?.focus();
-      alert('먼저 키워드를 입력하고 AI 분석을 시작해주세요');
+      alert('먼저 키워드를 입력하고 분석을 시작해주세요');
       return;
     }
     setProject({
@@ -199,859 +191,1033 @@ export default function HomePage() {
     router.push('/keyword');
   };
 
+  const getTrendColor = (priority: string) => {
+    return priority === 'critical' ? '#ec4899' :
+           priority === 'high' ? '#00e5ff' :
+           priority === 'medium' ? '#a855f7' : '#606070';
+  };
+
   return (
     <DashboardShell>
       <style jsx>{`
         .page {
-          padding: 22px 28px 60px;
-          max-width: 1400px;
+          padding: 22px 28px 48px;
+          max-width: 1440px;
           margin: 0 auto;
+          position: relative;
         }
 
         /* ============ HERO ============ */
         .hero {
-          background:
-            radial-gradient(circle at 85% 15%, rgba(204, 0, 0, 0.12) 0%, transparent 45%),
-            radial-gradient(circle at 15% 85%, rgba(80, 40, 180, 0.1) 0%, transparent 45%),
-            linear-gradient(135deg, #0a0a0a 0%, #141414 50%, #0d0d0d 100%);
-          border-radius: 20px;
-          padding: 28px 32px;
-          color: #fff;
-          margin-bottom: 18px;
           position: relative;
+          padding: 40px 36px 34px;
+          margin-bottom: 24px;
+          border: 1px solid var(--line);
+          border-radius: 14px;
+          background:
+            radial-gradient(ellipse at 85% 20%, rgba(0,229,255,0.12) 0%, transparent 50%),
+            radial-gradient(ellipse at 15% 80%, rgba(168,85,247,0.1) 0%, transparent 50%),
+            linear-gradient(180deg, #0a0a0f 0%, #050507 100%);
           overflow: hidden;
-          border: 1px solid rgba(255,255,255,0.05);
-          box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+        }
+        .hero::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent 0%, #00e5ff 50%, transparent 100%);
+          opacity: 0.6;
         }
         .hero::after {
           content: '';
           position: absolute;
           inset: 0;
-          background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='40' height='40' viewBox='0 0 40 40'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%23ffffff' fill-opacity='0.02'%3E%3Cpath opacity='.5' d='M0 40L40 0H20L0 20M40 40V20L20 40'/%3E%3Cpath d='M0 0h40v40H0z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
-          opacity: 0.3;
+          background-image:
+            linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
+            linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
+          background-size: 32px 32px;
+          mask-image: radial-gradient(ellipse at center, black 0%, transparent 80%);
           pointer-events: none;
         }
-        .heroInner { position: relative; z-index: 1; }
+
         .heroTop {
           display: flex;
           justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 20px;
+          align-items: center;
+          margin-bottom: 24px;
           gap: 16px;
+          position: relative;
+          z-index: 1;
+        }
+        .heroStatusGroup {
+          display: flex;
+          align-items: center;
+          gap: 12px;
           flex-wrap: wrap;
         }
-        .heroLabel {
+        .statusChip {
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          padding: 5px 11px;
-          background: rgba(34, 197, 94, 0.15);
-          border: 1px solid rgba(34, 197, 94, 0.3);
-          border-radius: 999px;
+          padding: 5px 10px;
+          background: rgba(74, 222, 128, 0.1);
+          border: 1px solid rgba(74, 222, 128, 0.3);
+          border-radius: 4px;
+          font-family: var(--font-mono);
           font-size: 10px;
-          font-weight: 800;
+          font-weight: 700;
           color: #4ade80;
           letter-spacing: 0.1em;
         }
-        .livedot2 {
-          width: 6px; height: 6px;
-          background: #22c55e;
+        .statusDot2 {
+          width: 5px; height: 5px;
+          background: #4ade80;
           border-radius: 50%;
-          animation: pulse2 1.8s infinite;
-          box-shadow: 0 0 6px rgba(34,197,94,0.6);
+          box-shadow: 0 0 8px #4ade80;
+          animation: statusPulse 1.8s infinite;
         }
-        @keyframes pulse2 {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.3; }
+        @keyframes statusPulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.4; transform: scale(0.8); }
         }
-        .heroCount {
-          font-size: 11px;
-          color: rgba(255,255,255,0.5);
-          font-weight: 500;
+        .liveMetric {
+          font-family: var(--font-mono);
+          font-size: 10.5px;
+          color: var(--text-3);
+          letter-spacing: 0.04em;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
         }
-        .heroCount strong {
-          color: #4ade80;
-          font-weight: 700;
+        .liveNum {
+          color: #00e5ff;
+          font-weight: 600;
+          font-variant-numeric: tabular-nums;
         }
 
         .heroTitle {
-          font-size: 32px;
-          font-weight: 800;
-          letter-spacing: -0.035em;
-          line-height: 1.15;
-          margin-bottom: 8px;
-          background: linear-gradient(180deg, #ffffff 0%, #cccccc 100%);
+          font-family: var(--font-display);
+          font-size: 48px;
+          font-weight: 700;
+          letter-spacing: -0.04em;
+          line-height: 1.05;
+          color: var(--text-0);
+          margin-bottom: 10px;
+          position: relative;
+          z-index: 1;
+        }
+        .heroTitle .gradient {
+          background: linear-gradient(135deg, #00e5ff 0%, #a855f7 50%, #ec4899 100%);
           -webkit-background-clip: text;
           background-clip: text;
           color: transparent;
         }
         .heroSub {
-          font-size: 14px;
-          color: #a0a0a0;
-          margin-bottom: 22px;
-          max-width: 540px;
-          line-height: 1.55;
+          font-family: var(--font-mono);
+          font-size: 13px;
+          color: var(--text-3);
+          margin-bottom: 26px;
+          max-width: 560px;
+          line-height: 1.6;
+          letter-spacing: 0.02em;
+          position: relative;
+          z-index: 1;
         }
 
         .kwForm {
           display: flex;
-          gap: 8px;
+          gap: 10px;
           max-width: 720px;
-          margin-bottom: 16px;
+          margin-bottom: 18px;
+          position: relative;
+          z-index: 1;
         }
         .kwInputWrap {
           flex: 1;
           position: relative;
         }
+        .kwPrefix {
+          position: absolute;
+          left: 16px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-family: var(--font-mono);
+          font-size: 12px;
+          color: #00e5ff;
+          font-weight: 600;
+          pointer-events: none;
+          letter-spacing: 0.06em;
+        }
         .kwInput {
           width: 100%;
-          padding: 15px 18px;
-          background: rgba(255, 255, 255, 0.06);
-          border: 1px solid rgba(255, 255, 255, 0.12);
-          border-radius: 12px;
+          padding: 15px 16px 15px 58px;
+          background: rgba(5, 5, 7, 0.8);
+          border: 1px solid var(--line);
+          border-radius: 8px;
           font-size: 15px;
-          color: #fff;
-          font-family: inherit;
+          color: var(--text-0);
+          font-family: var(--font-sans);
           transition: all 0.15s;
           letter-spacing: -0.01em;
         }
         .kwInput:focus {
           outline: none;
-          border-color: #cc0000;
-          background: rgba(255, 255, 255, 0.1);
-          box-shadow: 0 0 0 3px rgba(204,0,0,0.15);
+          border-color: #00e5ff;
+          background: rgba(5, 5, 7, 0.95);
+          box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.15), 0 0 20px rgba(0, 229, 255, 0.2);
         }
-        .kwInput::placeholder { color: #555; }
-        .kwBtn {
-          padding: 0 28px;
-          background: linear-gradient(135deg, #cc0000 0%, #a00000 100%);
-          color: #fff;
-          border: none;
-          border-radius: 12px;
+        .kwInput::placeholder {
+          color: #404050;
+          font-family: var(--font-mono);
           font-size: 13.5px;
+        }
+        .kwBtn {
+          padding: 0 26px;
+          background: linear-gradient(135deg, #00e5ff 0%, #a855f7 100%);
+          color: #050507;
+          border: none;
+          border-radius: 8px;
+          font-family: var(--font-mono);
+          font-size: 12px;
           font-weight: 700;
           cursor: pointer;
-          font-family: inherit;
           white-space: nowrap;
-          letter-spacing: -0.01em;
+          letter-spacing: 0.1em;
           transition: all 0.15s;
-          box-shadow: 0 2px 8px rgba(204,0,0,0.25);
+          box-shadow: 0 0 0 1px transparent, 0 4px 20px rgba(0, 229, 255, 0.2);
         }
         .kwBtn:hover:not(:disabled) {
           transform: translateY(-1px);
-          box-shadow: 0 4px 14px rgba(204,0,0,0.4);
+          box-shadow: 0 0 0 1px #00e5ff, 0 6px 28px rgba(0, 229, 255, 0.4);
         }
         .kwBtn:disabled {
-          background: #333;
-          color: #666;
+          background: #15151f;
+          color: #404050;
           cursor: not-allowed;
           box-shadow: none;
         }
 
-        .trends {
+        .trendRow {
           display: flex;
           align-items: center;
           gap: 8px;
           flex-wrap: wrap;
+          position: relative;
+          z-index: 1;
         }
         .trendLabel {
-          font-size: 11px;
-          color: #666;
-          font-weight: 600;
-          letter-spacing: 0.05em;
-          margin-right: 2px;
+          font-family: var(--font-mono);
+          font-size: 10px;
+          color: var(--text-4);
+          letter-spacing: 0.12em;
+          margin-right: 4px;
         }
         .trendChip {
           display: inline-flex;
           align-items: center;
-          gap: 5px;
+          gap: 7px;
           padding: 5px 11px;
-          background: rgba(255,255,255,0.05);
-          border: 1px solid rgba(255,255,255,0.08);
-          border-radius: 999px;
+          background: rgba(15, 15, 24, 0.8);
+          border: 1px solid var(--line);
+          border-radius: 4px;
           font-size: 11.5px;
-          color: #ccc;
+          color: var(--text-2);
           cursor: pointer;
           transition: all 0.15s;
+          font-family: var(--font-sans);
         }
         .trendChip:hover {
-          background: rgba(204, 0, 0, 0.15);
-          border-color: rgba(204, 0, 0, 0.4);
-          color: #fff;
+          background: rgba(21, 21, 31, 1);
+          color: var(--text-0);
           transform: translateY(-1px);
         }
         .trendDelta {
+          font-family: var(--font-mono);
           font-size: 10px;
           font-weight: 700;
-          color: #4ade80;
-        }
-        .trendHot {
-          font-size: 10px;
-          padding: 1px 5px;
-          background: rgba(204,0,0,0.2);
-          border-radius: 3px;
-          color: #ff6b6b;
-          font-weight: 800;
-          letter-spacing: 0.05em;
         }
 
-        /* ============ CATEGORY RADAR ============ */
-        .catRadar {
+        /* ============ CATEGORY GRID ============ */
+        .catGrid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          gap: 10px;
-          margin-bottom: 18px;
+          gap: 12px;
+          margin-bottom: 24px;
         }
         .catCard {
-          background: #fff;
-          border: 1px solid #e8e8e8;
-          border-radius: 12px;
-          padding: 12px 14px;
+          background: var(--bg-1);
+          border: 1px solid var(--line);
+          border-radius: 10px;
+          padding: 16px 18px;
           position: relative;
           overflow: hidden;
-          transition: all 0.15s;
+          transition: all 0.2s;
         }
         .catCard:hover {
-          border-color: #0f0f0f;
-          transform: translateY(-1px);
+          transform: translateY(-2px);
+          border-color: currentColor;
+        }
+        .catHeader {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 10px;
+        }
+        .catCode {
+          font-family: var(--font-mono);
+          font-size: 9.5px;
+          color: var(--text-4);
+          letter-spacing: 0.1em;
+        }
+        .catDelta {
+          font-family: var(--font-mono);
+          font-size: 10px;
+          font-weight: 700;
+          padding: 2px 6px;
+          border-radius: 3px;
+          background: rgba(255,255,255,0.03);
         }
         .catLabel {
-          font-size: 11px;
-          color: #666;
+          font-size: 12.5px;
           font-weight: 600;
-          margin-bottom: 6px;
+          color: var(--text-2);
+          margin-bottom: 4px;
         }
-        .catRow {
+        .catScoreRow {
           display: flex;
           align-items: baseline;
-          justify-content: space-between;
+          gap: 4px;
+          margin-bottom: 10px;
         }
         .catScore {
-          font-size: 22px;
-          font-weight: 800;
+          font-family: var(--font-mono);
+          font-size: 28px;
+          font-weight: 700;
           letter-spacing: -0.03em;
           line-height: 1;
+          font-variant-numeric: tabular-nums;
         }
-        .catTrend {
-          font-size: 13px;
-          font-weight: 700;
+        .catScoreMax {
+          font-family: var(--font-mono);
+          font-size: 12px;
+          color: var(--text-4);
         }
-        .catBar {
-          position: relative;
+        .catBarBg {
           height: 3px;
-          background: #f0f0f0;
-          border-radius: 2px;
-          margin-top: 8px;
+          background: rgba(255,255,255,0.05);
+          border-radius: 1.5px;
           overflow: hidden;
+          position: relative;
         }
         .catBarFill {
           height: 100%;
-          border-radius: 2px;
+          border-radius: 1.5px;
           transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
+          box-shadow: 0 0 8px currentColor;
         }
 
-        /* ============ AD SLOT WRAP ============ */
-        .adWrap { margin-bottom: 22px; }
+        /* ============ AD WRAP ============ */
+        .adWrap { margin-bottom: 24px; }
 
-        /* ============ MY STATS ============ */
-        .statsHead {
+        /* ============ STATS ============ */
+        .blockHeading {
           display: flex;
-          align-items: baseline;
+          align-items: center;
           justify-content: space-between;
-          margin-bottom: 12px;
-          margin-top: 4px;
+          margin-bottom: 14px;
         }
-        .statsHeadTitle {
-          font-size: 13px;
-          font-weight: 800;
-          letter-spacing: 0.08em;
-          color: #808080;
+        .blockLabel {
+          font-family: var(--font-mono);
+          font-size: 10.5px;
+          font-weight: 600;
+          color: var(--text-3);
+          letter-spacing: 0.15em;
           text-transform: uppercase;
+          display: flex;
+          align-items: center;
+          gap: 10px;
+        }
+        .blockLabel::before {
+          content: '';
+          width: 14px;
+          height: 1px;
+          background: var(--line-strong);
         }
 
-        .statsBar {
+        .statGrid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
           gap: 10px;
-          margin-bottom: 26px;
+          margin-bottom: 32px;
         }
         .statCard {
-          background: #fff;
-          border: 1px solid #e8e8e8;
-          border-radius: 14px;
+          background: var(--bg-1);
+          border: 1px solid var(--line);
+          border-radius: 10px;
           padding: 16px 18px;
-          transition: all 0.15s;
+          transition: all 0.2s;
           position: relative;
           overflow: hidden;
         }
         .statCard:hover {
-          border-color: #0f0f0f;
+          border-color: rgba(0, 229, 255, 0.3);
           transform: translateY(-1px);
-          box-shadow: 0 4px 12px rgba(0,0,0,0.04);
         }
         .statCardLabel {
-          font-size: 10px;
-          font-weight: 800;
-          color: #888;
+          font-family: var(--font-mono);
+          font-size: 9.5px;
+          font-weight: 600;
+          color: var(--text-4);
           letter-spacing: 0.12em;
-          text-transform: uppercase;
           margin-bottom: 10px;
         }
         .statCardValue {
+          font-family: var(--font-mono);
           font-size: 26px;
-          font-weight: 800;
-          color: #0f0f0f;
+          font-weight: 600;
+          color: var(--text-0);
           letter-spacing: -0.03em;
           line-height: 1;
-          margin-bottom: 5px;
-          font-feature-settings: 'tnum';
+          margin-bottom: 4px;
+          font-variant-numeric: tabular-nums;
         }
         .statCardSub {
-          font-size: 11px;
-          color: #888;
-          font-weight: 500;
+          font-family: var(--font-mono);
+          font-size: 10.5px;
+          color: var(--text-3);
+          letter-spacing: 0.02em;
         }
 
-        /* ============ SECTION ============ */
-        .sectionHead {
+        /* ============ AI SECTION ============ */
+        .aiHead {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 14px;
+          margin-bottom: 16px;
           flex-wrap: wrap;
           gap: 10px;
         }
-        .sectionTitle {
+        .aiTitle {
           display: inline-flex;
           align-items: center;
-          gap: 10px;
-          font-size: 20px;
-          font-weight: 800;
-          letter-spacing: -0.025em;
-        }
-        .sectionNum {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          width: 26px; height: 26px;
-          background: #0f0f0f;
-          color: #fff;
-          border-radius: 7px;
-          font-size: 12px;
-          font-weight: 800;
-        }
-        .sectionKwTag {
-          font-size: 14px;
-          font-weight: 500;
-          color: #888;
-        }
-        .sectionKwTag strong {
-          color: #0f0f0f;
+          gap: 12px;
+          font-family: var(--font-display);
+          font-size: 22px;
           font-weight: 700;
+          letter-spacing: -0.03em;
+          color: var(--text-0);
         }
-        .rerollBtn {
-          padding: 8px 14px;
-          background: #fff;
-          border: 1px solid #e5e5e5;
-          border-radius: 999px;
+        .aiTitleTag {
+          font-family: var(--font-mono);
+          font-size: 10.5px;
+          font-weight: 700;
+          color: #00e5ff;
+          background: rgba(0, 229, 255, 0.1);
+          border: 1px solid rgba(0, 229, 255, 0.3);
+          padding: 3px 8px;
+          border-radius: 4px;
+          letter-spacing: 0.1em;
+        }
+        .kwActive {
+          font-family: var(--font-mono);
           font-size: 12px;
+          color: var(--text-3);
+          letter-spacing: 0.02em;
+        }
+        .kwActive strong {
+          color: #00e5ff;
+          font-weight: 600;
+        }
+
+        .rerollBtn {
+          padding: 7px 14px;
+          background: transparent;
+          border: 1px solid var(--line);
+          border-radius: 5px;
+          font-family: var(--font-mono);
+          font-size: 10.5px;
           font-weight: 600;
           cursor: pointer;
+          color: var(--text-2);
+          letter-spacing: 0.08em;
+          transition: all 0.15s;
           display: inline-flex;
           align-items: center;
           gap: 6px;
-          color: #606060;
-          font-family: inherit;
-          transition: all 0.15s;
         }
         .rerollBtn:hover {
-          border-color: #0f0f0f;
-          color: #0f0f0f;
-          transform: translateY(-1px);
+          border-color: #00e5ff;
+          color: #00e5ff;
         }
-        .rerollHint { font-size: 11px; color: #888; }
 
-        /* ============ EMPTY + ANALYZING ============ */
-        .emptyState {
-          background: #fff;
-          border: 2px dashed #e5e5e5;
-          border-radius: 16px;
-          padding: 52px 24px;
+        /* ============ EMPTY / ANALYZING ============ */
+        .emptyPanel {
+          background: var(--bg-1);
+          border: 1px dashed var(--line);
+          border-radius: 12px;
+          padding: 56px 28px;
           text-align: center;
-          margin-bottom: 28px;
-          transition: all 0.2s;
+          margin-bottom: 32px;
+          position: relative;
+          overflow: hidden;
         }
-        .emptyState.analyzing {
+        .emptyPanel.analyzing {
           border-style: solid;
-          border-color: #cc0000;
-          background: linear-gradient(180deg, #fffafa 0%, #fff 60%);
+          border-color: #00e5ff;
+          background:
+            radial-gradient(circle at center, rgba(0, 229, 255, 0.05) 0%, transparent 70%),
+            var(--bg-1);
         }
-        .emptyIcon {
-          font-size: 40px;
-          margin-bottom: 12px;
-          display: inline-block;
-          animation: bob 2.5s ease-in-out infinite;
+        .emptyPanel.analyzing::before {
+          content: '';
+          position: absolute;
+          top: 0; left: -100%;
+          width: 100%;
+          height: 2px;
+          background: linear-gradient(90deg, transparent, #00e5ff, transparent);
+          animation: scan 2s linear infinite;
         }
-        .analyzing .emptyIcon {
-          animation: spin 1.2s linear infinite;
+        @keyframes scan {
+          to { left: 100%; }
         }
-        @keyframes bob {
-          0%, 100% { transform: translateY(0); }
-          50% { transform: translateY(-6px); }
+        .emptyStatus {
+          font-family: var(--font-mono);
+          font-size: 10px;
+          letter-spacing: 0.15em;
+          color: var(--text-3);
+          margin-bottom: 16px;
         }
-        @keyframes spin {
-          to { transform: rotate(360deg); }
+        .emptyStatus.live {
+          color: #00e5ff;
         }
         .emptyTitle {
-          font-size: 16px;
-          font-weight: 800;
-          color: #0f0f0f;
+          font-family: var(--font-display);
+          font-size: 20px;
+          font-weight: 700;
+          color: var(--text-0);
           margin-bottom: 8px;
           letter-spacing: -0.02em;
         }
         .emptySub {
-          font-size: 12.5px;
-          color: #888;
-          line-height: 1.6;
-          max-width: 340px;
+          font-family: var(--font-mono);
+          font-size: 12px;
+          color: var(--text-3);
+          line-height: 1.65;
+          max-width: 380px;
           margin: 0 auto;
+          letter-spacing: 0.02em;
+        }
+        .scanDots {
+          display: inline-flex;
+          gap: 4px;
+          margin-left: 6px;
+        }
+        .scanDot {
+          width: 4px; height: 4px;
+          background: #00e5ff;
+          border-radius: 50%;
+          animation: scanDot 1.2s infinite;
+        }
+        .scanDot:nth-child(2) { animation-delay: 0.15s; }
+        .scanDot:nth-child(3) { animation-delay: 0.3s; }
+        @keyframes scanDot {
+          0%, 60%, 100% { opacity: 0.3; }
+          30% { opacity: 1; box-shadow: 0 0 6px #00e5ff; }
         }
 
         /* ============ SCENARIOS ============ */
-        .scenarios {
+        .scenGrid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 14px;
-          margin-bottom: 32px;
+          margin-bottom: 40px;
         }
-        .scenario {
-          background: #fff;
-          border: 1px solid #e8e8e8;
-          border-radius: 16px;
+        .scen {
+          background: var(--bg-1);
+          border: 1px solid var(--line);
+          border-radius: 12px;
           padding: 20px;
           position: relative;
-          transition: all 0.22s cubic-bezier(0.22, 1, 0.36, 1);
           cursor: pointer;
+          transition: all 0.22s;
           overflow: hidden;
         }
-        .scenario::after {
+        .scen::before {
           content: '';
           position: absolute;
-          inset: 0;
-          background: linear-gradient(135deg, transparent 0%, rgba(204,0,0,0.03) 100%);
+          top: 0; left: 0; right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, rgba(0,229,255,0.4), transparent);
           opacity: 0;
           transition: opacity 0.2s;
-          pointer-events: none;
         }
-        .scenario:hover {
-          border-color: #0f0f0f;
+        .scen:hover {
+          border-color: rgba(0, 229, 255, 0.4);
           transform: translateY(-3px);
-          box-shadow: 0 8px 24px rgba(0,0,0,0.06);
+          box-shadow: 0 8px 32px rgba(0, 229, 255, 0.08);
         }
-        .scenario:hover::after { opacity: 1; }
+        .scen:hover::before { opacity: 1; }
 
-        .scenarioBest {
-          border: 2px solid #cc0000;
-          background: linear-gradient(180deg, #fffafa 0%, #fff 40%);
+        .scenBest {
+          border-color: #00e5ff;
+          background: linear-gradient(180deg, rgba(0, 229, 255, 0.04) 0%, var(--bg-1) 40%);
+          box-shadow: 0 0 40px rgba(0, 229, 255, 0.08);
+        }
+        .scenBest::before {
+          opacity: 1;
+          background: linear-gradient(90deg, transparent, #00e5ff, transparent);
         }
         .bestBadge {
           position: absolute;
           top: -10px; left: 16px;
-          padding: 4px 12px;
-          background: linear-gradient(135deg, #cc0000 0%, #8b0000 100%);
-          color: #fff;
-          border-radius: 999px;
-          font-size: 10px;
-          font-weight: 800;
-          letter-spacing: 0.1em;
-          box-shadow: 0 2px 6px rgba(204,0,0,0.3);
+          padding: 3px 10px;
+          background: #00e5ff;
+          color: #050507;
+          border-radius: 3px;
+          font-family: var(--font-mono);
+          font-size: 9.5px;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          box-shadow: 0 0 16px rgba(0, 229, 255, 0.6);
         }
-        .scenarioHead {
+
+        .scenHead {
           display: flex;
           align-items: flex-start;
           gap: 10px;
-          margin-bottom: 12px;
-        }
-        .scenarioEmoji {
-          font-size: 28px;
-          line-height: 1;
-        }
-        .scenarioTitleWrap { flex: 1; min-width: 0; }
-        .scenarioName {
-          font-size: 15px;
-          font-weight: 800;
-          color: #0f0f0f;
-          letter-spacing: -0.02em;
-          margin-bottom: 2px;
-        }
-        .scenarioGroup {
-          font-size: 10.5px;
-          font-weight: 600;
-          color: #888;
-          letter-spacing: 0.03em;
-        }
-        .scenarioFlow {
-          font-size: 11.5px;
-          color: #555;
-          line-height: 1.55;
-          margin-bottom: 10px;
-          padding: 9px 11px;
-          background: #fafafa;
-          border-radius: 8px;
-          border: 1px solid #f0f0f0;
-        }
-        .scenarioDesc {
-          font-size: 12px;
-          color: #888;
-          line-height: 1.6;
           margin-bottom: 14px;
         }
-        .scenarioStats {
+        .scenEmoji {
+          font-size: 26px;
+          line-height: 1;
+          filter: grayscale(0.2);
+        }
+        .scenTitleBlock { flex: 1; min-width: 0; }
+        .scenName {
+          font-family: var(--font-display);
+          font-size: 16px;
+          font-weight: 700;
+          color: var(--text-0);
+          letter-spacing: -0.02em;
+          margin-bottom: 3px;
+        }
+        .scenMeta {
+          font-family: var(--font-mono);
+          font-size: 10px;
+          color: var(--text-4);
+          letter-spacing: 0.06em;
+        }
+        .scenFlow {
+          font-family: var(--font-mono);
+          font-size: 11px;
+          color: var(--text-2);
+          line-height: 1.6;
+          margin-bottom: 10px;
+          padding: 9px 11px;
+          background: var(--bg-0);
+          border: 1px solid var(--line-dim);
+          border-radius: 6px;
+          letter-spacing: 0.01em;
+        }
+        .scenDesc {
+          font-size: 12px;
+          color: var(--text-3);
+          line-height: 1.65;
+          margin-bottom: 14px;
+        }
+        .scenStats {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 8px;
+          gap: 6px;
           margin-bottom: 14px;
         }
         .sStat {
           padding: 8px 10px;
-          background: #fafafa;
-          border-radius: 8px;
+          background: var(--bg-0);
+          border: 1px solid var(--line-dim);
+          border-radius: 5px;
         }
         .sStatLabel {
-          font-size: 9px;
-          font-weight: 800;
-          color: #888;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
+          font-family: var(--font-mono);
+          font-size: 8.5px;
+          color: var(--text-4);
+          letter-spacing: 0.1em;
           margin-bottom: 3px;
         }
         .sStatValue {
-          font-size: 14px;
-          font-weight: 800;
-          color: #0f0f0f;
+          font-family: var(--font-mono);
+          font-size: 15px;
+          font-weight: 600;
+          color: var(--text-0);
           letter-spacing: -0.02em;
           line-height: 1;
         }
-        .sStatRetention {
-          color: #047857;
+        .sStatRet {
+          color: #4ade80;
         }
-        .scenarioBtn {
+
+        .scenBtn {
           width: 100%;
           padding: 11px;
-          background: #0f0f0f;
-          color: #fff;
-          border: none;
-          border-radius: 10px;
-          font-size: 13px;
-          font-weight: 700;
+          background: transparent;
+          color: var(--text-2);
+          border: 1px solid var(--line);
+          border-radius: 6px;
+          font-family: var(--font-mono);
+          font-size: 11px;
+          font-weight: 600;
           cursor: pointer;
-          font-family: inherit;
-          position: relative;
-          z-index: 1;
+          letter-spacing: 0.1em;
           transition: all 0.15s;
         }
-        .scenarioBtn:hover { background: #333; transform: translateY(-1px); }
-        .scenarioBtnBest {
-          background: linear-gradient(135deg, #cc0000 0%, #8b0000 100%);
+        .scenBtn:hover {
+          border-color: #00e5ff;
+          color: #00e5ff;
         }
-        .scenarioBtnBest:hover {
-          background: linear-gradient(135deg, #b00000 0%, #700000 100%);
+        .scenBtnBest {
+          background: #00e5ff;
+          color: #050507;
+          border-color: #00e5ff;
+        }
+        .scenBtnBest:hover {
+          background: transparent;
+          color: #00e5ff;
+          box-shadow: 0 0 16px rgba(0, 229, 255, 0.4);
         }
 
         /* ============ LIBRARY ============ */
-        .libSection {
-          background: #fff;
-          border: 1px solid #e8e8e8;
-          border-radius: 16px;
-          padding: 26px;
+        .libBlock {
+          background: var(--bg-1);
+          border: 1px solid var(--line);
+          border-radius: 12px;
+          padding: 24px;
           margin-bottom: 24px;
         }
         .libHead {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 20px;
+          margin-bottom: 22px;
           flex-wrap: wrap;
-          gap: 10px;
+          gap: 12px;
         }
         .libTitle {
+          font-family: var(--font-display);
+          font-size: 18px;
+          font-weight: 700;
+          color: var(--text-0);
+          letter-spacing: -0.025em;
           display: inline-flex;
           align-items: center;
-          gap: 10px;
-          font-size: 17px;
-          font-weight: 800;
-          letter-spacing: -0.02em;
+          gap: 12px;
         }
         .libStats {
-          font-size: 11.5px;
-          color: #888;
-          font-weight: 500;
-        }
-        .libStats strong { color: #0f0f0f; font-weight: 700; }
-
-        .libGroup { margin-bottom: 22px; }
-        .libGroup:last-child { margin-bottom: 0; }
-        .libGroupLabel {
+          font-family: var(--font-mono);
           font-size: 11px;
-          font-weight: 800;
-          color: #808080;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          margin-bottom: 11px;
-          padding-bottom: 8px;
-          border-bottom: 1px solid #f0f0f0;
+          color: var(--text-3);
+          letter-spacing: 0.04em;
+        }
+        .libStats strong {
+          color: #00e5ff;
+          font-weight: 600;
+        }
+
+        .libGroup {
+          margin-bottom: 22px;
+        }
+        .libGroup:last-child { margin-bottom: 0; }
+        .libGroupHead {
           display: flex;
-          align-items: center;
           justify-content: space-between;
+          align-items: center;
+          padding-bottom: 10px;
+          margin-bottom: 12px;
+          border-bottom: 1px solid var(--line-dim);
+        }
+        .libGroupLabel {
+          font-family: var(--font-mono);
+          font-size: 10.5px;
+          font-weight: 600;
+          color: var(--text-2);
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
         }
         .libGroupCount {
-          background: #fafafa;
-          color: #555;
-          font-size: 10px;
-          padding: 2px 7px;
-          border-radius: 4px;
-          font-weight: 700;
-          letter-spacing: 0;
+          font-family: var(--font-mono);
+          font-size: 9.5px;
+          color: var(--text-4);
+          letter-spacing: 0.1em;
         }
         .libGrid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
           gap: 10px;
         }
         .libItem {
           padding: 14px;
-          background: #fafafa;
-          border: 1px solid #f0f0f0;
-          border-radius: 11px;
+          background: var(--bg-2);
+          border: 1px solid var(--line-dim);
+          border-radius: 8px;
           cursor: pointer;
           transition: all 0.15s;
-          position: relative;
         }
         .libItem:hover {
-          background: #fff;
-          border-color: #cc0000;
+          background: var(--bg-3);
+          border-color: rgba(0, 229, 255, 0.3);
           transform: translateY(-1px);
-          box-shadow: 0 3px 10px rgba(204,0,0,0.06);
         }
         .libItemTop {
           display: flex;
           align-items: center;
           gap: 8px;
-          margin-bottom: 7px;
+          margin-bottom: 8px;
         }
         .libItemEmoji {
-          font-size: 20px;
+          font-size: 18px;
           flex-shrink: 0;
+          filter: grayscale(0.2);
         }
         .libItemName {
+          font-family: var(--font-display);
           font-size: 13px;
-          font-weight: 800;
-          color: #0f0f0f;
+          font-weight: 700;
+          color: var(--text-0);
           flex: 1;
           letter-spacing: -0.01em;
         }
         .libItemFlow {
-          font-size: 11px;
-          color: #666;
+          font-family: var(--font-mono);
+          font-size: 10.5px;
+          color: var(--text-3);
           line-height: 1.5;
-          margin-bottom: 8px;
+          margin-bottom: 10px;
+          letter-spacing: 0.01em;
         }
-        .libItemFooter {
+        .libItemFoot {
           display: flex;
-          align-items: center;
           justify-content: space-between;
-          font-size: 10px;
-          color: #888;
-          font-weight: 600;
+          align-items: center;
+          font-family: var(--font-mono);
+          font-size: 9.5px;
+          color: var(--text-4);
+          letter-spacing: 0.04em;
         }
-        .libItemRetention {
-          color: #047857;
+        .libItemRet {
+          color: #4ade80;
         }
 
         @media (max-width: 1024px) {
-          .scenarios { grid-template-columns: 1fr; }
-          .statsBar { grid-template-columns: repeat(2, 1fr); }
-          .catRadar { grid-template-columns: repeat(2, 1fr); }
+          .scenGrid { grid-template-columns: 1fr; }
+          .statGrid { grid-template-columns: repeat(2, 1fr); }
+          .catGrid { grid-template-columns: repeat(2, 1fr); }
         }
         @media (max-width: 768px) {
-          .page { padding: 16px 14px 40px; }
-          .hero { padding: 22px 20px; border-radius: 16px; }
-          .heroTitle { font-size: 24px; }
+          .page { padding: 18px 16px 40px; }
+          .hero { padding: 28px 22px; }
+          .heroTitle { font-size: 32px; }
           .kwForm { flex-direction: column; }
           .kwBtn { width: 100%; padding: 14px; }
-          .statsBar { grid-template-columns: 1fr 1fr; gap: 8px; }
+          .statGrid { grid-template-columns: 1fr 1fr; gap: 8px; }
           .libGrid { grid-template-columns: 1fr; }
-          .catRadar { grid-template-columns: repeat(2, 1fr); }
+          .catGrid { grid-template-columns: 1fr 1fr; }
         }
       `}</style>
 
       <div className="page">
         {/* ============ HERO ============ */}
         <section className="hero">
-          <div className="heroInner">
-            <div className="heroTop">
-              <span className="heroLabel">
-                <span className="livedot2" />
-                AI ANALYSIS · LIVE
+          <div className="heroTop">
+            <div className="heroStatusGroup">
+              <span className="statusChip">
+                <span className="statusDot2" />
+                AI · SYSTEM ONLINE
               </span>
-              <span className="heroCount">
-                지금 <strong>1,384명</strong>이 영상을 제작 중
+              <span className="liveMetric">
+                <span>▸</span>
+                <span className="liveNum">{activeUsers.toLocaleString()}</span>
+                <span>active sessions</span>
               </span>
             </div>
-            <h1 className="heroTitle">어떤 영상을 만들까요?</h1>
-            <p className="heroSub">
-              키워드 하나로 AI가 12가지 구조 중 최적의 블루오션 시나리오 3개를 0.7초 안에 분석합니다
-            </p>
+          </div>
 
-            <div className="kwForm">
-              <div className="kwInputWrap">
-                <input
-                  ref={inputRef}
-                  className="kwInput"
-                  placeholder={`예: ${PLACEHOLDER_KEYWORDS[placeholderIdx]}`}
-                  value={keyword}
-                  onChange={(e) => setKeyword(e.target.value)}
-                  onKeyDown={(e) => e.key === 'Enter' && handleAnalyze()}
-                  maxLength={50}
-                />
-              </div>
-              <button className="kwBtn" onClick={handleAnalyze} disabled={!keyword.trim() || analyzing}>
-                {analyzing ? '분석 중...' : '▶ AI 분석 시작'}
-              </button>
+          <h1 className="heroTitle">
+            <span className="gradient">Neural</span><br />
+            Video Studio.
+          </h1>
+          <p className="heroSub">
+            {'>'} Input keyword · AI generates 3 optimal scenarios from 12 neural patterns<br />
+            {'>'} Blue-ocean analysis · auto-scripted · voice-synthesized · full pipeline
+          </p>
+
+          <div className="kwForm">
+            <div className="kwInputWrap">
+              <span className="kwPrefix">{'>'}</span>
+              <input
+                ref={inputRef}
+                className="kwInput"
+                placeholder={PLACEHOLDER_KEYWORDS[placeholderIdx]}
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                onKeyDown={(e) => e.key === 'Enter' && handleAnalyze()}
+                maxLength={50}
+              />
             </div>
+            <button className="kwBtn" onClick={handleAnalyze} disabled={!keyword.trim() || analyzing}>
+              {analyzing ? 'ANALYZING...' : 'EXECUTE ▸'}
+            </button>
+          </div>
 
-            <div className="trends">
-              <span className="trendLabel">🔥 실시간 트렌드</span>
-              {TRENDING_NOW.map((t, i) => (
-                <span key={i} className="trendChip" onClick={() => handleTrendClick(t.kw)}>
-                  <span>{t.kw}</span>
-                  <span className="trendDelta">{t.delta}</span>
-                  {t.hot && <span className="trendHot">HOT</span>}
+          <div className="trendRow">
+            <span className="trendLabel">▸ LIVE TRENDS</span>
+            {TRENDING.map((t, i) => (
+              <span
+                key={i}
+                className="trendChip"
+                onClick={() => handleTrendClick(t.kw)}
+                style={{ borderColor: `${getTrendColor(t.priority)}33` }}
+              >
+                <span>{t.kw}</span>
+                <span className="trendDelta" style={{ color: getTrendColor(t.priority) }}>
+                  {t.delta}
                 </span>
-              ))}
-            </div>
+              </span>
+            ))}
           </div>
         </section>
 
         {/* ============ CATEGORY RADAR ============ */}
-        <div className="catRadar">
-          {CATEGORY_STATS.map((c, i) => (
-            <div key={i} className="catCard">
-              <div className="catLabel">{c.label} 블루오션</div>
-              <div className="catRow">
-                <div className="catScore" style={{ color: c.color }}>{c.score}</div>
-                <div className="catTrend" style={{ color: c.color }}>{c.trend}</div>
+        <div className="blockHeading">
+          <span className="blockLabel">CATEGORY RADAR · BLUE OCEAN INDEX</span>
+        </div>
+        <div className="catGrid">
+          {CATEGORIES.map((c) => (
+            <div key={c.code} className="catCard" style={{ color: c.accent }}>
+              <div className="catHeader">
+                <span className="catCode">{c.code}</span>
+                <span className="catDelta" style={{ color: c.delta.startsWith('+') ? '#4ade80' : '#ef4444' }}>
+                  {c.delta}
+                </span>
               </div>
-              <div className="catBar">
-                <div className="catBarFill" style={{ width: `${c.score}%`, background: c.color }} />
+              <div className="catLabel">{c.label}</div>
+              <div className="catScoreRow">
+                <span className="catScore">{c.score}</span>
+                <span className="catScoreMax">/100</span>
+              </div>
+              <div className="catBarBg">
+                <div className="catBarFill" style={{ width: `${c.score}%`, background: c.accent }} />
               </div>
             </div>
           ))}
         </div>
 
-        {/* AdSense slot ① — native curation card */}
         <div className="adWrap">
-          <AdSlot slot="home-top" variant="horizontal" label="home-top" />
+          <AdSlot slot="home-top" variant="horizontal" />
         </div>
 
         {/* ============ MY STATS ============ */}
-        <div className="statsHead">
-          <div className="statsHeadTitle">내 제작 현황</div>
+        <div className="blockHeading">
+          <span className="blockLabel">YOUR MISSION LOG</span>
         </div>
-        <section className="statsBar">
+        <div className="statGrid">
           <div className="statCard">
-            <div className="statCardLabel">누적 영상</div>
+            <div className="statCardLabel">TOTAL · GENERATED</div>
             <div className="statCardValue">{countUpTotal.toLocaleString()}</div>
-            <div className="statCardSub">전체 제작 횟수</div>
+            <div className="statCardSub">all videos · lifetime</div>
           </div>
           <div className="statCard">
-            <div className="statCardLabel">이번 달</div>
+            <div className="statCardLabel">THIS_MONTH</div>
             <div className="statCardValue">{countUpMonth.toLocaleString()}</div>
-            <div className="statCardSub">{new Date().getMonth() + 1}월 제작</div>
+            <div className="statCardSub">{new Date().getMonth() + 1}월 {new Date().getFullYear()}</div>
           </div>
           <div className="statCard">
-            <div className="statCardLabel">최근 제작</div>
+            <div className="statCardLabel">LAST_RUN</div>
             <div className="statCardValue" style={{ fontSize: 15 }}>
               {formatRelative(myStats.lastJobAt)}
             </div>
-            <div className="statCardSub">마지막 영상</div>
+            <div className="statCardSub">most recent</div>
           </div>
           <div className="statCard">
-            <div className="statCardLabel">사용 가능</div>
+            <div className="statCardLabel">AVAILABLE_NODES</div>
             <div className="statCardValue">{SCENARIOS.length}</div>
-            <div className="statCardSub">시나리오 스타일</div>
+            <div className="statCardSub">scenario patterns</div>
           </div>
-        </section>
+        </div>
 
-        {/* ============ AI SECTION ============ */}
+        {/* ============ AI RECOMMEND ============ */}
         <section id="ai-section" style={{ marginBottom: 32 }}>
-          <div className="sectionHead">
-            <div className="sectionTitle">
-              <span className="sectionNum">1</span>
-              AI 추천 시나리오
+          <div className="aiHead">
+            <div className="aiTitle">
+              AI Recommendation
+              <span className="aiTitleTag">NEURAL.PICK</span>
               {activeKeyword && (
-                <span className="sectionKwTag">
-                  · <strong>"{activeKeyword}"</strong>
+                <span className="kwActive">
+                  ▸ target: <strong>"{activeKeyword}"</strong>
                 </span>
               )}
             </div>
             {activeKeyword && !analyzing && (
-              <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
-                <span className="rerollHint">매번 다른 조합</span>
-                <button className="rerollBtn" onClick={handleReroll}>
-                  🎲 다시 추천{rerollCount > 0 ? ` · ${rerollCount}` : ''}
-                </button>
-              </div>
+              <button className="rerollBtn" onClick={handleReroll}>
+                ↻ RESHUFFLE{rerollCount > 0 ? ` · ${rerollCount}` : ''}
+              </button>
             )}
           </div>
 
           {!activeKeyword || analyzing ? (
-            <div className={`emptyState ${analyzing ? 'analyzing' : ''}`}>
-              <div className="emptyIcon">{analyzing ? '⚙️' : '🎯'}</div>
+            <div className={`emptyPanel ${analyzing ? 'analyzing' : ''}`}>
+              <div className={`emptyStatus ${analyzing ? 'live' : ''}`}>
+                {analyzing ? `▸ SCANNING NEURAL_NET` : '▸ AWAITING INPUT'}
+                {analyzing && (
+                  <span className="scanDots">
+                    <span className="scanDot" />
+                    <span className="scanDot" />
+                    <span className="scanDot" />
+                  </span>
+                )}
+              </div>
               <div className="emptyTitle">
-                {analyzing ? `"${activeKeyword}" 분석 중...` : '키워드를 입력해 AI 분석을 시작하세요'}
+                {analyzing ? `Analyzing "${activeKeyword}"` : 'Input keyword to begin'}
               </div>
               <div className="emptySub">
                 {analyzing
-                  ? '12가지 시나리오 중 블루오션 3개를 고르고 있어요'
-                  : 'AI가 12가지 시나리오 스타일 중 키워드에 최적화된 3가지를 추천합니다'}
+                  ? 'Neural engine is evaluating 12 scenario patterns and selecting top 3 matches by retention score'
+                  : 'AI evaluates 12 scenario patterns · selects 3 optimal matches · average analysis time 0.7s'}
               </div>
             </div>
           ) : (
-            <div className="scenarios">
+            <div className="scenGrid">
               {scenarios.map((s, i) => (
                 <div
                   key={`${s.id}-${rerollCount}-${i}`}
-                  className={`scenario ${i === 0 ? 'scenarioBest' : ''}`}
+                  className={`scen ${i === 0 ? 'scenBest' : ''}`}
                   onClick={() => handleStart(s.id)}
                 >
-                  {i === 0 && <div className="bestBadge">⭐ AI BEST</div>}
-                  <div className="scenarioHead">
-                    <span className="scenarioEmoji">{s.emoji}</span>
-                    <div className="scenarioTitleWrap">
-                      <div className="scenarioName">{s.name}</div>
-                      <div className="scenarioGroup">{s.group}</div>
+                  {i === 0 && <div className="bestBadge">▸ NEURAL.BEST</div>}
+                  <div className="scenHead">
+                    <span className="scenEmoji">{s.emoji}</span>
+                    <div className="scenTitleBlock">
+                      <div className="scenName">{s.name}</div>
+                      <div className="scenMeta">NODE · {s.group}</div>
                     </div>
                   </div>
-                  <div className="scenarioFlow">{s.flow}</div>
-                  <div className="scenarioDesc">{s.desc}</div>
+                  <div className="scenFlow">{s.flow}</div>
+                  <div className="scenDesc">{s.desc}</div>
 
-                  <div className="scenarioStats">
+                  <div className="scenStats">
                     <div className="sStat">
-                      <div className="sStatLabel">섹션</div>
-                      <div className="sStatValue">{s.sections}단</div>
+                      <div className="sStatLabel">SECTIONS</div>
+                      <div className="sStatValue">{s.sections}</div>
                     </div>
                     <div className="sStat">
-                      <div className="sStatLabel">유지율 벤치</div>
-                      <div className="sStatValue sStatRetention">{s.retention}%</div>
+                      <div className="sStatLabel">RETENTION</div>
+                      <div className="sStatValue sStatRet">{s.retention}%</div>
                     </div>
                   </div>
 
                   <button
-                    className={`scenarioBtn ${i === 0 ? 'scenarioBtnBest' : ''}`}
+                    className={`scenBtn ${i === 0 ? 'scenBtnBest' : ''}`}
                     onClick={(e) => { e.stopPropagation(); handleStart(s.id); }}
                   >
-                    {i === 0 ? '▶ 이 시나리오로 제작' : '이 시나리오 선택'}
+                    {i === 0 ? '▸ DEPLOY THIS' : 'SELECT'}
                   </button>
                 </div>
               ))}
@@ -1059,20 +1225,19 @@ export default function HomePage() {
           )}
         </section>
 
-        {/* AdSense slot ② — mid section */}
         <div className="adWrap">
-          <AdSlot slot="home-mid" variant="horizontal" label="home-mid" />
+          <AdSlot slot="home-mid" variant="horizontal" />
         </div>
 
-        {/* ============ STYLE LIBRARY ============ */}
-        <section className="libSection">
+        {/* ============ FULL LIBRARY ============ */}
+        <section className="libBlock">
           <div className="libHead">
             <div className="libTitle">
-              <span className="sectionNum">2</span>
-              전체 시나리오 라이브러리
+              Full Scenario Library
+              <span className="aiTitleTag">12 NODES</span>
             </div>
             <div className="libStats">
-              <strong>{SCENARIOS.length}가지</strong> 스타일 · 모두 무제한 사용
+              <strong>{SCENARIOS.length}</strong> patterns · unlimited use
             </div>
           </div>
 
@@ -1080,25 +1245,21 @@ export default function HomePage() {
             const items = SCENARIOS.filter((s) => s.group === group);
             return (
               <div key={group} className="libGroup">
-                <div className="libGroupLabel">
-                  <span>{group}</span>
-                  <span className="libGroupCount">{items.length}가지</span>
+                <div className="libGroupHead">
+                  <span className="libGroupLabel">▸ {group}</span>
+                  <span className="libGroupCount">{items.length} NODES</span>
                 </div>
                 <div className="libGrid">
                   {items.map((s) => (
-                    <div
-                      key={s.id}
-                      className="libItem"
-                      onClick={() => handleStart(s.id)}
-                    >
+                    <div key={s.id} className="libItem" onClick={() => handleStart(s.id)}>
                       <div className="libItemTop">
                         <span className="libItemEmoji">{s.emoji}</span>
                         <span className="libItemName">{s.name}</span>
                       </div>
                       <div className="libItemFlow">{s.flow}</div>
-                      <div className="libItemFooter">
-                        <span>{s.sectionPattern.length}단 구성</span>
-                        <span className="libItemRetention">유지율 {s.retention}%</span>
+                      <div className="libItemFoot">
+                        <span>{s.sectionPattern.length}_SECTIONS</span>
+                        <span className="libItemRet">RET {s.retention}%</span>
                       </div>
                     </div>
                   ))}
@@ -1108,9 +1269,8 @@ export default function HomePage() {
           })}
         </section>
 
-        {/* AdSense slot ③ — bottom  */}
         <div className="adWrap">
-          <AdSlot slot="home-bottom" variant="horizontal" label="home-bottom" />
+          <AdSlot slot="home-bottom" variant="horizontal" />
         </div>
       </div>
     </DashboardShell>
