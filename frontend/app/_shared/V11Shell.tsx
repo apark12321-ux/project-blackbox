@@ -1,10 +1,10 @@
 'use client';
 /**
- * V11Shell v5 — "크리에이터의 서재"
+ * V11Shell v6 — 최종 버전
  *
- * 컨셉: 따뜻한 베이지 + 테라코타/세이지/머스타드 포인트
- * 폰트: Pretendard만 (한글 최적)
- * 언어: 100% 한국어
+ * ✅ A번 로고 (정방형 심볼 + 재생 버튼 + 텍스트)
+ * ✅ 한글 기본, 보기 좋은 영문만 유지 (AlgoMaker, LIVE, AI, MP4 등)
+ * ✅ 따뜻한 서재 감성 (베이지 + 테라코타)
  */
 
 import Link from 'next/link';
@@ -66,13 +66,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-// 공지 메시지 — 모두 한글
+// 공지 — 한글 기본, 필요한 영문만
 const NOTICES = [
   { dot: '🔥', text: '이번 주 인기 키워드: "2026 금리 전망" · 블루오션 지수 94점', tag: '인기' },
   { dot: '📈', text: '경제·사회 카테고리 조회수 평균 38% 상승 (지난주 대비)', tag: '트렌드' },
   { dot: '💡', text: '미스터리 추적형 시나리오가 평균 유지율 95% 기록', tag: '팁' },
   { dot: '🎯', text: '이번 달 주목 카테고리: IT·자기계발 · 경쟁 강도 낮음', tag: '인기' },
-  { dot: '✨', text: '다큐 스타일 시나리오 업데이트 — 유지율 12% 향상', tag: '새소식' },
+  { dot: '✨', text: '다큐 스타일 업데이트 — 유지율 12% 향상', tag: '새소식' },
   { dot: '🎬', text: '어제 조회수 10만 돌파한 시나리오: "상식 깨기"', tag: '트렌드' },
 ];
 
@@ -94,6 +94,83 @@ function useTodayCounter() {
   return count;
 }
 
+// ============ 로고 컴포넌트 (재사용) ============
+function AlgoMakerLogo({ size = 'md', showSubtitle = true }: { size?: 'sm' | 'md' | 'lg'; showSubtitle?: boolean }) {
+  const symbolSize = size === 'sm' ? 30 : size === 'md' ? 36 : 48;
+  const textSize = size === 'sm' ? 16 : size === 'md' ? 19 : 24;
+  const subSize = size === 'sm' ? 9 : size === 'md' ? 10 : 11;
+  const playOffset = symbolSize * 0.3;
+  const borderRadius = symbolSize * 0.24;
+
+  return (
+    <div style={{ display: 'inline-flex', alignItems: 'center', gap: symbolSize * 0.32 }}>
+      {/* 정방형 심볼 */}
+      <div
+        style={{
+          width: symbolSize,
+          height: symbolSize,
+          borderRadius: borderRadius,
+          background: 'linear-gradient(135deg, #c65f3b 0%, #a64a2a 100%)',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          position: 'relative',
+          boxShadow: '0 2px 8px rgba(198, 95, 59, 0.25)',
+          flexShrink: 0,
+        }}
+      >
+        {/* 재생 삼각형 */}
+        <svg
+          width={symbolSize * 0.5}
+          height={symbolSize * 0.5}
+          viewBox="0 0 20 20"
+          style={{ position: 'relative', top: 0, left: 1 }}
+        >
+          <polygon points="4,3 4,17 17,10" fill="#ffffff" />
+        </svg>
+        {/* 하단 바 (영상 표식) */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: symbolSize * 0.18,
+            width: symbolSize * 0.4,
+            height: 2,
+            background: 'rgba(255, 255, 255, 0.5)',
+            borderRadius: 1,
+          }}
+        />
+      </div>
+
+      {/* 워드마크 */}
+      <div style={{ display: 'flex', flexDirection: 'column', lineHeight: 1 }}>
+        <div
+          style={{
+            fontSize: textSize,
+            fontWeight: 800,
+            color: '#2a2419',
+            letterSpacing: '-0.025em',
+          }}
+        >
+          Algo<span style={{ fontWeight: 400 }}>Maker</span>
+        </div>
+        {showSubtitle && (
+          <div
+            style={{
+              fontSize: subSize,
+              color: '#8a7d6a',
+              fontWeight: 600,
+              letterSpacing: '0.06em',
+              marginTop: 3,
+            }}
+          >
+            AI 영상 스튜디오
+          </div>
+        )}
+      </div>
+    </div>
+  );
+}
+
 function ShellInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
@@ -106,6 +183,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
     return () => clearInterval(t);
   }, []);
 
+  // 메뉴 — 한글
   const mainMenu = [
     { icon: '홈', label: '홈', path: '/', key: 'home' },
     { icon: '영상', label: '내 영상', path: '/assets', key: 'assets' },
@@ -141,41 +219,36 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-          /* 배경 */
-          --bg-warm: #f5f1ea;          /* 웜 베이지 (메인 배경) */
-          --bg-cream: #faf8f4;         /* 오프화이트 (카드 배경) */
-          --bg-paper: #ffffff;         /* 종이 흰 */
-          --bg-soft: #ece6db;          /* 부드러운 구분 */
+          --bg-warm: #f5f1ea;
+          --bg-cream: #faf8f4;
+          --bg-paper: #ffffff;
+          --bg-soft: #ece6db;
 
-          /* 텍스트 */
-          --ink-deep: #2a2419;         /* 딥 브라운 (본문) */
-          --ink-mid: #564a3a;          /* 미드 브라운 (부제목) */
-          --ink-soft: #8a7d6a;         /* 소프트 브라운 (보조) */
-          --ink-faint: #b8ad9b;        /* 흐린 (라벨) */
+          --ink-deep: #2a2419;
+          --ink-mid: #564a3a;
+          --ink-soft: #8a7d6a;
+          --ink-faint: #b8ad9b;
 
-          /* 포인트 색상 */
-          --terra: #c65f3b;            /* 테라코타 (메인 포인트) */
-          --terra-soft: #fdf1e7;       /* 테라코타 배경 */
-          --terra-deep: #a64a2a;       /* 테라코타 진함 */
+          --terra: #c65f3b;
+          --terra-soft: #fdf1e7;
+          --terra-deep: #a64a2a;
 
-          --sage: #7d9b7c;             /* 세이지 그린 */
+          --sage: #7d9b7c;
           --sage-soft: #eaf2ea;
           --sage-deep: #5e7e5d;
 
-          --mustard: #d4a545;          /* 머스타드 옐로 */
+          --mustard: #d4a545;
           --mustard-soft: #fbf3df;
           --mustard-deep: #a67e1e;
 
-          --dusk: #6b8cae;             /* 더스티 블루 */
+          --dusk: #6b8cae;
           --dusk-soft: #eaf0f5;
           --dusk-deep: #5a7a99;
 
-          /* 라인 */
           --line: rgba(90, 74, 58, 0.1);
           --line-soft: rgba(90, 74, 58, 0.06);
           --line-strong: rgba(90, 74, 58, 0.15);
 
-          /* 그림자 (종이 질감) */
           --shadow-card: 0 1px 2px rgba(90, 74, 58, 0.04), 0 2px 8px rgba(90, 74, 58, 0.05);
           --shadow-hover: 0 4px 8px rgba(90, 74, 58, 0.06), 0 8px 20px rgba(90, 74, 58, 0.08);
 
@@ -188,7 +261,6 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           color: var(--ink-deep);
           -webkit-font-smoothing: antialiased;
           -moz-osx-font-smoothing: grayscale;
-          font-feature-settings: 'ss02';
           letter-spacing: -0.008em;
         }
 
@@ -213,9 +285,9 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           background: var(--bg-warm);
         }
 
-        /* ============ SIDEBAR ============ */
+        /* SIDEBAR */
         .sidebar {
-          width: 232px;
+          width: 240px;
           background: var(--bg-cream);
           border-right: 1px solid var(--line-soft);
           padding: 20px 0 16px;
@@ -230,23 +302,13 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         }
 
         .sidebarHeader {
-          padding: 0 22px 18px;
+          padding: 0 20px 18px;
           border-bottom: 1px solid var(--line-soft);
           margin-bottom: 14px;
-        }
-        .brandRow {
           display: flex;
-          align-items: center;
           justify-content: space-between;
-          margin-bottom: 4px;
+          align-items: flex-start;
         }
-        .brand {
-          font-size: 19px;
-          font-weight: 800;
-          letter-spacing: -0.03em;
-          color: var(--ink-deep);
-        }
-        .brandMark { color: var(--terra); }
 
         .liveBadge {
           display: inline-flex;
@@ -259,6 +321,8 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           font-weight: 700;
           color: var(--sage-deep);
           letter-spacing: 0.02em;
+          flex-shrink: 0;
+          margin-top: 4px;
         }
         .liveDot {
           width: 5px; height: 5px;
@@ -269,12 +333,6 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.4; }
-        }
-        .brandSub {
-          font-size: 11px;
-          color: var(--ink-soft);
-          font-weight: 500;
-          letter-spacing: -0.005em;
         }
 
         /* Menu */
@@ -414,7 +472,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         }
 
         .sidebarFooter {
-          padding: 14px 22px 0;
+          padding: 14px 20px 0;
           border-top: 1px solid var(--line-soft);
         }
         .footerLabel {
@@ -436,7 +494,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           color: var(--ink-mid);
         }
 
-        /* ============ MAIN ============ */
+        /* MAIN */
         .main {
           flex: 1;
           min-width: 0;
@@ -570,7 +628,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           margin-top: 2px;
         }
 
-        /* ============ FOOTER ============ */
+        /* FOOTER */
         .footer {
           background: var(--bg-cream);
           border-top: 1px solid var(--line-soft);
@@ -587,14 +645,9 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           gap: 36px;
           margin-bottom: 32px;
         }
-        .fBrand {
-          font-size: 22px;
-          font-weight: 800;
-          color: var(--ink-deep);
-          letter-spacing: -0.025em;
-          margin-bottom: 10px;
+        .footerLogoBlock {
+          margin-bottom: 14px;
         }
-        .fBrandMark { color: var(--terra); }
         .fTag {
           font-size: 13px;
           color: var(--ink-mid);
@@ -692,20 +745,17 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         {/* ========== SIDEBAR ========== */}
         <aside className={`sidebar ${sidebarOpen ? 'sidebarOpen' : ''}`}>
           <div className="sidebarHeader">
-            <div className="brandRow">
-              <Link href="/" className="brand">
-                알고<span className="brandMark">메이커</span>
-              </Link>
-              <span className="liveBadge">
-                <span className="liveDot" />
-                운영중
-              </span>
-            </div>
-            <div className="brandSub">AI 유튜브 스튜디오</div>
+            <Link href="/">
+              <AlgoMakerLogo size="sm" showSubtitle={true} />
+            </Link>
+            <span className="liveBadge">
+              <span className="liveDot" />
+              운영중
+            </span>
           </div>
 
           <div className="menuGroup">
-            <div className="groupLabel">메인</div>
+            <div className="groupLabel">메뉴</div>
             {mainMenu.map((m) => (
               <div
                 key={m.key}
@@ -714,7 +764,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
               >
                 <span className="menuIcon">{m.icon}</span>
                 <span className="menuLabel">{m.label}</span>
-                {m.badge && <span className="menuBadge">실시간</span>}
+                {m.badge && <span className="menuBadge">LIVE</span>}
               </div>
             ))}
           </div>
@@ -739,7 +789,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           <div className="statsCard">
             <div className="statsTop">
               <span className="statsDot" />
-              <span className="statsLabel">오늘 · 실시간</span>
+              <span className="statsLabel">오늘 · LIVE</span>
             </div>
             <div className="statsValue">{todayCount.toLocaleString()}</div>
             <div className="statsSub">개 영상이 만들어졌어요</div>
@@ -800,11 +850,11 @@ function ShellInner({ children }: { children: React.ReactNode }) {
             <div className="footerInner">
               <div className="footerGrid">
                 <div>
-                  <div className="fBrand">
-                    알고<span className="fBrandMark">메이커</span>
+                  <div className="footerLogoBlock">
+                    <AlgoMakerLogo size="md" showSubtitle={false} />
                   </div>
                   <div className="fTag">
-                    키워드 하나로 유튜브 영상을 자동으로 만들어주는 AI 스튜디오입니다.
+                    키워드 하나로 유튜브 영상을 자동으로 만들어드리는 AI 스튜디오.
                     크리에이터의 시간을 돌려드립니다.
                   </div>
                   <div className="fCompany">
@@ -849,7 +899,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                 <div className="fLegal">
                   <Link href="/privacy">개인정보 처리방침</Link>
                   <Link href="/terms">이용약관</Link>
-                  <Link href="/contact">문의</Link>
+                  <Link href="/contact">Contact</Link>
                 </div>
               </div>
             </div>
@@ -859,3 +909,6 @@ function ShellInner({ children }: { children: React.ReactNode }) {
     </>
   );
 }
+
+// 로고를 Hero에서도 쓸 수 있게 export
+export { AlgoMakerLogo };
