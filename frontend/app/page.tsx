@@ -1,9 +1,9 @@
 'use client';
 /**
- * 홈 v3 — "Neural Lab" Mission Control
+ * 홈 v4 — "크리에이터의 서재"
  *
- * NASA 미션 컨트롤 + Cursor + Midjourney 느낌
- * 거대한 타이틀 + 네온 액센트 + 모노스페이스 데이터
+ * 따뜻한 베이지 배경 + 테라코타/세이지/머스타드 포인트
+ * 전부 한국어 · Pretendard만 사용 · 눈 편안한 밝기
  */
 
 import { useState, useEffect, useRef } from 'react';
@@ -13,27 +13,34 @@ import { SCENARIOS, pickRecommendedScenarios, getScenarioById, type ScenarioStyl
 import AdSlot from './_shared/AdSlot';
 
 const PLACEHOLDER_KEYWORDS = [
-  '2026 interest_rate forecast',
-  'AI tools TOP 5',
-  'senior health management',
-  'real_estate 2026',
-  'side_hustle investment',
+  '2026 금리 전망',
+  'AI 도구 TOP 5',
+  '시니어 건강 관리',
+  '부동산 2026 전망',
+  'N잡러 재테크',
 ];
 
 const TRENDING = [
-  { kw: '2026 금리 전망', delta: '+94%', priority: 'critical' as const },
-  { kw: 'AI 영상 자동화', delta: '+67%', priority: 'high' as const },
-  { kw: '시니어 건강 관리', delta: '+52%', priority: 'medium' as const },
-  { kw: '부동산 전망', delta: '+41%', priority: 'medium' as const },
-  { kw: 'N잡러 재테크', delta: '+38%', priority: 'low' as const },
+  { kw: '2026 금리 전망', delta: '94%', hot: true },
+  { kw: 'AI 영상 자동화', delta: '67%', hot: true },
+  { kw: '시니어 건강', delta: '52%', hot: false },
+  { kw: '부동산 전망', delta: '41%', hot: false },
+  { kw: 'N잡 재테크', delta: '38%', hot: false },
 ];
 
 const CATEGORIES = [
-  { code: 'CAT-01', label: '경제·사회', score: 87, delta: '+12', accent: '#00e5ff' },
-  { code: 'CAT-02', label: '정보·분석', score: 76, delta: '+6', accent: '#a855f7' },
-  { code: 'CAT-03', label: 'IT·자기계발', score: 94, delta: '+24', accent: '#4ade80' },
-  { code: 'CAT-04', label: '범용·라이프', score: 62, delta: '-3', accent: '#fbbf24' },
+  { label: '경제·사회', score: 87, delta: '+12', accent: 'terra' as const },
+  { label: '정보·분석', score: 76, delta: '+6', accent: 'dusk' as const },
+  { label: 'IT·자기계발', score: 94, delta: '+24', accent: 'sage' as const },
+  { label: '범용·라이프', score: 62, delta: '-3', accent: 'mustard' as const },
 ];
+
+const ACCENT_MAP = {
+  terra: { color: '#c65f3b', soft: '#fdf1e7', deep: '#a64a2a' },
+  sage: { color: '#7d9b7c', soft: '#eaf2ea', deep: '#5e7e5d' },
+  mustard: { color: '#d4a545', soft: '#fbf3df', deep: '#a67e1e' },
+  dusk: { color: '#6b8cae', soft: '#eaf0f5', deep: '#5a7a99' },
+};
 
 interface RecommendedScenario extends ScenarioStyle {
   sections: number;
@@ -72,18 +79,19 @@ function readMyStats(): MyStats {
 }
 
 function formatRelative(ts: number | null): string {
-  if (!ts) return '— IDLE';
+  if (!ts) return '아직 없음';
   const diff = Date.now() - ts;
   const min = Math.floor(diff / 60000);
-  if (min < 1) return 'T-00:00:01';
-  if (min < 60) return `T-00:${min.toString().padStart(2, '0')}:00`;
+  if (min < 1) return '방금 전';
+  if (min < 60) return `${min}분 전`;
   const hr = Math.floor(min / 60);
-  if (hr < 24) return `T-${hr.toString().padStart(2, '0')}:${(min % 60).toString().padStart(2, '0')}:00`;
+  if (hr < 24) return `${hr}시간 전`;
   const day = Math.floor(hr / 24);
-  return `${day}d ago`;
+  if (day < 30) return `${day}일 전`;
+  return new Date(ts).toLocaleDateString('ko-KR');
 }
 
-function useCountUp(target: number, duration = 1200) {
+function useCountUp(target: number, duration = 1000) {
   const [current, setCurrent] = useState(0);
   useEffect(() => {
     if (target === 0) { setCurrent(0); return; }
@@ -126,7 +134,6 @@ export default function HomePage() {
     return () => window.removeEventListener('storage', onStorage);
   }, []);
 
-  // Active user counter — live feel
   useEffect(() => {
     const t = setInterval(() => {
       setActiveUsers((u) => {
@@ -178,7 +185,7 @@ export default function HomePage() {
     if (!style) return;
     if (!activeKeyword.trim()) {
       inputRef.current?.focus();
-      alert('먼저 키워드를 입력하고 분석을 시작해주세요');
+      alert('먼저 키워드를 입력하고 AI 분석을 시작해주세요');
       return;
     }
     setProject({
@@ -191,52 +198,34 @@ export default function HomePage() {
     router.push('/keyword');
   };
 
-  const getTrendColor = (priority: string) => {
-    return priority === 'critical' ? '#ec4899' :
-           priority === 'high' ? '#00e5ff' :
-           priority === 'medium' ? '#a855f7' : '#606070';
-  };
-
   return (
     <DashboardShell>
       <style jsx>{`
         .page {
-          padding: 22px 28px 48px;
+          padding: 28px 32px 48px;
           max-width: 1440px;
           margin: 0 auto;
-          position: relative;
         }
 
         /* ============ HERO ============ */
         .hero {
           position: relative;
-          padding: 40px 36px 34px;
-          margin-bottom: 24px;
-          border: 1px solid var(--line);
-          border-radius: 14px;
+          padding: 36px 36px 30px;
+          margin-bottom: 28px;
+          border-radius: 20px;
           background:
-            radial-gradient(ellipse at 85% 20%, rgba(0,229,255,0.12) 0%, transparent 50%),
-            radial-gradient(ellipse at 15% 80%, rgba(168,85,247,0.1) 0%, transparent 50%),
-            linear-gradient(180deg, #0a0a0f 0%, #050507 100%);
+            radial-gradient(circle at 85% 15%, #fdf1e7 0%, transparent 55%),
+            radial-gradient(circle at 15% 80%, #eaf2ea 0%, transparent 55%),
+            #faf8f4;
+          border: 1px solid rgba(90, 74, 58, 0.06);
           overflow: hidden;
+          box-shadow: 0 2px 12px rgba(90, 74, 58, 0.04);
         }
         .hero::before {
           content: '';
           position: absolute;
-          top: 0; left: 0; right: 0;
-          height: 1px;
-          background: linear-gradient(90deg, transparent 0%, #00e5ff 50%, transparent 100%);
-          opacity: 0.6;
-        }
-        .hero::after {
-          content: '';
-          position: absolute;
           inset: 0;
-          background-image:
-            linear-gradient(rgba(0,229,255,0.03) 1px, transparent 1px),
-            linear-gradient(90deg, rgba(0,229,255,0.03) 1px, transparent 1px);
-          background-size: 32px 32px;
-          mask-image: radial-gradient(ellipse at center, black 0%, transparent 80%);
+          background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='60' height='60' viewBox='0 0 60 60'%3E%3Cpath d='M30 30L0 0M30 30L60 0M30 30L0 60M30 30L60 60' stroke='%23c65f3b' stroke-width='0.3' opacity='0.06'/%3E%3C/svg%3E");
           pointer-events: none;
         }
 
@@ -245,81 +234,65 @@ export default function HomePage() {
           justify-content: space-between;
           align-items: center;
           margin-bottom: 24px;
-          gap: 16px;
+          gap: 14px;
+          flex-wrap: wrap;
           position: relative;
           z-index: 1;
         }
-        .heroStatusGroup {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          flex-wrap: wrap;
-        }
-        .statusChip {
+        .heroStatus {
           display: inline-flex;
           align-items: center;
-          gap: 6px;
-          padding: 5px 10px;
-          background: rgba(74, 222, 128, 0.1);
-          border: 1px solid rgba(74, 222, 128, 0.3);
-          border-radius: 4px;
-          font-family: var(--font-mono);
-          font-size: 10px;
+          gap: 7px;
+          padding: 6px 12px;
+          background: #eaf2ea;
+          border-radius: 999px;
+          font-size: 11px;
           font-weight: 700;
-          color: #4ade80;
-          letter-spacing: 0.1em;
+          color: #5e7e5d;
+          letter-spacing: -0.01em;
         }
-        .statusDot2 {
-          width: 5px; height: 5px;
-          background: #4ade80;
+        .heroStatusDot {
+          width: 6px; height: 6px;
+          background: #7d9b7c;
           border-radius: 50%;
-          box-shadow: 0 0 8px #4ade80;
-          animation: statusPulse 1.8s infinite;
+          box-shadow: 0 0 8px rgba(125, 155, 124, 0.6);
+          animation: pulse 1.8s infinite;
         }
-        @keyframes statusPulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.4; transform: scale(0.8); }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
         }
-        .liveMetric {
-          font-family: var(--font-mono);
-          font-size: 10.5px;
-          color: var(--text-3);
-          letter-spacing: 0.04em;
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
+        .heroMeta {
+          font-size: 12px;
+          color: #8a7d6a;
+          font-weight: 500;
         }
-        .liveNum {
-          color: #00e5ff;
-          font-weight: 600;
+        .heroMeta strong {
+          color: #c65f3b;
+          font-weight: 700;
           font-variant-numeric: tabular-nums;
         }
 
         .heroTitle {
-          font-family: var(--font-display);
-          font-size: 48px;
-          font-weight: 700;
-          letter-spacing: -0.04em;
-          line-height: 1.05;
-          color: var(--text-0);
+          font-size: 40px;
+          font-weight: 800;
+          letter-spacing: -0.035em;
+          line-height: 1.15;
+          color: #2a2419;
           margin-bottom: 10px;
           position: relative;
           z-index: 1;
         }
-        .heroTitle .gradient {
-          background: linear-gradient(135deg, #00e5ff 0%, #a855f7 50%, #ec4899 100%);
-          -webkit-background-clip: text;
-          background-clip: text;
-          color: transparent;
+        .heroTitle .accent {
+          color: #c65f3b;
         }
         .heroSub {
-          font-family: var(--font-mono);
-          font-size: 13px;
-          color: var(--text-3);
-          margin-bottom: 26px;
-          max-width: 560px;
+          font-size: 15px;
+          color: #564a3a;
+          margin-bottom: 24px;
+          max-width: 600px;
           line-height: 1.6;
-          letter-spacing: 0.02em;
+          font-weight: 500;
           position: relative;
           z-index: 1;
         }
@@ -336,63 +309,58 @@ export default function HomePage() {
           flex: 1;
           position: relative;
         }
-        .kwPrefix {
+        .kwIcon {
           position: absolute;
-          left: 16px;
+          left: 18px;
           top: 50%;
           transform: translateY(-50%);
-          font-family: var(--font-mono);
-          font-size: 12px;
-          color: #00e5ff;
-          font-weight: 600;
+          font-size: 16px;
           pointer-events: none;
-          letter-spacing: 0.06em;
+          opacity: 0.5;
         }
         .kwInput {
           width: 100%;
-          padding: 15px 16px 15px 58px;
-          background: rgba(5, 5, 7, 0.8);
-          border: 1px solid var(--line);
-          border-radius: 8px;
+          padding: 16px 18px 16px 46px;
+          background: #fff;
+          border: 1px solid rgba(90, 74, 58, 0.1);
+          border-radius: 14px;
           font-size: 15px;
-          color: var(--text-0);
-          font-family: var(--font-sans);
-          transition: all 0.15s;
+          color: #2a2419;
+          font-family: inherit;
+          transition: all 0.18s;
           letter-spacing: -0.01em;
+          font-weight: 500;
         }
         .kwInput:focus {
           outline: none;
-          border-color: #00e5ff;
-          background: rgba(5, 5, 7, 0.95);
-          box-shadow: 0 0 0 3px rgba(0, 229, 255, 0.15), 0 0 20px rgba(0, 229, 255, 0.2);
+          border-color: #c65f3b;
+          box-shadow: 0 0 0 3px rgba(198, 95, 59, 0.1);
         }
         .kwInput::placeholder {
-          color: #404050;
-          font-family: var(--font-mono);
-          font-size: 13.5px;
+          color: #b8ad9b;
         }
         .kwBtn {
           padding: 0 26px;
-          background: linear-gradient(135deg, #00e5ff 0%, #a855f7 100%);
-          color: #050507;
+          background: linear-gradient(135deg, #c65f3b 0%, #a64a2a 100%);
+          color: #fff;
           border: none;
-          border-radius: 8px;
-          font-family: var(--font-mono);
-          font-size: 12px;
+          border-radius: 14px;
+          font-size: 14px;
           font-weight: 700;
           cursor: pointer;
+          font-family: inherit;
           white-space: nowrap;
-          letter-spacing: 0.1em;
-          transition: all 0.15s;
-          box-shadow: 0 0 0 1px transparent, 0 4px 20px rgba(0, 229, 255, 0.2);
+          letter-spacing: -0.01em;
+          transition: all 0.18s;
+          box-shadow: 0 2px 8px rgba(198, 95, 59, 0.25);
         }
         .kwBtn:hover:not(:disabled) {
           transform: translateY(-1px);
-          box-shadow: 0 0 0 1px #00e5ff, 0 6px 28px rgba(0, 229, 255, 0.4);
+          box-shadow: 0 4px 14px rgba(198, 95, 59, 0.4);
         }
         .kwBtn:disabled {
-          background: #15151f;
-          color: #404050;
+          background: #ece6db;
+          color: #b8ad9b;
           cursor: not-allowed;
           box-shadow: none;
         }
@@ -406,82 +374,107 @@ export default function HomePage() {
           z-index: 1;
         }
         .trendLabel {
-          font-family: var(--font-mono);
-          font-size: 10px;
-          color: var(--text-4);
-          letter-spacing: 0.12em;
-          margin-right: 4px;
+          font-size: 11px;
+          color: #8a7d6a;
+          font-weight: 700;
+          letter-spacing: -0.01em;
         }
         .trendChip {
           display: inline-flex;
           align-items: center;
-          gap: 7px;
-          padding: 5px 11px;
-          background: rgba(15, 15, 24, 0.8);
-          border: 1px solid var(--line);
-          border-radius: 4px;
-          font-size: 11.5px;
-          color: var(--text-2);
+          gap: 6px;
+          padding: 6px 12px;
+          background: #fff;
+          border: 1px solid rgba(90, 74, 58, 0.08);
+          border-radius: 999px;
+          font-size: 12px;
+          font-weight: 500;
+          color: #564a3a;
           cursor: pointer;
           transition: all 0.15s;
-          font-family: var(--font-sans);
         }
         .trendChip:hover {
-          background: rgba(21, 21, 31, 1);
-          color: var(--text-0);
+          background: #fdf1e7;
+          border-color: rgba(198, 95, 59, 0.25);
+          color: #a64a2a;
           transform: translateY(-1px);
         }
         .trendDelta {
-          font-family: var(--font-mono);
-          font-size: 10px;
+          font-size: 11px;
           font-weight: 700;
+          color: #5e7e5d;
+          font-variant-numeric: tabular-nums;
+        }
+        .trendHotMark {
+          font-size: 10px;
+          padding: 1px 6px;
+          background: #fdf1e7;
+          color: #c65f3b;
+          border-radius: 999px;
+          font-weight: 800;
+          letter-spacing: -0.01em;
         }
 
-        /* ============ CATEGORY GRID ============ */
+        /* ============ CATEGORY ============ */
+        .blockHead {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 14px;
+        }
+        .blockTitle {
+          font-size: 13px;
+          font-weight: 800;
+          color: #564a3a;
+          letter-spacing: -0.01em;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .blockTitle::before {
+          content: '';
+          width: 3px;
+          height: 14px;
+          background: #c65f3b;
+          border-radius: 2px;
+        }
+
         .catGrid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
           gap: 12px;
-          margin-bottom: 24px;
+          margin-bottom: 28px;
         }
         .catCard {
-          background: var(--bg-1);
-          border: 1px solid var(--line);
-          border-radius: 10px;
+          background: #faf8f4;
+          border: 1px solid rgba(90, 74, 58, 0.06);
+          border-radius: 14px;
           padding: 16px 18px;
-          position: relative;
-          overflow: hidden;
-          transition: all 0.2s;
+          transition: all 0.18s;
+          box-shadow: 0 1px 2px rgba(90, 74, 58, 0.03);
         }
         .catCard:hover {
           transform: translateY(-2px);
-          border-color: currentColor;
+          box-shadow: 0 4px 10px rgba(90, 74, 58, 0.06);
         }
-        .catHeader {
+        .catTop {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 10px;
-        }
-        .catCode {
-          font-family: var(--font-mono);
-          font-size: 9.5px;
-          color: var(--text-4);
-          letter-spacing: 0.1em;
-        }
-        .catDelta {
-          font-family: var(--font-mono);
-          font-size: 10px;
-          font-weight: 700;
-          padding: 2px 6px;
-          border-radius: 3px;
-          background: rgba(255,255,255,0.03);
+          margin-bottom: 8px;
         }
         .catLabel {
           font-size: 12.5px;
-          font-weight: 600;
-          color: var(--text-2);
-          margin-bottom: 4px;
+          font-weight: 700;
+          color: #2a2419;
+          letter-spacing: -0.01em;
+        }
+        .catDelta {
+          font-size: 11px;
+          font-weight: 700;
+          padding: 2px 7px;
+          border-radius: 5px;
+          font-variant-numeric: tabular-nums;
         }
         .catScoreRow {
           display: flex;
@@ -490,102 +483,71 @@ export default function HomePage() {
           margin-bottom: 10px;
         }
         .catScore {
-          font-family: var(--font-mono);
-          font-size: 28px;
-          font-weight: 700;
-          letter-spacing: -0.03em;
+          font-size: 32px;
+          font-weight: 800;
+          letter-spacing: -0.04em;
           line-height: 1;
           font-variant-numeric: tabular-nums;
         }
-        .catScoreMax {
-          font-family: var(--font-mono);
-          font-size: 12px;
-          color: var(--text-4);
+        .catMax {
+          font-size: 13px;
+          color: #b8ad9b;
+          font-weight: 600;
         }
-        .catBarBg {
-          height: 3px;
-          background: rgba(255,255,255,0.05);
-          border-radius: 1.5px;
+        .catBar {
+          height: 4px;
+          background: #ece6db;
+          border-radius: 2px;
           overflow: hidden;
-          position: relative;
         }
         .catBarFill {
           height: 100%;
-          border-radius: 1.5px;
+          border-radius: 2px;
           transition: width 1.2s cubic-bezier(0.22, 1, 0.36, 1);
-          box-shadow: 0 0 8px currentColor;
         }
 
         /* ============ AD WRAP ============ */
-        .adWrap { margin-bottom: 24px; }
+        .adWrap { margin-bottom: 28px; }
 
-        /* ============ STATS ============ */
-        .blockHeading {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          margin-bottom: 14px;
-        }
-        .blockLabel {
-          font-family: var(--font-mono);
-          font-size: 10.5px;
-          font-weight: 600;
-          color: var(--text-3);
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-        .blockLabel::before {
-          content: '';
-          width: 14px;
-          height: 1px;
-          background: var(--line-strong);
-        }
-
+        /* ============ MY STATS ============ */
         .statGrid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
-          gap: 10px;
-          margin-bottom: 32px;
+          gap: 12px;
+          margin-bottom: 36px;
         }
         .statCard {
-          background: var(--bg-1);
-          border: 1px solid var(--line);
-          border-radius: 10px;
-          padding: 16px 18px;
-          transition: all 0.2s;
-          position: relative;
-          overflow: hidden;
+          background: #faf8f4;
+          border: 1px solid rgba(90, 74, 58, 0.06);
+          border-radius: 14px;
+          padding: 18px 20px;
+          transition: all 0.18s;
+          box-shadow: 0 1px 2px rgba(90, 74, 58, 0.03);
         }
         .statCard:hover {
-          border-color: rgba(0, 229, 255, 0.3);
-          transform: translateY(-1px);
+          transform: translateY(-2px);
+          box-shadow: 0 4px 10px rgba(90, 74, 58, 0.06);
         }
         .statCardLabel {
-          font-family: var(--font-mono);
-          font-size: 9.5px;
-          font-weight: 600;
-          color: var(--text-4);
-          letter-spacing: 0.12em;
+          font-size: 11px;
+          font-weight: 700;
+          color: #8a7d6a;
+          letter-spacing: -0.01em;
           margin-bottom: 10px;
         }
         .statCardValue {
-          font-family: var(--font-mono);
-          font-size: 26px;
-          font-weight: 600;
-          color: var(--text-0);
-          letter-spacing: -0.03em;
+          font-size: 30px;
+          font-weight: 800;
+          color: #2a2419;
+          letter-spacing: -0.035em;
           line-height: 1;
-          margin-bottom: 4px;
+          margin-bottom: 5px;
           font-variant-numeric: tabular-nums;
         }
         .statCardSub {
-          font-family: var(--font-mono);
-          font-size: 10.5px;
-          color: var(--text-3);
-          letter-spacing: 0.02em;
+          font-size: 11.5px;
+          color: #8a7d6a;
+          font-weight: 500;
         }
 
         /* ============ AI SECTION ============ */
@@ -601,128 +563,96 @@ export default function HomePage() {
           display: inline-flex;
           align-items: center;
           gap: 12px;
-          font-family: var(--font-display);
           font-size: 22px;
-          font-weight: 700;
+          font-weight: 800;
           letter-spacing: -0.03em;
-          color: var(--text-0);
+          color: #2a2419;
         }
-        .aiTitleTag {
-          font-family: var(--font-mono);
-          font-size: 10.5px;
-          font-weight: 700;
-          color: #00e5ff;
-          background: rgba(0, 229, 255, 0.1);
-          border: 1px solid rgba(0, 229, 255, 0.3);
-          padding: 3px 8px;
-          border-radius: 4px;
-          letter-spacing: 0.1em;
-        }
-        .kwActive {
-          font-family: var(--font-mono);
-          font-size: 12px;
-          color: var(--text-3);
-          letter-spacing: 0.02em;
-        }
-        .kwActive strong {
-          color: #00e5ff;
-          font-weight: 600;
-        }
-
-        .rerollBtn {
-          padding: 7px 14px;
-          background: transparent;
-          border: 1px solid var(--line);
-          border-radius: 5px;
-          font-family: var(--font-mono);
-          font-size: 10.5px;
-          font-weight: 600;
-          cursor: pointer;
-          color: var(--text-2);
-          letter-spacing: 0.08em;
-          transition: all 0.15s;
+        .aiNumber {
+          width: 30px; height: 30px;
+          background: #c65f3b;
+          color: #fff;
+          border-radius: 9px;
           display: inline-flex;
           align-items: center;
-          gap: 6px;
+          justify-content: center;
+          font-size: 14px;
+          font-weight: 800;
+        }
+        .aiKwTag {
+          font-size: 14px;
+          color: #8a7d6a;
+          font-weight: 500;
+        }
+        .aiKwTag strong {
+          color: #c65f3b;
+          font-weight: 700;
+        }
+        .rerollBtn {
+          padding: 8px 14px;
+          background: #faf8f4;
+          border: 1px solid rgba(90, 74, 58, 0.08);
+          border-radius: 999px;
+          font-size: 12px;
+          font-weight: 700;
+          cursor: pointer;
+          color: #564a3a;
+          font-family: inherit;
+          transition: all 0.15s;
+          letter-spacing: -0.01em;
         }
         .rerollBtn:hover {
-          border-color: #00e5ff;
-          color: #00e5ff;
+          border-color: #c65f3b;
+          color: #c65f3b;
+          transform: translateY(-1px);
         }
 
         /* ============ EMPTY / ANALYZING ============ */
         .emptyPanel {
-          background: var(--bg-1);
-          border: 1px dashed var(--line);
-          border-radius: 12px;
+          background: #faf8f4;
+          border: 2px dashed rgba(90, 74, 58, 0.12);
+          border-radius: 16px;
           padding: 56px 28px;
           text-align: center;
           margin-bottom: 32px;
-          position: relative;
-          overflow: hidden;
+          transition: all 0.2s;
         }
         .emptyPanel.analyzing {
           border-style: solid;
-          border-color: #00e5ff;
-          background:
-            radial-gradient(circle at center, rgba(0, 229, 255, 0.05) 0%, transparent 70%),
-            var(--bg-1);
+          border-color: #c65f3b;
+          background: linear-gradient(180deg, #fdf1e7 0%, #faf8f4 60%);
         }
-        .emptyPanel.analyzing::before {
-          content: '';
-          position: absolute;
-          top: 0; left: -100%;
-          width: 100%;
-          height: 2px;
-          background: linear-gradient(90deg, transparent, #00e5ff, transparent);
-          animation: scan 2s linear infinite;
+        .emptyIcon {
+          font-size: 40px;
+          margin-bottom: 14px;
+          display: inline-block;
         }
-        @keyframes scan {
-          to { left: 100%; }
+        .emptyIcon.bobbing {
+          animation: bob 2.5s infinite;
         }
-        .emptyStatus {
-          font-family: var(--font-mono);
-          font-size: 10px;
-          letter-spacing: 0.15em;
-          color: var(--text-3);
-          margin-bottom: 16px;
+        @keyframes bob {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(-6px); }
         }
-        .emptyStatus.live {
-          color: #00e5ff;
+        .emptyIcon.spinning {
+          animation: spin 1.2s linear infinite;
+        }
+        @keyframes spin {
+          to { transform: rotate(360deg); }
         }
         .emptyTitle {
-          font-family: var(--font-display);
-          font-size: 20px;
-          font-weight: 700;
-          color: var(--text-0);
+          font-size: 17px;
+          font-weight: 800;
+          color: #2a2419;
           margin-bottom: 8px;
-          letter-spacing: -0.02em;
+          letter-spacing: -0.025em;
         }
         .emptySub {
-          font-family: var(--font-mono);
-          font-size: 12px;
-          color: var(--text-3);
-          line-height: 1.65;
+          font-size: 13px;
+          color: #8a7d6a;
+          line-height: 1.7;
           max-width: 380px;
           margin: 0 auto;
-          letter-spacing: 0.02em;
-        }
-        .scanDots {
-          display: inline-flex;
-          gap: 4px;
-          margin-left: 6px;
-        }
-        .scanDot {
-          width: 4px; height: 4px;
-          background: #00e5ff;
-          border-radius: 50%;
-          animation: scanDot 1.2s infinite;
-        }
-        .scanDot:nth-child(2) { animation-delay: 0.15s; }
-        .scanDot:nth-child(3) { animation-delay: 0.3s; }
-        @keyframes scanDot {
-          0%, 60%, 100% { opacity: 0.3; }
-          30% { opacity: 1; box-shadow: 0 0 6px #00e5ff; }
         }
 
         /* ============ SCENARIOS ============ */
@@ -733,198 +663,174 @@ export default function HomePage() {
           margin-bottom: 40px;
         }
         .scen {
-          background: var(--bg-1);
-          border: 1px solid var(--line);
-          border-radius: 12px;
-          padding: 20px;
+          background: #faf8f4;
+          border: 1px solid rgba(90, 74, 58, 0.06);
+          border-radius: 16px;
+          padding: 22px;
           position: relative;
           cursor: pointer;
           transition: all 0.22s;
-          overflow: hidden;
-        }
-        .scen::before {
-          content: '';
-          position: absolute;
-          top: 0; left: 0; right: 0;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, rgba(0,229,255,0.4), transparent);
-          opacity: 0;
-          transition: opacity 0.2s;
+          box-shadow: 0 1px 2px rgba(90, 74, 58, 0.03);
         }
         .scen:hover {
-          border-color: rgba(0, 229, 255, 0.4);
           transform: translateY(-3px);
-          box-shadow: 0 8px 32px rgba(0, 229, 255, 0.08);
+          box-shadow: 0 8px 20px rgba(90, 74, 58, 0.08);
         }
-        .scen:hover::before { opacity: 1; }
-
         .scenBest {
-          border-color: #00e5ff;
-          background: linear-gradient(180deg, rgba(0, 229, 255, 0.04) 0%, var(--bg-1) 40%);
-          box-shadow: 0 0 40px rgba(0, 229, 255, 0.08);
-        }
-        .scenBest::before {
-          opacity: 1;
-          background: linear-gradient(90deg, transparent, #00e5ff, transparent);
+          border: 2px solid #c65f3b;
+          background: linear-gradient(180deg, #fdf1e7 0%, #faf8f4 30%);
         }
         .bestBadge {
           position: absolute;
-          top: -10px; left: 16px;
-          padding: 3px 10px;
-          background: #00e5ff;
-          color: #050507;
-          border-radius: 3px;
-          font-family: var(--font-mono);
-          font-size: 9.5px;
-          font-weight: 700;
-          letter-spacing: 0.12em;
-          box-shadow: 0 0 16px rgba(0, 229, 255, 0.6);
+          top: -11px; left: 18px;
+          padding: 4px 11px;
+          background: linear-gradient(135deg, #c65f3b 0%, #a64a2a 100%);
+          color: #fff;
+          border-radius: 999px;
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: -0.01em;
+          box-shadow: 0 2px 6px rgba(198, 95, 59, 0.3);
         }
-
         .scenHead {
           display: flex;
           align-items: flex-start;
-          gap: 10px;
+          gap: 12px;
           margin-bottom: 14px;
         }
         .scenEmoji {
-          font-size: 26px;
+          font-size: 28px;
           line-height: 1;
-          filter: grayscale(0.2);
         }
-        .scenTitleBlock { flex: 1; min-width: 0; }
+        .scenTitleBlock {
+          flex: 1;
+          min-width: 0;
+        }
         .scenName {
-          font-family: var(--font-display);
           font-size: 16px;
-          font-weight: 700;
-          color: var(--text-0);
+          font-weight: 800;
+          color: #2a2419;
           letter-spacing: -0.02em;
           margin-bottom: 3px;
         }
-        .scenMeta {
-          font-family: var(--font-mono);
-          font-size: 10px;
-          color: var(--text-4);
-          letter-spacing: 0.06em;
+        .scenGroup {
+          font-size: 11.5px;
+          color: #8a7d6a;
+          font-weight: 600;
         }
         .scenFlow {
-          font-family: var(--font-mono);
-          font-size: 11px;
-          color: var(--text-2);
+          font-size: 12px;
+          color: #564a3a;
           line-height: 1.6;
-          margin-bottom: 10px;
-          padding: 9px 11px;
-          background: var(--bg-0);
-          border: 1px solid var(--line-dim);
-          border-radius: 6px;
-          letter-spacing: 0.01em;
+          margin-bottom: 12px;
+          padding: 10px 12px;
+          background: #fff;
+          border: 1px solid rgba(90, 74, 58, 0.06);
+          border-radius: 10px;
+          font-weight: 500;
         }
         .scenDesc {
-          font-size: 12px;
-          color: var(--text-3);
+          font-size: 12.5px;
+          color: #8a7d6a;
           line-height: 1.65;
           margin-bottom: 14px;
         }
         .scenStats {
           display: grid;
           grid-template-columns: 1fr 1fr;
-          gap: 6px;
+          gap: 8px;
           margin-bottom: 14px;
         }
         .sStat {
-          padding: 8px 10px;
-          background: var(--bg-0);
-          border: 1px solid var(--line-dim);
-          border-radius: 5px;
+          padding: 9px 11px;
+          background: #fff;
+          border: 1px solid rgba(90, 74, 58, 0.06);
+          border-radius: 9px;
         }
         .sStatLabel {
-          font-family: var(--font-mono);
-          font-size: 8.5px;
-          color: var(--text-4);
-          letter-spacing: 0.1em;
+          font-size: 10px;
+          font-weight: 700;
+          color: #8a7d6a;
+          letter-spacing: -0.01em;
           margin-bottom: 3px;
         }
         .sStatValue {
-          font-family: var(--font-mono);
           font-size: 15px;
-          font-weight: 600;
-          color: var(--text-0);
+          font-weight: 800;
+          color: #2a2419;
           letter-spacing: -0.02em;
           line-height: 1;
+          font-variant-numeric: tabular-nums;
         }
-        .sStatRet {
-          color: #4ade80;
-        }
+        .sStatRet { color: #5e7e5d; }
 
         .scenBtn {
           width: 100%;
-          padding: 11px;
-          background: transparent;
-          color: var(--text-2);
-          border: 1px solid var(--line);
-          border-radius: 6px;
-          font-family: var(--font-mono);
-          font-size: 11px;
-          font-weight: 600;
+          padding: 12px;
+          background: #faf8f4;
+          color: #2a2419;
+          border: 1px solid rgba(90, 74, 58, 0.1);
+          border-radius: 11px;
+          font-family: inherit;
+          font-size: 13px;
+          font-weight: 700;
           cursor: pointer;
-          letter-spacing: 0.1em;
+          letter-spacing: -0.01em;
           transition: all 0.15s;
         }
         .scenBtn:hover {
-          border-color: #00e5ff;
-          color: #00e5ff;
+          border-color: #c65f3b;
+          color: #c65f3b;
+          background: #fff;
         }
         .scenBtnBest {
-          background: #00e5ff;
-          color: #050507;
-          border-color: #00e5ff;
+          background: linear-gradient(135deg, #c65f3b 0%, #a64a2a 100%);
+          color: #fff;
+          border-color: transparent;
         }
         .scenBtnBest:hover {
-          background: transparent;
-          color: #00e5ff;
-          box-shadow: 0 0 16px rgba(0, 229, 255, 0.4);
+          background: linear-gradient(135deg, #a64a2a 0%, #8a3a1c 100%);
+          color: #fff;
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(198, 95, 59, 0.3);
         }
 
         /* ============ LIBRARY ============ */
         .libBlock {
-          background: var(--bg-1);
-          border: 1px solid var(--line);
-          border-radius: 12px;
-          padding: 24px;
-          margin-bottom: 24px;
+          background: #faf8f4;
+          border: 1px solid rgba(90, 74, 58, 0.06);
+          border-radius: 18px;
+          padding: 28px;
+          margin-bottom: 28px;
+          box-shadow: 0 1px 2px rgba(90, 74, 58, 0.03);
         }
         .libHead {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 22px;
+          margin-bottom: 24px;
           flex-wrap: wrap;
           gap: 12px;
         }
         .libTitle {
-          font-family: var(--font-display);
-          font-size: 18px;
-          font-weight: 700;
-          color: var(--text-0);
-          letter-spacing: -0.025em;
           display: inline-flex;
           align-items: center;
           gap: 12px;
+          font-size: 19px;
+          font-weight: 800;
+          color: #2a2419;
+          letter-spacing: -0.025em;
         }
         .libStats {
-          font-family: var(--font-mono);
-          font-size: 11px;
-          color: var(--text-3);
-          letter-spacing: 0.04em;
+          font-size: 12px;
+          color: #8a7d6a;
+          font-weight: 500;
         }
         .libStats strong {
-          color: #00e5ff;
-          font-weight: 600;
+          color: #c65f3b;
+          font-weight: 700;
         }
-
-        .libGroup {
-          margin-bottom: 22px;
-        }
+        .libGroup { margin-bottom: 26px; }
         .libGroup:last-child { margin-bottom: 0; }
         .libGroupHead {
           display: flex;
@@ -932,79 +838,70 @@ export default function HomePage() {
           align-items: center;
           padding-bottom: 10px;
           margin-bottom: 12px;
-          border-bottom: 1px solid var(--line-dim);
+          border-bottom: 1px solid rgba(90, 74, 58, 0.08);
         }
         .libGroupLabel {
-          font-family: var(--font-mono);
-          font-size: 10.5px;
-          font-weight: 600;
-          color: var(--text-2);
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
+          font-size: 13px;
+          font-weight: 800;
+          color: #2a2419;
+          letter-spacing: -0.015em;
         }
         .libGroupCount {
-          font-family: var(--font-mono);
-          font-size: 9.5px;
-          color: var(--text-4);
-          letter-spacing: 0.1em;
+          font-size: 11px;
+          color: #8a7d6a;
+          font-weight: 600;
         }
         .libGrid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+          grid-template-columns: repeat(auto-fill, minmax(230px, 1fr));
           gap: 10px;
         }
         .libItem {
           padding: 14px;
-          background: var(--bg-2);
-          border: 1px solid var(--line-dim);
-          border-radius: 8px;
+          background: #fff;
+          border: 1px solid rgba(90, 74, 58, 0.06);
+          border-radius: 12px;
           cursor: pointer;
           transition: all 0.15s;
         }
         .libItem:hover {
-          background: var(--bg-3);
-          border-color: rgba(0, 229, 255, 0.3);
+          background: #fdf1e7;
+          border-color: rgba(198, 95, 59, 0.2);
           transform: translateY(-1px);
         }
         .libItemTop {
           display: flex;
           align-items: center;
-          gap: 8px;
+          gap: 9px;
           margin-bottom: 8px;
         }
         .libItemEmoji {
-          font-size: 18px;
+          font-size: 20px;
           flex-shrink: 0;
-          filter: grayscale(0.2);
         }
         .libItemName {
-          font-family: var(--font-display);
-          font-size: 13px;
-          font-weight: 700;
-          color: var(--text-0);
+          font-size: 13.5px;
+          font-weight: 800;
+          color: #2a2419;
           flex: 1;
-          letter-spacing: -0.01em;
+          letter-spacing: -0.015em;
         }
         .libItemFlow {
-          font-family: var(--font-mono);
-          font-size: 10.5px;
-          color: var(--text-3);
-          line-height: 1.5;
+          font-size: 11.5px;
+          color: #564a3a;
+          line-height: 1.55;
           margin-bottom: 10px;
-          letter-spacing: 0.01em;
+          font-weight: 500;
         }
         .libItemFoot {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          font-family: var(--font-mono);
-          font-size: 9.5px;
-          color: var(--text-4);
-          letter-spacing: 0.04em;
+          font-size: 10.5px;
+          color: #8a7d6a;
+          font-weight: 600;
         }
-        .libItemRet {
-          color: #4ade80;
-        }
+        .libItemRet { color: #5e7e5d; }
 
         @media (max-width: 1024px) {
           .scenGrid { grid-template-columns: 1fr; }
@@ -1013,8 +910,8 @@ export default function HomePage() {
         }
         @media (max-width: 768px) {
           .page { padding: 18px 16px 40px; }
-          .hero { padding: 28px 22px; }
-          .heroTitle { font-size: 32px; }
+          .hero { padding: 26px 20px; border-radius: 16px; }
+          .heroTitle { font-size: 28px; }
           .kwForm { flex-direction: column; }
           .kwBtn { width: 100%; padding: 14px; }
           .statGrid { grid-template-columns: 1fr 1fr; gap: 8px; }
@@ -1027,35 +924,30 @@ export default function HomePage() {
         {/* ============ HERO ============ */}
         <section className="hero">
           <div className="heroTop">
-            <div className="heroStatusGroup">
-              <span className="statusChip">
-                <span className="statusDot2" />
-                AI · SYSTEM ONLINE
-              </span>
-              <span className="liveMetric">
-                <span>▸</span>
-                <span className="liveNum">{activeUsers.toLocaleString()}</span>
-                <span>active sessions</span>
-              </span>
-            </div>
+            <span className="heroStatus">
+              <span className="heroStatusDot" />
+              AI 분석 · 실시간 가동중
+            </span>
+            <span className="heroMeta">
+              지금 <strong>{activeUsers.toLocaleString()}</strong>명이 영상을 제작 중
+            </span>
           </div>
 
           <h1 className="heroTitle">
-            <span className="gradient">Neural</span><br />
-            Video Studio.
+            오늘은 어떤 영상을<br />
+            만들어볼까요<span className="accent">?</span>
           </h1>
           <p className="heroSub">
-            {'>'} Input keyword · AI generates 3 optimal scenarios from 12 neural patterns<br />
-            {'>'} Blue-ocean analysis · auto-scripted · voice-synthesized · full pipeline
+            키워드 하나만 입력하면 AI가 12가지 구조 중 최적의 시나리오 3가지를 0.7초 안에 골라드려요.
           </p>
 
           <div className="kwForm">
             <div className="kwInputWrap">
-              <span className="kwPrefix">{'>'}</span>
+              <span className="kwIcon">🔍</span>
               <input
                 ref={inputRef}
                 className="kwInput"
-                placeholder={PLACEHOLDER_KEYWORDS[placeholderIdx]}
+                placeholder={`예: ${PLACEHOLDER_KEYWORDS[placeholderIdx]}`}
                 value={keyword}
                 onChange={(e) => setKeyword(e.target.value)}
                 onKeyDown={(e) => e.key === 'Enter' && handleAnalyze()}
@@ -1063,51 +955,56 @@ export default function HomePage() {
               />
             </div>
             <button className="kwBtn" onClick={handleAnalyze} disabled={!keyword.trim() || analyzing}>
-              {analyzing ? 'ANALYZING...' : 'EXECUTE ▸'}
+              {analyzing ? '분석 중...' : 'AI 분석 시작'}
             </button>
           </div>
 
           <div className="trendRow">
-            <span className="trendLabel">▸ LIVE TRENDS</span>
+            <span className="trendLabel">🔥 실시간 인기 키워드</span>
             {TRENDING.map((t, i) => (
-              <span
-                key={i}
-                className="trendChip"
-                onClick={() => handleTrendClick(t.kw)}
-                style={{ borderColor: `${getTrendColor(t.priority)}33` }}
-              >
+              <span key={i} className="trendChip" onClick={() => handleTrendClick(t.kw)}>
                 <span>{t.kw}</span>
-                <span className="trendDelta" style={{ color: getTrendColor(t.priority) }}>
-                  {t.delta}
-                </span>
+                <span className="trendDelta">+{t.delta}</span>
+                {t.hot && <span className="trendHotMark">인기</span>}
               </span>
             ))}
           </div>
         </section>
 
-        {/* ============ CATEGORY RADAR ============ */}
-        <div className="blockHeading">
-          <span className="blockLabel">CATEGORY RADAR · BLUE OCEAN INDEX</span>
+        {/* ============ CATEGORY ============ */}
+        <div className="blockHead">
+          <span className="blockTitle">카테고리별 블루오션 지수</span>
         </div>
         <div className="catGrid">
-          {CATEGORIES.map((c) => (
-            <div key={c.code} className="catCard" style={{ color: c.accent }}>
-              <div className="catHeader">
-                <span className="catCode">{c.code}</span>
-                <span className="catDelta" style={{ color: c.delta.startsWith('+') ? '#4ade80' : '#ef4444' }}>
-                  {c.delta}
-                </span>
+          {CATEGORIES.map((c, i) => {
+            const accent = ACCENT_MAP[c.accent];
+            return (
+              <div key={i} className="catCard">
+                <div className="catTop">
+                  <span className="catLabel">{c.label}</span>
+                  <span
+                    className="catDelta"
+                    style={{
+                      background: c.delta.startsWith('+') ? '#eaf2ea' : '#fce8e8',
+                      color: c.delta.startsWith('+') ? '#5e7e5d' : '#b94a4a',
+                    }}
+                  >
+                    {c.delta}
+                  </span>
+                </div>
+                <div className="catScoreRow">
+                  <span className="catScore" style={{ color: accent.color }}>{c.score}</span>
+                  <span className="catMax">/ 100</span>
+                </div>
+                <div className="catBar">
+                  <div
+                    className="catBarFill"
+                    style={{ width: `${c.score}%`, background: accent.color }}
+                  />
+                </div>
               </div>
-              <div className="catLabel">{c.label}</div>
-              <div className="catScoreRow">
-                <span className="catScore">{c.score}</span>
-                <span className="catScoreMax">/100</span>
-              </div>
-              <div className="catBarBg">
-                <div className="catBarFill" style={{ width: `${c.score}%`, background: c.accent }} />
-              </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
 
         <div className="adWrap">
@@ -1115,31 +1012,31 @@ export default function HomePage() {
         </div>
 
         {/* ============ MY STATS ============ */}
-        <div className="blockHeading">
-          <span className="blockLabel">YOUR MISSION LOG</span>
+        <div className="blockHead">
+          <span className="blockTitle">나의 제작 현황</span>
         </div>
         <div className="statGrid">
           <div className="statCard">
-            <div className="statCardLabel">TOTAL · GENERATED</div>
+            <div className="statCardLabel">누적 영상</div>
             <div className="statCardValue">{countUpTotal.toLocaleString()}</div>
-            <div className="statCardSub">all videos · lifetime</div>
+            <div className="statCardSub">지금까지 만든 영상</div>
           </div>
           <div className="statCard">
-            <div className="statCardLabel">THIS_MONTH</div>
+            <div className="statCardLabel">이번 달</div>
             <div className="statCardValue">{countUpMonth.toLocaleString()}</div>
-            <div className="statCardSub">{new Date().getMonth() + 1}월 {new Date().getFullYear()}</div>
+            <div className="statCardSub">{new Date().getMonth() + 1}월 제작 횟수</div>
           </div>
           <div className="statCard">
-            <div className="statCardLabel">LAST_RUN</div>
-            <div className="statCardValue" style={{ fontSize: 15 }}>
+            <div className="statCardLabel">최근 제작</div>
+            <div className="statCardValue" style={{ fontSize: 17 }}>
               {formatRelative(myStats.lastJobAt)}
             </div>
-            <div className="statCardSub">most recent</div>
+            <div className="statCardSub">마지막 영상</div>
           </div>
           <div className="statCard">
-            <div className="statCardLabel">AVAILABLE_NODES</div>
+            <div className="statCardLabel">사용 가능 스타일</div>
             <div className="statCardValue">{SCENARIOS.length}</div>
-            <div className="statCardSub">scenario patterns</div>
+            <div className="statCardSub">시나리오 종류</div>
           </div>
         </div>
 
@@ -1147,40 +1044,33 @@ export default function HomePage() {
         <section id="ai-section" style={{ marginBottom: 32 }}>
           <div className="aiHead">
             <div className="aiTitle">
-              AI Recommendation
-              <span className="aiTitleTag">NEURAL.PICK</span>
+              <span className="aiNumber">1</span>
+              AI 추천 시나리오
               {activeKeyword && (
-                <span className="kwActive">
-                  ▸ target: <strong>"{activeKeyword}"</strong>
+                <span className="aiKwTag">
+                  · <strong>"{activeKeyword}"</strong>
                 </span>
               )}
             </div>
             {activeKeyword && !analyzing && (
               <button className="rerollBtn" onClick={handleReroll}>
-                ↻ RESHUFFLE{rerollCount > 0 ? ` · ${rerollCount}` : ''}
+                🎲 다시 추천{rerollCount > 0 ? ` · ${rerollCount}` : ''}
               </button>
             )}
           </div>
 
           {!activeKeyword || analyzing ? (
             <div className={`emptyPanel ${analyzing ? 'analyzing' : ''}`}>
-              <div className={`emptyStatus ${analyzing ? 'live' : ''}`}>
-                {analyzing ? `▸ SCANNING NEURAL_NET` : '▸ AWAITING INPUT'}
-                {analyzing && (
-                  <span className="scanDots">
-                    <span className="scanDot" />
-                    <span className="scanDot" />
-                    <span className="scanDot" />
-                  </span>
-                )}
+              <div className={`emptyIcon ${analyzing ? 'spinning' : 'bobbing'}`}>
+                {analyzing ? '⚙️' : '🎯'}
               </div>
               <div className="emptyTitle">
-                {analyzing ? `Analyzing "${activeKeyword}"` : 'Input keyword to begin'}
+                {analyzing ? `"${activeKeyword}" 분석 중이에요` : '키워드를 입력하면 AI가 추천해드려요'}
               </div>
               <div className="emptySub">
                 {analyzing
-                  ? 'Neural engine is evaluating 12 scenario patterns and selecting top 3 matches by retention score'
-                  : 'AI evaluates 12 scenario patterns · selects 3 optimal matches · average analysis time 0.7s'}
+                  ? '12가지 시나리오 스타일 중 최적의 3가지를 고르고 있어요'
+                  : '12가지 스타일 중 키워드에 가장 잘 맞는 3가지를 골라드려요'}
               </div>
             </div>
           ) : (
@@ -1191,12 +1081,12 @@ export default function HomePage() {
                   className={`scen ${i === 0 ? 'scenBest' : ''}`}
                   onClick={() => handleStart(s.id)}
                 >
-                  {i === 0 && <div className="bestBadge">▸ NEURAL.BEST</div>}
+                  {i === 0 && <div className="bestBadge">⭐ AI 추천 1위</div>}
                   <div className="scenHead">
                     <span className="scenEmoji">{s.emoji}</span>
                     <div className="scenTitleBlock">
                       <div className="scenName">{s.name}</div>
-                      <div className="scenMeta">NODE · {s.group}</div>
+                      <div className="scenGroup">{s.group}</div>
                     </div>
                   </div>
                   <div className="scenFlow">{s.flow}</div>
@@ -1204,11 +1094,11 @@ export default function HomePage() {
 
                   <div className="scenStats">
                     <div className="sStat">
-                      <div className="sStatLabel">SECTIONS</div>
-                      <div className="sStatValue">{s.sections}</div>
+                      <div className="sStatLabel">섹션 수</div>
+                      <div className="sStatValue">{s.sections}단</div>
                     </div>
                     <div className="sStat">
-                      <div className="sStatLabel">RETENTION</div>
+                      <div className="sStatLabel">유지율</div>
                       <div className="sStatValue sStatRet">{s.retention}%</div>
                     </div>
                   </div>
@@ -1217,7 +1107,7 @@ export default function HomePage() {
                     className={`scenBtn ${i === 0 ? 'scenBtnBest' : ''}`}
                     onClick={(e) => { e.stopPropagation(); handleStart(s.id); }}
                   >
-                    {i === 0 ? '▸ DEPLOY THIS' : 'SELECT'}
+                    {i === 0 ? '이 스타일로 만들기 →' : '이 스타일 선택'}
                   </button>
                 </div>
               ))}
@@ -1233,11 +1123,11 @@ export default function HomePage() {
         <section className="libBlock">
           <div className="libHead">
             <div className="libTitle">
-              Full Scenario Library
-              <span className="aiTitleTag">12 NODES</span>
+              <span className="aiNumber">2</span>
+              전체 시나리오 라이브러리
             </div>
             <div className="libStats">
-              <strong>{SCENARIOS.length}</strong> patterns · unlimited use
+              <strong>{SCENARIOS.length}가지</strong> 스타일 · 모두 무제한 사용
             </div>
           </div>
 
@@ -1246,8 +1136,8 @@ export default function HomePage() {
             return (
               <div key={group} className="libGroup">
                 <div className="libGroupHead">
-                  <span className="libGroupLabel">▸ {group}</span>
-                  <span className="libGroupCount">{items.length} NODES</span>
+                  <span className="libGroupLabel">{group}</span>
+                  <span className="libGroupCount">{items.length}가지</span>
                 </div>
                 <div className="libGrid">
                   {items.map((s) => (
@@ -1258,8 +1148,8 @@ export default function HomePage() {
                       </div>
                       <div className="libItemFlow">{s.flow}</div>
                       <div className="libItemFoot">
-                        <span>{s.sectionPattern.length}_SECTIONS</span>
-                        <span className="libItemRet">RET {s.retention}%</span>
+                        <span>{s.sectionPattern.length}단 구성</span>
+                        <span className="libItemRet">유지율 {s.retention}%</span>
                       </div>
                     </div>
                   ))}
