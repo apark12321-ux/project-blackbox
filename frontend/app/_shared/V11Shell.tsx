@@ -1,14 +1,11 @@
 'use client';
 /**
- * V11Shell v2 — "살아있는 스튜디오" 버전
+ * V11Shell v3 — AdSense Ready
  *
- * 업그레이드:
- * - 로고 옆 작은 LIVE dot + 실시간 카운터
- * - 사이드바 하단: 오늘 생성된 영상 N개 (실시간 느낌 숫자)
- * - 광고 슬롯 → 네이티브 카드 스타일로 자연스럽게
- * - 공지 바: 슬라이드 애니메이션 + 긴급 스타일
- * - 메뉴 hover 시 subtle glow
- * - 프리미엄 도구 느낌의 microinteraction
+ * v2 → v3 변경:
+ * - 🆕 Footer 추가 (모든 페이지 하단에 About/Contact/Privacy/Terms 링크)
+ * - 🆕 사이드바에 Contact 메뉴 추가
+ * - AdSense 심사관이 쉽게 찾을 수 있도록 Footer 노출
  */
 
 import Link from 'next/link';
@@ -70,7 +67,6 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-// 회전 공지 — 더 흥미롭게
 const TOP_NOTICES = [
   { icon: '🔥', text: '이번 주 급상승: "2026 금리 전망" · 블루오션 지수 94/100', tone: 'hot' },
   { icon: '📈', text: '경제·사회 카테고리 조회수 평균 +38% (지난주 대비)', tone: 'trend' },
@@ -80,37 +76,21 @@ const TOP_NOTICES = [
   { icon: '🎬', text: '바로 어제 조회수 10만+ 돌파한 시나리오: "상식 깨기"', tone: 'trend' },
 ];
 
-// 실시간 카운터 — 시드 기반 자연스러운 숫자
 function useTodayCounter() {
   const [count, setCount] = useState(0);
-
   useEffect(() => {
-    // 오늘 날짜 기반 시드 → 매일 다른 시작 숫자, 하지만 같은 날 동안엔 일관됨
     const now = new Date();
     const dayKey = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
-    const dayOfYear = Math.floor((now.getTime() - new Date(now.getFullYear(), 0, 0).getTime()) / 86400000);
-
-    // 시간대별 기본 증가량
     const hour = now.getHours();
     const minute = now.getMinutes();
-
-    // 하루에 약 1200~1800 사이 영상이 만들어진다 (가짜 baseline)
     const base = 1200 + (dayKey % 600);
-    // 시간에 따라 누적
     const hourProgress = (hour * 60 + minute) / (24 * 60);
     const current = Math.floor(base * hourProgress);
-
     setCount(current);
-
-    // 실시간 느낌 — 30~90초마다 한 명씩 증가
-    const tick = () => {
-      setCount((c) => c + 1);
-    };
-    const randomInterval = 30000 + Math.random() * 60000;
-    const timer = setTimeout(tick, randomInterval);
+    const tick = () => setCount((c) => c + 1);
+    const timer = setTimeout(tick, 30000 + Math.random() * 60000);
     return () => clearTimeout(timer);
   }, []);
-
   return count;
 }
 
@@ -135,6 +115,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
   const infoMenu = [
     { icon: '💡', label: '소개', path: '/about', key: 'about' },
+    { icon: '✉️', label: '문의하기', path: '/contact', key: 'contact' },
   ];
 
   const isActive = (path: string) => {
@@ -143,6 +124,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   };
 
   const currentNotice = TOP_NOTICES[noticeIdx];
+  const currentYear = new Date().getFullYear();
 
   return (
     <>
@@ -162,7 +144,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
       <style jsx>{`
         .app { display: flex; min-height: 100vh; background: #fafafa; }
 
-        /* ============ SIDEBAR ============ */
+        /* SIDEBAR */
         .sidebar {
           width: 248px;
           background: #fff;
@@ -185,18 +167,8 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           border-bottom: 1px solid #f0f0f0;
           margin-bottom: 14px;
         }
-        .logoRow {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          margin-bottom: 4px;
-        }
-        .logo {
-          font-size: 19px;
-          font-weight: 800;
-          letter-spacing: -0.03em;
-          line-height: 1;
-        }
+        .logoRow { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
+        .logo { font-size: 19px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
         .logoAccent { color: #cc0000; }
         .liveChip {
           display: inline-flex;
@@ -220,12 +192,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           0%, 100% { opacity: 1; transform: scale(1); }
           50% { opacity: 0.4; transform: scale(0.7); }
         }
-        .logoSub {
-          font-size: 10.5px;
-          color: #808080;
-          font-weight: 500;
-          letter-spacing: 0.02em;
-        }
+        .logoSub { font-size: 10.5px; color: #808080; font-weight: 500; letter-spacing: 0.02em; }
 
         .menuSection { padding: 0 12px; }
         .menuTitle {
@@ -249,10 +216,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           transition: all 0.15s ease;
           position: relative;
         }
-        .menuItem:hover {
-          background: #f6f6f6;
-          transform: translateX(2px);
-        }
+        .menuItem:hover { background: #f6f6f6; transform: translateX(2px); }
         .menuItemActive {
           background: linear-gradient(90deg, #fff0f0 0%, #fff5f5 100%);
           color: #cc0000;
@@ -287,7 +251,6 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         }
         .sidebarSpacer { flex: 1; min-height: 12px; }
 
-        /* Live stats card */
         .liveStatsCard {
           margin: 0 12px 10px;
           padding: 13px 14px 12px;
@@ -343,10 +306,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           z-index: 1;
         }
 
-        /* Sidebar ad slot */
-        .sidebarAdSlot {
-          margin: 0 12px 10px;
-        }
+        .sidebarAdSlot { margin: 0 12px 10px; }
 
         .sidebarFooter {
           padding: 12px 22px 0;
@@ -374,8 +334,16 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           color: #555;
         }
 
-        /* ============ MAIN ============ */
-        .main { flex: 1; min-width: 0; }
+        /* MAIN */
+        .main {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+        }
+        .mainContent {
+          flex: 1;
+        }
 
         .topBar {
           position: sticky;
@@ -462,7 +430,6 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         }
 
         .topBtns { display: flex; gap: 8px; align-items: center; }
-
         .userChip {
           display: flex;
           align-items: center;
@@ -475,10 +442,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           transition: all 0.15s;
           box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
-        .userChip:hover {
-          border-color: #0f0f0f;
-          transform: translateY(-1px);
-        }
+        .userChip:hover { border-color: #0f0f0f; transform: translateY(-1px); }
         .userAvatar {
           width: 28px; height: 28px;
           border-radius: 50%;
@@ -491,25 +455,94 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           font-size: 11px;
           letter-spacing: 0.02em;
         }
-        .userInfo {
-          display: flex;
-          flex-direction: column;
-          align-items: flex-start;
-        }
-        .userName {
-          font-size: 12px;
-          font-weight: 700;
-          color: #0f0f0f;
-          line-height: 1.1;
-        }
-        .userTier {
-          font-size: 9px;
-          color: #888;
-          letter-spacing: 0.05em;
-          font-weight: 600;
-          margin-top: 1px;
-        }
+        .userInfo { display: flex; flex-direction: column; align-items: flex-start; }
+        .userName { font-size: 12px; font-weight: 700; color: #0f0f0f; line-height: 1.1; }
+        .userTier { font-size: 9px; color: #888; letter-spacing: 0.05em; font-weight: 600; margin-top: 1px; }
 
+        /* ============ FOOTER (AdSense 심사 필수) ============ */
+        .footer {
+          background: #0f0f0f;
+          color: #a0a0a0;
+          padding: 40px 32px 28px;
+          margin-top: 60px;
+        }
+        .footerInner {
+          max-width: 1400px;
+          margin: 0 auto;
+        }
+        .footerGrid {
+          display: grid;
+          grid-template-columns: 1.3fr 1fr 1fr 1fr;
+          gap: 32px;
+          margin-bottom: 30px;
+        }
+        .footerBrand {
+          font-size: 18px;
+          font-weight: 800;
+          color: #fff;
+          letter-spacing: -0.02em;
+          margin-bottom: 8px;
+        }
+        .footerBrandAccent { color: #cc0000; }
+        .footerTagline {
+          font-size: 12px;
+          color: #888;
+          line-height: 1.65;
+          margin-bottom: 12px;
+          max-width: 280px;
+        }
+        .footerCompanyInfo {
+          font-size: 11px;
+          color: #666;
+          line-height: 1.8;
+        }
+        .footerCol h4 {
+          font-size: 11px;
+          font-weight: 800;
+          color: #fff;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          margin-bottom: 12px;
+        }
+        .footerCol ul { list-style: none; padding: 0; }
+        .footerCol li { margin-bottom: 8px; }
+        .footerLink {
+          font-size: 12.5px;
+          color: #a0a0a0;
+          transition: color 0.15s;
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+        }
+        .footerLink:hover {
+          color: #fff;
+        }
+        .footerBottom {
+          padding-top: 22px;
+          border-top: 1px solid #2a2a2a;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          flex-wrap: wrap;
+          gap: 14px;
+        }
+        .footerCopy {
+          font-size: 11px;
+          color: #707070;
+        }
+        .footerLegal {
+          display: flex;
+          gap: 18px;
+          font-size: 11px;
+        }
+        .footerLegal a {
+          color: #a0a0a0;
+          font-weight: 600;
+          transition: color 0.15s;
+        }
+        .footerLegal a:hover { color: #fff; }
+
+        /* Responsive */
         @media (max-width: 900px) {
           .sidebar {
             position: fixed;
@@ -537,6 +570,17 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           .noticeBar { padding: 7px 12px; font-size: 11px; }
           .userInfo { display: none; }
           .userChip { padding: 5px; }
+
+          .footerGrid {
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+          }
+          .footer { padding: 32px 20px 22px; }
+          .footerBottom { flex-direction: column; align-items: flex-start; }
+        }
+
+        @media (max-width: 560px) {
+          .footerGrid { grid-template-columns: 1fr; }
         }
       `}</style>
 
@@ -592,7 +636,6 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
           <div className="sidebarSpacer" />
 
-          {/* 🎯 라이브 통계 카드 — Pro 업그레이드 카드 자리 */}
           <div className="liveStatsCard">
             <div className="liveStatsTop">
               <span className="liveStatsDot" />
@@ -606,7 +649,6 @@ function ShellInner({ children }: { children: React.ReactNode }) {
             </div>
           </div>
 
-          {/* 📢 네이티브 광고 (사이드바) */}
           <div className="sidebarAdSlot">
             <AdSlot slot="sidebar" variant="sidebar-card" />
           </div>
@@ -647,9 +689,70 @@ function ShellInner({ children }: { children: React.ReactNode }) {
               </div>
             </div>
           </div>
-          <div>
+
+          <div className="mainContent">
             {children}
           </div>
+
+          {/* ============ FOOTER (AdSense 심사 필수) ============ */}
+          <footer className="footer">
+            <div className="footerInner">
+              <div className="footerGrid">
+                <div>
+                  <div className="footerBrand">
+                    Algo<span className="footerBrandAccent">Maker</span>
+                  </div>
+                  <div className="footerTagline">
+                    AI 기술로 누구나 유튜브 크리에이터가 될 수 있도록.
+                    한국어 특화 영상 자동 생성 스튜디오.
+                  </div>
+                  <div className="footerCompanyInfo">
+                    한줄컴퍼니 · 대표 박예준<br />
+                    AlgoMaker는 한줄컴퍼니의 서비스입니다.
+                  </div>
+                </div>
+
+                <div className="footerCol">
+                  <h4>서비스</h4>
+                  <ul>
+                    <li><Link href="/" className="footerLink">🏠 홈</Link></li>
+                    <li><Link href="/analytics" className="footerLink">📊 경쟁 분석</Link></li>
+                    <li><Link href="/assets" className="footerLink">🎬 내 영상</Link></li>
+                    <li><Link href="/blog" className="footerLink">📝 블로그</Link></li>
+                  </ul>
+                </div>
+
+                <div className="footerCol">
+                  <h4>회사</h4>
+                  <ul>
+                    <li><Link href="/about" className="footerLink">소개</Link></li>
+                    <li><Link href="/contact" className="footerLink">문의하기</Link></li>
+                    <li><Link href="/blog" className="footerLink">크리에이터 인사이트</Link></li>
+                  </ul>
+                </div>
+
+                <div className="footerCol">
+                  <h4>정책</h4>
+                  <ul>
+                    <li><Link href="/privacy" className="footerLink">개인정보 처리방침</Link></li>
+                    <li><Link href="/terms" className="footerLink">이용약관</Link></li>
+                    <li><Link href="/contact" className="footerLink">저작권 문의</Link></li>
+                  </ul>
+                </div>
+              </div>
+
+              <div className="footerBottom">
+                <div className="footerCopy">
+                  © {currentYear} 한줄컴퍼니. All rights reserved. · AlgoMaker™
+                </div>
+                <div className="footerLegal">
+                  <Link href="/privacy">개인정보 처리방침</Link>
+                  <Link href="/terms">이용약관</Link>
+                  <Link href="/contact">Contact</Link>
+                </div>
+              </div>
+            </div>
+          </footer>
         </main>
       </div>
     </>
