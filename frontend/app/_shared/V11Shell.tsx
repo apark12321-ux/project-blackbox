@@ -79,19 +79,41 @@ const NOTICES = [
 
 function useTodayCounter() {
   const [count, setCount] = useState(0);
+
   useEffect(() => {
-    const now = new Date();
-    const dayKey = now.getFullYear() * 10000 + (now.getMonth() + 1) * 100 + now.getDate();
-    const hour = now.getHours();
-    const minute = now.getMinutes();
-    const base = 1200 + (dayKey % 600);
-    const hourProgress = (hour * 60 + minute) / (24 * 60);
-    const current = Math.floor(base * hourProgress);
-    setCount(current);
-    const tick = () => setCount((c) => c + 1);
-    const timer = setTimeout(tick, 30000 + Math.random() * 60000);
-    return () => clearTimeout(timer);
+    // 날짜 기반 결정적 시작값 계산 (하루 중 경과 시간에 비례)
+    const calculateCount = () => {
+      const now = new Date();
+      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const minutesSinceStart = Math.floor((now.getTime() - startOfDay.getTime()) / 60000);
+
+      // 하루 1,800명 목표. 분당 1.25명씩 증가
+      // 오전 0시 = 1,200, 밤 12시 = 3,000
+      const dailyStart = 1200;
+      const perMinute = 1.25;
+      return Math.floor(dailyStart + minutesSinceStart * perMinute);
+    };
+
+    setCount(calculateCount());
+
+    // 10~30초마다 자연스럽게 1씩 증가 (절대 감소 X)
+    const tick = () => {
+      setCount((c) => c + 1);
+    };
+    const scheduleNext = () => {
+      const delay = 10000 + Math.random() * 20000;
+      return setTimeout(() => {
+        tick();
+        timerRef.current = scheduleNext();
+      }, delay);
+    };
+
+    const timerRef = { current: scheduleNext() };
+    return () => {
+      if (timerRef.current) clearTimeout(timerRef.current);
+    };
   }, []);
+
   return count;
 }
 

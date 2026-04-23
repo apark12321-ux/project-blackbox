@@ -14,13 +14,34 @@ import AdSlot from './_shared/AdSlot';
 
 export default function HomePage() {
   const router = useRouter();
-  const [activeUsers, setActiveUsers] = useState(1384);
+  const [activeUsers, setActiveUsers] = useState(0);
 
   useEffect(() => {
-    const t = setInterval(() => {
-      setActiveUsers((u) => Math.max(1200, Math.min(1800, u + Math.floor(Math.random() * 7) - 3)));
-    }, 3500);
-    return () => clearInterval(t);
+    const calculateUsers = () => {
+      const now = new Date();
+      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const minutesSinceStart = Math.floor((now.getTime() - startOfDay.getTime()) / 60000);
+      const dailyStart = 1200;
+      const perMinute = 1.25;
+      return Math.floor(dailyStart + minutesSinceStart * perMinute);
+    };
+
+    setActiveUsers(calculateUsers());
+
+    // 10~30초마다 자연스럽게 1씩 증가 (절대 감소 X)
+    let timerId: NodeJS.Timeout;
+    const scheduleNext = () => {
+      const delay = 10000 + Math.random() * 20000;
+      timerId = setTimeout(() => {
+        setActiveUsers((u) => u + 1);
+        scheduleNext();
+      }, delay);
+    };
+    scheduleNext();
+
+    return () => {
+      if (timerId) clearTimeout(timerId);
+    };
   }, []);
 
   const handleCategoryClick = (categoryId: string) => {
