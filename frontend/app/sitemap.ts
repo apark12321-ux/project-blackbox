@@ -1,17 +1,20 @@
 /**
- * /sitemap.xml - Google Search Console에 제출할 sitemap
- *
- * Next.js App Router 규칙:
- * frontend/app/sitemap.ts 파일로 생성하면 자동으로 /sitemap.xml 라우트 활성화
- *
- * 동적 생성: 도메인 변경 시에도 자동 반영
+ * /sitemap.xml - Google Search Console용 sitemap
+ * v2: blog/page.tsx import 제거, 블로그 슬러그 직접 정의
  */
 
 import type { MetadataRoute } from 'next';
-import { blogPosts } from './blog/page';  // blog/page.tsx의 export 활용
 
-// 환경변수에 SITE_URL 설정 필요 (없으면 기본값 사용)
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://algomaker.kr';
+
+// 블로그 글 목록 (app/blog/page.tsx의 blogPosts와 동일해야 함)
+const BLOG_SLUGS = [
+  { slug: 'youtube-algorithm-2026', publishedAt: '2026-04-22' },
+  { slug: 'retention-rate-editing-tips', publishedAt: '2026-04-21' },
+  { slug: 'thumbnail-ctr-guide', publishedAt: '2026-04-20' },
+  { slug: 'first-month-creator-checklist', publishedAt: '2026-04-19' },
+  { slug: 'ai-video-automation-trends', publishedAt: '2026-04-18' },
+];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const staticRoutes: MetadataRoute.Sitemap = [
@@ -59,7 +62,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  const blogRoutes: MetadataRoute.Sitemap = blogPosts.map((post) => ({
+  const blogRoutes: MetadataRoute.Sitemap = BLOG_SLUGS.map((post) => ({
     url: `${SITE_URL}/blog/${post.slug}`,
     lastModified: new Date(post.publishedAt),
     changeFrequency: 'monthly' as const,
