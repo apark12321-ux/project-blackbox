@@ -1,14 +1,20 @@
 'use client';
 /**
- * AlgoMaker v15 - 홈 (우리 고유 12개 시나리오)
+ * AlgoMaker v16 - 홈 (AdSense 피벗)
+ * 변경:
+ * - 하단 Pro 프로모 배너 제거
+ * - 시나리오 라이브러리 Pro 락 제거 (모든 시나리오 개방)
+ * - Pro alert 팝업 제거
+ * - AdSense 슬롯 2개 추가 (Hero 아래, 라이브러리 아래)
+ * - 라이브러리 카운트 "12개 스타일 · 모두 무료"로 변경
  */
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import { DashboardShell, setProject } from './_shared/V11Shell';
 import { SCENARIOS, pickRecommendedScenarios, getScenarioById, type ScenarioStyle } from './_shared/scenarios';
+import AdSlot from './_shared/AdSlot';
 
-// 시작 키워드 예시 (검색창 placeholder 보조 — 실제 트렌드 데이터 아님)
 const EXAMPLE_KEYWORDS = [
   '2026 금리 전망',
   'AI 도구 TOP 5',
@@ -80,7 +86,6 @@ export default function HomePage() {
   const [rerollCount, setRerollCount] = useState(0);
   const [myStats, setMyStats] = useState<MyStats>({ total: 0, thisMonth: 0, lastJobAt: null });
 
-  // 내 영상 이력에서 실제 통계 계산
   useEffect(() => {
     setMyStats(readMyStats());
     const onStorage = (e: StorageEvent) => {
@@ -95,7 +100,6 @@ export default function HomePage() {
     setActiveKeyword(keyword);
     setScenarios(pickScenarios(keyword + Date.now()));
     setRerollCount(0);
-    // 섹션 부드럽게 스크롤
     setTimeout(() => {
       document.getElementById('ai-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }, 100);
@@ -118,17 +122,17 @@ export default function HomePage() {
   const handleStart = (styleId: string) => {
     const style = getScenarioById(styleId);
     if (!style) return;
-    if (style.tier === 'pro') {
-      alert(`🔒 "${style.name}"은(는) Pro 전용 시나리오입니다\n\nPro 업그레이드:\n✓ 12개 전체 시나리오 사용\n✓ 무제한 영상 제작\n✓ 경쟁 채널 분석\n✓ 썸네일 A/B 테스트\n\n결제 기능은 곧 출시됩니다!`);
-      return;
-    }
+
+    // Pro 락 제거 — 모든 시나리오 무료 개방
+    // (이전: if (style.tier === 'pro') { alert(...); return; })
+
     if (!activeKeyword.trim()) {
       alert('먼저 키워드를 입력하고 AI 분석을 시작해주세요');
       return;
     }
     setProject({
       keyword: activeKeyword,
-      category: 'economy',   // TODO: 카테고리 선택 연결
+      category: 'economy',
       templateId: styleId,
       scenarioStyleId: styleId,
       step: 1,
@@ -145,7 +149,6 @@ export default function HomePage() {
           margin: 0 auto;
         }
 
-        /* HERO */
         .hero {
           background: linear-gradient(135deg, #0a0a0a 0%, #141414 50%, #0f0f0f 100%);
           border-radius: 16px;
@@ -189,13 +192,6 @@ export default function HomePage() {
         }
         .livedot { width: 6px; height: 6px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite; }
         @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.4; } }
-        .liveBadge {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          font-size: 11px;
-          color: #888;
-        }
         .heroTitle {
           font-size: 28px;
           font-weight: 800;
@@ -268,18 +264,10 @@ export default function HomePage() {
           border-color: rgba(204, 0, 0, 0.4);
           color: #fff;
         }
-        .heatBar {
-          display: inline-block;
-          width: 18px; height: 3px;
-          background: #333;
-          border-radius: 999px;
-          overflow: hidden;
-          position: relative;
-        }
-        .heatFill {
-          position: absolute;
-          top: 0; left: 0; bottom: 0;
-          background: linear-gradient(90deg, #ffa500 0%, #ff0000 100%);
+
+        /* AdSense 슬롯 */
+        .adRow {
+          margin: 0 0 24px;
         }
 
         /* STATS BAR */
@@ -307,14 +295,6 @@ export default function HomePage() {
           color: #888;
           letter-spacing: 0.1em;
           text-transform: uppercase;
-        }
-        .statCardDelta {
-          font-size: 10px;
-          padding: 2px 6px;
-          background: #dcfce7;
-          color: #16a34a;
-          border-radius: 4px;
-          font-weight: 700;
         }
         .statCardValue {
           font-size: 22px;
@@ -434,15 +414,6 @@ export default function HomePage() {
           color: #0f0f0f;
         }
         .scenarioEmoji { font-size: 22px; }
-        .scenarioGrade {
-          padding: 3px 8px;
-          background: #0f0f0f;
-          color: #fff;
-          border-radius: 6px;
-          font-size: 11px;
-          font-weight: 800;
-        }
-        .scenarioGradeA { background: #16a34a; }
         .scenarioFlow {
           font-size: 11px;
           color: #666;
@@ -486,28 +457,6 @@ export default function HomePage() {
           letter-spacing: -0.02em;
           line-height: 1;
         }
-        .metricValueAccent { color: #cc0000; }
-        .gauge { margin-bottom: 14px; }
-        .gaugeHead {
-          display: flex;
-          justify-content: space-between;
-          font-size: 10px;
-          color: #888;
-          margin-bottom: 4px;
-        }
-        .gaugeBar {
-          width: 100%;
-          height: 5px;
-          background: #f0f0f0;
-          border-radius: 999px;
-          overflow: hidden;
-        }
-        .gaugeFill {
-          height: 100%;
-          background: linear-gradient(90deg, #16a34a 0%, #84cc16 50%, #eab308 100%);
-          border-radius: 999px;
-          transition: width 0.6s ease;
-        }
         .scenarioBtn {
           width: 100%;
           padding: 11px;
@@ -530,7 +479,7 @@ export default function HomePage() {
           border: 1px solid #e5e5e5;
           border-radius: 14px;
           padding: 24px;
-          margin-bottom: 20px;
+          margin-bottom: 24px;
         }
         .libHead {
           display: flex;
@@ -549,6 +498,17 @@ export default function HomePage() {
           letter-spacing: -0.01em;
         }
         .libStats { font-size: 11px; color: #888; }
+        .libFreeBadge {
+          display: inline-block;
+          padding: 2px 8px;
+          background: #d1fae5;
+          color: #047857;
+          border-radius: 4px;
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: 0.05em;
+          margin-left: 6px;
+        }
 
         .libGroup { margin-bottom: 18px; }
         .libGroup:last-child { margin-bottom: 0; }
@@ -577,19 +537,6 @@ export default function HomePage() {
           position: relative;
         }
         .libItem:hover { background: #fff; border-color: #cc0000; }
-        .libItemPro { opacity: 0.7; }
-        .libItemPro::after {
-          content: '🔒 PRO';
-          position: absolute;
-          top: 10px; right: 10px;
-          padding: 2px 8px;
-          background: #0f0f0f;
-          color: #fff;
-          border-radius: 999px;
-          font-size: 9px;
-          font-weight: 800;
-          letter-spacing: 0.1em;
-        }
         .libItemTop { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
         .libItemEmoji { font-size: 20px; }
         .libItemName {
@@ -604,94 +551,6 @@ export default function HomePage() {
           margin-bottom: 10px;
           line-height: 1.4;
         }
-        .libItemFoot {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          font-size: 10px;
-        }
-        .libItemRetention {
-          display: flex;
-          align-items: center;
-          gap: 6px;
-          color: #888;
-        }
-        .libRetBar {
-          width: 40px;
-          height: 4px;
-          background: #e5e5e5;
-          border-radius: 999px;
-          overflow: hidden;
-        }
-        .libRetFill {
-          height: 100%;
-          background: linear-gradient(90deg, #16a34a 0%, #eab308 100%);
-        }
-        .libItemUsage { color: #666; font-weight: 500; }
-
-        /* PROMO */
-        .promo {
-          background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
-          border-radius: 14px;
-          padding: 24px 28px;
-          color: #fff;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          gap: 16px;
-          flex-wrap: wrap;
-          position: relative;
-          overflow: hidden;
-        }
-        .promo::after {
-          content: '';
-          position: absolute;
-          right: -60px; top: -60px;
-          width: 240px; height: 240px;
-          background: radial-gradient(circle, rgba(204,0,0,0.2) 0%, transparent 70%);
-          pointer-events: none;
-        }
-        .promoLeft { position: relative; z-index: 1; }
-        .promoBadge {
-          display: inline-block;
-          padding: 3px 10px;
-          background: rgba(204,0,0,0.2);
-          color: #ff6b6b;
-          border: 1px solid rgba(204,0,0,0.3);
-          border-radius: 999px;
-          font-size: 10px;
-          font-weight: 800;
-          letter-spacing: 0.1em;
-          margin-bottom: 8px;
-        }
-        .promoTitle {
-          font-size: 20px;
-          font-weight: 800;
-          letter-spacing: -0.02em;
-          margin-bottom: 4px;
-        }
-        .promoSub { font-size: 12px; color: #aaa; line-height: 1.6; }
-        .promoPrice { text-align: right; position: relative; z-index: 1; }
-        .promoOriginal { font-size: 12px; color: #666; text-decoration: line-through; }
-        .promoCurrent {
-          font-size: 28px;
-          font-weight: 800;
-          letter-spacing: -0.02em;
-          margin: 2px 0 10px;
-        }
-        .promoCurrent span { font-size: 12px; color: #888; font-weight: 500; }
-        .promoBtn {
-          padding: 10px 22px;
-          background: #cc0000;
-          color: #fff;
-          border: none;
-          border-radius: 999px;
-          font-size: 13px;
-          font-weight: 700;
-          cursor: pointer;
-          font-family: inherit;
-        }
-        .promoBtn:hover { background: #a80000; }
 
         @media (max-width: 1024px) {
           .scenarios { grid-template-columns: 1fr; }
@@ -705,8 +564,6 @@ export default function HomePage() {
           .kwBtn { width: 100%; padding: 14px; }
           .statsBar { grid-template-columns: 1fr 1fr; gap: 8px; }
           .libGrid { grid-template-columns: 1fr; }
-          .promo { flex-direction: column; text-align: center; }
-          .promoPrice { text-align: center; }
         }
       `}</style>
 
@@ -750,7 +607,12 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* MY STATS — 실제 내 영상 이력 기반 */}
+        {/* AdSense 슬롯 ① — Hero 아래 */}
+        <div className="adRow">
+          <AdSlot slot="home-top" variant="horizontal" label="home-top" />
+        </div>
+
+        {/* MY STATS */}
         <section className="statsBar">
           <div className="statCard">
             <div className="statCardHead">
@@ -778,7 +640,7 @@ export default function HomePage() {
               <span className="statCardLabel">시나리오</span>
             </div>
             <div className="statCardValue">{SCENARIOS.length}</div>
-            <div className="statCardSub">사용 가능한 스타일</div>
+            <div className="statCardSub">모두 무료 사용</div>
           </div>
         </section>
 
@@ -854,14 +716,15 @@ export default function HomePage() {
           )}
         </section>
 
-        {/* STYLE LIBRARY */}
+        {/* STYLE LIBRARY — Pro 락 전부 제거 */}
         <section className="libSection">
           <div className="libHead">
             <div className="libTitle">
               <span className="sectionNum">2</span>
               전체 시나리오 라이브러리
+              <span className="libFreeBadge">ALL FREE</span>
             </div>
-            <div className="libStats">12가지 스타일 · 6개 무료 · 6개 Pro</div>
+            <div className="libStats">12가지 스타일 · 모두 무료</div>
           </div>
 
           {['경제·사회', '정보·분석', '범용'].map((group) => {
@@ -873,7 +736,7 @@ export default function HomePage() {
                   {items.map((s) => (
                     <div
                       key={s.id}
-                      className={`libItem ${s.tier === 'pro' ? 'libItemPro' : ''}`}
+                      className="libItem"
                       onClick={() => handleStart(s.id)}
                     >
                       <div className="libItemTop">
@@ -889,23 +752,10 @@ export default function HomePage() {
           })}
         </section>
 
-        {/* PRO PROMO */}
-        <section className="promo">
-          <div className="promoLeft">
-            <div className="promoBadge">🔥 LIMITED · 출시 특가</div>
-            <div className="promoTitle">Pro로 업그레이드하면</div>
-            <div className="promoSub">
-              ✓ 12가지 전체 시나리오 · ✓ 무제한 영상 제작 · ✓ 경쟁 채널 분석 · ✓ 썸네일 A/B 테스트
-            </div>
-          </div>
-          <div className="promoPrice">
-            <div className="promoOriginal">정가 29,000원</div>
-            <div className="promoCurrent">9,900<span> 원/월</span></div>
-            <button className="promoBtn" onClick={() => alert('업그레이드 기능이 곧 출시됩니다!')}>
-              Pro 시작하기 →
-            </button>
-          </div>
-        </section>
+        {/* AdSense 슬롯 ② — 라이브러리 아래 (in-content) */}
+        <div className="adRow">
+          <AdSlot slot="home-mid" variant="in-content" label="home-mid" />
+        </div>
       </div>
     </DashboardShell>
   );
