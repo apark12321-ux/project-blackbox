@@ -1,10 +1,10 @@
 'use client';
 /**
- * About 페이지 — 너튜브 NuTube 서비스 소개
+ * About 페이지 — AlgoMaker 서비스 소개 (안전 버전)
  */
 
 import Link from 'next/link';
-import { DashboardShell, NuTubeLogo } from '../_shared/V11Shell';
+import { DashboardShell, AlgoMakerLogo } from '../_shared/V11Shell';
 import AdSlot from '../_shared/AdSlot';
 
 export default function AboutPage() {
@@ -195,27 +195,25 @@ export default function AboutPage() {
       `}</style>
 
       <div className="page">
-        {/* HERO */}
         <section className="hero">
           <div className="heroLogo">
-            <NuTubeLogo size="lg" showSubtitle={false} />
+            <AlgoMakerLogo size="lg" showSubtitle={false} />
           </div>
           <h1 className="heroTitle">
-            너튜브 시작,<br />
-            <span className="accent">너도 할 수 있어요</span>
+            영상 제작,<br />
+            <span className="accent">누구나 할 수 있어요</span>
           </h1>
           <p className="heroSub">
-            너튜브는 유튜브 시작을 고민하는 모든 분들을 위해 만들어졌어요.
+            AlgoMaker는 영상 제작을 고민하는 모든 분들을 위해 만들어졌어요.
             프로들이 쓰는 노하우가 AI에 자동으로 녹아있는,
             한국어 최적화 영상 제작 스튜디오입니다.
           </p>
         </section>
 
-        {/* 왜 만들었나 */}
         <section className="section">
-          <h2 className="sectionTitle">왜 너튜브를 만들었나요</h2>
+          <h2 className="sectionTitle">왜 AlgoMaker를 만들었나요</h2>
           <p className="text">
-            유튜브를 시작하고 싶은 분들은 많아요. 근데 문제는 <strong>"어디서부터 시작해야 할지 모르겠다"</strong>는 거예요.
+            영상 제작을 시작하고 싶은 분들은 많아요. 근데 문제는 <strong>"어디서부터 시작해야 할지 모르겠다"</strong>는 거예요.
           </p>
           <p className="text">
             제목은 어떻게 지어야 조회수가 터지는지, 썸네일은 어떻게 만들어야 클릭률이 높아지는지,
@@ -223,23 +221,22 @@ export default function AboutPage() {
           </p>
           <div className="quote">
             "이 모든 노하우를 일반인도 쉽게 쓸 수 있다면?"<br />
-            <strong>그게 바로 너튜브가 시작된 이유예요.</strong>
+            <strong>그게 바로 AlgoMaker가 시작된 이유예요.</strong>
           </div>
           <p className="text">
-            프로 너튜버들이 수년간 시행착오로 쌓은 노하우 12가지를 <strong>AI에 자동으로 반영</strong>해,
+            프로 크리에이터들이 수년간 시행착오로 쌓은 노하우 12가지를 <strong>AI에 자동으로 반영</strong>해,
             키워드 하나만 입력하면 검증된 구조의 영상이 만들어져요.
           </p>
         </section>
 
-        {/* 4가지 핵심 가치 */}
         <section className="section">
-          <h2 className="sectionTitle">너튜브의 약속</h2>
+          <h2 className="sectionTitle">AlgoMaker의 약속</h2>
           <div className="valueGrid">
             <div className="valueCard">
               <div className="valueEmoji">🎯</div>
               <div className="valueTitle">검증된 노하우</div>
               <div className="valueDesc">
-                2026 유튜브 알고리즘 기준, 구독자 10만+ 채널들의 검증된 공식만 반영해요.
+                2026년 최신 영상 알고리즘 기준, 검증된 공식만 반영해요.
               </div>
             </div>
             <div className="valueCard">
@@ -260,7 +257,7 @@ export default function AboutPage() {
               <div className="valueEmoji">⚡</div>
               <div className="valueTitle">5분 자동화</div>
               <div className="valueDesc">
-                대본·음성·이미지·편집까지 전부 자동. 너는 키워드만 입력하면 끝이에요.
+                대본·음성·이미지·편집까지 전부 자동. 키워드만 입력하면 끝이에요.
               </div>
             </div>
           </div>
@@ -270,13 +267,12 @@ export default function AboutPage() {
           <AdSlot slot="about-mid" variant="horizontal" />
         </div>
 
-        {/* 서비스 운영 정보 */}
         <section className="section">
           <h2 className="sectionTitle">서비스 운영 정보</h2>
           <div className="infoBox">
             <div className="infoRow">
               <span className="infoLabel">서비스명</span>
-              <span className="infoValue">너튜브 NuTube</span>
+              <span className="infoValue">AlgoMaker</span>
             </div>
             <div className="infoRow">
               <span className="infoLabel">운영사</span>
@@ -301,12 +297,11 @@ export default function AboutPage() {
           </div>
         </section>
 
-        {/* CTA */}
         <div className="cta">
-          <h3 className="ctaTitle">지금 바로 너튜브 시작하기</h3>
+          <h3 className="ctaTitle">지금 바로 시작하기</h3>
           <p className="ctaText">
             복잡한 설정 없이, 키워드 하나만 넣으면 끝이에요.<br />
-            너튜브가 너도 할 수 있게 도와드릴게요.
+            AlgoMaker가 도와드릴게요.
           </p>
           <Link href="/" className="ctaBtn">
             무료로 시작하기 →
