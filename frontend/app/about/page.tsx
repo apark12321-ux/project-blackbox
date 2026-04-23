@@ -1,483 +1,437 @@
 'use client';
 /**
- * /about - 서비스 소개 + 사업자 정보
+ * /about - AdSense 심사 필수 페이지
+ *
+ * 포함 내용:
+ * - 서비스 목적 / 미션
+ * - 운영자 정보 (한줄컴퍼니 / 박예준)
+ * - 서비스의 가치 제안
+ * - 연락처로 이동 CTA
+ *
+ * 이 페이지는 AdSense 심사 시 "실제 운영하는 사이트"임을 증명하는 핵심 자료
  */
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import Link from 'next/link';
 import { DashboardShell } from '../_shared/V11Shell';
 
-const FAQ_ITEMS = [
-  {
-    q: '영상 1편 만드는 데 얼마나 걸려요?',
-    a: '키워드 입력부터 완성까지 평균 5~8분 소요됩니다. AI가 뉴스 수집 → 대본 생성 → 영상 합성을 자동 처리하니 커피 한 잔 드시면 완성돼요.',
-  },
-  {
-    q: '같은 키워드로 다시 만들면 똑같은 영상이 나오나요?',
-    a: '아니요. AlgoMaker는 12가지 시나리오 스타일을 랜덤 조합하고, 매번 다른 뉴스를 기반으로 대본을 새로 쓰기 때문에 같은 키워드여도 전혀 다른 영상이 나옵니다.',
-  },
-  {
-    q: '만들어진 영상은 어디에 쓸 수 있나요?',
-    a: '완성된 MP4 파일을 다운로드해서 본인의 YouTube 채널에 그대로 업로드하거나, 별도 편집 후 사용할 수 있습니다. 저작권은 사용자에게 있어요.',
-  },
-  {
-    q: 'YouTube 수익화 승인되나요?',
-    a: 'AlgoMaker 영상은 디지털 지문 변조 기술로 재사용 콘텐츠 필터를 회피하도록 설계되어 있습니다. 평균 승인률 94.7%를 기록 중이지만, 최종 승인은 YouTube 정책에 따릅니다.',
-  },
-  {
-    q: 'Free와 Pro 차이가 뭐예요?',
-    a: 'Free: 월 3편 영상, 시나리오 6가지 사용 가능. Pro (9,900원/월): 무제한 영상, 12가지 전체 시나리오, 경쟁 채널 분석, 썸네일 A/B 테스트, 트렌드 예측 AI까지 사용 가능합니다.',
-  },
-  {
-    q: '결제는 어떻게 하나요?',
-    a: '결제 시스템은 곧 출시될 예정입니다. 지금은 Free로 서비스를 체험하실 수 있으며, Pro 기능을 미리 확인하실 수 있습니다.',
-  },
-];
-
-const STEPS = [
-  { num: '01', emoji: '🔍', title: '키워드 입력', desc: '하고 싶은 주제를 한 단어로 입력하세요' },
-  { num: '02', emoji: '📰', title: 'AI 뉴스 수집', desc: '최근 7일간 관련 뉴스 10건 자동 수집' },
-  { num: '03', emoji: '✨', title: '시나리오 추천', desc: '12가지 스타일 중 최적 3가지 AI 추천' },
-  { num: '04', emoji: '✍️', title: 'AI 대본 작성', desc: '뉴스 팩트 기반으로 대본 자동 생성' },
-  { num: '05', emoji: '🎤', title: 'TTS 음성 합성', desc: 'ElevenLabs 고품질 한국어 내레이션' },
-  { num: '06', emoji: '🎬', title: '영상 합성', desc: '인포그래픽+자막+BGM 자동 합성' },
-];
-
-const COMPARISONS = [
-  { feat: '영상 1편 제작 시간', ai: '5~8분', manual: '4~8시간', diff: '×60배' },
-  { feat: '제작 비용', ai: '0원~9,900원/월', manual: '10~30만원', diff: '×30배' },
-  { feat: '전문 지식', ai: '필요 없음', manual: '편집/디자인/기획', diff: '진입장벽' },
-  { feat: '하루 생산량', ai: '10편 이상', manual: '1편', diff: '×10배' },
-];
-
 export default function AboutPage() {
-  const router = useRouter();
-  const [openFaq, setOpenFaq] = useState<number | null>(0);
-
   return (
     <DashboardShell>
       <style jsx>{`
         .page {
           padding: 32px 32px 60px;
-          max-width: 1200px;
+          max-width: 820px;
           margin: 0 auto;
         }
-
-        /* HERO */
-        .hero {
-          text-align: center;
-          padding: 32px 20px 40px;
+        .pageHeader {
           margin-bottom: 32px;
+          padding-bottom: 24px;
+          border-bottom: 1px solid #e8e8e8;
         }
-        .heroBadge {
+        .pageBadge {
           display: inline-block;
           padding: 4px 12px;
-          background: #fff0f0;
-          color: #cc0000;
+          background: #fef3c7;
+          color: #92400e;
           border-radius: 999px;
-          font-size: 11px;
-          font-weight: 700;
+          font-size: 10px;
+          font-weight: 800;
           letter-spacing: 0.1em;
           margin-bottom: 14px;
         }
-        .heroTitle {
-          font-size: 40px;
+        .pageTitle {
+          font-size: 34px;
           font-weight: 800;
-          letter-spacing: -0.03em;
+          letter-spacing: -0.035em;
           line-height: 1.15;
-          margin-bottom: 14px;
-        }
-        .heroTitle span { color: #cc0000; }
-        .heroSub {
-          font-size: 16px;
-          color: #606060;
-          line-height: 1.6;
-          max-width: 600px;
-          margin: 0 auto 24px;
-        }
-        .heroCTA {
-          display: flex;
-          gap: 10px;
-          justify-content: center;
-          flex-wrap: wrap;
-        }
-        .ctaPrimary {
-          padding: 14px 28px;
-          background: #cc0000;
-          color: #fff;
-          border: none;
-          border-radius: 999px;
-          font-size: 14px;
-          font-weight: 700;
-          cursor: pointer;
-          font-family: inherit;
-        }
-        .ctaPrimary:hover { background: #a80000; }
-        .ctaSecondary {
-          padding: 14px 24px;
-          background: #fff;
+          margin-bottom: 10px;
           color: #0f0f0f;
-          border: 1px solid #e5e5e5;
-          border-radius: 999px;
-          font-size: 14px;
-          font-weight: 600;
-          cursor: pointer;
-          font-family: inherit;
         }
-        .ctaSecondary:hover { background: #f5f5f5; }
+        .pageSub {
+          font-size: 15px;
+          color: #606060;
+          line-height: 1.65;
+          max-width: 600px;
+        }
 
-        /* SECTIONS */
-        .section { margin-bottom: 40px; }
-        .sectionHead {
-          text-align: center;
-          margin-bottom: 24px;
-        }
-        .sectionEyebrow {
-          font-size: 11px;
-          font-weight: 700;
-          color: #cc0000;
-          letter-spacing: 0.12em;
-          margin-bottom: 6px;
+        .section {
+          margin-bottom: 40px;
         }
         .sectionTitle {
-          font-size: 26px;
+          font-size: 20px;
           font-weight: 800;
-          letter-spacing: -0.02em;
-          margin-bottom: 6px;
+          letter-spacing: -0.025em;
+          margin-bottom: 14px;
+          color: #0f0f0f;
+          display: flex;
+          align-items: center;
+          gap: 10px;
         }
-        .sectionSub {
-          font-size: 13px;
-          color: #888;
+        .sectionIcon {
+          width: 30px; height: 30px;
+          background: #0f0f0f;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+        }
+        .sectionBody {
+          font-size: 14.5px;
+          line-height: 1.75;
+          color: #333;
+        }
+        .sectionBody p {
+          margin-bottom: 14px;
         }
 
-        /* STEPS */
-        .stepsGrid {
+        .valuesGrid {
           display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 14px;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px;
+          margin-top: 16px;
         }
-        .stepCard {
+        .valueCard {
           background: #fff;
-          border: 1px solid #e5e5e5;
+          border: 1px solid #e8e8e8;
           border-radius: 12px;
-          padding: 22px 20px;
-          position: relative;
-          overflow: hidden;
+          padding: 18px;
         }
-        .stepNum {
-          position: absolute;
-          top: 14px; right: 16px;
-          font-size: 32px;
+        .valueCardTitle {
+          font-size: 14px;
           font-weight: 800;
-          color: #f0f0f0;
-          letter-spacing: -0.02em;
+          margin-bottom: 6px;
+          color: #0f0f0f;
+          display: flex;
+          align-items: center;
+          gap: 8px;
         }
-        .stepEmoji {
-          font-size: 32px;
-          margin-bottom: 12px;
+        .valueCardIcon { font-size: 18px; }
+        .valueCardDesc {
+          font-size: 12.5px;
+          color: #555;
+          line-height: 1.6;
+        }
+
+        .infoBox {
+          background: #fafafa;
+          border: 1px solid #e8e8e8;
+          border-radius: 14px;
+          padding: 22px 24px;
+        }
+        .infoRow {
+          display: flex;
+          gap: 14px;
+          padding: 10px 0;
+          border-bottom: 1px solid #e8e8e8;
+          font-size: 13.5px;
+        }
+        .infoRow:last-child { border-bottom: none; }
+        .infoLabel {
+          flex: 0 0 120px;
+          font-weight: 700;
+          color: #666;
+        }
+        .infoValue {
+          flex: 1;
+          color: #0f0f0f;
+        }
+
+        .stepList {
+          counter-reset: step;
+        }
+        .stepItem {
+          position: relative;
+          padding-left: 48px;
+          margin-bottom: 22px;
+        }
+        .stepItem::before {
+          counter-increment: step;
+          content: counter(step);
+          position: absolute;
+          left: 0;
+          top: 0;
+          width: 32px; height: 32px;
+          background: linear-gradient(135deg, #cc0000 0%, #8b0000 100%);
+          color: #fff;
+          border-radius: 8px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-weight: 800;
+          font-size: 13px;
         }
         .stepTitle {
           font-size: 15px;
           font-weight: 800;
-          margin-bottom: 4px;
-          letter-spacing: -0.01em;
+          margin-bottom: 5px;
+          color: #0f0f0f;
         }
         .stepDesc {
-          font-size: 12px;
-          color: #666;
-          line-height: 1.5;
-        }
-
-        /* COMPARISON */
-        .compare {
-          background: #fff;
-          border: 1px solid #e5e5e5;
-          border-radius: 14px;
-          overflow: hidden;
-        }
-        .compareRow {
-          display: grid;
-          grid-template-columns: 2fr 2fr 2fr 1fr;
-          padding: 16px 20px;
-          border-bottom: 1px solid #f0f0f0;
-          align-items: center;
-          gap: 10px;
-        }
-        .compareRow:last-child { border-bottom: none; }
-        .compareRowHead {
-          background: #fafafa;
-          font-size: 11px;
-          font-weight: 700;
-          color: #888;
-          text-transform: uppercase;
-          letter-spacing: 0.08em;
-        }
-        .compareFeat {
-          font-size: 14px;
-          font-weight: 700;
-          color: #0f0f0f;
-        }
-        .compareAI {
-          font-size: 14px;
-          font-weight: 700;
-          color: #cc0000;
-        }
-        .compareManual {
-          font-size: 14px;
-          color: #666;
-        }
-        .compareDiff {
-          text-align: right;
-          padding: 4px 10px;
-          background: #fff0f0;
-          color: #cc0000;
-          border-radius: 4px;
-          font-size: 11px;
-          font-weight: 800;
-          display: inline-block;
-          justify-self: end;
-        }
-
-        /* FAQ */
-        .faqList {
-          background: #fff;
-          border: 1px solid #e5e5e5;
-          border-radius: 14px;
-          overflow: hidden;
-        }
-        .faqItem {
-          border-bottom: 1px solid #f0f0f0;
-        }
-        .faqItem:last-child { border-bottom: none; }
-        .faqQ {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 18px 22px;
-          cursor: pointer;
-          font-size: 14px;
-          font-weight: 700;
-          color: #0f0f0f;
-          gap: 10px;
-        }
-        .faqQ:hover { background: #fafafa; }
-        .faqArrow {
-          transition: transform 0.2s;
-          color: #888;
-          flex-shrink: 0;
-        }
-        .faqArrowOpen { transform: rotate(180deg); color: #cc0000; }
-        .faqA {
-          padding: 0 22px 18px;
           font-size: 13px;
-          color: #606060;
-          line-height: 1.7;
-          animation: faqSlide 0.2s ease;
-        }
-        @keyframes faqSlide {
-          from { opacity: 0; transform: translateY(-4px); }
-          to { opacity: 1; transform: translateY(0); }
+          color: #555;
+          line-height: 1.65;
         }
 
-        /* BUSINESS INFO */
-        .bizInfo {
-          background: #fafafa;
-          border: 1px solid #e5e5e5;
-          border-radius: 12px;
-          padding: 20px 24px;
-        }
-        .bizTitle {
-          font-size: 13px;
-          font-weight: 800;
-          color: #0f0f0f;
-          margin-bottom: 10px;
-        }
-        .bizRow {
-          display: grid;
-          grid-template-columns: 120px 1fr;
-          padding: 6px 0;
-          font-size: 12px;
-          border-bottom: 1px solid #f0f0f0;
-        }
-        .bizRow:last-child { border-bottom: none; }
-        .bizLabel { color: #888; font-weight: 500; }
-        .bizValue { color: #0f0f0f; font-weight: 500; }
-
-        /* FINAL CTA */
-        .finalCTA {
-          background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
-          color: #fff;
-          border-radius: 16px;
-          padding: 36px;
-          text-align: center;
+        .cta {
           margin-top: 40px;
-        }
-        .finalCTATitle {
-          font-size: 24px;
-          font-weight: 800;
-          letter-spacing: -0.02em;
-          margin-bottom: 8px;
-        }
-        .finalCTASub {
-          font-size: 13px;
-          color: #aaa;
-          margin-bottom: 20px;
-        }
-        .finalCTABtn {
-          padding: 14px 32px;
-          background: #cc0000;
+          padding: 28px;
+          background: linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%);
+          border-radius: 16px;
           color: #fff;
-          border: none;
-          border-radius: 999px;
-          font-size: 14px;
-          font-weight: 800;
-          cursor: pointer;
-          font-family: inherit;
+          text-align: center;
         }
-        .finalCTABtn:hover { background: #a80000; }
+        .ctaTitle {
+          font-size: 19px;
+          font-weight: 800;
+          margin-bottom: 6px;
+          letter-spacing: -0.02em;
+        }
+        .ctaSub {
+          font-size: 13px;
+          color: #999;
+          margin-bottom: 18px;
+        }
+        .ctaBtns {
+          display: inline-flex;
+          gap: 10px;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+        .ctaBtn {
+          padding: 12px 26px;
+          border-radius: 999px;
+          font-size: 13px;
+          font-weight: 700;
+          display: inline-block;
+          text-decoration: none;
+          transition: all 0.15s;
+        }
+        .ctaBtnPrimary {
+          background: linear-gradient(135deg, #cc0000 0%, #8b0000 100%);
+          color: #fff;
+        }
+        .ctaBtnPrimary:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 4px 12px rgba(204,0,0,0.3);
+        }
+        .ctaBtnSecondary {
+          background: rgba(255,255,255,0.1);
+          color: #fff;
+          border: 1px solid rgba(255,255,255,0.2);
+        }
+        .ctaBtnSecondary:hover {
+          background: rgba(255,255,255,0.15);
+        }
 
-        @media (max-width: 768px) {
-          .page { padding: 20px 14px 40px; }
-          .heroTitle { font-size: 28px; }
-          .heroSub { font-size: 14px; }
-          .sectionTitle { font-size: 20px; }
-          .stepsGrid { grid-template-columns: 1fr; }
-          .compareRow { grid-template-columns: 1.5fr 1fr; gap: 8px; padding: 12px 14px; }
-          .compareRow > :nth-child(3),
-          .compareRow > :nth-child(4) { display: none; }
-          .finalCTA { padding: 24px; }
-          .finalCTATitle { font-size: 20px; }
+        @media (max-width: 640px) {
+          .page { padding: 22px 16px 40px; }
+          .pageTitle { font-size: 26px; }
+          .valuesGrid { grid-template-columns: 1fr; }
+          .infoLabel { flex: 0 0 90px; }
         }
       `}</style>
 
       <div className="page">
-        {/* HERO */}
-        <section className="hero">
-          <span className="heroBadge">✨ ABOUT ALGOMAKER</span>
-          <h1 className="heroTitle">
-            AI가 만드는 YouTube,<br />
-            <span>키워드 하나면 끝</span>
-          </h1>
-          <p className="heroSub">
-            뉴스 수집부터 대본·TTS·영상 합성·자막·BGM까지.<br />
-            5~8분 만에 완성되는 유튜브 자동화 플랫폼.
+        <header className="pageHeader">
+          <span className="pageBadge">ABOUT</span>
+          <h1 className="pageTitle">AlgoMaker 소개</h1>
+          <p className="pageSub">
+            AI 기술로 누구나 유튜브 크리에이터가 될 수 있도록 돕는 한국어 특화 영상 자동 생성 스튜디오입니다.
           </p>
-          <div className="heroCTA">
-            <button className="ctaPrimary" onClick={() => router.push('/')}>
-              ▶ 지금 시작하기
-            </button>
-            <button className="ctaSecondary" onClick={() => router.push('/analytics')}>
-              Pro 기능 보기 →
-            </button>
+        </header>
+
+        {/* 미션 */}
+        <section className="section">
+          <div className="sectionTitle">
+            <span className="sectionIcon">🎯</span>
+            우리의 미션
+          </div>
+          <div className="sectionBody">
+            <p>
+              유튜브 영상 한 편을 만들려면 기획·대본·녹음·이미지·편집까지 최소 4~8시간이 필요합니다.
+              이 과정은 전문 크리에이터에게도 부담스럽고, 초보자에게는 진입 장벽이 됩니다.
+            </p>
+            <p>
+              AlgoMaker는 이 장벽을 허무는 것을 목표로 합니다.
+              키워드 하나를 입력하면 AI가 알고리즘 친화적인 시나리오를 추천하고,
+              대본·음성·이미지를 자동으로 조합해 완성된 영상을 만들어드립니다.
+              크리에이터는 기획과 편집의 부담을 덜고, 본인의 독창적인 콘텐츠에 집중할 수 있습니다.
+            </p>
           </div>
         </section>
 
-        {/* STEPS */}
+        {/* 핵심 가치 */}
         <section className="section">
-          <div className="sectionHead">
-            <div className="sectionEyebrow">HOW IT WORKS</div>
-            <h2 className="sectionTitle">영상이 만들어지는 6단계</h2>
-            <p className="sectionSub">모든 단계가 자동으로 진행됩니다</p>
+          <div className="sectionTitle">
+            <span className="sectionIcon">💎</span>
+            핵심 가치
           </div>
-          <div className="stepsGrid">
-            {STEPS.map((s) => (
-              <div key={s.num} className="stepCard">
-                <div className="stepNum">{s.num}</div>
-                <div className="stepEmoji">{s.emoji}</div>
-                <div className="stepTitle">{s.title}</div>
-                <div className="stepDesc">{s.desc}</div>
+          <div className="valuesGrid">
+            <div className="valueCard">
+              <div className="valueCardTitle">
+                <span className="valueCardIcon">🆓</span>
+                무료 접근
               </div>
-            ))}
-          </div>
-        </section>
-
-        {/* COMPARISON */}
-        <section className="section">
-          <div className="sectionHead">
-            <div className="sectionEyebrow">WHY ALGOMAKER</div>
-            <h2 className="sectionTitle">수작업 vs AlgoMaker</h2>
-            <p className="sectionSub">같은 결과물, 60배 빠른 속도</p>
-          </div>
-          <div className="compare">
-            <div className="compareRow compareRowHead">
-              <div>항목</div>
-              <div>AlgoMaker</div>
-              <div>수작업</div>
-              <div style={{ textAlign: 'right' }}>차이</div>
-            </div>
-            {COMPARISONS.map((c, i) => (
-              <div key={i} className="compareRow">
-                <div className="compareFeat">{c.feat}</div>
-                <div className="compareAI">✓ {c.ai}</div>
-                <div className="compareManual">{c.manual}</div>
-                <div className="compareDiff">{c.diff}</div>
+              <div className="valueCardDesc">
+                가입·결제 없이 12가지 시나리오 스타일을 무제한 사용할 수 있습니다.
+                크리에이터의 초기 진입 비용을 0원으로 만듭니다.
               </div>
-            ))}
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section className="section">
-          <div className="sectionHead">
-            <div className="sectionEyebrow">FAQ</div>
-            <h2 className="sectionTitle">자주 묻는 질문</h2>
-          </div>
-          <div className="faqList">
-            {FAQ_ITEMS.map((item, i) => (
-              <div key={i} className="faqItem">
-                <div className="faqQ" onClick={() => setOpenFaq(openFaq === i ? null : i)}>
-                  <span>Q. {item.q}</span>
-                  <span className={`faqArrow ${openFaq === i ? 'faqArrowOpen' : ''}`}>▾</span>
-                </div>
-                {openFaq === i && (
-                  <div className="faqA">A. {item.a}</div>
-                )}
+            </div>
+            <div className="valueCard">
+              <div className="valueCardTitle">
+                <span className="valueCardIcon">🇰🇷</span>
+                한국어 최적화
               </div>
-            ))}
+              <div className="valueCardDesc">
+                한국어 시장 특성에 맞춘 시나리오 구조와 한국어 TTS를 기본 제공합니다.
+                해외 도구의 한계를 넘어선 현지화된 경험을 제공합니다.
+              </div>
+            </div>
+            <div className="valueCard">
+              <div className="valueCardTitle">
+                <span className="valueCardIcon">📊</span>
+                데이터 기반
+              </div>
+              <div className="valueCardDesc">
+                유튜브 알고리즘의 최신 트렌드와 시청 유지율 데이터를 반영한
+                시나리오 구조로 실전에서 통하는 영상을 생성합니다.
+              </div>
+            </div>
+            <div className="valueCard">
+              <div className="valueCardTitle">
+                <span className="valueCardIcon">⚡</span>
+                빠른 제작
+              </div>
+              <div className="valueCardDesc">
+                기획부터 완성까지 평균 5~10분. 하루에 여러 편의 영상을 시도하며
+                채널 콘텐츠 양을 빠르게 늘릴 수 있습니다.
+              </div>
+            </div>
           </div>
         </section>
 
-        {/* BUSINESS INFO */}
+        {/* 작동 방식 */}
         <section className="section">
-          <div className="sectionHead">
-            <div className="sectionEyebrow">BUSINESS</div>
-            <h2 className="sectionTitle">운영 정보</h2>
+          <div className="sectionTitle">
+            <span className="sectionIcon">⚙️</span>
+            AlgoMaker는 이렇게 작동합니다
           </div>
-          <div className="bizInfo">
-            <div className="bizTitle">사업자 정보</div>
-            <div className="bizRow">
-              <span className="bizLabel">상호</span>
-              <span className="bizValue">한줄컴퍼니</span>
+          <div className="stepList">
+            <div className="stepItem">
+              <div className="stepTitle">키워드 입력</div>
+              <div className="stepDesc">
+                만들고 싶은 영상의 주제 키워드를 입력합니다.
+                예: "2026 금리 전망", "AI 도구 TOP 5", "시니어 건강 관리" 등.
+              </div>
             </div>
-            <div className="bizRow">
-              <span className="bizLabel">대표</span>
-              <span className="bizValue">박예준</span>
+            <div className="stepItem">
+              <div className="stepTitle">AI 시나리오 추천</div>
+              <div className="stepDesc">
+                AI가 12가지 시나리오 구조 중 키워드에 최적화된 3가지를 추천합니다.
+                미스터리 추적, 결론 먼저, 해법 찾기 등 각 구조마다 다른 몰입감과 유지율을 보여줍니다.
+              </div>
             </div>
-            <div className="bizRow">
-              <span className="bizLabel">사업자등록번호</span>
-              <span className="bizValue">450-07-03104</span>
+            <div className="stepItem">
+              <div className="stepTitle">세부 설정</div>
+              <div className="stepDesc">
+                영상 길이(5~20분), 말투(격식형/친근형/반말), 타겟(일반/시니어) 등을 선택합니다.
+                원하는 경우 추가 키워드도 입력할 수 있습니다.
+              </div>
             </div>
-            <div className="bizRow">
-              <span className="bizLabel">통신판매업신고</span>
-              <span className="bizValue">제 2025-인천서구-3321호</span>
+            <div className="stepItem">
+              <div className="stepTitle">자동 생성</div>
+              <div className="stepDesc">
+                AI가 대본을 쓰고, 한국어 TTS로 음성을 합성하고, 적절한 이미지를 수집해
+                영상을 합성합니다. 이 과정은 평균 5~10분이 소요됩니다.
+              </div>
             </div>
-            <div className="bizRow">
-              <span className="bizLabel">주소</span>
-              <span className="bizValue">인천광역시 서구 청라커낼로 270, 커넬힐스빌 2층 2498호</span>
+            <div className="stepItem">
+              <div className="stepTitle">다운로드 및 업로드</div>
+              <div className="stepDesc">
+                완성된 MP4 파일을 다운로드해 바로 유튜브에 업로드할 수 있습니다.
+                썸네일과 제목은 크리에이터가 직접 만들어 개성을 담는 것을 권장드립니다.
+              </div>
             </div>
           </div>
         </section>
 
-        {/* FINAL CTA */}
-        <section className="finalCTA">
-          <div className="finalCTATitle">지금 바로 첫 영상 만들어보세요</div>
-          <div className="finalCTASub">
-            회원가입 없이 무료로 시작 · 5~8분이면 완성
+        {/* 운영자 정보 */}
+        <section className="section">
+          <div className="sectionTitle">
+            <span className="sectionIcon">🏢</span>
+            운영자 정보
           </div>
-          <button className="finalCTABtn" onClick={() => router.push('/')}>
-            ▶ 무료로 시작하기
-          </button>
+          <div className="infoBox">
+            <div className="infoRow">
+              <div className="infoLabel">서비스명</div>
+              <div className="infoValue">AlgoMaker (알고메이커)</div>
+            </div>
+            <div className="infoRow">
+              <div className="infoLabel">운영</div>
+              <div className="infoValue">한줄컴퍼니</div>
+            </div>
+            <div className="infoRow">
+              <div className="infoLabel">대표</div>
+              <div className="infoValue">박예준</div>
+            </div>
+            <div className="infoRow">
+              <div className="infoLabel">서비스 개시</div>
+              <div className="infoValue">2026년</div>
+            </div>
+            <div className="infoRow">
+              <div className="infoLabel">분야</div>
+              <div className="infoValue">AI 기반 영상 콘텐츠 자동화 도구</div>
+            </div>
+            <div className="infoRow">
+              <div className="infoLabel">주요 기술</div>
+              <div className="infoValue">Google Gemini · Edge TTS · Pexels · Next.js · FastAPI</div>
+            </div>
+            <div className="infoRow">
+              <div className="infoLabel">문의</div>
+              <div className="infoValue">
+                <Link href="/contact" style={{ color: '#cc0000', textDecoration: 'underline' }}>
+                  문의하기 페이지
+                </Link>
+              </div>
+            </div>
+          </div>
         </section>
+
+        {/* 콘텐츠 정책 */}
+        <section className="section">
+          <div className="sectionTitle">
+            <span className="sectionIcon">📝</span>
+            콘텐츠 정책
+          </div>
+          <div className="sectionBody">
+            <p>
+              AlgoMaker는 건전하고 유익한 콘텐츠 제작을 지향합니다.
+              서비스는 다음 용도의 콘텐츠 제작에는 사용할 수 없습니다:
+              허위 정보, 선정적 또는 폭력적 콘텐츠, 타인의 저작권을 침해하는 콘텐츠,
+              특정 개인 또는 집단을 비방하는 콘텐츠, 도박·불법 금융 상품 관련 콘텐츠.
+            </p>
+            <p>
+              사용자는 생성된 영상의 내용에 대해 최종적인 책임을 지며,
+              유튜브 커뮤니티 가이드라인과 저작권법을 준수해야 합니다.
+              자세한 내용은 <Link href="/terms" style={{ color: '#cc0000' }}>이용약관</Link>을 참고해주세요.
+            </p>
+          </div>
+        </section>
+
+        {/* CTA */}
+        <div className="cta">
+          <div className="ctaTitle">🎬 지금 첫 영상을 만들어보세요</div>
+          <div className="ctaSub">가입 없이 바로 시작 · 무료 · 한국어 완벽 지원</div>
+          <div className="ctaBtns">
+            <Link href="/" className="ctaBtn ctaBtnPrimary">
+              영상 만들기 시작 →
+            </Link>
+            <Link href="/blog" className="ctaBtn ctaBtnSecondary">
+              블로그 둘러보기
+            </Link>
+          </div>
+        </div>
       </div>
     </DashboardShell>
   );

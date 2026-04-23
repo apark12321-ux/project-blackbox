@@ -1,13 +1,14 @@
 /**
- * AlgoMaker 시나리오 스타일 정의 + 무한 프롬프트 생성기 (v2)
+ * AlgoMaker 시나리오 스타일 정의 + 무한 프롬프트 생성기 (v2.1)
  *
- * v2 변경:
+ * v2.1 변경:
+ * - 모든 시나리오 tier: 'pro' → 'free' (AdSense 피벗, 전면 무료 개방)
+ * - tier 필드는 호환성 위해 유지 (향후 재활용 가능)
+ *
+ * v2 변경(이전):
  * - 각 시나리오당 hook/opinion/fact 템플릿을 5배 확장 ({kw} 자리표시자 사용)
  * - generateInfiniteHooks/Opinions/CoreFacts(): 시드 기반 무한 변형
  * - 같은 시나리오 + 같은 키워드라도 매번 다른 프롬프트가 백엔드로 전달됨
- *
- * 백엔드는 hook_triggers/opinion_seeds/core_facts 배열을 그대로 받아 Gemini 프롬프트에 주입하므로,
- * 매번 다른 입력 → 매번 다른 대본 생성 결과를 얻을 수 있음.
  */
 
 export type StyleId =
@@ -44,7 +45,7 @@ export interface ScenarioStyle {
   sectionPattern: string[];
 
   // v2 NEW: 무한 변형용 템플릿
-  hookTemplates: string[];      // {kw}, {when}, {emph} 자리표시자 사용 가능
+  hookTemplates: string[];
   opinionTemplates: string[];
   factTemplates: string[];
 }
@@ -77,7 +78,7 @@ const UNIVERSAL_OPINIONS = [
 ];
 
 // ============================================================
-// 시나리오 정의
+// 시나리오 정의 — 12개 전부 FREE (AdSense 피벗)
 // ============================================================
 export const SCENARIOS: ScenarioStyle[] = [
   // ============== 경제·사회 ==============
@@ -193,7 +194,7 @@ export const SCENARIOS: ScenarioStyle[] = [
     flow: '현재 현상 → 역사 속 원인 → 오늘의 의미',
     desc: '지금 벌어지는 일의 역사적 뿌리를 추적해 깊이 있는 맥락을 제공',
     retention: 85,
-    tier: 'pro',
+    tier: 'free',
     group: '경제·사회',
     hook_triggers: [
       '이 현상의 뿌리는 10년 전으로 거슬러 올라갑니다',
@@ -241,7 +242,7 @@ export const SCENARIOS: ScenarioStyle[] = [
     flow: '"~한다면?" 상상 → 결과 시뮬레이션',
     desc: '가상의 상황을 가정해 구체적 결과를 시뮬레이션하는 몰입형 구조',
     retention: 82,
-    tier: 'pro',
+    tier: 'free',
     group: '경제·사회',
     hook_triggers: [
       '만약 이런 일이 일어난다면',
@@ -337,7 +338,7 @@ export const SCENARIOS: ScenarioStyle[] = [
     flow: 'A vs B 라운드별 항목 비교',
     desc: '두 대상을 여러 기준으로 라운드별로 비교해 승자를 가리는 토너먼트 형식',
     retention: 68,
-    tier: 'pro',
+    tier: 'free',
     group: '정보·분석',
     hook_triggers: [
       '오늘은 두 가지를 직접 비교해보겠습니다',
@@ -382,7 +383,7 @@ export const SCENARIOS: ScenarioStyle[] = [
     flow: '당연한 통념 → 의심 → 반전',
     desc: '누구나 당연하다 믿는 것을 뒤집는 역발상 구조. 강력한 후킹',
     retention: 65,
-    tier: 'pro',
+    tier: 'free',
     group: '정보·분석',
     hook_triggers: [
       '당신이 알고 있던 상식은 틀렸습니다',
@@ -471,7 +472,7 @@ export const SCENARIOS: ScenarioStyle[] = [
     flow: '도입 20% → 심화 60% → 절정 20%',
     desc: '영화 같은 기승전결. 중간 심화를 길게 잡고 절정으로 몰아가는 구성',
     retention: 58,
-    tier: 'pro',
+    tier: 'free',
     group: '범용',
     hook_triggers: [
       '이야기를 들려드립니다',
@@ -553,7 +554,7 @@ export const SCENARIOS: ScenarioStyle[] = [
     flow: '5위부터 1위까지 공개',
     desc: '순위를 낮은 쪽부터 하나씩 공개하며 1위까지 끌고 가는 중독성 강한 구조',
     retention: 50,
-    tier: 'pro',
+    tier: 'free',
     group: '범용',
     hook_triggers: [
       '오늘은 TOP 5를 공개합니다',
@@ -593,7 +594,7 @@ export const SCENARIOS: ScenarioStyle[] = [
     flow: '내레이션 + 자료 + 인터뷰 인용',
     desc: 'BBC/넷플릭스 스타일의 차분하고 깊이 있는 다큐멘터리 구조',
     retention: 48,
-    tier: 'pro',
+    tier: 'free',
     group: '범용',
     hook_triggers: [
       '그 시작은 이러했습니다',
@@ -663,7 +664,6 @@ function hashString(s: string): number {
 function pickN<T>(arr: T[], n: number, rng: () => number): T[] {
   if (arr.length === 0) return [];
   const copy = [...arr];
-  // Fisher-Yates
   for (let i = copy.length - 1; i > 0; i--) {
     const j = Math.floor(rng() * (i + 1));
     [copy[i], copy[j]] = [copy[j], copy[i]];
@@ -681,18 +681,8 @@ function fillTemplate(tpl: string, kw: string, rng: () => number): string {
 }
 
 // ============================================================
-// v2 NEW: 무한 프롬프트 생성기
+// 무한 프롬프트 생성기
 // ============================================================
-
-/**
- * 시나리오 스타일 + 키워드 기반으로 무한 변형 가능한 hook 문구 N개 생성
- *
- * @param style    선택된 시나리오 (없으면 universal pool 사용)
- * @param keyword  영상 키워드
- * @param count    생성할 개수 (기본 8)
- * @param seed     같은 seed면 같은 결과. 기본은 시간 기반 → 매번 다름
- * @returns        백엔드 hook_triggers 필드에 그대로 넣을 string 배열
- */
 export function generateInfiniteHooks(
   style: ScenarioStyle | null | undefined,
   keyword: string,
@@ -703,7 +693,6 @@ export function generateInfiniteHooks(
   const rng = makeRng(baseSeed);
 
   const styleTemplates = style?.hookTemplates ?? [];
-  // 80%는 스타일 템플릿, 20%는 universal에서 보강 → 다양성 강화
   const styleCount = Math.max(1, Math.ceil(count * 0.8));
   const universalCount = count - styleCount;
 
@@ -711,13 +700,9 @@ export function generateInfiniteHooks(
   const fromUniversal = pickN(UNIVERSAL_HOOKS, universalCount, rng);
 
   const out = [...fromStyle, ...fromUniversal].map((tpl) => fillTemplate(tpl, keyword, rng));
-  // 중복 제거
   return Array.from(new Set(out)).slice(0, count);
 }
 
-/**
- * opinion_seeds 무한 변형 — 키워드와 결합한 의견 씨앗 N개
- */
 export function generateInfiniteOpinions(
   style: ScenarioStyle | null | undefined,
   keyword: string,
@@ -730,8 +715,6 @@ export function generateInfiniteOpinions(
   const styleSeedWords = style?.opinion_seeds ?? [];
   const styleTemplates = style?.opinionTemplates ?? [];
 
-  // (a) 스타일별 의견 템플릿 N개 (키워드 채워서)
-  // (b) 단어 + universal opinion 결합 (예: "재테크 초보의 본질")
   const tplCount = Math.max(1, Math.ceil(count * 0.7));
   const wordCount = count - tplCount;
 
@@ -744,9 +727,6 @@ export function generateInfiniteOpinions(
   return Array.from(new Set([...fromTpl, ...fromWords])).slice(0, count);
 }
 
-/**
- * core_facts 무한 변형 — 시나리오 구조 패턴을 키워드로 채워 N개
- */
 export function generateInfiniteCoreFacts(
   style: ScenarioStyle | null | undefined,
   keyword: string,
@@ -758,16 +738,12 @@ export function generateInfiniteCoreFacts(
 
   const tpls = style?.factTemplates ?? [];
   if (tpls.length === 0) {
-    // fallback: 기존 core_facts에 키워드 prefix
     return (style?.core_facts ?? []).slice(0, count).map((f) => `${keyword}: ${f}`);
   }
   const picked = pickN(tpls, count, rng);
   return picked.map((t) => fillTemplate(t, keyword, rng));
 }
 
-/**
- * 한 번에 모두 생성 (videoApi에서 호출용)
- */
 export function generateScenarioPrompts(
   style: ScenarioStyle | null | undefined,
   keyword: string,
@@ -780,9 +756,6 @@ export function generateScenarioPrompts(
   };
 }
 
-/**
- * AI 추천 3개 생성 (랜덤, 매번 다르게) — 기존 호환 유지
- */
 export function pickRecommendedScenarios(seed: string = ''): ScenarioStyle[] {
   const seedNum = (seed.split('').reduce((a, c) => a + c.charCodeAt(0), 0) + Date.now()) | 0;
   const rng = makeRng(seedNum);
