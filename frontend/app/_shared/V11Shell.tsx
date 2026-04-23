@@ -1,11 +1,10 @@
 'use client';
 /**
- * V11Shell v3 — AdSense Ready
+ * V11Shell v4 — "Neural Lab"
  *
- * v2 → v3 변경:
- * - 🆕 Footer 추가 (모든 페이지 하단에 About/Contact/Privacy/Terms 링크)
- * - 🆕 사이드바에 Contact 메뉴 추가
- * - AdSense 심사관이 쉽게 찾을 수 있도록 Footer 노출
+ * 컨셉: AI 뉴럴 네트워크 연구실 / NASA 미션 컨트롤 / Cursor IDE
+ * 색: 검정 + 네온 시안/바이올렛/핑크
+ * 폰트: Space Grotesk (헤딩) + JetBrains Mono (데이터)
  */
 
 import Link from 'next/link';
@@ -67,13 +66,13 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-const TOP_NOTICES = [
-  { icon: '🔥', text: '이번 주 급상승: "2026 금리 전망" · 블루오션 지수 94/100', tone: 'hot' },
-  { icon: '📈', text: '경제·사회 카테고리 조회수 평균 +38% (지난주 대비)', tone: 'trend' },
-  { icon: '💡', text: 'AI 분석 통계: 미스터리 추적형이 유지율 95% 기록', tone: 'tip' },
-  { icon: '🎯', text: '이번 달 주목 카테고리: IT·자기계발 · 경쟁 강도 낮음', tone: 'hot' },
-  { icon: '⚡', text: '다큐 스타일 업데이트 — BBC식 호흡으로 유지율 +12%', tone: 'new' },
-  { icon: '🎬', text: '바로 어제 조회수 10만+ 돌파한 시나리오: "상식 깨기"', tone: 'trend' },
+const TRANSMISSIONS = [
+  { code: 'SIG-001', text: 'TRENDING NODE · "2026 INTEREST_RATE" · BLUE_OCEAN_SCORE: 94', tone: 'critical' },
+  { code: 'SIG-002', text: 'DATA_STREAM · CATEGORY.ECONOMY retention +38% (wk-over-wk)', tone: 'info' },
+  { code: 'SIG-003', text: 'ANALYSIS · scenario.mystery → retention.avg 95.0%', tone: 'alert' },
+  { code: 'SIG-004', text: 'MARKET_SCAN · IT_SELF-DEV cluster · competition.low', tone: 'critical' },
+  { code: 'SIG-005', text: 'UPDATE_PUSH · scenario.docu v2.1 · retention +12%', tone: 'new' },
+  { code: 'SIG-006', text: 'BREAKTHROUGH · scenario.flip · 10M+ views (yesterday)', tone: 'info' },
 ];
 
 function useTodayCounter() {
@@ -98,24 +97,39 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [noticeIdx, setNoticeIdx] = useState(0);
+  const [transmissionIdx, setTransmissionIdx] = useState(0);
   const todayCount = useTodayCounter();
+  const [uptime, setUptime] = useState(0);
 
   useEffect(() => {
-    const t = setInterval(() => setNoticeIdx((i) => (i + 1) % TOP_NOTICES.length), 4500);
+    const t = setInterval(() => setTransmissionIdx((i) => (i + 1) % TRANSMISSIONS.length), 5000);
     return () => clearInterval(t);
   }, []);
 
+  // uptime ticker
+  useEffect(() => {
+    const start = Date.now();
+    const t = setInterval(() => setUptime(Math.floor((Date.now() - start) / 1000)), 1000);
+    return () => clearInterval(t);
+  }, []);
+
+  const formatUptime = (s: number) => {
+    const h = Math.floor(s / 3600).toString().padStart(2, '0');
+    const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
+    const sec = (s % 60).toString().padStart(2, '0');
+    return `${h}:${m}:${sec}`;
+  };
+
   const mainMenu = [
-    { icon: '🏠', label: '홈', path: '/', key: 'home' },
-    { icon: '🎬', label: '내 영상', path: '/assets', key: 'assets' },
-    { icon: '📊', label: '경쟁 분석', path: '/analytics', key: 'analytics', badge: 'LIVE' },
-    { icon: '📝', label: '블로그', path: '/blog', key: 'blog' },
+    { code: 'N01', icon: '◉', label: 'HOME', labelKr: '홈', path: '/', key: 'home' },
+    { code: 'N02', icon: '▸', label: 'ASSETS', labelKr: '내 영상', path: '/assets', key: 'assets' },
+    { code: 'N03', icon: '⊹', label: 'ANALYZE', labelKr: '경쟁 분석', path: '/analytics', key: 'analytics', badge: 'LIVE' },
+    { code: 'N04', icon: '◈', label: 'JOURNAL', labelKr: '블로그', path: '/blog', key: 'blog' },
   ];
 
   const infoMenu = [
-    { icon: '💡', label: '소개', path: '/about', key: 'about' },
-    { icon: '✉️', label: '문의하기', path: '/contact', key: 'contact' },
+    { code: 'I01', icon: '○', label: 'ABOUT', labelKr: '소개', path: '/about', key: 'about' },
+    { code: 'I02', icon: '◇', label: 'CONTACT', labelKr: '문의', path: '/contact', key: 'contact' },
   ];
 
   const isActive = (path: string) => {
@@ -123,33 +137,109 @@ function ShellInner({ children }: { children: React.ReactNode }) {
     return pathname?.startsWith(path);
   };
 
-  const currentNotice = TOP_NOTICES[noticeIdx];
+  const currentTransmission = TRANSMISSIONS[transmissionIdx];
   const currentYear = new Date().getFullYear();
 
   return (
     <>
       <style jsx global>{`
-        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
+        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+
         * { margin: 0; padding: 0; box-sizing: border-box; }
-        html, body {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
-          background: #fafafa;
-          color: #0f0f0f;
-          -webkit-font-smoothing: antialiased;
+
+        :root {
+          --bg-0: #050507;
+          --bg-1: #0a0a0f;
+          --bg-2: #0f0f18;
+          --bg-3: #15151f;
+          --bg-4: #1a1a28;
+          --line-dim: rgba(255,255,255,0.06);
+          --line: rgba(255,255,255,0.1);
+          --line-strong: rgba(255,255,255,0.18);
+          --text-0: #ffffff;
+          --text-1: #e5e5ee;
+          --text-2: #a0a0b0;
+          --text-3: #606070;
+          --text-4: #404050;
+          --cyan: #00e5ff;
+          --cyan-dim: rgba(0, 229, 255, 0.15);
+          --violet: #a855f7;
+          --violet-dim: rgba(168, 85, 247, 0.15);
+          --pink: #ec4899;
+          --pink-dim: rgba(236, 72, 153, 0.15);
+          --green: #4ade80;
+          --green-dim: rgba(74, 222, 128, 0.15);
+          --amber: #fbbf24;
+          --red: #ef4444;
+
+          --font-sans: 'Inter', 'Pretendard', -apple-system, sans-serif;
+          --font-display: 'Space Grotesk', 'Inter', sans-serif;
+          --font-mono: 'JetBrains Mono', ui-monospace, monospace;
         }
+
+        html, body {
+          font-family: var(--font-sans);
+          background: var(--bg-0);
+          color: var(--text-1);
+          -webkit-font-smoothing: antialiased;
+          font-feature-settings: 'cv11', 'ss01';
+        }
+
+        /* Global noise texture */
+        body::before {
+          content: '';
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          z-index: 1;
+          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+          opacity: 0.04;
+          mix-blend-mode: screen;
+        }
+
         a { color: inherit; text-decoration: none; }
         button { font-family: inherit; }
+
+        ::selection {
+          background: var(--cyan);
+          color: var(--bg-0);
+        }
+
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: var(--bg-0); }
+        ::-webkit-scrollbar-thumb { background: var(--bg-4); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-4); }
       `}</style>
 
       <style jsx>{`
-        .app { display: flex; min-height: 100vh; background: #fafafa; }
+        .app {
+          display: flex;
+          min-height: 100vh;
+          background: var(--bg-0);
+          position: relative;
+        }
 
-        /* SIDEBAR */
+        /* Subtle grid overlay */
+        .app::before {
+          content: '';
+          position: fixed;
+          inset: 0;
+          pointer-events: none;
+          background-image:
+            linear-gradient(var(--line-dim) 1px, transparent 1px),
+            linear-gradient(90deg, var(--line-dim) 1px, transparent 1px);
+          background-size: 80px 80px;
+          opacity: 0.4;
+          z-index: 0;
+          mask-image: radial-gradient(ellipse at center, black 0%, transparent 80%);
+        }
+
+        /* ============ SIDEBAR ============ */
         .sidebar {
-          width: 248px;
-          background: #fff;
-          border-right: 1px solid #e8e8e8;
-          padding: 18px 0 16px;
+          width: 240px;
+          background: var(--bg-1);
+          border-right: 1px solid var(--line-dim);
+          padding: 16px 0 14px;
           display: flex;
           flex-direction: column;
           position: sticky;
@@ -158,313 +248,427 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           flex-shrink: 0;
           overflow-y: auto;
           overflow-x: hidden;
+          z-index: 10;
         }
-        .sidebar::-webkit-scrollbar { width: 4px; }
-        .sidebar::-webkit-scrollbar-thumb { background: #e0e0e0; border-radius: 2px; }
 
         .sidebarHeader {
-          padding: 0 22px 18px;
-          border-bottom: 1px solid #f0f0f0;
+          padding: 0 18px 16px;
+          border-bottom: 1px solid var(--line-dim);
           margin-bottom: 14px;
         }
-        .logoRow { display: flex; align-items: center; gap: 8px; margin-bottom: 4px; }
-        .logo { font-size: 19px; font-weight: 800; letter-spacing: -0.03em; line-height: 1; }
-        .logoAccent { color: #cc0000; }
-        .liveChip {
+        .brandRow {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          margin-bottom: 6px;
+        }
+        .brand {
+          font-family: var(--font-display);
+          font-size: 17px;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          color: var(--text-0);
           display: inline-flex;
           align-items: center;
-          gap: 4px;
-          padding: 2px 6px;
-          background: #fee2e2;
-          border-radius: 4px;
-          font-size: 9px;
-          font-weight: 800;
-          color: #b91c1c;
-          letter-spacing: 0.05em;
+          gap: 2px;
         }
-        .livedot {
-          width: 5px; height: 5px;
-          background: #dc2626;
+        .brand-mark {
+          color: var(--cyan);
+          font-weight: 500;
+        }
+        .statusBadge {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          font-family: var(--font-mono);
+          font-size: 9px;
+          font-weight: 600;
+          color: var(--green);
+          letter-spacing: 0.08em;
+        }
+        .statusDot {
+          width: 6px; height: 6px;
+          background: var(--green);
           border-radius: 50%;
-          animation: pulse 1.8s ease-in-out infinite;
+          box-shadow: 0 0 8px var(--green);
+          animation: pulse 2s ease-in-out infinite;
         }
         @keyframes pulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.4; transform: scale(0.7); }
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.4; }
         }
-        .logoSub { font-size: 10.5px; color: #808080; font-weight: 500; letter-spacing: 0.02em; }
 
-        .menuSection { padding: 0 12px; }
-        .menuTitle {
+        .versionLine {
+          font-family: var(--font-mono);
           font-size: 10px;
-          font-weight: 700;
-          color: #888;
-          letter-spacing: 0.12em;
-          padding: 10px 14px 6px;
+          color: var(--text-3);
+          letter-spacing: 0.04em;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
         }
+        .versionLine .uptime {
+          color: var(--cyan);
+        }
+
+        /* Menu */
+        .menuGroup {
+          padding: 0 10px;
+          margin-bottom: 4px;
+        }
+        .groupLabel {
+          font-family: var(--font-mono);
+          font-size: 9px;
+          font-weight: 600;
+          color: var(--text-4);
+          letter-spacing: 0.15em;
+          padding: 10px 12px 6px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .groupLabel::before {
+          content: '';
+          width: 12px;
+          height: 1px;
+          background: var(--line);
+        }
+
         .menuItem {
           display: flex;
           align-items: center;
-          gap: 11px;
-          padding: 9px 14px;
-          border-radius: 9px;
+          gap: 10px;
+          padding: 9px 12px;
+          border-radius: 6px;
           cursor: pointer;
-          font-size: 13.5px;
+          font-size: 13px;
           font-weight: 500;
-          color: #1a1a1a;
-          margin-bottom: 2px;
-          transition: all 0.15s ease;
+          color: var(--text-2);
+          margin-bottom: 1px;
+          transition: all 0.18s ease;
           position: relative;
+          font-family: var(--font-sans);
         }
-        .menuItem:hover { background: #f6f6f6; transform: translateX(2px); }
-        .menuItemActive {
-          background: linear-gradient(90deg, #fff0f0 0%, #fff5f5 100%);
-          color: #cc0000;
-          font-weight: 700;
+        .menuItem:hover {
+          background: var(--bg-3);
+          color: var(--text-0);
         }
-        .menuItemActive::before {
+        .menuItem.active {
+          background: linear-gradient(90deg, var(--cyan-dim) 0%, transparent 100%);
+          color: var(--cyan);
+        }
+        .menuItem.active::before {
           content: '';
           position: absolute;
           left: 0;
-          top: 8px;
-          bottom: 8px;
-          width: 3px;
-          background: #cc0000;
+          top: 6px;
+          bottom: 6px;
+          width: 2px;
+          background: var(--cyan);
+          box-shadow: 0 0 8px var(--cyan);
           border-radius: 0 2px 2px 0;
         }
-        .menuIcon { font-size: 16px; flex-shrink: 0; }
-        .menuLabel { flex: 1; }
-        .menuBadge {
+        .menuIcon {
+          font-size: 14px;
+          width: 14px;
+          text-align: center;
+          color: var(--text-3);
+          flex-shrink: 0;
+        }
+        .menuItem.active .menuIcon {
+          color: var(--cyan);
+        }
+        .menuLabelBlock {
+          flex: 1;
+          min-width: 0;
+        }
+        .menuCode {
+          font-family: var(--font-mono);
           font-size: 9px;
-          font-weight: 800;
-          padding: 2px 6px;
-          border-radius: 4px;
-          background: #fef3c7;
-          color: #92400e;
-          letter-spacing: 0.05em;
+          color: var(--text-4);
+          letter-spacing: 0.06em;
+          display: block;
+          line-height: 1.3;
+        }
+        .menuLabel {
+          font-size: 13px;
+          font-weight: 500;
+          letter-spacing: -0.005em;
+          line-height: 1.2;
+        }
+        .menuBadge {
+          font-family: var(--font-mono);
+          font-size: 8.5px;
+          font-weight: 700;
+          padding: 2px 5px;
+          border-radius: 3px;
+          background: var(--pink-dim);
+          color: var(--pink);
+          letter-spacing: 0.08em;
+          border: 1px solid rgba(236,72,153,0.3);
         }
 
-        .divider {
-          height: 1px;
-          background: linear-gradient(90deg, transparent 0%, #f0f0f0 20%, #f0f0f0 80%, transparent 100%);
-          margin: 10px 22px;
-        }
-        .sidebarSpacer { flex: 1; min-height: 12px; }
+        .spacer { flex: 1; min-height: 10px; }
 
-        .liveStatsCard {
-          margin: 0 12px 10px;
-          padding: 13px 14px 12px;
-          background: linear-gradient(145deg, #0f0f0f 0%, #1f1f1f 100%);
-          border-radius: 11px;
-          color: #fff;
+        /* Live counter card */
+        .metricCard {
+          margin: 8px 10px;
+          padding: 12px 14px;
+          background: linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%);
+          border: 1px solid var(--line);
+          border-radius: 8px;
           position: relative;
           overflow: hidden;
         }
-        .liveStatsCard::before {
+        .metricCard::before {
           content: '';
           position: absolute;
-          top: -20%; right: -10%;
-          width: 100px; height: 100px;
-          background: radial-gradient(circle, rgba(204,0,0,0.25) 0%, transparent 70%);
-          pointer-events: none;
+          top: 0; left: 0; right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, var(--cyan), transparent);
+          opacity: 0.6;
         }
-        .liveStatsTop {
+        .metricTop {
           display: flex;
+          justify-content: space-between;
           align-items: center;
-          gap: 5px;
-          margin-bottom: 7px;
-          position: relative;
-          z-index: 1;
+          margin-bottom: 8px;
         }
-        .liveStatsDot {
-          width: 5px; height: 5px;
-          background: #22c55e;
+        .metricLabel {
+          font-family: var(--font-mono);
+          font-size: 9px;
+          font-weight: 600;
+          color: var(--text-3);
+          letter-spacing: 0.1em;
+        }
+        .metricDot {
+          width: 6px; height: 6px;
+          background: var(--cyan);
           border-radius: 50%;
+          box-shadow: 0 0 8px var(--cyan);
           animation: pulse 1.5s ease-in-out infinite;
         }
-        .liveStatsLabel {
-          font-size: 9px;
-          font-weight: 800;
-          letter-spacing: 0.1em;
-          color: rgba(255,255,255,0.7);
-        }
-        .liveStatsNumber {
-          font-size: 24px;
-          font-weight: 800;
-          letter-spacing: -0.03em;
+        .metricValue {
+          font-family: var(--font-mono);
+          font-size: 22px;
+          font-weight: 600;
+          color: var(--text-0);
+          letter-spacing: -0.02em;
           line-height: 1;
-          margin-bottom: 3px;
+          margin-bottom: 4px;
           font-feature-settings: 'tnum';
-          position: relative;
-          z-index: 1;
         }
-        .liveStatsSubtitle {
-          font-size: 10.5px;
-          color: rgba(255,255,255,0.6);
-          line-height: 1.4;
-          position: relative;
-          z-index: 1;
+        .metricSub {
+          font-family: var(--font-mono);
+          font-size: 9.5px;
+          color: var(--text-3);
+          letter-spacing: 0.04em;
         }
 
-        .sidebarAdSlot { margin: 0 12px 10px; }
+        .sidebarAd {
+          margin: 8px 10px;
+        }
 
         .sidebarFooter {
-          padding: 12px 22px 0;
-          border-top: 1px solid #f0f0f0;
-          font-size: 10px;
-          color: #999;
-          line-height: 1.6;
+          padding: 12px 18px 0;
+          border-top: 1px solid var(--line-dim);
         }
         .footerLabel {
-          font-weight: 700;
-          letter-spacing: 0.06em;
-          color: #707070;
-          margin-bottom: 4px;
-          font-size: 9px;
-          text-transform: uppercase;
-        }
-        .techStack { display: flex; gap: 4px; flex-wrap: wrap; }
-        .techBadge {
-          padding: 3px 7px;
-          background: #f5f5f5;
-          border: 1px solid #ebebeb;
-          border-radius: 4px;
-          font-size: 9.5px;
+          font-family: var(--font-mono);
+          font-size: 8.5px;
           font-weight: 600;
-          color: #555;
+          color: var(--text-4);
+          letter-spacing: 0.15em;
+          margin-bottom: 7px;
+        }
+        .techStack {
+          display: flex;
+          gap: 4px;
+          flex-wrap: wrap;
+        }
+        .techBadge {
+          padding: 3px 6px;
+          background: var(--bg-3);
+          border: 1px solid var(--line);
+          border-radius: 3px;
+          font-family: var(--font-mono);
+          font-size: 9.5px;
+          font-weight: 500;
+          color: var(--text-2);
+          letter-spacing: 0.02em;
         }
 
-        /* MAIN */
+        /* ============ MAIN ============ */
         .main {
           flex: 1;
           min-width: 0;
           display: flex;
           flex-direction: column;
-        }
-        .mainContent {
-          flex: 1;
+          position: relative;
+          z-index: 1;
         }
 
         .topBar {
           position: sticky;
           top: 0;
           z-index: 20;
-          background: rgba(250, 250, 250, 0.88);
-          backdrop-filter: blur(12px);
-          -webkit-backdrop-filter: blur(12px);
-          border-bottom: 1px solid #e8e8e8;
-          padding: 10px 28px;
+          background: rgba(10, 10, 15, 0.85);
+          backdrop-filter: blur(14px);
+          -webkit-backdrop-filter: blur(14px);
+          border-bottom: 1px solid var(--line-dim);
+          padding: 10px 24px;
           display: flex;
           align-items: center;
           justify-content: space-between;
-          gap: 12px;
-          min-height: 52px;
+          gap: 14px;
+          min-height: 48px;
         }
+
         .hamburger {
           display: none;
-          width: 34px; height: 34px;
-          background: #fff;
-          border: 1px solid #e5e5e5;
-          border-radius: 8px;
+          width: 32px; height: 32px;
+          background: var(--bg-2);
+          border: 1px solid var(--line);
+          border-radius: 6px;
           cursor: pointer;
-          font-size: 15px;
+          color: var(--text-1);
+          font-size: 14px;
           align-items: center;
           justify-content: center;
         }
+        .hamburger:hover { background: var(--bg-3); }
 
-        .noticeBar {
+        /* Transmission bar */
+        .transmissionBar {
           flex: 1;
-          max-width: 720px;
-          padding: 9px 16px;
-          background: #fff;
-          border: 1px solid #e8e8e8;
-          border-radius: 999px;
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          overflow: hidden;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.02);
-          transition: all 0.2s;
-        }
-        .noticeBar:hover {
-          border-color: #cc0000;
-          box-shadow: 0 2px 8px rgba(204,0,0,0.06);
-        }
-        .noticeIconWrap {
-          width: 24px; height: 24px;
-          background: #fafafa;
+          max-width: 760px;
+          padding: 7px 14px;
+          background: var(--bg-2);
+          border: 1px solid var(--line);
           border-radius: 6px;
           display: flex;
           align-items: center;
-          justify-content: center;
-          font-size: 12px;
+          gap: 12px;
+          overflow: hidden;
+          position: relative;
+        }
+        .transmissionBar::before {
+          content: '';
+          position: absolute;
+          left: 0; top: 0; bottom: 0;
+          width: 3px;
+          background: var(--cyan);
+          box-shadow: 0 0 8px var(--cyan);
+        }
+        .txCode {
+          font-family: var(--font-mono);
+          font-size: 9.5px;
+          font-weight: 600;
+          color: var(--cyan);
+          letter-spacing: 0.1em;
           flex-shrink: 0;
         }
-        .noticeText {
-          font-size: 12px;
-          color: #333;
+        .txText {
+          font-family: var(--font-mono);
+          font-size: 11px;
+          color: var(--text-2);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
           flex: 1;
-          animation: slideIn 0.5s cubic-bezier(0.22, 1, 0.36, 1);
-          letter-spacing: -0.01em;
-          font-weight: 500;
+          animation: txFade 0.5s ease;
+          letter-spacing: 0.02em;
         }
-        .noticeBadge {
-          padding: 2px 7px;
-          font-size: 9px;
-          font-weight: 800;
-          letter-spacing: 0.06em;
-          border-radius: 4px;
+        @keyframes txFade {
+          from { opacity: 0; transform: translateX(-4px); }
+          to { opacity: 1; transform: translateX(0); }
+        }
+        .txBadge {
+          font-family: var(--font-mono);
+          font-size: 8.5px;
+          font-weight: 700;
+          padding: 2px 6px;
+          border-radius: 3px;
+          letter-spacing: 0.1em;
           flex-shrink: 0;
+          border: 1px solid currentColor;
         }
-        .badgeHot { background: #fee2e2; color: #b91c1c; }
-        .badgeTrend { background: #dbeafe; color: #1e40af; }
-        .badgeTip { background: #fef3c7; color: #92400e; }
-        .badgeNew { background: #dcfce7; color: #15803d; }
+        .tx-critical { color: var(--pink); background: var(--pink-dim); }
+        .tx-info { color: var(--cyan); background: var(--cyan-dim); }
+        .tx-alert { color: var(--amber); background: rgba(251,191,36,0.15); }
+        .tx-new { color: var(--green); background: var(--green-dim); }
 
-        @keyframes slideIn {
-          from { opacity: 0; transform: translateY(-8px); }
-          to { opacity: 1; transform: translateY(0); }
+        .topRight {
+          display: flex;
+          gap: 10px;
+          align-items: center;
         }
 
-        .topBtns { display: flex; gap: 8px; align-items: center; }
-        .userChip {
+        .userSlot {
           display: flex;
           align-items: center;
-          gap: 8px;
-          padding: 5px 14px 5px 5px;
-          background: #fff;
-          border: 1px solid #e8e8e8;
-          border-radius: 999px;
+          gap: 10px;
+          padding: 4px 14px 4px 4px;
+          background: var(--bg-2);
+          border: 1px solid var(--line);
+          border-radius: 6px;
           cursor: pointer;
           transition: all 0.15s;
-          box-shadow: 0 1px 3px rgba(0,0,0,0.02);
         }
-        .userChip:hover { border-color: #0f0f0f; transform: translateY(-1px); }
+        .userSlot:hover {
+          border-color: var(--cyan);
+        }
         .userAvatar {
-          width: 28px; height: 28px;
-          border-radius: 50%;
-          background: linear-gradient(135deg, #cc0000 0%, #7a0000 100%);
-          color: #fff;
+          width: 26px; height: 26px;
+          border-radius: 4px;
+          background: linear-gradient(135deg, var(--cyan) 0%, var(--violet) 100%);
+          color: var(--bg-0);
           display: flex;
           align-items: center;
           justify-content: center;
-          font-weight: 800;
+          font-family: var(--font-mono);
+          font-weight: 700;
+          font-size: 10.5px;
+          letter-spacing: 0;
+        }
+        .userInfo {
+          display: flex;
+          flex-direction: column;
+          align-items: flex-start;
+        }
+        .userId {
+          font-family: var(--font-mono);
           font-size: 11px;
+          font-weight: 600;
+          color: var(--text-1);
+          line-height: 1.1;
           letter-spacing: 0.02em;
         }
-        .userInfo { display: flex; flex-direction: column; align-items: flex-start; }
-        .userName { font-size: 12px; font-weight: 700; color: #0f0f0f; line-height: 1.1; }
-        .userTier { font-size: 9px; color: #888; letter-spacing: 0.05em; font-weight: 600; margin-top: 1px; }
+        .userRole {
+          font-family: var(--font-mono);
+          font-size: 9px;
+          color: var(--text-3);
+          letter-spacing: 0.08em;
+          margin-top: 1px;
+        }
 
-        /* ============ FOOTER (AdSense 심사 필수) ============ */
+        .mainContent { flex: 1; position: relative; }
+
+        /* ============ FOOTER ============ */
         .footer {
-          background: #0f0f0f;
-          color: #a0a0a0;
-          padding: 40px 32px 28px;
+          background: var(--bg-1);
+          border-top: 1px solid var(--line-dim);
+          padding: 40px 28px 24px;
           margin-top: 60px;
+          position: relative;
+        }
+        .footer::before {
+          content: '';
+          position: absolute;
+          top: 0; left: 0; right: 0;
+          height: 1px;
+          background: linear-gradient(90deg, transparent, var(--cyan) 30%, var(--violet) 70%, transparent);
+          opacity: 0.4;
         }
         .footerInner {
           max-width: 1400px;
@@ -472,219 +676,230 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         }
         .footerGrid {
           display: grid;
-          grid-template-columns: 1.3fr 1fr 1fr 1fr;
+          grid-template-columns: 1.5fr 1fr 1fr 1fr;
           gap: 32px;
-          margin-bottom: 30px;
+          margin-bottom: 28px;
         }
-        .footerBrand {
-          font-size: 18px;
-          font-weight: 800;
-          color: #fff;
-          letter-spacing: -0.02em;
+        .fBrand {
+          font-family: var(--font-display);
+          font-size: 22px;
+          font-weight: 700;
+          color: var(--text-0);
+          letter-spacing: -0.025em;
           margin-bottom: 8px;
+          display: inline-flex;
         }
-        .footerBrandAccent { color: #cc0000; }
-        .footerTagline {
+        .fBrand-mark { color: var(--cyan); }
+        .fTag {
           font-size: 12px;
-          color: #888;
+          color: var(--text-3);
           line-height: 1.65;
-          margin-bottom: 12px;
-          max-width: 280px;
+          margin-bottom: 14px;
+          max-width: 320px;
         }
-        .footerCompanyInfo {
-          font-size: 11px;
-          color: #666;
+        .fCompany {
+          font-family: var(--font-mono);
+          font-size: 10.5px;
+          color: var(--text-4);
           line-height: 1.8;
+          letter-spacing: 0.02em;
         }
         .footerCol h4 {
-          font-size: 11px;
-          font-weight: 800;
-          color: #fff;
-          letter-spacing: 0.1em;
+          font-family: var(--font-mono);
+          font-size: 10px;
+          font-weight: 600;
+          color: var(--text-3);
+          letter-spacing: 0.15em;
           text-transform: uppercase;
-          margin-bottom: 12px;
+          margin-bottom: 14px;
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+        .footerCol h4::after {
+          content: '';
+          flex: 1;
+          height: 1px;
+          background: var(--line-dim);
         }
         .footerCol ul { list-style: none; padding: 0; }
         .footerCol li { margin-bottom: 8px; }
-        .footerLink {
+        .fLink {
           font-size: 12.5px;
-          color: #a0a0a0;
-          transition: color 0.15s;
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
+          color: var(--text-2);
+          transition: all 0.15s;
+          display: inline-block;
         }
-        .footerLink:hover {
-          color: #fff;
+        .fLink:hover {
+          color: var(--cyan);
+          transform: translateX(2px);
         }
         .footerBottom {
-          padding-top: 22px;
-          border-top: 1px solid #2a2a2a;
+          padding-top: 20px;
+          border-top: 1px solid var(--line-dim);
           display: flex;
           justify-content: space-between;
           align-items: center;
           flex-wrap: wrap;
           gap: 14px;
         }
-        .footerCopy {
-          font-size: 11px;
-          color: #707070;
+        .fCopy {
+          font-family: var(--font-mono);
+          font-size: 10.5px;
+          color: var(--text-4);
+          letter-spacing: 0.04em;
         }
-        .footerLegal {
+        .fLegal {
           display: flex;
           gap: 18px;
-          font-size: 11px;
+          font-family: var(--font-mono);
+          font-size: 10.5px;
+          letter-spacing: 0.04em;
         }
-        .footerLegal a {
-          color: #a0a0a0;
-          font-weight: 600;
+        .fLegal a {
+          color: var(--text-3);
           transition: color 0.15s;
         }
-        .footerLegal a:hover { color: #fff; }
+        .fLegal a:hover { color: var(--cyan); }
 
-        /* Responsive */
+        /* Mobile */
         @media (max-width: 900px) {
           .sidebar {
             position: fixed;
-            left: 0;
-            top: 0;
+            left: 0; top: 0;
             z-index: 100;
             transform: translateX(-100%);
-            transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1);
-            box-shadow: 0 0 40px rgba(0,0,0,0.15);
+            transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
+            box-shadow: 0 0 40px rgba(0,0,0,0.5);
           }
           .sidebarOpen { transform: translateX(0); }
           .overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
+            backdrop-filter: blur(4px);
             z-index: 99;
             animation: fadeIn 0.2s;
           }
-          @keyframes fadeIn {
-            from { opacity: 0; }
-            to { opacity: 1; }
-          }
+          @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
           .hamburger { display: flex; }
           .topBar { padding: 10px 14px; }
-          .noticeBar { padding: 7px 12px; font-size: 11px; }
+          .transmissionBar { padding: 6px 12px; gap: 8px; }
+          .txCode { display: none; }
           .userInfo { display: none; }
-          .userChip { padding: 5px; }
+          .userSlot { padding: 4px; }
 
-          .footerGrid {
-            grid-template-columns: 1fr 1fr;
-            gap: 24px;
-          }
-          .footer { padding: 32px 20px 22px; }
+          .footerGrid { grid-template-columns: 1fr 1fr; gap: 28px; }
+          .footer { padding: 32px 20px 20px; }
           .footerBottom { flex-direction: column; align-items: flex-start; }
         }
-
-        @media (max-width: 560px) {
+        @media (max-width: 520px) {
           .footerGrid { grid-template-columns: 1fr; }
         }
       `}</style>
 
       <div className="app">
-        {sidebarOpen && (
-          <div className="overlay" onClick={() => setSidebarOpen(false)} />
-        )}
+        {sidebarOpen && <div className="overlay" onClick={() => setSidebarOpen(false)} />}
 
+        {/* ========== SIDEBAR ========== */}
         <aside className={`sidebar ${sidebarOpen ? 'sidebarOpen' : ''}`}>
           <div className="sidebarHeader">
-            <div className="logoRow">
-              <Link href="/" className="logo">
-                Algo<span className="logoAccent">Maker</span>
+            <div className="brandRow">
+              <Link href="/" className="brand">
+                Algo<span className="brand-mark">Maker</span>
               </Link>
-              <span className="liveChip">
-                <span className="livedot" />
-                LIVE
+              <span className="statusBadge">
+                <span className="statusDot" />
+                ONLINE
               </span>
             </div>
-            <div className="logoSub">AI YouTube Studio · 2026</div>
+            <div className="versionLine">
+              <span>v0.9.2 · neural</span>
+              <span className="uptime">{formatUptime(uptime)}</span>
+            </div>
           </div>
 
-          <div className="menuSection">
-            <div className="menuTitle">MENU</div>
+          <div className="menuGroup">
+            <div className="groupLabel">NAVIGATION</div>
             {mainMenu.map((m) => (
               <div
                 key={m.key}
-                className={`menuItem ${isActive(m.path) ? 'menuItemActive' : ''}`}
+                className={`menuItem ${isActive(m.path) ? 'active' : ''}`}
                 onClick={() => { router.push(m.path); setSidebarOpen(false); }}
               >
                 <span className="menuIcon">{m.icon}</span>
-                <span className="menuLabel">{m.label}</span>
+                <div className="menuLabelBlock">
+                  <span className="menuCode">{m.code}</span>
+                  <span className="menuLabel">{m.labelKr}</span>
+                </div>
                 {m.badge && <span className="menuBadge">{m.badge}</span>}
               </div>
             ))}
           </div>
 
-          <div className="divider" />
-
-          <div className="menuSection">
-            <div className="menuTitle">INFO</div>
+          <div className="menuGroup">
+            <div className="groupLabel">INFO</div>
             {infoMenu.map((m) => (
               <div
                 key={m.key}
-                className={`menuItem ${isActive(m.path) ? 'menuItemActive' : ''}`}
+                className={`menuItem ${isActive(m.path) ? 'active' : ''}`}
                 onClick={() => { router.push(m.path); setSidebarOpen(false); }}
               >
                 <span className="menuIcon">{m.icon}</span>
-                <span className="menuLabel">{m.label}</span>
+                <div className="menuLabelBlock">
+                  <span className="menuCode">{m.code}</span>
+                  <span className="menuLabel">{m.labelKr}</span>
+                </div>
               </div>
             ))}
           </div>
 
-          <div className="sidebarSpacer" />
+          <div className="spacer" />
 
-          <div className="liveStatsCard">
-            <div className="liveStatsTop">
-              <span className="liveStatsDot" />
-              <span className="liveStatsLabel">TODAY · LIVE</span>
+          <div className="metricCard">
+            <div className="metricTop">
+              <span className="metricLabel">TODAY · GEN.COUNT</span>
+              <span className="metricDot" />
             </div>
-            <div className="liveStatsNumber">
-              {todayCount.toLocaleString()}
-            </div>
-            <div className="liveStatsSubtitle">
-              개 영상이 오늘 제작됐어요
-            </div>
+            <div className="metricValue">{todayCount.toLocaleString()}</div>
+            <div className="metricSub">videos generated · 24h</div>
           </div>
 
-          <div className="sidebarAdSlot">
+          <div className="sidebarAd">
             <AdSlot slot="sidebar" variant="sidebar-card" />
           </div>
 
           <div className="sidebarFooter">
-            <div className="footerLabel">POWERED BY</div>
+            <div className="footerLabel">▸ POWERED_BY</div>
             <div className="techStack">
               <span className="techBadge">Gemini</span>
-              <span className="techBadge">Edge TTS</span>
+              <span className="techBadge">Edge</span>
               <span className="techBadge">Pexels</span>
             </div>
           </div>
         </aside>
 
+        {/* ========== MAIN ========== */}
         <main className="main">
           <div className="topBar">
             <button className="hamburger" onClick={() => setSidebarOpen(!sidebarOpen)}>
               ☰
             </button>
 
-            <div className="noticeBar" key={noticeIdx}>
-              <div className="noticeIconWrap">{currentNotice.icon}</div>
-              <span className="noticeText">{currentNotice.text}</span>
-              <span className={`noticeBadge badge${currentNotice.tone.charAt(0).toUpperCase() + currentNotice.tone.slice(1)}`}>
-                {currentNotice.tone === 'hot' ? 'HOT' :
-                 currentNotice.tone === 'trend' ? 'TREND' :
-                 currentNotice.tone === 'tip' ? 'TIP' : 'NEW'}
+            <div className="transmissionBar" key={transmissionIdx}>
+              <span className="txCode">{currentTransmission.code}</span>
+              <span className="txText">{currentTransmission.text}</span>
+              <span className={`txBadge tx-${currentTransmission.tone}`}>
+                {currentTransmission.tone.toUpperCase()}
               </span>
             </div>
 
-            <div className="topBtns">
-              <div className="userChip">
+            <div className="topRight">
+              <div className="userSlot">
                 <div className="userAvatar">YJ</div>
                 <div className="userInfo">
-                  <span className="userName">박예준</span>
-                  <span className="userTier">크리에이터</span>
+                  <span className="userId">user.parkyj</span>
+                  <span className="userRole">CREATOR</span>
                 </div>
               </div>
             </div>
@@ -694,61 +909,61 @@ function ShellInner({ children }: { children: React.ReactNode }) {
             {children}
           </div>
 
-          {/* ============ FOOTER (AdSense 심사 필수) ============ */}
+          {/* ========== FOOTER ========== */}
           <footer className="footer">
             <div className="footerInner">
               <div className="footerGrid">
                 <div>
-                  <div className="footerBrand">
-                    Algo<span className="footerBrandAccent">Maker</span>
+                  <div className="fBrand">
+                    Algo<span className="fBrand-mark">Maker</span>
                   </div>
-                  <div className="footerTagline">
-                    AI 기술로 누구나 유튜브 크리에이터가 될 수 있도록.
-                    한국어 특화 영상 자동 생성 스튜디오.
+                  <div className="fTag">
+                    AI 뉴럴 네트워크 기반의 한국어 특화 YouTube 자동 생성 스튜디오.
+                    크리에이터의 초기 진입 비용을 0으로 만듭니다.
                   </div>
-                  <div className="footerCompanyInfo">
+                  <div className="fCompany">
                     한줄컴퍼니 · 대표 박예준<br />
-                    AlgoMaker는 한줄컴퍼니의 서비스입니다.
+                    서비스: AlgoMaker
                   </div>
                 </div>
 
                 <div className="footerCol">
-                  <h4>서비스</h4>
+                  <h4>PRODUCT</h4>
                   <ul>
-                    <li><Link href="/" className="footerLink">🏠 홈</Link></li>
-                    <li><Link href="/analytics" className="footerLink">📊 경쟁 분석</Link></li>
-                    <li><Link href="/assets" className="footerLink">🎬 내 영상</Link></li>
-                    <li><Link href="/blog" className="footerLink">📝 블로그</Link></li>
+                    <li><Link href="/" className="fLink">홈</Link></li>
+                    <li><Link href="/analytics" className="fLink">경쟁 분석</Link></li>
+                    <li><Link href="/assets" className="fLink">내 영상</Link></li>
+                    <li><Link href="/blog" className="fLink">블로그</Link></li>
                   </ul>
                 </div>
 
                 <div className="footerCol">
-                  <h4>회사</h4>
+                  <h4>COMPANY</h4>
                   <ul>
-                    <li><Link href="/about" className="footerLink">소개</Link></li>
-                    <li><Link href="/contact" className="footerLink">문의하기</Link></li>
-                    <li><Link href="/blog" className="footerLink">크리에이터 인사이트</Link></li>
+                    <li><Link href="/about" className="fLink">소개</Link></li>
+                    <li><Link href="/contact" className="fLink">문의</Link></li>
+                    <li><Link href="/blog" className="fLink">인사이트</Link></li>
                   </ul>
                 </div>
 
                 <div className="footerCol">
-                  <h4>정책</h4>
+                  <h4>LEGAL</h4>
                   <ul>
-                    <li><Link href="/privacy" className="footerLink">개인정보 처리방침</Link></li>
-                    <li><Link href="/terms" className="footerLink">이용약관</Link></li>
-                    <li><Link href="/contact" className="footerLink">저작권 문의</Link></li>
+                    <li><Link href="/privacy" className="fLink">개인정보 처리방침</Link></li>
+                    <li><Link href="/terms" className="fLink">이용약관</Link></li>
+                    <li><Link href="/contact" className="fLink">저작권</Link></li>
                   </ul>
                 </div>
               </div>
 
               <div className="footerBottom">
-                <div className="footerCopy">
-                  © {currentYear} 한줄컴퍼니. All rights reserved. · AlgoMaker™
+                <div className="fCopy">
+                  © {currentYear} 한줄컴퍼니 · AlgoMaker™ · ALL_RIGHTS_RESERVED
                 </div>
-                <div className="footerLegal">
-                  <Link href="/privacy">개인정보 처리방침</Link>
-                  <Link href="/terms">이용약관</Link>
-                  <Link href="/contact">Contact</Link>
+                <div className="fLegal">
+                  <Link href="/privacy">PRIVACY</Link>
+                  <Link href="/terms">TERMS</Link>
+                  <Link href="/contact">CONTACT</Link>
                 </div>
               </div>
             </div>
