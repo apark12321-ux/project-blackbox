@@ -1,14 +1,15 @@
 'use client';
 /**
- * 홈 v6 — 최종 버전
+ * 홈 v7 — 너튜브 NuTube 최종
  *
- * Hero에 AlgoMaker 로고 큰 사이즈 노출
- * 한글 기본, 필요한 영문만 유지
+ * 핵심 메시지: "너튜브 시작, 이제 너도 할 수 있어"
+ * 타겟: 너튜브 시작하려는 초보자 (친근한 접근)
+ * 브랜드: 너튜브 NuTube
  */
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { DashboardShell, setProject, AlgoMakerLogo } from './_shared/V11Shell';
+import { DashboardShell, setProject, NuTubeLogo } from './_shared/V11Shell';
 import { SCENARIOS, pickRecommendedScenarios, getScenarioById, type ScenarioStyle } from './_shared/scenarios';
 import AdSlot from './_shared/AdSlot';
 
@@ -29,11 +30,38 @@ const TRENDING = [
 ];
 
 const AUTO_STEPS = [
-  { num: '01', title: '키워드 입력', desc: '주제 한 단어만 알려주세요', time: '10초', color: '#c65f3b' },
-  { num: '02', title: 'AI 대본 작성', desc: 'Gemini가 시나리오 구조에 맞춰 대본 생성', time: '1~2분', color: '#d4a545' },
-  { num: '03', title: '음성 합성', desc: '한국어 TTS로 자연스러운 내레이션', time: '1분', color: '#7d9b7c' },
-  { num: '04', title: '이미지 매칭', desc: '대본에 맞는 고화질 이미지 자동 수집', time: '30초', color: '#6b8cae' },
-  { num: '05', title: '영상 완성', desc: 'FFmpeg로 자동 편집 · MP4 다운로드', time: '1~2분', color: '#c65f3b' },
+  { num: '01', title: '키워드만 입력', desc: '만들고 싶은 주제 하나만 알려주세요', time: '10초', color: '#c65f3b' },
+  { num: '02', title: '제목·대본 자동', desc: 'AI가 조회수 공식으로 제목과 대본 작성', time: '1~2분', color: '#d4a545' },
+  { num: '03', title: '음성 내레이션', desc: '자연스러운 한국어 내레이션 자동 생성', time: '1분', color: '#7d9b7c' },
+  { num: '04', title: '이미지 매칭', desc: '장면별 무료 고화질 이미지 자동 수집', time: '30초', color: '#6b8cae' },
+  { num: '05', title: '완성·다운로드', desc: '영상 파일 바로 다운로드, 너튜브 업로드', time: '1~2분', color: '#c65f3b' },
+];
+
+const KEY_FEATURES = [
+  {
+    emoji: '🎯',
+    title: '조회수 공식 자동 반영',
+    desc: '구독자 10만+ 채널들이 쓰는 검증된 제목·대본 공식을 AI가 학습해서 자동 적용해요',
+    color: '#c65f3b',
+  },
+  {
+    emoji: '📈',
+    title: '알고리즘 친화 구조',
+    desc: '2026 너튜브 알고리즘이 좋아하는 영상 구조(첫 30초 훅, 8분 후킹)를 자동으로 설계해요',
+    color: '#d4a545',
+  },
+  {
+    emoji: '💡',
+    title: '일반인이 모르는 12가지 노하우',
+    desc: '프로 너튜버들이 수년간 시행착오로 익힌 노하우를 모두 영상에 녹여드려요',
+    color: '#7d9b7c',
+  },
+  {
+    emoji: '🆓',
+    title: '완전 무료, 가입 없음',
+    desc: '결제 시스템 없어요. 바로 키워드 넣고 영상 받으세요. 100% 무료입니다',
+    color: '#6b8cae',
+  },
 ];
 
 const SAMPLE_VIDEOS = [
@@ -131,9 +159,9 @@ export default function HomePage() {
           margin: 0 auto;
         }
 
-        /* ============ HERO ============ */
+        /* HERO */
         .hero {
-          padding: 60px 32px 52px;
+          padding: 56px 32px 52px;
           text-align: center;
           position: relative;
           overflow: hidden;
@@ -151,7 +179,7 @@ export default function HomePage() {
         .heroLogoWrap {
           display: flex;
           justify-content: center;
-          margin-bottom: 24px;
+          margin-bottom: 22px;
           position: relative;
           z-index: 1;
         }
@@ -161,21 +189,21 @@ export default function HomePage() {
           align-items: center;
           gap: 7px;
           padding: 6px 14px;
-          background: #faf8f4;
-          border: 1px solid rgba(90, 74, 58, 0.08);
+          background: linear-gradient(135deg, #fdf1e7 0%, #fbf3df 100%);
+          border: 1px solid rgba(198, 95, 59, 0.15);
           border-radius: 999px;
-          font-size: 12px;
+          font-size: 12.5px;
           font-weight: 700;
-          color: #564a3a;
+          color: #a64a2a;
           margin-bottom: 20px;
           position: relative;
           z-index: 1;
         }
         .heroTaglineDot {
           width: 6px; height: 6px;
-          background: #7d9b7c;
+          background: #c65f3b;
           border-radius: 50%;
-          box-shadow: 0 0 8px rgba(125, 155, 124, 0.6);
+          box-shadow: 0 0 8px rgba(198, 95, 59, 0.6);
           animation: pulse 2s infinite;
         }
         @keyframes pulse {
@@ -184,12 +212,12 @@ export default function HomePage() {
         }
 
         .heroTitle {
-          font-size: 52px;
+          font-size: 56px;
           font-weight: 800;
           letter-spacing: -0.04em;
-          line-height: 1.12;
+          line-height: 1.1;
           color: #2a2419;
-          margin-bottom: 18px;
+          margin-bottom: 14px;
           position: relative;
           z-index: 1;
         }
@@ -202,17 +230,26 @@ export default function HomePage() {
           content: '';
           position: absolute;
           bottom: 6px; left: 0; right: 0;
-          height: 12px;
+          height: 14px;
           background: rgba(198, 95, 59, 0.18);
           z-index: -1;
           border-radius: 6px;
         }
+        .heroSlogan {
+          font-size: 22px;
+          color: #a64a2a;
+          font-weight: 800;
+          margin-bottom: 20px;
+          letter-spacing: -0.025em;
+          position: relative;
+          z-index: 1;
+        }
         .heroSub {
-          font-size: 17px;
+          font-size: 16px;
           color: #564a3a;
           margin-bottom: 36px;
           font-weight: 500;
-          line-height: 1.6;
+          line-height: 1.65;
           max-width: 580px;
           margin-left: auto;
           margin-right: auto;
@@ -268,7 +305,7 @@ export default function HomePage() {
           border: none;
           border-radius: 14px;
           font-size: 15px;
-          font-weight: 700;
+          font-weight: 800;
           cursor: pointer;
           font-family: inherit;
           white-space: nowrap;
@@ -343,6 +380,47 @@ export default function HomePage() {
           font-weight: 800;
         }
 
+        /* KEY FEATURES (너튜브 차별점) */
+        .featuresSection {
+          padding: 0 32px;
+          margin-bottom: 56px;
+        }
+        .featuresGrid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 14px;
+        }
+        .featureCard {
+          padding: 24px 22px;
+          background: #faf8f4;
+          border: 1px solid rgba(90, 74, 58, 0.06);
+          border-radius: 14px;
+          transition: all 0.2s;
+        }
+        .featureCard:hover {
+          transform: translateY(-3px);
+          box-shadow: 0 8px 20px rgba(90, 74, 58, 0.08);
+        }
+        .featureEmoji {
+          font-size: 32px;
+          margin-bottom: 14px;
+          display: inline-block;
+        }
+        .featureTitle {
+          font-size: 15px;
+          font-weight: 800;
+          color: #2a2419;
+          letter-spacing: -0.02em;
+          margin-bottom: 8px;
+          line-height: 1.3;
+        }
+        .featureDesc {
+          font-size: 12.5px;
+          color: #8a7d6a;
+          line-height: 1.65;
+          font-weight: 500;
+        }
+
         /* 섹션 공통 */
         .sectionWrap {
           padding: 0 32px;
@@ -375,7 +453,7 @@ export default function HomePage() {
           font-size: 15px;
           color: #8a7d6a;
           font-weight: 500;
-          max-width: 500px;
+          max-width: 560px;
           margin: 0 auto;
           line-height: 1.6;
         }
@@ -816,44 +894,50 @@ export default function HomePage() {
         .libItemRet { color: #5e7e5d; font-weight: 700; }
 
         @media (max-width: 1024px) {
+          .featuresGrid { grid-template-columns: repeat(2, 1fr); }
           .autoSteps::before { display: none; }
           .sampleGrid { grid-template-columns: repeat(2, 1fr); }
           .aiScenGrid { grid-template-columns: 1fr; }
         }
         @media (max-width: 768px) {
           .hero { padding: 40px 20px 36px; }
-          .heroTitle { font-size: 32px; }
+          .heroTitle { font-size: 36px; }
+          .heroSlogan { font-size: 17px; }
           .heroSub { font-size: 15px; }
           .kwForm { flex-direction: column; }
           .kwBtn { width: 100%; padding: 14px; }
           .sectionTitle { font-size: 24px; }
-          .sectionWrap, .adWrap { padding: 0 16px; }
+          .sectionWrap, .adWrap, .featuresSection { padding: 0 16px; }
           .libPanel { margin: 0 16px 32px; padding: 24px 20px; }
           .autoSteps { grid-template-columns: 1fr; gap: 8px; }
           .sampleGrid { grid-template-columns: 1fr; }
           .libGrid { grid-template-columns: 1fr; }
+          .featuresGrid { grid-template-columns: 1fr; }
         }
       `}</style>
 
       <div className="page">
         {/* HERO */}
         <section className="hero">
-          {/* 큰 로고 */}
           <div className="heroLogoWrap">
-            <AlgoMakerLogo size="lg" showSubtitle={false} />
+            <NuTubeLogo size="lg" showSubtitle={false} />
           </div>
 
           <div className="heroTagline">
             <span className="heroTaglineDot" />
-            <span>AI 유튜브 영상 자동화 스튜디오</span>
+            <span>AI가 알려주는 너튜브 성공 지침서</span>
           </div>
 
           <h1 className="heroTitle">
-            키워드 하나면,<br />
-            유튜브 영상이 <span className="accent">완성</span>돼요
+            너튜브 시작,<br />
+            이제 <span className="accent">너도</span> 할 수 있어
           </h1>
+          <div className="heroSlogan">
+            키워드 하나만 입력하면 영상 완성.
+          </div>
           <p className="heroSub">
-            주제만 알려주세요. AI가 대본·음성·이미지·편집까지 알아서 만들어 5분 안에 MP4로 드려요.
+            프로 너튜버들의 조회수 공식을 AI가 자동으로 영상에 녹여드려요.
+            제목·대본·음성·이미지·편집까지 전부 자동. 너튜브 시작이 이렇게 쉬워요.
           </p>
 
           <div className="kwForm">
@@ -875,7 +959,7 @@ export default function HomePage() {
           </div>
 
           <div className="heroMeta">
-            지금 <strong>{activeUsers.toLocaleString()}</strong>명이 AlgoMaker로 영상을 만들고 있어요
+            지금 <strong>{activeUsers.toLocaleString()}</strong>명이 너튜브를 시작하고 있어요
           </div>
 
           <div className="trendRow">
@@ -889,15 +973,38 @@ export default function HomePage() {
           </div>
         </section>
 
+        {/* 4가지 차별점 */}
+        <section className="featuresSection">
+          <div className="sectionHead">
+            <span className="sectionTag">왜 너튜브인가?</span>
+            <h2 className="sectionTitle">
+              너튜브 시작에 필요한 <span style={{ color: '#c65f3b' }}>모든 것</span>
+            </h2>
+            <p className="sectionSub">
+              프로 너튜버들이 수년간 시행착오로 익힌 노하우가 AI에 다 녹아있어요.
+            </p>
+          </div>
+
+          <div className="featuresGrid">
+            {KEY_FEATURES.map((f, i) => (
+              <div key={i} className="featureCard" style={{ borderTop: `3px solid ${f.color}` }}>
+                <div className="featureEmoji">{f.emoji}</div>
+                <div className="featureTitle">{f.title}</div>
+                <div className="featureDesc">{f.desc}</div>
+              </div>
+            ))}
+          </div>
+        </section>
+
         {/* 자동화 5단계 */}
         <section className="sectionWrap">
           <div className="sectionHead">
             <span className="sectionTag">자동화 프로세스</span>
             <h2 className="sectionTitle">
-              AI가 이 5단계를 <span style={{ color: '#c65f3b' }}>자동으로</span> 처리해요
+              이 5단계를 AI가 <span style={{ color: '#c65f3b' }}>자동으로</span> 처리해요
             </h2>
             <p className="sectionSub">
-              여러분은 키워드만 입력하면 끝. 나머지는 AlgoMaker가 다 알아서 해요.
+              너는 키워드만 입력하면 끝. 나머지는 너튜브가 다 알아서 해요.
             </p>
           </div>
 
@@ -915,7 +1022,7 @@ export default function HomePage() {
           </div>
 
           <div className="totalTime">
-            전체 소요 시간 약 <strong>5분</strong> · 여러분이 할 일은 <strong>10초 키워드 입력</strong>뿐이에요
+            전체 소요 시간 약 <strong>5분</strong> · 너는 <strong>10초 키워드 입력</strong>만 하면 돼요
           </div>
         </section>
 
@@ -927,7 +1034,7 @@ export default function HomePage() {
               이런 영상들을 <span style={{ color: '#c65f3b' }}>만들어드렸어요</span>
             </h2>
             <p className="sectionSub">
-              AlgoMaker로 자동 생성한 실제 샘플 영상이에요.
+              너튜브로 자동 생성한 실제 샘플 영상이에요. 너도 이렇게 만들 수 있어요.
             </p>
           </div>
 
@@ -935,7 +1042,7 @@ export default function HomePage() {
             {SAMPLE_VIDEOS.map((v, i) => (
               <div key={i} className="sampleCard">
                 <div className="sampleThumb" style={{ background: v.thumbnail }}>
-                  <span className="sampleMadeBy">⚡ Made by AlgoMaker</span>
+                  <span className="sampleMadeBy">⚡ Made by NuTube</span>
                   <span className="sampleThumbEmoji">{v.emoji}</span>
                   <span className="sampleDuration">{v.duration}</span>
                 </div>
