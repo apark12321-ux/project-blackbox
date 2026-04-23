@@ -1,12 +1,9 @@
 'use client';
 /**
- * AdSlot v2 — 네이티브 광고 스타일
+ * AdSlot v3 — Neural Lab "TRANSMISSION" 스타일
  *
- * 철학:
- * - 승인 전에도 "광고 자리 placeholder"가 아니라
- *   "큐레이션 카드"처럼 보이게 (AlgoMaker 자체 프로모 / 팁 / 기능 소개)
- * - 승인 후엔 자연스럽게 실광고로 전환
- * - 사용자가 "광고만 잔뜩이네" 라는 느낌을 받지 않게
+ * 네이티브 광고를 "신호 전송" 카드로 표현.
+ * 시안/바이올렛/핑크 네온 엣지로 각 슬롯 구분.
  */
 
 import { useEffect, useState } from 'react';
@@ -40,130 +37,137 @@ declare global {
   }
 }
 
-// 심사 전 자리에 들어갈 "큐레이션 콘텐츠" 풀
-// 슬롯별로 다른 내용 돌아가며 — 단조로움 방지
-const FALLBACK_CONTENT: Record<string, Array<{
-  badge: string;
+type FallbackContent = {
+  code: string;
   title: string;
   desc: string;
   cta: string;
-  gradient: string;
-  icon: string;
-}>> = {
+  accent: 'cyan' | 'violet' | 'pink' | 'green' | 'amber';
+  tag: string;
+};
+
+const FALLBACK: Record<string, FallbackContent[]> = {
   'sidebar': [
     {
-      badge: 'TIP',
-      title: '유지율 올리는 법',
-      desc: '30초 안에 호기심 걸기',
-      cta: '가이드 보기',
-      gradient: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-      icon: '💡',
+      code: 'TIP-001',
+      title: '유지율 +40% 법칙',
+      desc: '첫 30초에 호기심 훅 걸기',
+      cta: 'GUIDE',
+      accent: 'cyan',
+      tag: 'INTEL',
     },
     {
-      badge: 'HOT',
-      title: '이번 주 블루오션',
-      desc: 'IT·자기계발 카테고리',
-      cta: '분석 보기',
-      gradient: 'linear-gradient(135deg, #fee2e2 0%, #fecaca 100%)',
-      icon: '🔥',
+      code: 'NODE-02',
+      title: '블루오션 주간 분석',
+      desc: 'IT·자기계발 · 경쟁 LOW',
+      cta: 'SCAN',
+      accent: 'pink',
+      tag: 'HOT',
     },
     {
-      badge: 'NEW',
-      title: '다큐 스타일 업데이트',
+      code: 'UPD-034',
+      title: '다큐 v2.1 모듈',
       desc: 'BBC식 차분한 내레이션',
-      cta: '지금 시도',
-      gradient: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
-      icon: '✨',
+      cta: 'DEPLOY',
+      accent: 'violet',
+      tag: 'NEW',
     },
   ],
   'home-top': [
     {
-      badge: 'SPONSORED',
-      title: '크리에이터 필수 도구 모음',
-      desc: '2026년 가장 주목받는 무료 AI 툴 7가지 — 썸네일, 자막, 분석까지',
-      cta: '블로그에서 보기',
-      gradient: 'linear-gradient(135deg, #0f0f0f 0%, #1a1a1a 100%)',
-      icon: '🛠️',
+      code: 'TX-HOME-01',
+      title: '크리에이터 필수 도구 7가지',
+      desc: '2026 가장 주목받는 무료 AI 도구 모음 · 썸네일·자막·분석·편집',
+      cta: 'ARCHIVE',
+      accent: 'cyan',
+      tag: 'FEATURED',
     },
   ],
   'home-mid': [
     {
-      badge: '추천',
-      title: '경쟁 채널 분석이 처음이신가요?',
-      desc: '키워드 하나로 Top 10 채널·평균 조회수·경쟁 강도를 3초 안에 확인하세요',
-      cta: '경쟁 분석 시작',
-      gradient: 'linear-gradient(135deg, #1a1a1a 0%, #2d1b1b 100%)',
-      icon: '📊',
+      code: 'TX-HOME-02',
+      title: '경쟁 채널 레이더',
+      desc: '키워드 하나로 Top 10 채널·평균 조회수·경쟁 강도를 3초에 분석',
+      cta: 'ANALYZE',
+      accent: 'violet',
+      tag: 'TOOL',
     },
   ],
   'home-bottom': [
     {
-      badge: 'NEW GUIDE',
-      title: '유튜브 초보의 첫 달 체크리스트 10가지',
-      desc: '채널 세팅부터 첫 영상 업로드까지 — 실전 가이드',
-      cta: '가이드 읽기',
-      gradient: 'linear-gradient(135deg, #064e3b 0%, #065f46 100%)',
-      icon: '📝',
+      code: 'TX-HOME-03',
+      title: '첫 달 체크리스트 10가지',
+      desc: '채널 세팅부터 첫 영상 업로드까지 실전 가이드',
+      cta: 'READ',
+      accent: 'green',
+      tag: 'GUIDE',
     },
   ],
   'analytics-top': [
     {
-      badge: 'PRO TIP',
+      code: 'TX-ANL-01',
       title: '경쟁 강도 판정 기준',
-      desc: 'Top 10 총 구독자가 100만+이면 "높음", 10만 미만이면 "낮음"',
-      cta: '자세히',
-      gradient: 'linear-gradient(135deg, #1e3a8a 0%, #1e40af 100%)',
-      icon: '🎯',
+      desc: 'Top 10 총 구독자 100만+ → HIGH · 10만↓ → LOW',
+      cta: 'DOCS',
+      accent: 'cyan',
+      tag: 'INTEL',
     },
   ],
   'analytics-bottom': [
     {
-      badge: '다음 단계',
-      title: '분석 결과를 영상으로 바꾸기',
-      desc: '경쟁 분석 끝났다면 이제 영상 제작 — AI가 시나리오까지 추천해줍니다',
-      cta: '영상 만들기',
-      gradient: 'linear-gradient(135deg, #7c2d12 0%, #9a3412 100%)',
-      icon: '🎬',
+      code: 'TX-ANL-02',
+      title: '분석 → 영상 제작 파이프라인',
+      desc: '경쟁 분석 결과를 바로 AI 시나리오로 연결',
+      cta: 'GENERATE',
+      accent: 'pink',
+      tag: 'FLOW',
     },
   ],
   'blog-top': [
     {
-      badge: 'FEATURED',
-      title: '2026 유튜브 알고리즘 총정리',
-      desc: '세션 시청 시간이 핵심 지표로, 썸네일 일관성이 가산점',
-      cta: '전문 읽기',
-      gradient: 'linear-gradient(135deg, #581c87 0%, #6b21a8 100%)',
-      icon: '📊',
+      code: 'TX-BLG-01',
+      title: '2026 YouTube 알고리즘',
+      desc: '세션 시청 시간 핵심 · 썸네일 일관성 가산점',
+      cta: 'FULL_TEXT',
+      accent: 'violet',
+      tag: 'FEATURED',
     },
   ],
   'blog-post-top': [
     {
-      badge: 'TOOL',
-      title: 'AlgoMaker로 이 글의 원칙 적용하기',
-      desc: '키워드 입력 한 번으로 AI가 알고리즘 친화적 영상 자동 생성',
-      cta: '무료로 시작',
-      gradient: 'linear-gradient(135deg, #0c4a6e 0%, #075985 100%)',
-      icon: '⚡',
+      code: 'TX-POST-01',
+      title: '이 글의 원칙 적용하기',
+      desc: 'AlgoMaker 시나리오로 즉시 실험 가능',
+      cta: 'LAUNCH',
+      accent: 'cyan',
+      tag: 'TOOL',
     },
   ],
   'blog-post-bottom': [
     {
-      badge: '관련 가이드',
-      title: '더 깊이 들어가고 싶다면',
-      desc: '크리에이터 인사이트 섹션의 다른 글들도 확인해보세요',
-      cta: '블로그 홈',
-      gradient: 'linear-gradient(135deg, #7c2d12 0%, #9a3412 100%)',
-      icon: '📚',
+      code: 'TX-POST-02',
+      title: '다음 인사이트',
+      desc: '크리에이터 인사이트 아카이브 전체',
+      cta: 'ARCHIVE',
+      accent: 'amber',
+      tag: 'RELATED',
     },
   ],
 };
 
-function getFallback(slot: string) {
-  const pool = FALLBACK_CONTENT[slot] || FALLBACK_CONTENT['home-top'];
-  // 시간 기반 로테이션 — 새로고침마다 다른 콘텐츠
+function getFallback(slot: string): FallbackContent {
+  const pool = FALLBACK[slot] || FALLBACK['home-top'];
   const idx = Math.floor(Date.now() / (1000 * 60 * 60)) % pool.length;
   return pool[idx];
 }
+
+const ACCENT_COLORS: Record<FallbackContent['accent'], { color: string; dim: string; glow: string }> = {
+  cyan: { color: '#00e5ff', dim: 'rgba(0,229,255,0.1)', glow: 'rgba(0,229,255,0.3)' },
+  violet: { color: '#a855f7', dim: 'rgba(168,85,247,0.1)', glow: 'rgba(168,85,247,0.3)' },
+  pink: { color: '#ec4899', dim: 'rgba(236,72,153,0.1)', glow: 'rgba(236,72,153,0.3)' },
+  green: { color: '#4ade80', dim: 'rgba(74,222,128,0.1)', glow: 'rgba(74,222,128,0.3)' },
+  amber: { color: '#fbbf24', dim: 'rgba(251,191,36,0.1)', glow: 'rgba(251,191,36,0.3)' },
+};
 
 export default function AdSlot({
   slot,
@@ -176,12 +180,10 @@ export default function AdSlot({
   const slotId = SLOT_ID_MAP[slot] || slot;
   const isLive = Boolean(clientId && enabled);
 
-  const [content, setContent] = useState<ReturnType<typeof getFallback> | null>(null);
+  const [content, setContent] = useState<FallbackContent | null>(null);
 
   useEffect(() => {
-    if (!isLive) {
-      setContent(getFallback(slot));
-    }
+    if (!isLive) setContent(getFallback(slot));
   }, [slot, isLive]);
 
   useEffect(() => {
@@ -195,10 +197,15 @@ export default function AdSlot({
     }
   }, [isLive, slot]);
 
-  // 🟢 승인 후: 실제 AdSense
+  // 🟢 실광고 (승인 후)
   if (isLive) {
+    const sizeStyle: React.CSSProperties = variant === 'sidebar-card' ? { width: '100%', minHeight: 100 } :
+      variant === 'vertical' ? { width: '100%', minHeight: 250 } :
+      variant === 'in-content' ? { width: '100%', minHeight: 120 } :
+      { width: '100%', minHeight: 90 };
+
     return (
-      <div className={`ad-slot-live ${className}`} style={getLiveStyle(variant)}>
+      <div className={`ad-live ${className}`} style={sizeStyle}>
         <ins
           className="adsbygoogle"
           style={{ display: 'block', width: '100%', height: '100%' }}
@@ -211,226 +218,268 @@ export default function AdSlot({
     );
   }
 
-  // 🎨 승인 전: 큐레이션 카드 (네이티브 광고 스타일)
   if (!content) return null;
 
-  const isDark = content.gradient.includes('#0') || content.gradient.includes('#1') ||
-                 content.gradient.includes('#2') || content.gradient.includes('#3') ||
-                 content.gradient.includes('#5') || content.gradient.includes('#6') ||
-                 content.gradient.includes('#7');
-  const textColor = isDark ? '#fff' : '#1a1a1a';
-  const mutedColor = isDark ? 'rgba(255,255,255,0.75)' : 'rgba(0,0,0,0.65)';
-  const badgeBg = isDark ? 'rgba(255,255,255,0.15)' : 'rgba(0,0,0,0.08)';
-  const borderColor = isDark ? 'rgba(255,255,255,0.08)' : 'rgba(0,0,0,0.06)';
+  const c = ACCENT_COLORS[content.accent];
 
-  // 사이드바용 작은 카드
+  // Sidebar compact
   if (variant === 'sidebar-card' || slot === 'sidebar') {
     return (
-      <div className={`ad-native-sidebar ${className}`}>
+      <div className={`txSidebar ${className}`}>
         <style jsx>{`
-          .ad-native-sidebar {
-            padding: 12px 13px;
-            background: ${content.gradient};
-            border: 1px solid ${borderColor};
-            border-radius: 10px;
+          .txSidebar {
+            padding: 12px 13px 11px;
+            background: linear-gradient(145deg, #0f0f18 0%, #0a0a0f 100%);
+            border: 1px solid rgba(255,255,255,0.08);
+            border-radius: 7px;
             cursor: pointer;
-            transition: all 0.2s cubic-bezier(0.22, 1, 0.36, 1);
+            transition: all 0.2s;
             position: relative;
             overflow: hidden;
           }
-          .ad-native-sidebar:hover {
+          .txSidebar::before {
+            content: '';
+            position: absolute;
+            left: 0; top: 0; bottom: 0;
+            width: 2px;
+            background: ${c.color};
+            box-shadow: 0 0 8px ${c.color};
+          }
+          .txSidebar:hover {
+            border-color: ${c.color};
             transform: translateY(-1px);
-            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
           }
-          .native-top {
+          .txHead {
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            margin-bottom: 6px;
-          }
-          .native-badge {
-            font-size: 9px;
-            font-weight: 800;
-            letter-spacing: 0.08em;
-            color: ${textColor};
-            background: ${badgeBg};
-            padding: 2px 6px;
-            border-radius: 4px;
-          }
-          .native-icon {
-            font-size: 14px;
-          }
-          .native-title {
-            font-size: 12px;
-            font-weight: 800;
-            color: ${textColor};
-            line-height: 1.3;
-            letter-spacing: -0.01em;
-            margin-bottom: 3px;
-          }
-          .native-desc {
-            font-size: 10px;
-            color: ${mutedColor};
-            line-height: 1.45;
+            align-items: center;
             margin-bottom: 7px;
           }
-          .native-cta {
-            font-size: 10px;
+          .txCode {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 8.5px;
+            font-weight: 600;
+            color: ${c.color};
+            letter-spacing: 0.08em;
+          }
+          .txTag {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 8px;
             font-weight: 700;
-            color: ${textColor};
+            padding: 1px 5px;
+            border-radius: 2px;
+            background: ${c.dim};
+            color: ${c.color};
+            letter-spacing: 0.1em;
+            border: 1px solid ${c.color};
+          }
+          .txTitle {
+            font-family: 'Space Grotesk', 'Inter', sans-serif;
+            font-size: 12px;
+            font-weight: 700;
+            color: #fff;
+            letter-spacing: -0.01em;
+            line-height: 1.35;
+            margin-bottom: 3px;
+          }
+          .txDesc {
+            font-size: 10.5px;
+            color: #909098;
+            line-height: 1.45;
+            margin-bottom: 8px;
+          }
+          .txCta {
+            font-family: 'JetBrains Mono', monospace;
+            font-size: 9px;
+            font-weight: 700;
+            color: ${c.color};
+            letter-spacing: 0.12em;
             display: inline-flex;
             align-items: center;
-            gap: 2px;
+            gap: 3px;
           }
-          .native-cta::after {
+          .txCta::after {
             content: '→';
-            transition: transform 0.2s;
-          }
-          .ad-native-sidebar:hover .native-cta::after {
-            transform: translateX(2px);
           }
         `}</style>
-        <div className="native-top">
-          <span className="native-badge">{content.badge}</span>
-          <span className="native-icon">{content.icon}</span>
+        <div className="txHead">
+          <span className="txCode">▸ {content.code}</span>
+          <span className="txTag">{content.tag}</span>
         </div>
-        <div className="native-title">{content.title}</div>
-        <div className="native-desc">{content.desc}</div>
-        <div className="native-cta">{content.cta}</div>
+        <div className="txTitle">{content.title}</div>
+        <div className="txDesc">{content.desc}</div>
+        <div className="txCta">{content.cta}</div>
       </div>
     );
   }
 
-  // 가로형 (네이티브 대형 배너)
+  // Horizontal (big transmission card)
   return (
-    <div className={`ad-native-horizontal ${className}`}>
+    <div className={`txBig ${className}`}>
       <style jsx>{`
-        .ad-native-horizontal {
-          background: ${content.gradient};
-          border: 1px solid ${borderColor};
-          border-radius: 14px;
-          padding: 20px 24px;
+        .txBig {
+          background: linear-gradient(135deg, #0a0a0f 0%, #0f0f18 100%);
+          border: 1px solid rgba(255,255,255,0.08);
+          border-radius: 10px;
+          padding: 18px 22px;
           display: flex;
           align-items: center;
-          gap: 18px;
+          gap: 20px;
           cursor: pointer;
           transition: all 0.25s cubic-bezier(0.22, 1, 0.36, 1);
           position: relative;
           overflow: hidden;
-          min-height: 92px;
+          min-height: 96px;
         }
-        .ad-native-horizontal::before {
+        .txBig::before {
           content: '';
           position: absolute;
-          inset: 0;
-          background: radial-gradient(circle at 80% 20%, rgba(255,255,255,0.08), transparent 50%);
+          left: 0; top: 0; bottom: 0;
+          width: 3px;
+          background: linear-gradient(180deg, ${c.color}, transparent);
+          box-shadow: 0 0 12px ${c.color};
+        }
+        .txBig::after {
+          content: '';
+          position: absolute;
+          top: 0; right: 0;
+          width: 160px; height: 100%;
+          background: radial-gradient(circle at top right, ${c.glow} 0%, transparent 60%);
           pointer-events: none;
+          opacity: 0.6;
         }
-        .ad-native-horizontal:hover {
+        .txBig:hover {
+          border-color: ${c.color};
           transform: translateY(-2px);
-          box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+          box-shadow: 0 8px 32px ${c.dim};
         }
-        .big-icon {
-          font-size: 32px;
+
+        .txSide {
           flex-shrink: 0;
+          width: 80px;
+          display: flex;
+          flex-direction: column;
+          justify-content: space-between;
+          align-self: stretch;
+          padding: 4px 0;
         }
-        .big-body {
+        .sideCode {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 9px;
+          font-weight: 600;
+          color: ${c.color};
+          letter-spacing: 0.12em;
+        }
+        .sideMarks {
+          display: flex;
+          gap: 4px;
+          margin-top: auto;
+        }
+        .sideMark {
+          width: 4px; height: 4px;
+          background: ${c.color};
+          border-radius: 1px;
+          box-shadow: 0 0 4px ${c.color};
+        }
+        .sideMark:nth-child(2) { opacity: 0.6; }
+        .sideMark:nth-child(3) { opacity: 0.3; }
+
+        .txBody {
           flex: 1;
           min-width: 0;
           z-index: 1;
         }
-        .big-meta {
+        .txMeta {
           display: flex;
           align-items: center;
           gap: 8px;
-          margin-bottom: 4px;
+          margin-bottom: 6px;
         }
-        .big-badge {
+        .bigTag {
+          font-family: 'JetBrains Mono', monospace;
           font-size: 9px;
-          font-weight: 800;
+          font-weight: 700;
+          padding: 2px 7px;
+          border-radius: 3px;
+          background: ${c.dim};
+          color: ${c.color};
           letter-spacing: 0.12em;
-          color: ${textColor};
-          background: ${badgeBg};
-          padding: 3px 8px;
-          border-radius: 999px;
+          border: 1px solid ${c.color};
         }
-        .big-label {
+        .metaLabel {
+          font-family: 'JetBrains Mono', monospace;
           font-size: 9px;
-          font-weight: 600;
-          color: ${mutedColor};
+          color: #606070;
           letter-spacing: 0.06em;
         }
-        .big-title {
+        .bigTitle {
+          font-family: 'Space Grotesk', 'Inter', sans-serif;
           font-size: 16px;
-          font-weight: 800;
-          color: ${textColor};
+          font-weight: 700;
+          color: #fff;
+          letter-spacing: -0.015em;
           line-height: 1.3;
-          letter-spacing: -0.02em;
-          margin-bottom: 3px;
+          margin-bottom: 4px;
         }
-        .big-desc {
-          font-size: 12px;
-          color: ${mutedColor};
-          line-height: 1.5;
+        .bigDesc {
+          font-size: 12.5px;
+          color: #909098;
+          line-height: 1.55;
         }
-        .big-cta {
+
+        .bigCta {
           flex-shrink: 0;
           padding: 10px 18px;
-          background: ${isDark ? 'rgba(255,255,255,0.15)' : '#0f0f0f'};
-          color: ${isDark ? textColor : '#fff'};
-          border-radius: 999px;
-          font-size: 12px;
+          background: transparent;
+          color: ${c.color};
+          border: 1px solid ${c.color};
+          border-radius: 4px;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10.5px;
           font-weight: 700;
+          letter-spacing: 0.12em;
           display: inline-flex;
           align-items: center;
-          gap: 4px;
+          gap: 6px;
           white-space: nowrap;
           z-index: 1;
-          border: 1px solid ${isDark ? 'rgba(255,255,255,0.2)' : 'transparent'};
-          transition: all 0.2s;
+          transition: all 0.15s;
+          cursor: pointer;
         }
-        .ad-native-horizontal:hover .big-cta {
-          transform: translateX(2px);
+        .txBig:hover .bigCta {
+          background: ${c.color};
+          color: #0a0a0f;
+          box-shadow: 0 0 16px ${c.glow};
         }
+
         @media (max-width: 640px) {
-          .ad-native-horizontal { padding: 16px; gap: 12px; }
-          .big-icon { font-size: 24px; }
-          .big-title { font-size: 14px; }
-          .big-desc { font-size: 11px; }
-          .big-cta { padding: 8px 14px; font-size: 11px; }
+          .txBig { padding: 14px 16px; gap: 12px; min-height: 84px; }
+          .txSide { width: 48px; }
+          .sideCode { font-size: 8px; }
+          .bigTitle { font-size: 13.5px; }
+          .bigDesc { font-size: 11px; }
+          .bigCta { padding: 8px 12px; font-size: 9.5px; }
         }
       `}</style>
-      <div className="big-icon">{content.icon}</div>
-      <div className="big-body">
-        <div className="big-meta">
-          <span className="big-badge">{content.badge}</span>
-          <span className="big-label">· AlgoMaker 추천</span>
+      <div className="txSide">
+        <span className="sideCode">{content.code}</span>
+        <div className="sideMarks">
+          <span className="sideMark" />
+          <span className="sideMark" />
+          <span className="sideMark" />
         </div>
-        <div className="big-title">{content.title}</div>
-        <div className="big-desc">{content.desc}</div>
       </div>
-      <div className="big-cta">
-        {content.cta} →
+      <div className="txBody">
+        <div className="txMeta">
+          <span className="bigTag">{content.tag}</span>
+          <span className="metaLabel">▸ SPONSORED · ALGOMAKER</span>
+        </div>
+        <div className="bigTitle">{content.title}</div>
+        <div className="bigDesc">{content.desc}</div>
       </div>
+      <button className="bigCta">
+        {content.cta}
+      </button>
     </div>
   );
-}
-
-function getLiveStyle(variant: AdVariant): React.CSSProperties {
-  switch (variant) {
-    case 'horizontal':
-      return { width: '100%', minHeight: 90, maxHeight: 120 };
-    case 'vertical':
-      return { width: '100%', minHeight: 250, maxHeight: 600 };
-    case 'square':
-      return { width: '100%', minHeight: 250, maxHeight: 300 };
-    case 'in-content':
-      return { width: '100%', minHeight: 120, maxHeight: 280 };
-    case 'sidebar-card':
-      return { width: '100%', minHeight: 100 };
-    case 'native-card':
-      return { width: '100%', minHeight: 120 };
-    default:
-      return { width: '100%', minHeight: 90 };
-  }
 }
