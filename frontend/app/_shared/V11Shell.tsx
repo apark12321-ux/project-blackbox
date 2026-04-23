@@ -1,10 +1,10 @@
 'use client';
 /**
- * V11Shell v4 — "Neural Lab"
+ * V11Shell v5 — "크리에이터의 서재"
  *
- * 컨셉: AI 뉴럴 네트워크 연구실 / NASA 미션 컨트롤 / Cursor IDE
- * 색: 검정 + 네온 시안/바이올렛/핑크
- * 폰트: Space Grotesk (헤딩) + JetBrains Mono (데이터)
+ * 컨셉: 따뜻한 베이지 + 테라코타/세이지/머스타드 포인트
+ * 폰트: Pretendard만 (한글 최적)
+ * 언어: 100% 한국어
  */
 
 import Link from 'next/link';
@@ -66,13 +66,14 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
   );
 }
 
-const TRANSMISSIONS = [
-  { code: 'SIG-001', text: 'TRENDING NODE · "2026 INTEREST_RATE" · BLUE_OCEAN_SCORE: 94', tone: 'critical' },
-  { code: 'SIG-002', text: 'DATA_STREAM · CATEGORY.ECONOMY retention +38% (wk-over-wk)', tone: 'info' },
-  { code: 'SIG-003', text: 'ANALYSIS · scenario.mystery → retention.avg 95.0%', tone: 'alert' },
-  { code: 'SIG-004', text: 'MARKET_SCAN · IT_SELF-DEV cluster · competition.low', tone: 'critical' },
-  { code: 'SIG-005', text: 'UPDATE_PUSH · scenario.docu v2.1 · retention +12%', tone: 'new' },
-  { code: 'SIG-006', text: 'BREAKTHROUGH · scenario.flip · 10M+ views (yesterday)', tone: 'info' },
+// 공지 메시지 — 모두 한글
+const NOTICES = [
+  { dot: '🔥', text: '이번 주 인기 키워드: "2026 금리 전망" · 블루오션 지수 94점', tag: '인기' },
+  { dot: '📈', text: '경제·사회 카테고리 조회수 평균 38% 상승 (지난주 대비)', tag: '트렌드' },
+  { dot: '💡', text: '미스터리 추적형 시나리오가 평균 유지율 95% 기록', tag: '팁' },
+  { dot: '🎯', text: '이번 달 주목 카테고리: IT·자기계발 · 경쟁 강도 낮음', tag: '인기' },
+  { dot: '✨', text: '다큐 스타일 시나리오 업데이트 — 유지율 12% 향상', tag: '새소식' },
+  { dot: '🎬', text: '어제 조회수 10만 돌파한 시나리오: "상식 깨기"', tag: '트렌드' },
 ];
 
 function useTodayCounter() {
@@ -97,39 +98,24 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   const router = useRouter();
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
-  const [transmissionIdx, setTransmissionIdx] = useState(0);
+  const [noticeIdx, setNoticeIdx] = useState(0);
   const todayCount = useTodayCounter();
-  const [uptime, setUptime] = useState(0);
 
   useEffect(() => {
-    const t = setInterval(() => setTransmissionIdx((i) => (i + 1) % TRANSMISSIONS.length), 5000);
+    const t = setInterval(() => setNoticeIdx((i) => (i + 1) % NOTICES.length), 4500);
     return () => clearInterval(t);
   }, []);
-
-  // uptime ticker
-  useEffect(() => {
-    const start = Date.now();
-    const t = setInterval(() => setUptime(Math.floor((Date.now() - start) / 1000)), 1000);
-    return () => clearInterval(t);
-  }, []);
-
-  const formatUptime = (s: number) => {
-    const h = Math.floor(s / 3600).toString().padStart(2, '0');
-    const m = Math.floor((s % 3600) / 60).toString().padStart(2, '0');
-    const sec = (s % 60).toString().padStart(2, '0');
-    return `${h}:${m}:${sec}`;
-  };
 
   const mainMenu = [
-    { code: 'N01', icon: '◉', label: 'HOME', labelKr: '홈', path: '/', key: 'home' },
-    { code: 'N02', icon: '▸', label: 'ASSETS', labelKr: '내 영상', path: '/assets', key: 'assets' },
-    { code: 'N03', icon: '⊹', label: 'ANALYZE', labelKr: '경쟁 분석', path: '/analytics', key: 'analytics', badge: 'LIVE' },
-    { code: 'N04', icon: '◈', label: 'JOURNAL', labelKr: '블로그', path: '/blog', key: 'blog' },
+    { icon: '홈', label: '홈', path: '/', key: 'home' },
+    { icon: '영상', label: '내 영상', path: '/assets', key: 'assets' },
+    { icon: '분석', label: '경쟁 분석', path: '/analytics', key: 'analytics', badge: 'LIVE' },
+    { icon: '글', label: '블로그', path: '/blog', key: 'blog' },
   ];
 
   const infoMenu = [
-    { code: 'I01', icon: '○', label: 'ABOUT', labelKr: '소개', path: '/about', key: 'about' },
-    { code: 'I02', icon: '◇', label: 'CONTACT', labelKr: '문의', path: '/contact', key: 'contact' },
+    { icon: '소개', label: '서비스 소개', path: '/about', key: 'about' },
+    { icon: '문의', label: '문의하기', path: '/contact', key: 'contact' },
   ];
 
   const isActive = (path: string) => {
@@ -137,109 +123,102 @@ function ShellInner({ children }: { children: React.ReactNode }) {
     return pathname?.startsWith(path);
   };
 
-  const currentTransmission = TRANSMISSIONS[transmissionIdx];
+  const currentNotice = NOTICES[noticeIdx];
   const currentYear = new Date().getFullYear();
+
+  const tagColor = (tag: string) => {
+    if (tag === '인기') return { bg: '#fdf1e7', color: '#c65f3b' };
+    if (tag === '트렌드') return { bg: '#eaf0f5', color: '#5a7a99' };
+    if (tag === '팁') return { bg: '#fbf3df', color: '#a67e1e' };
+    return { bg: '#eaf2ea', color: '#5e7e5d' };
+  };
 
   return (
     <>
       <style jsx global>{`
-        @import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.min.css');
 
         * { margin: 0; padding: 0; box-sizing: border-box; }
 
         :root {
-          --bg-0: #050507;
-          --bg-1: #0a0a0f;
-          --bg-2: #0f0f18;
-          --bg-3: #15151f;
-          --bg-4: #1a1a28;
-          --line-dim: rgba(255,255,255,0.06);
-          --line: rgba(255,255,255,0.1);
-          --line-strong: rgba(255,255,255,0.18);
-          --text-0: #ffffff;
-          --text-1: #e5e5ee;
-          --text-2: #a0a0b0;
-          --text-3: #606070;
-          --text-4: #404050;
-          --cyan: #00e5ff;
-          --cyan-dim: rgba(0, 229, 255, 0.15);
-          --violet: #a855f7;
-          --violet-dim: rgba(168, 85, 247, 0.15);
-          --pink: #ec4899;
-          --pink-dim: rgba(236, 72, 153, 0.15);
-          --green: #4ade80;
-          --green-dim: rgba(74, 222, 128, 0.15);
-          --amber: #fbbf24;
-          --red: #ef4444;
+          /* 배경 */
+          --bg-warm: #f5f1ea;          /* 웜 베이지 (메인 배경) */
+          --bg-cream: #faf8f4;         /* 오프화이트 (카드 배경) */
+          --bg-paper: #ffffff;         /* 종이 흰 */
+          --bg-soft: #ece6db;          /* 부드러운 구분 */
 
-          --font-sans: 'Inter', 'Pretendard', -apple-system, sans-serif;
-          --font-display: 'Space Grotesk', 'Inter', sans-serif;
-          --font-mono: 'JetBrains Mono', ui-monospace, monospace;
+          /* 텍스트 */
+          --ink-deep: #2a2419;         /* 딥 브라운 (본문) */
+          --ink-mid: #564a3a;          /* 미드 브라운 (부제목) */
+          --ink-soft: #8a7d6a;         /* 소프트 브라운 (보조) */
+          --ink-faint: #b8ad9b;        /* 흐린 (라벨) */
+
+          /* 포인트 색상 */
+          --terra: #c65f3b;            /* 테라코타 (메인 포인트) */
+          --terra-soft: #fdf1e7;       /* 테라코타 배경 */
+          --terra-deep: #a64a2a;       /* 테라코타 진함 */
+
+          --sage: #7d9b7c;             /* 세이지 그린 */
+          --sage-soft: #eaf2ea;
+          --sage-deep: #5e7e5d;
+
+          --mustard: #d4a545;          /* 머스타드 옐로 */
+          --mustard-soft: #fbf3df;
+          --mustard-deep: #a67e1e;
+
+          --dusk: #6b8cae;             /* 더스티 블루 */
+          --dusk-soft: #eaf0f5;
+          --dusk-deep: #5a7a99;
+
+          /* 라인 */
+          --line: rgba(90, 74, 58, 0.1);
+          --line-soft: rgba(90, 74, 58, 0.06);
+          --line-strong: rgba(90, 74, 58, 0.15);
+
+          /* 그림자 (종이 질감) */
+          --shadow-card: 0 1px 2px rgba(90, 74, 58, 0.04), 0 2px 8px rgba(90, 74, 58, 0.05);
+          --shadow-hover: 0 4px 8px rgba(90, 74, 58, 0.06), 0 8px 20px rgba(90, 74, 58, 0.08);
+
+          --font: 'Pretendard', -apple-system, BlinkMacSystemFont, sans-serif;
         }
 
         html, body {
-          font-family: var(--font-sans);
-          background: var(--bg-0);
-          color: var(--text-1);
+          font-family: var(--font);
+          background: var(--bg-warm);
+          color: var(--ink-deep);
           -webkit-font-smoothing: antialiased;
-          font-feature-settings: 'cv11', 'ss01';
-        }
-
-        /* Global noise texture */
-        body::before {
-          content: '';
-          position: fixed;
-          inset: 0;
-          pointer-events: none;
-          z-index: 1;
-          background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='3' /%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
-          opacity: 0.04;
-          mix-blend-mode: screen;
+          -moz-osx-font-smoothing: grayscale;
+          font-feature-settings: 'ss02';
+          letter-spacing: -0.008em;
         }
 
         a { color: inherit; text-decoration: none; }
         button { font-family: inherit; }
 
         ::selection {
-          background: var(--cyan);
-          color: var(--bg-0);
+          background: var(--terra-soft);
+          color: var(--terra-deep);
         }
 
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: var(--bg-0); }
-        ::-webkit-scrollbar-thumb { background: var(--bg-4); border-radius: 3px; }
-        ::-webkit-scrollbar-thumb:hover { background: var(--text-4); }
+        ::-webkit-scrollbar { width: 8px; height: 8px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--bg-soft); border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--ink-faint); }
       `}</style>
 
       <style jsx>{`
         .app {
           display: flex;
           min-height: 100vh;
-          background: var(--bg-0);
-          position: relative;
-        }
-
-        /* Subtle grid overlay */
-        .app::before {
-          content: '';
-          position: fixed;
-          inset: 0;
-          pointer-events: none;
-          background-image:
-            linear-gradient(var(--line-dim) 1px, transparent 1px),
-            linear-gradient(90deg, var(--line-dim) 1px, transparent 1px);
-          background-size: 80px 80px;
-          opacity: 0.4;
-          z-index: 0;
-          mask-image: radial-gradient(ellipse at center, black 0%, transparent 80%);
+          background: var(--bg-warm);
         }
 
         /* ============ SIDEBAR ============ */
         .sidebar {
-          width: 240px;
-          background: var(--bg-1);
-          border-right: 1px solid var(--line-dim);
-          padding: 16px 0 14px;
+          width: 232px;
+          background: var(--bg-cream);
+          border-right: 1px solid var(--line-soft);
+          padding: 20px 0 16px;
           display: flex;
           flex-direction: column;
           position: sticky;
@@ -248,254 +227,213 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           flex-shrink: 0;
           overflow-y: auto;
           overflow-x: hidden;
-          z-index: 10;
         }
 
         .sidebarHeader {
-          padding: 0 18px 16px;
-          border-bottom: 1px solid var(--line-dim);
+          padding: 0 22px 18px;
+          border-bottom: 1px solid var(--line-soft);
           margin-bottom: 14px;
         }
         .brandRow {
           display: flex;
           align-items: center;
           justify-content: space-between;
-          margin-bottom: 6px;
+          margin-bottom: 4px;
         }
         .brand {
-          font-family: var(--font-display);
-          font-size: 17px;
-          font-weight: 700;
-          letter-spacing: -0.02em;
-          color: var(--text-0);
-          display: inline-flex;
-          align-items: center;
-          gap: 2px;
+          font-size: 19px;
+          font-weight: 800;
+          letter-spacing: -0.03em;
+          color: var(--ink-deep);
         }
-        .brand-mark {
-          color: var(--cyan);
-          font-weight: 500;
-        }
-        .statusBadge {
+        .brandMark { color: var(--terra); }
+
+        .liveBadge {
           display: inline-flex;
           align-items: center;
           gap: 5px;
-          font-family: var(--font-mono);
-          font-size: 9px;
-          font-weight: 600;
-          color: var(--green);
-          letter-spacing: 0.08em;
+          padding: 3px 8px;
+          background: var(--sage-soft);
+          border-radius: 999px;
+          font-size: 10px;
+          font-weight: 700;
+          color: var(--sage-deep);
+          letter-spacing: 0.02em;
         }
-        .statusDot {
-          width: 6px; height: 6px;
-          background: var(--green);
+        .liveDot {
+          width: 5px; height: 5px;
+          background: var(--sage);
           border-radius: 50%;
-          box-shadow: 0 0 8px var(--green);
-          animation: pulse 2s ease-in-out infinite;
+          animation: pulse 2s infinite;
         }
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.4; }
         }
-
-        .versionLine {
-          font-family: var(--font-mono);
-          font-size: 10px;
-          color: var(--text-3);
-          letter-spacing: 0.04em;
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-        }
-        .versionLine .uptime {
-          color: var(--cyan);
+        .brandSub {
+          font-size: 11px;
+          color: var(--ink-soft);
+          font-weight: 500;
+          letter-spacing: -0.005em;
         }
 
         /* Menu */
-        .menuGroup {
-          padding: 0 10px;
-          margin-bottom: 4px;
-        }
+        .menuGroup { padding: 0 12px; margin-bottom: 6px; }
         .groupLabel {
-          font-family: var(--font-mono);
-          font-size: 9px;
-          font-weight: 600;
-          color: var(--text-4);
-          letter-spacing: 0.15em;
-          padding: 10px 12px 6px;
-          display: flex;
-          align-items: center;
-          gap: 6px;
+          font-size: 10px;
+          font-weight: 700;
+          color: var(--ink-faint);
+          letter-spacing: 0.08em;
+          padding: 10px 14px 8px;
+          text-transform: uppercase;
         }
-        .groupLabel::before {
-          content: '';
-          width: 12px;
-          height: 1px;
-          background: var(--line);
-        }
-
         .menuItem {
           display: flex;
           align-items: center;
           gap: 10px;
-          padding: 9px 12px;
-          border-radius: 6px;
+          padding: 10px 14px;
+          border-radius: 10px;
           cursor: pointer;
-          font-size: 13px;
+          font-size: 14px;
           font-weight: 500;
-          color: var(--text-2);
-          margin-bottom: 1px;
-          transition: all 0.18s ease;
+          color: var(--ink-mid);
+          margin-bottom: 2px;
+          transition: all 0.18s;
           position: relative;
-          font-family: var(--font-sans);
+          letter-spacing: -0.01em;
         }
         .menuItem:hover {
-          background: var(--bg-3);
-          color: var(--text-0);
+          background: var(--bg-warm);
+          color: var(--ink-deep);
         }
         .menuItem.active {
-          background: linear-gradient(90deg, var(--cyan-dim) 0%, transparent 100%);
-          color: var(--cyan);
+          background: var(--terra-soft);
+          color: var(--terra-deep);
+          font-weight: 700;
         }
         .menuItem.active::before {
           content: '';
           position: absolute;
           left: 0;
-          top: 6px;
-          bottom: 6px;
-          width: 2px;
-          background: var(--cyan);
-          box-shadow: 0 0 8px var(--cyan);
+          top: 8px;
+          bottom: 8px;
+          width: 3px;
+          background: var(--terra);
           border-radius: 0 2px 2px 0;
         }
         .menuIcon {
-          font-size: 14px;
-          width: 14px;
-          text-align: center;
-          color: var(--text-3);
+          width: 22px;
+          height: 22px;
+          border-radius: 6px;
+          background: var(--bg-soft);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 10px;
+          font-weight: 700;
+          color: var(--ink-soft);
           flex-shrink: 0;
+          letter-spacing: 0;
         }
         .menuItem.active .menuIcon {
-          color: var(--cyan);
+          background: var(--terra);
+          color: #fff;
         }
-        .menuLabelBlock {
-          flex: 1;
-          min-width: 0;
-        }
-        .menuCode {
-          font-family: var(--font-mono);
-          font-size: 9px;
-          color: var(--text-4);
-          letter-spacing: 0.06em;
-          display: block;
-          line-height: 1.3;
-        }
-        .menuLabel {
-          font-size: 13px;
-          font-weight: 500;
-          letter-spacing: -0.005em;
-          line-height: 1.2;
-        }
+        .menuLabel { flex: 1; }
         .menuBadge {
-          font-family: var(--font-mono);
-          font-size: 8.5px;
-          font-weight: 700;
-          padding: 2px 5px;
-          border-radius: 3px;
-          background: var(--pink-dim);
-          color: var(--pink);
-          letter-spacing: 0.08em;
-          border: 1px solid rgba(236,72,153,0.3);
+          font-size: 9px;
+          font-weight: 800;
+          padding: 2px 6px;
+          border-radius: 4px;
+          background: var(--mustard-soft);
+          color: var(--mustard-deep);
+          letter-spacing: 0.05em;
         }
 
-        .spacer { flex: 1; min-height: 10px; }
+        .spacer { flex: 1; min-height: 12px; }
 
-        /* Live counter card */
-        .metricCard {
-          margin: 8px 10px;
-          padding: 12px 14px;
-          background: linear-gradient(180deg, var(--bg-2) 0%, var(--bg-1) 100%);
-          border: 1px solid var(--line);
-          border-radius: 8px;
+        /* 오늘 통계 카드 */
+        .statsCard {
+          margin: 10px 12px;
+          padding: 14px 16px;
+          background: linear-gradient(135deg, #3a332a 0%, #2a2419 100%);
+          border-radius: 12px;
+          color: #f5f1ea;
           position: relative;
           overflow: hidden;
         }
-        .metricCard::before {
+        .statsCard::before {
           content: '';
           position: absolute;
-          top: 0; left: 0; right: 0;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, var(--cyan), transparent);
-          opacity: 0.6;
+          top: -30%; right: -20%;
+          width: 120px; height: 120px;
+          background: radial-gradient(circle, rgba(198, 95, 59, 0.3) 0%, transparent 70%);
         }
-        .metricTop {
+        .statsTop {
           display: flex;
-          justify-content: space-between;
           align-items: center;
+          gap: 6px;
           margin-bottom: 8px;
+          position: relative;
+          z-index: 1;
         }
-        .metricLabel {
-          font-family: var(--font-mono);
-          font-size: 9px;
-          font-weight: 600;
-          color: var(--text-3);
-          letter-spacing: 0.1em;
-        }
-        .metricDot {
+        .statsDot {
           width: 6px; height: 6px;
-          background: var(--cyan);
+          background: var(--terra);
           border-radius: 50%;
-          box-shadow: 0 0 8px var(--cyan);
-          animation: pulse 1.5s ease-in-out infinite;
+          box-shadow: 0 0 8px rgba(198, 95, 59, 0.6);
+          animation: pulse 1.8s infinite;
         }
-        .metricValue {
-          font-family: var(--font-mono);
-          font-size: 22px;
-          font-weight: 600;
-          color: var(--text-0);
-          letter-spacing: -0.02em;
+        .statsLabel {
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          color: rgba(245, 241, 234, 0.7);
+        }
+        .statsValue {
+          font-size: 26px;
+          font-weight: 800;
+          letter-spacing: -0.03em;
           line-height: 1;
-          margin-bottom: 4px;
-          font-feature-settings: 'tnum';
+          margin-bottom: 3px;
+          font-variant-numeric: tabular-nums;
+          position: relative;
+          z-index: 1;
+          color: #fff;
         }
-        .metricSub {
-          font-family: var(--font-mono);
-          font-size: 9.5px;
-          color: var(--text-3);
-          letter-spacing: 0.04em;
+        .statsSub {
+          font-size: 11px;
+          color: rgba(245, 241, 234, 0.6);
+          font-weight: 500;
+          position: relative;
+          z-index: 1;
         }
 
         .sidebarAd {
-          margin: 8px 10px;
+          margin: 10px 12px;
         }
 
         .sidebarFooter {
-          padding: 12px 18px 0;
-          border-top: 1px solid var(--line-dim);
+          padding: 14px 22px 0;
+          border-top: 1px solid var(--line-soft);
         }
         .footerLabel {
-          font-family: var(--font-mono);
-          font-size: 8.5px;
-          font-weight: 600;
-          color: var(--text-4);
-          letter-spacing: 0.15em;
-          margin-bottom: 7px;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.06em;
+          color: var(--ink-faint);
+          margin-bottom: 8px;
+          text-transform: uppercase;
         }
-        .techStack {
-          display: flex;
-          gap: 4px;
-          flex-wrap: wrap;
-        }
+        .techStack { display: flex; gap: 5px; flex-wrap: wrap; }
         .techBadge {
-          padding: 3px 6px;
-          background: var(--bg-3);
-          border: 1px solid var(--line);
-          border-radius: 3px;
-          font-family: var(--font-mono);
-          font-size: 9.5px;
-          font-weight: 500;
-          color: var(--text-2);
-          letter-spacing: 0.02em;
+          padding: 3px 8px;
+          background: var(--bg-warm);
+          border: 1px solid var(--line-soft);
+          border-radius: 5px;
+          font-size: 10px;
+          font-weight: 600;
+          color: var(--ink-mid);
         }
 
         /* ============ MAIN ============ */
@@ -504,171 +442,140 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           min-width: 0;
           display: flex;
           flex-direction: column;
-          position: relative;
-          z-index: 1;
         }
+        .mainContent { flex: 1; }
 
         .topBar {
           position: sticky;
           top: 0;
           z-index: 20;
-          background: rgba(10, 10, 15, 0.85);
-          backdrop-filter: blur(14px);
-          -webkit-backdrop-filter: blur(14px);
-          border-bottom: 1px solid var(--line-dim);
-          padding: 10px 24px;
+          background: rgba(245, 241, 234, 0.85);
+          backdrop-filter: blur(16px);
+          -webkit-backdrop-filter: blur(16px);
+          border-bottom: 1px solid var(--line-soft);
+          padding: 12px 28px;
           display: flex;
           align-items: center;
           justify-content: space-between;
           gap: 14px;
-          min-height: 48px;
+          min-height: 52px;
         }
 
         .hamburger {
           display: none;
-          width: 32px; height: 32px;
-          background: var(--bg-2);
+          width: 36px; height: 36px;
+          background: var(--bg-cream);
           border: 1px solid var(--line);
-          border-radius: 6px;
+          border-radius: 8px;
           cursor: pointer;
-          color: var(--text-1);
-          font-size: 14px;
+          color: var(--ink-deep);
+          font-size: 15px;
           align-items: center;
           justify-content: center;
         }
-        .hamburger:hover { background: var(--bg-3); }
 
-        /* Transmission bar */
-        .transmissionBar {
+        .noticeBar {
           flex: 1;
           max-width: 760px;
-          padding: 7px 14px;
-          background: var(--bg-2);
-          border: 1px solid var(--line);
-          border-radius: 6px;
+          padding: 10px 16px;
+          background: var(--bg-cream);
+          border: 1px solid var(--line-soft);
+          border-radius: 999px;
           display: flex;
           align-items: center;
           gap: 12px;
           overflow: hidden;
-          position: relative;
+          box-shadow: var(--shadow-card);
+          transition: all 0.2s;
         }
-        .transmissionBar::before {
-          content: '';
-          position: absolute;
-          left: 0; top: 0; bottom: 0;
-          width: 3px;
-          background: var(--cyan);
-          box-shadow: 0 0 8px var(--cyan);
+        .noticeBar:hover {
+          border-color: var(--line);
         }
-        .txCode {
-          font-family: var(--font-mono);
-          font-size: 9.5px;
-          font-weight: 600;
-          color: var(--cyan);
-          letter-spacing: 0.1em;
+        .noticeDot {
+          font-size: 15px;
           flex-shrink: 0;
         }
-        .txText {
-          font-family: var(--font-mono);
-          font-size: 11px;
-          color: var(--text-2);
+        .noticeText {
+          font-size: 13px;
+          color: var(--ink-mid);
           white-space: nowrap;
           overflow: hidden;
           text-overflow: ellipsis;
           flex: 1;
-          animation: txFade 0.5s ease;
+          animation: slideIn 0.5s ease;
+          font-weight: 500;
+        }
+        @keyframes slideIn {
+          from { opacity: 0; transform: translateY(-6px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .noticeTag {
+          padding: 3px 9px;
+          font-size: 10px;
+          font-weight: 800;
+          border-radius: 4px;
+          flex-shrink: 0;
           letter-spacing: 0.02em;
         }
-        @keyframes txFade {
-          from { opacity: 0; transform: translateX(-4px); }
-          to { opacity: 1; transform: translateX(0); }
-        }
-        .txBadge {
-          font-family: var(--font-mono);
-          font-size: 8.5px;
-          font-weight: 700;
-          padding: 2px 6px;
-          border-radius: 3px;
-          letter-spacing: 0.1em;
-          flex-shrink: 0;
-          border: 1px solid currentColor;
-        }
-        .tx-critical { color: var(--pink); background: var(--pink-dim); }
-        .tx-info { color: var(--cyan); background: var(--cyan-dim); }
-        .tx-alert { color: var(--amber); background: rgba(251,191,36,0.15); }
-        .tx-new { color: var(--green); background: var(--green-dim); }
 
-        .topRight {
+        .topBtns {
           display: flex;
-          gap: 10px;
+          gap: 8px;
           align-items: center;
         }
 
-        .userSlot {
+        .userChip {
           display: flex;
           align-items: center;
-          gap: 10px;
-          padding: 4px 14px 4px 4px;
-          background: var(--bg-2);
-          border: 1px solid var(--line);
-          border-radius: 6px;
+          gap: 9px;
+          padding: 5px 16px 5px 5px;
+          background: var(--bg-cream);
+          border: 1px solid var(--line-soft);
+          border-radius: 999px;
           cursor: pointer;
           transition: all 0.15s;
+          box-shadow: var(--shadow-card);
         }
-        .userSlot:hover {
-          border-color: var(--cyan);
+        .userChip:hover {
+          border-color: var(--line);
         }
         .userAvatar {
-          width: 26px; height: 26px;
-          border-radius: 4px;
-          background: linear-gradient(135deg, var(--cyan) 0%, var(--violet) 100%);
-          color: var(--bg-0);
+          width: 30px; height: 30px;
+          border-radius: 50%;
+          background: linear-gradient(135deg, var(--terra) 0%, var(--terra-deep) 100%);
+          color: #fff;
           display: flex;
           align-items: center;
           justify-content: center;
-          font-family: var(--font-mono);
-          font-weight: 700;
-          font-size: 10.5px;
-          letter-spacing: 0;
+          font-weight: 800;
+          font-size: 12px;
+          letter-spacing: -0.01em;
         }
         .userInfo {
           display: flex;
           flex-direction: column;
           align-items: flex-start;
         }
-        .userId {
-          font-family: var(--font-mono);
-          font-size: 11px;
-          font-weight: 600;
-          color: var(--text-1);
+        .userName {
+          font-size: 13px;
+          font-weight: 700;
+          color: var(--ink-deep);
           line-height: 1.1;
-          letter-spacing: 0.02em;
+          letter-spacing: -0.01em;
         }
         .userRole {
-          font-family: var(--font-mono);
-          font-size: 9px;
-          color: var(--text-3);
-          letter-spacing: 0.08em;
-          margin-top: 1px;
+          font-size: 10px;
+          color: var(--ink-soft);
+          font-weight: 600;
+          margin-top: 2px;
         }
-
-        .mainContent { flex: 1; position: relative; }
 
         /* ============ FOOTER ============ */
         .footer {
-          background: var(--bg-1);
-          border-top: 1px solid var(--line-dim);
-          padding: 40px 28px 24px;
-          margin-top: 60px;
-          position: relative;
-        }
-        .footer::before {
-          content: '';
-          position: absolute;
-          top: 0; left: 0; right: 0;
-          height: 1px;
-          background: linear-gradient(90deg, transparent, var(--cyan) 30%, var(--violet) 70%, transparent);
-          opacity: 0.4;
+          background: var(--bg-cream);
+          border-top: 1px solid var(--line-soft);
+          padding: 48px 32px 28px;
+          margin-top: 64px;
         }
         .footerInner {
           max-width: 1400px;
@@ -677,66 +584,51 @@ function ShellInner({ children }: { children: React.ReactNode }) {
         .footerGrid {
           display: grid;
           grid-template-columns: 1.5fr 1fr 1fr 1fr;
-          gap: 32px;
-          margin-bottom: 28px;
+          gap: 36px;
+          margin-bottom: 32px;
         }
         .fBrand {
-          font-family: var(--font-display);
           font-size: 22px;
-          font-weight: 700;
-          color: var(--text-0);
+          font-weight: 800;
+          color: var(--ink-deep);
           letter-spacing: -0.025em;
-          margin-bottom: 8px;
-          display: inline-flex;
+          margin-bottom: 10px;
         }
-        .fBrand-mark { color: var(--cyan); }
+        .fBrandMark { color: var(--terra); }
         .fTag {
-          font-size: 12px;
-          color: var(--text-3);
-          line-height: 1.65;
-          margin-bottom: 14px;
+          font-size: 13px;
+          color: var(--ink-mid);
+          line-height: 1.7;
+          margin-bottom: 16px;
           max-width: 320px;
         }
         .fCompany {
-          font-family: var(--font-mono);
-          font-size: 10.5px;
-          color: var(--text-4);
+          font-size: 12px;
+          color: var(--ink-soft);
           line-height: 1.8;
-          letter-spacing: 0.02em;
         }
         .footerCol h4 {
-          font-family: var(--font-mono);
-          font-size: 10px;
-          font-weight: 600;
-          color: var(--text-3);
-          letter-spacing: 0.15em;
+          font-size: 11px;
+          font-weight: 800;
+          color: var(--ink-deep);
+          letter-spacing: 0.06em;
           text-transform: uppercase;
           margin-bottom: 14px;
-          display: flex;
-          align-items: center;
-          gap: 6px;
-        }
-        .footerCol h4::after {
-          content: '';
-          flex: 1;
-          height: 1px;
-          background: var(--line-dim);
         }
         .footerCol ul { list-style: none; padding: 0; }
-        .footerCol li { margin-bottom: 8px; }
+        .footerCol li { margin-bottom: 10px; }
         .fLink {
-          font-size: 12.5px;
-          color: var(--text-2);
+          font-size: 13px;
+          color: var(--ink-mid);
           transition: all 0.15s;
-          display: inline-block;
         }
         .fLink:hover {
-          color: var(--cyan);
-          transform: translateX(2px);
+          color: var(--terra);
         }
+
         .footerBottom {
-          padding-top: 20px;
-          border-top: 1px solid var(--line-dim);
+          padding-top: 22px;
+          border-top: 1px solid var(--line-soft);
           display: flex;
           justify-content: space-between;
           align-items: center;
@@ -744,23 +636,20 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           gap: 14px;
         }
         .fCopy {
-          font-family: var(--font-mono);
-          font-size: 10.5px;
-          color: var(--text-4);
-          letter-spacing: 0.04em;
+          font-size: 12px;
+          color: var(--ink-soft);
         }
         .fLegal {
           display: flex;
-          gap: 18px;
-          font-family: var(--font-mono);
-          font-size: 10.5px;
-          letter-spacing: 0.04em;
+          gap: 20px;
+          font-size: 12px;
         }
         .fLegal a {
-          color: var(--text-3);
+          color: var(--ink-mid);
+          font-weight: 600;
           transition: color 0.15s;
         }
-        .fLegal a:hover { color: var(--cyan); }
+        .fLegal a:hover { color: var(--terra); }
 
         /* Mobile */
         @media (max-width: 900px) {
@@ -770,13 +659,13 @@ function ShellInner({ children }: { children: React.ReactNode }) {
             z-index: 100;
             transform: translateX(-100%);
             transition: transform 0.28s cubic-bezier(0.22, 1, 0.36, 1);
-            box-shadow: 0 0 40px rgba(0,0,0,0.5);
+            box-shadow: 8px 0 32px rgba(90, 74, 58, 0.1);
           }
           .sidebarOpen { transform: translateX(0); }
           .overlay {
             position: fixed;
             inset: 0;
-            background: rgba(0,0,0,0.7);
+            background: rgba(42, 36, 25, 0.4);
             backdrop-filter: blur(4px);
             z-index: 99;
             animation: fadeIn 0.2s;
@@ -784,13 +673,12 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           @keyframes fadeIn { from { opacity: 0 } to { opacity: 1 } }
           .hamburger { display: flex; }
           .topBar { padding: 10px 14px; }
-          .transmissionBar { padding: 6px 12px; gap: 8px; }
-          .txCode { display: none; }
+          .noticeBar { padding: 8px 12px; font-size: 12px; }
           .userInfo { display: none; }
-          .userSlot { padding: 4px; }
+          .userChip { padding: 5px; }
 
           .footerGrid { grid-template-columns: 1fr 1fr; gap: 28px; }
-          .footer { padding: 32px 20px 20px; }
+          .footer { padding: 36px 20px 22px; }
           .footerBottom { flex-direction: column; align-items: flex-start; }
         }
         @media (max-width: 520px) {
@@ -806,21 +694,18 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           <div className="sidebarHeader">
             <div className="brandRow">
               <Link href="/" className="brand">
-                Algo<span className="brand-mark">Maker</span>
+                알고<span className="brandMark">메이커</span>
               </Link>
-              <span className="statusBadge">
-                <span className="statusDot" />
-                ONLINE
+              <span className="liveBadge">
+                <span className="liveDot" />
+                운영중
               </span>
             </div>
-            <div className="versionLine">
-              <span>v0.9.2 · neural</span>
-              <span className="uptime">{formatUptime(uptime)}</span>
-            </div>
+            <div className="brandSub">AI 유튜브 스튜디오</div>
           </div>
 
           <div className="menuGroup">
-            <div className="groupLabel">NAVIGATION</div>
+            <div className="groupLabel">메인</div>
             {mainMenu.map((m) => (
               <div
                 key={m.key}
@@ -828,17 +713,14 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                 onClick={() => { router.push(m.path); setSidebarOpen(false); }}
               >
                 <span className="menuIcon">{m.icon}</span>
-                <div className="menuLabelBlock">
-                  <span className="menuCode">{m.code}</span>
-                  <span className="menuLabel">{m.labelKr}</span>
-                </div>
-                {m.badge && <span className="menuBadge">{m.badge}</span>}
+                <span className="menuLabel">{m.label}</span>
+                {m.badge && <span className="menuBadge">실시간</span>}
               </div>
             ))}
           </div>
 
           <div className="menuGroup">
-            <div className="groupLabel">INFO</div>
+            <div className="groupLabel">정보</div>
             {infoMenu.map((m) => (
               <div
                 key={m.key}
@@ -846,23 +728,21 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                 onClick={() => { router.push(m.path); setSidebarOpen(false); }}
               >
                 <span className="menuIcon">{m.icon}</span>
-                <div className="menuLabelBlock">
-                  <span className="menuCode">{m.code}</span>
-                  <span className="menuLabel">{m.labelKr}</span>
-                </div>
+                <span className="menuLabel">{m.label}</span>
               </div>
             ))}
           </div>
 
           <div className="spacer" />
 
-          <div className="metricCard">
-            <div className="metricTop">
-              <span className="metricLabel">TODAY · GEN.COUNT</span>
-              <span className="metricDot" />
+          {/* 오늘 통계 */}
+          <div className="statsCard">
+            <div className="statsTop">
+              <span className="statsDot" />
+              <span className="statsLabel">오늘 · 실시간</span>
             </div>
-            <div className="metricValue">{todayCount.toLocaleString()}</div>
-            <div className="metricSub">videos generated · 24h</div>
+            <div className="statsValue">{todayCount.toLocaleString()}</div>
+            <div className="statsSub">개 영상이 만들어졌어요</div>
           </div>
 
           <div className="sidebarAd">
@@ -870,10 +750,10 @@ function ShellInner({ children }: { children: React.ReactNode }) {
           </div>
 
           <div className="sidebarFooter">
-            <div className="footerLabel">▸ POWERED_BY</div>
+            <div className="footerLabel">사용 기술</div>
             <div className="techStack">
               <span className="techBadge">Gemini</span>
-              <span className="techBadge">Edge</span>
+              <span className="techBadge">Edge TTS</span>
               <span className="techBadge">Pexels</span>
             </div>
           </div>
@@ -886,20 +766,26 @@ function ShellInner({ children }: { children: React.ReactNode }) {
               ☰
             </button>
 
-            <div className="transmissionBar" key={transmissionIdx}>
-              <span className="txCode">{currentTransmission.code}</span>
-              <span className="txText">{currentTransmission.text}</span>
-              <span className={`txBadge tx-${currentTransmission.tone}`}>
-                {currentTransmission.tone.toUpperCase()}
+            <div className="noticeBar" key={noticeIdx}>
+              <span className="noticeDot">{currentNotice.dot}</span>
+              <span className="noticeText">{currentNotice.text}</span>
+              <span
+                className="noticeTag"
+                style={{
+                  background: tagColor(currentNotice.tag).bg,
+                  color: tagColor(currentNotice.tag).color,
+                }}
+              >
+                {currentNotice.tag}
               </span>
             </div>
 
-            <div className="topRight">
-              <div className="userSlot">
-                <div className="userAvatar">YJ</div>
+            <div className="topBtns">
+              <div className="userChip">
+                <div className="userAvatar">박</div>
                 <div className="userInfo">
-                  <span className="userId">user.parkyj</span>
-                  <span className="userRole">CREATOR</span>
+                  <span className="userName">박예준</span>
+                  <span className="userRole">크리에이터</span>
                 </div>
               </div>
             </div>
@@ -915,20 +801,20 @@ function ShellInner({ children }: { children: React.ReactNode }) {
               <div className="footerGrid">
                 <div>
                   <div className="fBrand">
-                    Algo<span className="fBrand-mark">Maker</span>
+                    알고<span className="fBrandMark">메이커</span>
                   </div>
                   <div className="fTag">
-                    AI 뉴럴 네트워크 기반의 한국어 특화 YouTube 자동 생성 스튜디오.
-                    크리에이터의 초기 진입 비용을 0으로 만듭니다.
+                    키워드 하나로 유튜브 영상을 자동으로 만들어주는 AI 스튜디오입니다.
+                    크리에이터의 시간을 돌려드립니다.
                   </div>
                   <div className="fCompany">
-                    한줄컴퍼니 · 대표 박예준<br />
-                    서비스: AlgoMaker
+                    운영: 한줄컴퍼니<br />
+                    대표: 박예준
                   </div>
                 </div>
 
                 <div className="footerCol">
-                  <h4>PRODUCT</h4>
+                  <h4>서비스</h4>
                   <ul>
                     <li><Link href="/" className="fLink">홈</Link></li>
                     <li><Link href="/analytics" className="fLink">경쟁 분석</Link></li>
@@ -938,32 +824,32 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                 </div>
 
                 <div className="footerCol">
-                  <h4>COMPANY</h4>
+                  <h4>회사</h4>
                   <ul>
-                    <li><Link href="/about" className="fLink">소개</Link></li>
-                    <li><Link href="/contact" className="fLink">문의</Link></li>
-                    <li><Link href="/blog" className="fLink">인사이트</Link></li>
+                    <li><Link href="/about" className="fLink">서비스 소개</Link></li>
+                    <li><Link href="/contact" className="fLink">문의하기</Link></li>
+                    <li><Link href="/blog" className="fLink">크리에이터 인사이트</Link></li>
                   </ul>
                 </div>
 
                 <div className="footerCol">
-                  <h4>LEGAL</h4>
+                  <h4>정책</h4>
                   <ul>
                     <li><Link href="/privacy" className="fLink">개인정보 처리방침</Link></li>
                     <li><Link href="/terms" className="fLink">이용약관</Link></li>
-                    <li><Link href="/contact" className="fLink">저작권</Link></li>
+                    <li><Link href="/contact" className="fLink">저작권 문의</Link></li>
                   </ul>
                 </div>
               </div>
 
               <div className="footerBottom">
                 <div className="fCopy">
-                  © {currentYear} 한줄컴퍼니 · AlgoMaker™ · ALL_RIGHTS_RESERVED
+                  © {currentYear} 한줄컴퍼니. 모든 권리 보유.
                 </div>
                 <div className="fLegal">
-                  <Link href="/privacy">PRIVACY</Link>
-                  <Link href="/terms">TERMS</Link>
-                  <Link href="/contact">CONTACT</Link>
+                  <Link href="/privacy">개인정보 처리방침</Link>
+                  <Link href="/terms">이용약관</Link>
+                  <Link href="/contact">문의</Link>
                 </div>
               </div>
             </div>
