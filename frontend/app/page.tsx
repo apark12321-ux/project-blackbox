@@ -1,20 +1,14 @@
 'use client';
 /**
- * 홈 v5 — "유튜브 영상 자동화 툴"
+ * 홈 v6 — 최종 버전
  *
- * 핵심: 5초 안에 "이게 뭐 하는 서비스야?" 답변됨
- * 구조:
- * 1. HERO — 큰 메시지 + 검색
- * 2. 자동화 5단계 — "AI가 이렇게 만들어줘요"
- * 3. 예시 영상 — "실제 결과물"
- * 4. 광고 1개
- * 5. 시나리오 선택 (AI 추천 + 전체 라이브러리)
- * 6. 광고 1개
+ * Hero에 AlgoMaker 로고 큰 사이즈 노출
+ * 한글 기본, 필요한 영문만 유지
  */
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
-import { DashboardShell, setProject } from './_shared/V11Shell';
+import { DashboardShell, setProject, AlgoMakerLogo } from './_shared/V11Shell';
 import { SCENARIOS, pickRecommendedScenarios, getScenarioById, type ScenarioStyle } from './_shared/scenarios';
 import AdSlot from './_shared/AdSlot';
 
@@ -137,7 +131,7 @@ export default function HomePage() {
           margin: 0 auto;
         }
 
-        /* 1. HERO */
+        /* ============ HERO ============ */
         .hero {
           padding: 60px 32px 52px;
           text-align: center;
@@ -154,10 +148,18 @@ export default function HomePage() {
           pointer-events: none;
         }
 
-        .heroBrand {
+        .heroLogoWrap {
+          display: flex;
+          justify-content: center;
+          margin-bottom: 24px;
+          position: relative;
+          z-index: 1;
+        }
+
+        .heroTagline {
           display: inline-flex;
           align-items: center;
-          gap: 8px;
+          gap: 7px;
           padding: 6px 14px;
           background: #faf8f4;
           border: 1px solid rgba(90, 74, 58, 0.08);
@@ -169,7 +171,7 @@ export default function HomePage() {
           position: relative;
           z-index: 1;
         }
-        .heroBrandDot {
+        .heroTaglineDot {
           width: 6px; height: 6px;
           background: #7d9b7c;
           border-radius: 50%;
@@ -180,17 +182,12 @@ export default function HomePage() {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.5; }
         }
-        .heroBrandMark {
-          font-weight: 800;
-          color: #c65f3b;
-          letter-spacing: -0.01em;
-        }
 
         .heroTitle {
-          font-size: 56px;
+          font-size: 52px;
           font-weight: 800;
           letter-spacing: -0.04em;
-          line-height: 1.1;
+          line-height: 1.12;
           color: #2a2419;
           margin-bottom: 18px;
           position: relative;
@@ -211,7 +208,7 @@ export default function HomePage() {
           border-radius: 6px;
         }
         .heroSub {
-          font-size: 18px;
+          font-size: 17px;
           color: #564a3a;
           margin-bottom: 36px;
           font-weight: 500;
@@ -383,7 +380,7 @@ export default function HomePage() {
           line-height: 1.6;
         }
 
-        /* 2. 자동화 5단계 */
+        /* 자동화 5단계 */
         .autoSteps {
           display: grid;
           grid-template-columns: repeat(5, 1fr);
@@ -465,7 +462,7 @@ export default function HomePage() {
           font-size: 15px;
         }
 
-        /* 3. 예시 영상 */
+        /* 예시 영상 */
         .sampleGrid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
@@ -562,7 +559,7 @@ export default function HomePage() {
           margin-bottom: 48px;
         }
 
-        /* 5. LIBRARY */
+        /* LIBRARY */
         .libPanel {
           margin: 0 32px 40px;
           background: #faf8f4;
@@ -825,7 +822,7 @@ export default function HomePage() {
         }
         @media (max-width: 768px) {
           .hero { padding: 40px 20px 36px; }
-          .heroTitle { font-size: 36px; }
+          .heroTitle { font-size: 32px; }
           .heroSub { font-size: 15px; }
           .kwForm { flex-direction: column; }
           .kwBtn { width: 100%; padding: 14px; }
@@ -839,14 +836,16 @@ export default function HomePage() {
       `}</style>
 
       <div className="page">
-        {/* 1. HERO */}
+        {/* HERO */}
         <section className="hero">
-          <div className="heroBrand">
-            <span className="heroBrandDot" />
-            <span>
-              <span className="heroBrandMark">AlgoMaker</span>
-              {' · AI 유튜브 영상 자동화 스튜디오'}
-            </span>
+          {/* 큰 로고 */}
+          <div className="heroLogoWrap">
+            <AlgoMakerLogo size="lg" showSubtitle={false} />
+          </div>
+
+          <div className="heroTagline">
+            <span className="heroTaglineDot" />
+            <span>AI 유튜브 영상 자동화 스튜디오</span>
           </div>
 
           <h1 className="heroTitle">
@@ -876,7 +875,7 @@ export default function HomePage() {
           </div>
 
           <div className="heroMeta">
-            지금 <strong>{activeUsers.toLocaleString()}</strong>명이 알고메이커로 영상을 만들고 있어요
+            지금 <strong>{activeUsers.toLocaleString()}</strong>명이 AlgoMaker로 영상을 만들고 있어요
           </div>
 
           <div className="trendRow">
@@ -890,15 +889,15 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* 2. 자동화 5단계 */}
+        {/* 자동화 5단계 */}
         <section className="sectionWrap">
           <div className="sectionHead">
-            <span className="sectionTag">⚙️ 자동화 프로세스</span>
+            <span className="sectionTag">자동화 프로세스</span>
             <h2 className="sectionTitle">
               AI가 이 5단계를 <span style={{ color: '#c65f3b' }}>자동으로</span> 처리해요
             </h2>
             <p className="sectionSub">
-              여러분은 키워드만 입력하면 끝. 나머지는 알고메이커가 다 알아서 해요.
+              여러분은 키워드만 입력하면 끝. 나머지는 AlgoMaker가 다 알아서 해요.
             </p>
           </div>
 
@@ -920,15 +919,15 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* 3. 예시 영상 */}
+        {/* 예시 영상 */}
         <section className="sectionWrap">
           <div className="sectionHead">
-            <span className="sectionTag">📺 실제 결과물</span>
+            <span className="sectionTag">실제 결과물</span>
             <h2 className="sectionTitle">
               이런 영상들을 <span style={{ color: '#c65f3b' }}>만들어드렸어요</span>
             </h2>
             <p className="sectionSub">
-              알고메이커로 자동 생성한 실제 샘플 영상이에요.
+              AlgoMaker로 자동 생성한 실제 샘플 영상이에요.
             </p>
           </div>
 
@@ -957,7 +956,7 @@ export default function HomePage() {
           <AdSlot slot="home-top" variant="horizontal" />
         </div>
 
-        {/* 5. 시나리오 라이브러리 */}
+        {/* 시나리오 라이브러리 */}
         <section id="ai-section" className="libPanel">
           <div className="libHead">
             <div className="libTitleBlock">
