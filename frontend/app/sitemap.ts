@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const SITE_URL = 'https://nutube.kr';
+const SITE_URL = 'https://project-blackbox-cpqy.vercel.app';
 
 // 블로그 노하우 슬러그 목록
 const KNOWHOW_SLUGS = [

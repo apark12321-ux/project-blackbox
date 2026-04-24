@@ -1,313 +1,334 @@
+'use client';
 /**
- * 🏠 홈 페이지 (서버 컴포넌트)
+ * 새 홈 페이지 - 카테고리 선택 먼저
  *
- * MathHWP 스타일 SEO Prerender 적용
- * - view-source에 모든 콘텐츠 노출
- * - 크롤러가 JavaScript 없이도 내용 파악
- * - React 하이드레이션 후 실제 인터랙티브 UI 표시
+ * Step 1: 카테고리 선택 (8개, 베일 벗기기)
+ * → Step 2: 키워드 입력 (/keyword)
  */
 
-import type { Metadata } from 'next';
-import Script from 'next/script';
-import HomeClient from './HomeClient';
-import { generateHowToJsonLd, generateFAQJsonLd } from './_shared/SEO';
+import { useState, useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { DashboardShell, setProject, AlgoMakerLogo } from './_shared/V11Shell';
+import { CATEGORIES } from './_shared/platforms';
+import AdSlot from './_shared/AdSlot';
 
-// ============================================================
-// 페이지별 Metadata (서버 컴포넌트만 가능)
-// ============================================================
-export const metadata: Metadata = {
-  title: 'AlgoMaker — AI가 만드는 유튜브 영상, 쇼츠·틱톡·릴스까지 한 번에',
-  description: '키워드만 입력하면 AI가 유튜브 알고리즘에 맞는 영상을 자동 생성합니다. 제목·대본·썸네일·태그 완성, 쇼츠·틱톡·릴스 업로드 자료까지 한 번에. 무료 시작, 신용카드 불필요.',
-  alternates: {
-    canonical: 'https://nutube.kr',
-  },
-  openGraph: {
-    title: 'AlgoMaker — AI가 만드는 유튜브 영상',
-    description: '키워드만 입력하면 AI가 유튜브 알고리즘에 맞는 영상을 자동 생성',
-    url: 'https://nutube.kr',
-    type: 'website',
-  },
-};
-
-// ============================================================
-// JSON-LD 구조화 데이터
-// ============================================================
-const howToJsonLd = generateHowToJsonLd({
-  name: 'AlgoMaker로 AI 유튜브 영상 만드는 방법',
-  description: '키워드만 입력하면 AI가 유튜브 알고리즘에 맞는 영상을 자동 생성합니다',
-  steps: [
-    { name: '카테고리 선택', text: '경제, 건강, IT 등 8개 카테고리 중 하나를 선택합니다' },
-    { name: '키워드 입력', text: '영상 주제가 될 키워드를 입력합니다' },
-    { name: '시나리오 선택', text: 'AI가 추천하는 3가지 시나리오 중 하나를 선택합니다' },
-    { name: 'SNS 플랫폼 선택', text: '유튜브, 쇼츠, 틱톡, 릴스 중 업로드할 플랫폼을 선택합니다' },
-    { name: '메타데이터 확인', text: 'AI가 생성한 제목·설명·태그를 확인합니다' },
-    { name: '영상 생성 및 다운로드', text: '완성된 영상과 SNS 업로드 자료를 다운로드합니다' },
-  ],
-});
-
-const faqJsonLd = generateFAQJsonLd([
-  {
-    question: 'AlgoMaker는 어떤 서비스인가요?',
-    answer: 'AlgoMaker는 키워드만 입력하면 AI가 유튜브 알고리즘에 최적화된 영상을 자동으로 만들어주는 서비스입니다. 쇼츠·틱톡·릴스 업로드 자료까지 한 번에 생성됩니다.',
-  },
-  {
-    question: '사용 요금이 어떻게 되나요?',
-    answer: '기본 기능은 무료로 제공되며, 광고로 운영됩니다. 신용카드 없이 바로 시작할 수 있습니다.',
-  },
-  {
-    question: '어떤 플랫폼에 업로드할 수 있나요?',
-    answer: '유튜브 롱폼, 유튜브 쇼츠, 틱톡, 인스타그램 릴스 4개 플랫폼을 지원합니다. 각 플랫폼의 실제 업로드 화면을 그대로 재현해서 복사-붙여넣기만 하면 업로드가 완료됩니다.',
-  },
-  {
-    question: 'AI 이미지 프롬프트도 제공되나요?',
-    answer: '네, 영상 시나리오에 맞는 이미지와 영상 프롬프트를 한글 설명과 영문 디테일로 함께 제공합니다. Midjourney, DALL-E, Runway 등의 AI 툴에서 바로 사용 가능합니다.',
-  },
-  {
-    question: '어떤 카테고리를 지원하나요?',
-    answer: '경제·재테크, 건강·의료, IT·테크, 교육·자기계발, 요리·음식, 사회·이슈, 부동산, 게임 등 8가지 카테고리를 지원합니다.',
-  },
-]);
-
-// ============================================================
-// 페이지 컴포넌트
-// ============================================================
 export default function HomePage() {
+  const router = useRouter();
+  const [activeUsers, setActiveUsers] = useState(0);
+
+  useEffect(() => {
+    const calculateUsers = () => {
+      const now = new Date();
+      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      const minutesSinceStart = Math.floor((now.getTime() - startOfDay.getTime()) / 60000);
+      const dailyStart = 1200;
+      const perMinute = 1.25;
+      return Math.floor(dailyStart + minutesSinceStart * perMinute);
+    };
+
+    setActiveUsers(calculateUsers());
+
+    // 10~30초마다 자연스럽게 1씩 증가 (절대 감소 X)
+    let timerId: NodeJS.Timeout;
+    const scheduleNext = () => {
+      const delay = 10000 + Math.random() * 20000;
+      timerId = setTimeout(() => {
+        setActiveUsers((u) => u + 1);
+        scheduleNext();
+      }, delay);
+    };
+    scheduleNext();
+
+    return () => {
+      if (timerId) clearTimeout(timerId);
+    };
+  }, []);
+
+  const handleCategoryClick = (categoryId: string) => {
+    setProject({ category: categoryId, step: 1 });
+    router.push('/keyword');
+  };
+
   return (
-    <>
-      {/* ============================================================
-          JSON-LD 구조화 데이터 (Google 리치 스니펫용)
-          ============================================================ */}
-      <Script
-        id="ld-howto-home"
-        type="application/ld+json"
-        strategy="beforeInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(howToJsonLd) }}
-      />
-      <Script
-        id="ld-faq-home"
-        type="application/ld+json"
-        strategy="beforeInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(faqJsonLd) }}
-      />
+    <DashboardShell>
+      <style jsx>{`
+        .page {
+          padding: 0 0 48px;
+          max-width: 1200px;
+          margin: 0 auto;
+        }
 
-      {/* ============================================================
-          SEO 정적 콘텐츠 (MathHWP 스타일)
-          - view-source에 전체 노출됨
-          - 크롤러가 JavaScript 없이 읽을 수 있음
-          - React 마운트 후 HomeClient로 교체됨
-          ============================================================ */}
-      <section className="seo-static" aria-hidden="false" style={{ display: 'none' }}>
-        <nav role="navigation" aria-label="주요 메뉴">
-          <span>AlgoMaker</span>
-          <a href="https://nutube.kr/about">소개</a>
-          <a href="https://nutube.kr/blog">노하우 블로그</a>
-          <a href="https://nutube.kr/contact">문의하기</a>
-        </nav>
+        .hero {
+          padding: 48px 32px 36px;
+          text-align: center;
+          position: relative;
+        }
+        .hero::before {
+          content: '';
+          position: absolute;
+          top: -60px; left: 50%;
+          transform: translateX(-50%);
+          width: 700px; height: 350px;
+          background: radial-gradient(ellipse, rgba(198, 95, 59, 0.1) 0%, transparent 60%);
+          pointer-events: none;
+        }
+        .heroLogoWrap {
+          display: flex;
+          justify-content: center;
+          margin-bottom: 20px;
+          position: relative;
+          z-index: 1;
+        }
+        .stepBadge {
+          display: inline-flex;
+          align-items: center;
+          gap: 8px;
+          padding: 5px 14px;
+          background: linear-gradient(135deg, #fdf1e7 0%, #fbf3df 100%);
+          border: 1px solid rgba(198, 95, 59, 0.15);
+          border-radius: 999px;
+          font-size: 11px;
+          font-weight: 800;
+          color: #a64a2a;
+          margin-bottom: 16px;
+          letter-spacing: -0.01em;
+          position: relative;
+          z-index: 1;
+        }
+        .heroTitle {
+          font-size: 46px;
+          font-weight: 800;
+          letter-spacing: -0.04em;
+          line-height: 1.1;
+          color: #2a2419;
+          margin-bottom: 12px;
+          position: relative;
+          z-index: 1;
+        }
+        .heroTitle .accent { color: #c65f3b; }
+        .heroSub {
+          font-size: 16px;
+          color: #564a3a;
+          font-weight: 500;
+          line-height: 1.65;
+          max-width: 560px;
+          margin: 0 auto 22px;
+          position: relative;
+          z-index: 1;
+        }
+        .heroMeta {
+          font-size: 13px;
+          color: #8a7d6a;
+          margin-bottom: 10px;
+          position: relative;
+          z-index: 1;
+        }
+        .heroMeta strong {
+          color: #c65f3b;
+          font-weight: 700;
+          font-variant-numeric: tabular-nums;
+        }
 
-        <section aria-labelledby="hero-heading">
-          <p>AI × 유튜브 알고리즘</p>
-          <h1 id="hero-heading">
-            AI가 만드는 유튜브 영상 — 쇼츠·틱톡·릴스까지 한 번에
+        /* 카테고리 그리드 */
+        .catSection {
+          padding: 20px 32px 0;
+        }
+        .catHead {
+          text-align: center;
+          margin-bottom: 24px;
+        }
+        .catHeadTitle {
+          font-size: 22px;
+          font-weight: 800;
+          color: #2a2419;
+          letter-spacing: -0.025em;
+          margin-bottom: 8px;
+        }
+        .catHeadSub {
+          font-size: 14px;
+          color: #8a7d6a;
+          font-weight: 500;
+        }
+
+        .catGrid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 14px;
+        }
+        .catCard {
+          background: #faf8f4;
+          border: 1px solid rgba(90, 74, 58, 0.06);
+          border-radius: 16px;
+          padding: 24px 22px;
+          cursor: pointer;
+          transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+          position: relative;
+          display: flex;
+          flex-direction: column;
+          min-height: 280px;
+        }
+        .catCard:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 28px rgba(90, 74, 58, 0.1);
+          border-color: rgba(198, 95, 59, 0.2);
+        }
+        .catCardHead {
+          display: flex;
+          justify-content: space-between;
+          align-items: flex-start;
+          margin-bottom: 14px;
+        }
+        .catEmoji {
+          font-size: 34px;
+          line-height: 1;
+        }
+        .hotBadge {
+          padding: 3px 9px;
+          background: linear-gradient(135deg, #c65f3b 0%, #a64a2a 100%);
+          color: #fff;
+          border-radius: 5px;
+          font-size: 10px;
+          font-weight: 800;
+          letter-spacing: -0.01em;
+          box-shadow: 0 2px 6px rgba(198, 95, 59, 0.3);
+        }
+        .catName {
+          font-size: 16px;
+          font-weight: 800;
+          color: #2a2419;
+          letter-spacing: -0.02em;
+          line-height: 1.3;
+          margin-bottom: 8px;
+        }
+        .catDesc {
+          font-size: 12.5px;
+          color: #564a3a;
+          line-height: 1.55;
+          font-weight: 500;
+          margin-bottom: 14px;
+        }
+        .catExamples {
+          flex: 1;
+          background: #fff;
+          border-radius: 8px;
+          padding: 10px 12px;
+          margin-bottom: 14px;
+        }
+        .catExamplesLabel {
+          font-size: 10px;
+          font-weight: 800;
+          color: #8a7d6a;
+          letter-spacing: 0.05em;
+          margin-bottom: 6px;
+        }
+        .catExample {
+          font-size: 11px;
+          color: #564a3a;
+          line-height: 1.55;
+          padding: 2px 0;
+          font-weight: 500;
+        }
+        .catExample::before {
+          content: '•';
+          margin-right: 5px;
+          color: #c65f3b;
+          font-weight: 800;
+        }
+        .catStats {
+          display: flex;
+          justify-content: space-between;
+          padding-top: 10px;
+          border-top: 1px dashed rgba(90, 74, 58, 0.1);
+          font-size: 10.5px;
+          color: #8a7d6a;
+          font-weight: 600;
+        }
+        .catStats strong {
+          color: #2a2419;
+          font-weight: 700;
+        }
+
+        .adWrap {
+          padding: 40px 32px 0;
+        }
+
+        @media (max-width: 1024px) {
+          .catGrid { grid-template-columns: repeat(3, 1fr); }
+        }
+        @media (max-width: 768px) {
+          .hero { padding: 32px 20px 28px; }
+          .heroTitle { font-size: 30px; }
+          .heroSub { font-size: 14px; }
+          .catSection { padding: 16px 16px 0; }
+          .catGrid { grid-template-columns: repeat(2, 1fr); }
+          .adWrap { padding: 32px 16px 0; }
+        }
+        @media (max-width: 500px) {
+          .catGrid { grid-template-columns: 1fr; }
+        }
+      `}</style>
+
+      <div className="page">
+        <section className="hero">
+          <div className="heroLogoWrap">
+            <AlgoMakerLogo size="lg" showSubtitle={false} />
+          </div>
+          <div className="stepBadge">
+            <span>✨</span>
+            <span>STEP 1 / 6 · 분야 선택</span>
+          </div>
+          <h1 className="heroTitle">
+            어떤 분야의 영상을<br />
+            <span className="accent">만들고 싶으세요?</span>
           </h1>
-          <p>
-            키워드만 입력하면 AI가 유튜브 알고리즘에 맞는 영상을 자동 생성합니다.
-            제목·대본·썸네일·태그 완성, 쇼츠·틱톡·릴스 업로드 자료까지 한 번에.
+          <p className="heroSub">
+            카테고리를 선택하면 해당 분야 특화 AI가<br />
+            키워드 분석부터 영상 완성까지 자동 처리해요
           </p>
-          <p>무료 시작 · 신용카드 불필요 · 한국어 최적화</p>
-          <a href="/">지금 시작하기</a>
+          <div className="heroMeta">
+            지금 <strong>{activeUsers.toLocaleString()}</strong>명이 AlgoMaker로 영상을 만들고 있어요
+          </div>
         </section>
 
-        <section aria-labelledby="categories-heading">
-          <h2 id="categories-heading">8개 카테고리 지원</h2>
-          <p>어떤 주제든 AI가 최적의 영상을 만들어드립니다.</p>
+        <section className="catSection">
+          <div className="catHead">
+            <h2 className="catHeadTitle">📂 카테고리 선택</h2>
+            <p className="catHeadSub">각 카드에 어떤 영상을 만들 수 있는지 예시가 들어있어요</p>
+          </div>
 
-          <ul>
-            <li>
-              <h3>📊 경제·재테크</h3>
-              <p>금리, 부동산, 주식, N잡 재테크 영상. 평균 조회수 12,000회.</p>
-            </li>
-            <li>
-              <h3>💊 건강·의료</h3>
-              <p>건강 상식, 다이어트, 시니어 건강, 영양. 평균 조회수 18,000회.</p>
-            </li>
-            <li>
-              <h3>💻 IT·테크</h3>
-              <p>AI 도구, 앱 추천, IT 트렌드, 기술 뉴스. 평균 조회수 25,000회.</p>
-            </li>
-            <li>
-              <h3>🎓 교육·자기계발</h3>
-              <p>학습법, 독서, 습관, 자기계발 팁. 평균 조회수 15,000회.</p>
-            </li>
-            <li>
-              <h3>🍳 요리·음식</h3>
-              <p>레시피, 맛집, 홈쿡, 간편식 아이디어. 평균 조회수 20,000회.</p>
-            </li>
-            <li>
-              <h3>⚖️ 사회·이슈</h3>
-              <p>시사, 정치, 사회 현상, 뉴스 분석. 평균 조회수 22,000회.</p>
-            </li>
-            <li>
-              <h3>🏠 부동산</h3>
-              <p>부동산 시장, 청약, 대출, 인테리어. 평균 조회수 16,000회.</p>
-            </li>
-            <li>
-              <h3>🎮 게임</h3>
-              <p>게임 리뷰, 공략, e스포츠, 인기 게임. 평균 조회수 30,000회.</p>
-            </li>
-          </ul>
+          <div className="catGrid">
+            {CATEGORIES.map((cat) => (
+              <div
+                key={cat.id}
+                className="catCard"
+                style={{ borderTop: `3px solid ${cat.color}` }}
+                onClick={() => handleCategoryClick(cat.id)}
+              >
+                <div className="catCardHead">
+                  <span className="catEmoji">{cat.emoji}</span>
+                  {cat.hot && <span className="hotBadge">🔥 인기</span>}
+                </div>
+                <div className="catName">{cat.name}</div>
+                <div className="catDesc">{cat.description}</div>
+                <div className="catExamples">
+                  <div className="catExamplesLabel">💡 이런 영상 만들 수 있어요</div>
+                  {cat.examples.slice(0, 2).map((ex, i) => (
+                    <div key={i} className="catExample">{ex}</div>
+                  ))}
+                </div>
+                <div className="catStats">
+                  <span>📊 평균 <strong>{cat.avgViews}</strong></span>
+                  <span>⚔️ 경쟁 <strong>{cat.competition}</strong></span>
+                </div>
+              </div>
+            ))}
+          </div>
         </section>
 
-        <section aria-labelledby="features-heading">
-          <p>주요 기능</p>
-          <h2 id="features-heading">왜 AlgoMaker인가요?</h2>
-          <p>수작업으로 영상을 만드는 시간을 없애드립니다.</p>
-
-          <ul>
-            <li>
-              <h3>AI 알고리즘 분석</h3>
-              <p>2026 유튜브 최신 알고리즘 패턴을 학습해 조회수 터지는 영상 구조를 자동 설계합니다.</p>
-            </li>
-            <li>
-              <h3>8개 카테고리 전문화</h3>
-              <p>경제, 건강, IT 등 각 분야별 특화된 AI가 맞춤형 영상을 생성합니다.</p>
-            </li>
-            <li>
-              <h3>멀티 플랫폼 대응</h3>
-              <p>유튜브 롱폼, 쇼츠, 틱톡, 인스타 릴스 모두 실제 업로드 화면 그대로 재현합니다.</p>
-            </li>
-            <li>
-              <h3>AI 이미지 프롬프트</h3>
-              <p>Midjourney, DALL-E, Canva 등에서 바로 사용 가능한 한글+영문 프롬프트 자동 생성.</p>
-            </li>
-            <li>
-              <h3>AI 영상 프롬프트</h3>
-              <p>Runway, Kling, Luma, Sora에서 사용 가능한 시네마틱 영상 프롬프트 제공.</p>
-            </li>
-            <li>
-              <h3>Algo-Magic Booster</h3>
-              <p>마법의 레버 한 번으로 제목·태그·썸네일이 조회수 터지는 버전으로 자동 최적화.</p>
-            </li>
-          </ul>
-        </section>
-
-        <section aria-labelledby="howitworks-heading">
-          <p>사용 방법</p>
-          <h2 id="howitworks-heading">단 6단계로 완성됩니다</h2>
-
-          <ol>
-            <li>
-              <strong>1단계</strong>
-              <h3>카테고리 선택</h3>
-              <p>경제, 건강, IT 등 8개 카테고리 중 하나를 선택합니다.</p>
-            </li>
-            <li>
-              <strong>2단계</strong>
-              <h3>키워드 입력</h3>
-              <p>영상 주제가 될 키워드를 입력하거나 추천 키워드를 선택합니다.</p>
-            </li>
-            <li>
-              <strong>3단계</strong>
-              <h3>시나리오 선택</h3>
-              <p>AI가 추천하는 3가지 시나리오 중 하나를 선택합니다.</p>
-            </li>
-            <li>
-              <strong>4단계</strong>
-              <h3>SNS 플랫폼 선택</h3>
-              <p>유튜브 롱폼, 쇼츠, 틱톡, 릴스 중 업로드할 플랫폼을 선택합니다.</p>
-            </li>
-            <li>
-              <strong>5단계</strong>
-              <h3>메타데이터 확인</h3>
-              <p>AI가 생성한 제목·설명·태그를 확인하고 자동 생성을 시작합니다.</p>
-            </li>
-            <li>
-              <strong>6단계</strong>
-              <h3>다운로드</h3>
-              <p>완성된 영상과 SNS 업로드 자료를 다운로드해 바로 업로드합니다.</p>
-            </li>
-          </ol>
-        </section>
-
-        <section aria-labelledby="faq-heading">
-          <h2 id="faq-heading">자주 묻는 질문</h2>
-
-          <dl>
-            <dt>
-              <h3>AlgoMaker는 어떤 서비스인가요?</h3>
-            </dt>
-            <dd>
-              <p>
-                AlgoMaker는 키워드만 입력하면 AI가 유튜브 알고리즘에 최적화된 영상을
-                자동으로 만들어주는 서비스입니다. 쇼츠·틱톡·릴스 업로드 자료까지
-                한 번에 생성됩니다.
-              </p>
-            </dd>
-
-            <dt>
-              <h3>사용 요금이 어떻게 되나요?</h3>
-            </dt>
-            <dd>
-              <p>기본 기능은 무료로 제공되며, 광고로 운영됩니다. 신용카드 없이 바로 시작할 수 있습니다.</p>
-            </dd>
-
-            <dt>
-              <h3>어떤 플랫폼에 업로드할 수 있나요?</h3>
-            </dt>
-            <dd>
-              <p>
-                유튜브 롱폼, 유튜브 쇼츠, 틱톡, 인스타그램 릴스 4개 플랫폼을 지원합니다.
-                각 플랫폼의 실제 업로드 화면을 그대로 재현해서 복사-붙여넣기만 하면
-                업로드가 완료됩니다.
-              </p>
-            </dd>
-
-            <dt>
-              <h3>AI 이미지 프롬프트도 제공되나요?</h3>
-            </dt>
-            <dd>
-              <p>
-                네, 영상 시나리오에 맞는 이미지와 영상 프롬프트를 한글 설명과 영문
-                디테일로 함께 제공합니다. Midjourney, DALL-E, Runway 등의 AI 툴에서
-                바로 사용 가능합니다.
-              </p>
-            </dd>
-
-            <dt>
-              <h3>어떤 카테고리를 지원하나요?</h3>
-            </dt>
-            <dd>
-              <p>
-                경제·재테크, 건강·의료, IT·테크, 교육·자기계발, 요리·음식, 사회·이슈,
-                부동산, 게임 등 8가지 카테고리를 지원합니다.
-              </p>
-            </dd>
-          </dl>
-        </section>
-
-        <section aria-labelledby="cta-heading">
-          <h2 id="cta-heading">지금 바로 시작하세요</h2>
-          <p>무료로 가입하고 첫 영상을 만들어보세요. 신용카드 등록 없이 바로 시작 가능합니다.</p>
-          <a href="/">무료로 시작하기</a>
-        </section>
-
-        <footer role="contentinfo">
-          <p>
-            <a href="https://nutube.kr/terms">이용약관</a>
-            {' | '}
-            <a href="https://nutube.kr/privacy">개인정보처리방침</a>
-            {' | '}
-            <a href="https://nutube.kr/contact">문의하기</a>
-          </p>
-          <p>운영: 한줄컴퍼니 | 대표: 박예준</p>
-          <p>© 2026 한줄컴퍼니. All rights reserved.</p>
-        </footer>
-      </section>
-
-      {/* ============================================================
-          실제 인터랙티브 UI (HomeClient)
-          React가 마운트되면 이것만 표시됨
-          ============================================================ */}
-      <HomeClient />
-    </>
+        <div className="adWrap">
+          <AdSlot slot="home-bottom" variant="horizontal" />
+        </div>
+      </div>
+    </DashboardShell>
   );
 }

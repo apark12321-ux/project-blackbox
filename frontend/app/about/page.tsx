@@ -1,143 +1,313 @@
+'use client';
 /**
- * 📘 About 페이지 (서버 컴포넌트)
- *
- * SEO Prerender 적용 - view-source에 모든 콘텐츠 노출
+ * About 페이지 — AlgoMaker 서비스 소개 (안전 버전)
  */
 
-import type { Metadata } from 'next';
-import Script from 'next/script';
-import AboutClient from './AboutClient';
-import { generateBreadcrumbJsonLd } from '../_shared/SEO';
-
-export const metadata: Metadata = {
-  title: 'AlgoMaker 소개 - AI 유튜브 영상 자동 생성 서비스',
-  description: 'AlgoMaker는 한줄컴퍼니가 운영하는 AI 기반 유튜브 영상 제작 도구입니다. 8개 카테고리 지원, 멀티 플랫폼 대응, 한글+영문 이미지 프롬프트 제공.',
-  alternates: {
-    canonical: 'https://nutube.kr/about',
-  },
-  openGraph: {
-    title: 'AlgoMaker 소개 - AI가 만드는 유튜브 영상',
-    description: '한줄컴퍼니가 운영하는 AI 기반 크리에이터 도구',
-    url: 'https://nutube.kr/about',
-  },
-};
-
-const aboutJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'AboutPage',
-  name: 'AlgoMaker 소개',
-  description: 'AlgoMaker는 한줄컴퍼니가 운영하는 AI 기반 유튜브 영상 자동 생성 서비스입니다.',
-  url: 'https://nutube.kr/about',
-  publisher: {
-    '@type': 'Organization',
-    name: '한줄컴퍼니',
-    url: 'https://nutube.kr',
-  },
-};
-
-const breadcrumbJsonLd = generateBreadcrumbJsonLd([
-  { name: '홈', url: 'https://nutube.kr' },
-  { name: 'AlgoMaker 소개', url: 'https://nutube.kr/about' },
-]);
+import Link from 'next/link';
+import { DashboardShell, AlgoMakerLogo } from '../_shared/V11Shell';
+import AdSlot from '../_shared/AdSlot';
 
 export default function AboutPage() {
   return (
-    <>
-      <Script
-        id="ld-about"
-        type="application/ld+json"
-        strategy="beforeInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(aboutJsonLd) }}
-      />
-      <Script
-        id="ld-breadcrumb-about"
-        type="application/ld+json"
-        strategy="beforeInteractive"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }}
-      />
+    <DashboardShell>
+      <style jsx>{`
+        .page {
+          max-width: 860px;
+          margin: 0 auto;
+          padding: 40px 24px 64px;
+        }
 
-      {/* SEO 정적 콘텐츠 (크롤러용) */}
-      <section className="seo-static" aria-hidden="false" style={{ display: 'none' }}>
-        <nav role="navigation" aria-label="주요 메뉴">
-          <a href="https://nutube.kr">홈</a>
-          <a href="https://nutube.kr/blog">노하우 블로그</a>
-          <a href="https://nutube.kr/contact">문의하기</a>
-        </nav>
+        .hero {
+          text-align: center;
+          margin-bottom: 48px;
+          padding: 40px 24px;
+          background: linear-gradient(135deg, #fdf1e7 0%, #faf8f4 100%);
+          border-radius: 20px;
+        }
+        .heroLogo {
+          display: flex;
+          justify-content: center;
+          margin-bottom: 20px;
+        }
+        .heroTitle {
+          font-size: 34px;
+          font-weight: 800;
+          color: #2a2419;
+          letter-spacing: -0.035em;
+          line-height: 1.2;
+          margin-bottom: 14px;
+        }
+        .heroTitle .accent { color: #c65f3b; }
+        .heroSub {
+          font-size: 16px;
+          color: #564a3a;
+          line-height: 1.7;
+          font-weight: 500;
+          max-width: 560px;
+          margin: 0 auto;
+        }
 
-        <section aria-labelledby="about-heading">
-          <h1 id="about-heading">AlgoMaker 소개 — AI가 만드는 유튜브 영상</h1>
-          <p>
-            AlgoMaker는 한줄컴퍼니가 운영하는 AI 기반 유튜브 영상 자동 생성 서비스입니다.
-            키워드만 입력하면 2026 유튜브 알고리즘에 최적화된 영상을 자동으로 만들어드립니다.
+        .sectionTitle {
+          font-size: 22px;
+          font-weight: 800;
+          color: #2a2419;
+          letter-spacing: -0.025em;
+          margin-bottom: 16px;
+          padding-left: 14px;
+          border-left: 4px solid #c65f3b;
+        }
+
+        .section {
+          margin-bottom: 40px;
+        }
+        .text {
+          font-size: 15px;
+          color: #2a2419;
+          line-height: 1.8;
+          margin-bottom: 14px;
+        }
+        .text strong {
+          color: #c65f3b;
+          font-weight: 800;
+        }
+
+        .valueGrid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 14px;
+          margin-top: 20px;
+        }
+        .valueCard {
+          padding: 22px 24px;
+          background: #faf8f4;
+          border-radius: 14px;
+          border-top: 3px solid #c65f3b;
+        }
+        .valueEmoji {
+          font-size: 30px;
+          margin-bottom: 12px;
+          display: inline-block;
+        }
+        .valueTitle {
+          font-size: 16px;
+          font-weight: 800;
+          color: #2a2419;
+          letter-spacing: -0.02em;
+          margin-bottom: 8px;
+        }
+        .valueDesc {
+          font-size: 13px;
+          color: #564a3a;
+          line-height: 1.7;
+        }
+
+        .quote {
+          background: #faf8f4;
+          border-left: 4px solid #c65f3b;
+          padding: 22px 26px;
+          margin: 24px 0;
+          border-radius: 0 10px 10px 0;
+          font-size: 16px;
+          color: #2a2419;
+          line-height: 1.7;
+          font-weight: 500;
+          font-style: italic;
+        }
+        .quote strong {
+          font-style: normal;
+          color: #c65f3b;
+          font-weight: 800;
+        }
+
+        .infoBox {
+          background: #fff;
+          border: 1px solid rgba(90, 74, 58, 0.1);
+          border-radius: 12px;
+          padding: 20px 24px;
+          margin-top: 16px;
+        }
+        .infoRow {
+          display: flex;
+          padding: 10px 0;
+          border-bottom: 1px dashed rgba(90, 74, 58, 0.1);
+          font-size: 14px;
+        }
+        .infoRow:last-child { border-bottom: none; }
+        .infoLabel {
+          min-width: 120px;
+          color: #8a7d6a;
+          font-weight: 700;
+        }
+        .infoValue {
+          color: #2a2419;
+          font-weight: 500;
+          flex: 1;
+        }
+
+        .cta {
+          background: linear-gradient(135deg, #c65f3b 0%, #a64a2a 100%);
+          border-radius: 16px;
+          padding: 32px 28px;
+          text-align: center;
+          color: #fff;
+          margin-top: 40px;
+        }
+        .ctaTitle {
+          font-size: 22px;
+          font-weight: 800;
+          letter-spacing: -0.025em;
+          margin-bottom: 12px;
+        }
+        .ctaText {
+          font-size: 14px;
+          color: rgba(255, 255, 255, 0.9);
+          line-height: 1.6;
+          margin-bottom: 22px;
+        }
+        .ctaBtn {
+          display: inline-block;
+          padding: 14px 28px;
+          background: #fff;
+          color: #c65f3b;
+          border-radius: 999px;
+          font-size: 14px;
+          font-weight: 800;
+          letter-spacing: -0.01em;
+          transition: all 0.18s;
+        }
+        .ctaBtn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
+        }
+
+        .adWrap {
+          margin: 32px 0;
+        }
+
+        @media (max-width: 768px) {
+          .page { padding: 24px 16px 48px; }
+          .hero { padding: 30px 20px; }
+          .heroTitle { font-size: 26px; }
+          .heroSub { font-size: 14px; }
+          .valueGrid { grid-template-columns: 1fr; }
+          .sectionTitle { font-size: 18px; }
+        }
+      `}</style>
+
+      <div className="page">
+        <section className="hero">
+          <div className="heroLogo">
+            <AlgoMakerLogo size="lg" showSubtitle={false} />
+          </div>
+          <h1 className="heroTitle">
+            영상 제작,<br />
+            <span className="accent">누구나 할 수 있어요</span>
+          </h1>
+          <p className="heroSub">
+            AlgoMaker는 영상 제작을 고민하는 모든 분들을 위해 만들어졌어요.
+            프로들이 쓰는 노하우가 AI에 자동으로 녹아있는,
+            한국어 최적화 영상 제작 스튜디오입니다.
           </p>
         </section>
 
-        <section aria-labelledby="mission-heading">
-          <h2 id="mission-heading">우리의 미션</h2>
-          <p>
-            혼자 영상을 만드는 크리에이터가 대기업 채널과도 경쟁할 수 있도록,
-            AI로 영상 제작의 기술적 장벽을 없애는 것이 우리의 목표입니다.
+        <section className="section">
+          <h2 className="sectionTitle">왜 AlgoMaker를 만들었나요</h2>
+          <p className="text">
+            영상 제작을 시작하고 싶은 분들은 많아요. 근데 문제는 <strong>"어디서부터 시작해야 할지 모르겠다"</strong>는 거예요.
           </p>
-          <p>
-            기획, 대본, 제목, 썸네일, 태그, 업로드 자료까지 모든 반복 작업을
-            AI가 자동 처리합니다. 크리에이터는 본인만의 개성과 창의성에 집중할 수 있습니다.
+          <p className="text">
+            제목은 어떻게 지어야 조회수가 터지는지, 썸네일은 어떻게 만들어야 클릭률이 높아지는지,
+            대본 구조는 어떻게 짜야 시청자가 끝까지 보는지… 전문 지식이 너무 많아요.
           </p>
-        </section>
-
-        <section aria-labelledby="features-heading">
-          <h2 id="features-heading">AlgoMaker의 특징</h2>
-          <ul>
-            <li>
-              <h3>8개 카테고리 전문화</h3>
-              <p>경제, 건강, IT, 교육, 요리, 사회, 부동산, 게임 등 각 분야별 특화 AI</p>
-            </li>
-            <li>
-              <h3>멀티 플랫폼 대응</h3>
-              <p>유튜브 롱폼, 쇼츠, 틱톡, 인스타그램 릴스 모두 실제 업로드 화면 재현</p>
-            </li>
-            <li>
-              <h3>한글+영문 이미지 프롬프트</h3>
-              <p>Midjourney, DALL-E, Canva AI에서 바로 사용 가능한 프롬프트 자동 생성</p>
-            </li>
-            <li>
-              <h3>AI 영상 프롬프트</h3>
-              <p>Runway Gen-3, Kling AI, Luma, Sora에서 사용 가능한 시네마틱 프롬프트</p>
-            </li>
-            <li>
-              <h3>Algo-Magic Booster</h3>
-              <p>마법 레버 한 번으로 조회수 터지는 영상으로 자동 최적화</p>
-            </li>
-          </ul>
-        </section>
-
-        <section aria-labelledby="company-heading">
-          <h2 id="company-heading">운영 회사</h2>
-          <p>
-            AlgoMaker는 <strong>한줄컴퍼니</strong>가 운영합니다.
-            한줄컴퍼니는 AI 기술로 크리에이터의 생산성을 극대화하는 도구를 만드는 회사입니다.
-          </p>
-          <p>대표: 박예준</p>
-          <p>이메일: contact@nutube.kr</p>
-          <p>
-            <a href="https://nutube.kr/contact">문의하기 →</a>
+          <div className="quote">
+            "이 모든 노하우를 일반인도 쉽게 쓸 수 있다면?"<br />
+            <strong>그게 바로 AlgoMaker가 시작된 이유예요.</strong>
+          </div>
+          <p className="text">
+            프로 크리에이터들이 수년간 시행착오로 쌓은 노하우 12가지를 <strong>AI에 자동으로 반영</strong>해,
+            키워드 하나만 입력하면 검증된 구조의 영상이 만들어져요.
           </p>
         </section>
 
-        <section aria-labelledby="legal-heading">
-          <h2 id="legal-heading">법적 고지</h2>
-          <p>
-            AlgoMaker는 YouTube, TikTok, Instagram의 공식 파트너가 아니며,
-            각 플랫폼과 직접적인 관련이 없습니다. 도메인 nutube.kr은 본 서비스의
-            접근 편의성을 위한 주소이며, YouTube의 상표를 침해하지 않습니다.
-          </p>
-          <p>
-            YouTube는 Google LLC의 등록 상표이며, TikTok은 Bytedance Ltd.,
-            Instagram은 Meta Platforms, Inc.의 등록 상표입니다.
-          </p>
+        <section className="section">
+          <h2 className="sectionTitle">AlgoMaker의 약속</h2>
+          <div className="valueGrid">
+            <div className="valueCard">
+              <div className="valueEmoji">🎯</div>
+              <div className="valueTitle">검증된 노하우</div>
+              <div className="valueDesc">
+                2026년 최신 영상 알고리즘 기준, 검증된 공식만 반영해요.
+              </div>
+            </div>
+            <div className="valueCard">
+              <div className="valueEmoji">🆓</div>
+              <div className="valueTitle">완전 무료</div>
+              <div className="valueDesc">
+                가입 없음, 결제 없음. 바로 키워드 넣고 영상 받으세요. 영원히 무료예요.
+              </div>
+            </div>
+            <div className="valueCard">
+              <div className="valueEmoji">🇰🇷</div>
+              <div className="valueTitle">한국어 최적화</div>
+              <div className="valueDesc">
+                자연스러운 한국어 내레이션, 한국 시청자 취향, 한국 시장 트렌드 반영해요.
+              </div>
+            </div>
+            <div className="valueCard">
+              <div className="valueEmoji">⚡</div>
+              <div className="valueTitle">5분 자동화</div>
+              <div className="valueDesc">
+                대본·음성·이미지·편집까지 전부 자동. 키워드만 입력하면 끝이에요.
+              </div>
+            </div>
+          </div>
         </section>
-      </section>
 
-      <AboutClient />
-    </>
+        <div className="adWrap">
+          <AdSlot slot="about-mid" variant="horizontal" />
+        </div>
+
+        <section className="section">
+          <h2 className="sectionTitle">서비스 운영 정보</h2>
+          <div className="infoBox">
+            <div className="infoRow">
+              <span className="infoLabel">서비스명</span>
+              <span className="infoValue">AlgoMaker</span>
+            </div>
+            <div className="infoRow">
+              <span className="infoLabel">운영사</span>
+              <span className="infoValue">한줄컴퍼니</span>
+            </div>
+            <div className="infoRow">
+              <span className="infoLabel">대표자</span>
+              <span className="infoValue">박예준</span>
+            </div>
+            <div className="infoRow">
+              <span className="infoLabel">웹사이트</span>
+              <span className="infoValue">https://nutube.kr</span>
+            </div>
+            <div className="infoRow">
+              <span className="infoLabel">문의 이메일</span>
+              <span className="infoValue">contact@nutube.kr</span>
+            </div>
+            <div className="infoRow">
+              <span className="infoLabel">서비스 시작</span>
+              <span className="infoValue">2026년 4월</span>
+            </div>
+          </div>
+        </section>
+
+        <div className="cta">
+          <h3 className="ctaTitle">지금 바로 시작하기</h3>
+          <p className="ctaText">
+            복잡한 설정 없이, 키워드 하나만 넣으면 끝이에요.<br />
+            AlgoMaker가 도와드릴게요.
+          </p>
+          <Link href="/" className="ctaBtn">
+            무료로 시작하기 →
+          </Link>
+        </div>
+      </div>
+    </DashboardShell>
   );
 }

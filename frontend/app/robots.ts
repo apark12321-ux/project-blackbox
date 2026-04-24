@@ -1,6 +1,6 @@
 import type { MetadataRoute } from 'next';
 
-const SITE_URL = 'https://nutube.kr';
+const SITE_URL = 'https://project-blackbox-cpqy.vercel.app';
 
 export default function robots(): MetadataRoute.Robots {
   return {
