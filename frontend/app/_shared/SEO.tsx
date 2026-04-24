@@ -1,9 +1,26 @@
 /**
- * SEO 헬퍼 함수 모음
+ * SEO 헬퍼 및 JSON-LD 컴포넌트
  *
- * 서버 컴포넌트에서는 next/script + Script 컴포넌트 직접 사용 권장
- * 이 파일은 JSON-LD 객체를 만드는 헬퍼 함수만 export
+ * JsonLd: 구조화 데이터 삽입 컴포넌트
+ * generate 함수들: JSON-LD 객체 생성 헬퍼
  */
+
+import React from 'react';
+
+/**
+ * JSON-LD 구조화 데이터 삽입 컴포넌트
+ * 
+ * 사용법:
+ * <JsonLd data={someJsonLdObject} />
+ */
+export function JsonLd({ data }: { data: Record<string, any> }) {
+  return (
+    <script
+      type="application/ld+json"
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
+    />
+  );
+}
 
 /**
  * Breadcrumb JSON-LD 생성 헬퍼
@@ -44,25 +61,25 @@ export function generateArticleJsonLd({
     '@type': 'Article',
     headline: title,
     description: description,
-    image: imageUrl || 'https://nutube.kr/og-image.jpg',
+    image: imageUrl || 'https://project-blackbox-cpqy.vercel.app/og-image.jpg',
     datePublished: publishedAt || '2025-01-01T00:00:00+09:00',
     dateModified: modifiedAt || new Date().toISOString(),
     author: {
       '@type': 'Organization',
       name: 'AlgoMaker',
-      url: 'https://nutube.kr',
+      url: 'https://project-blackbox-cpqy.vercel.app',
     },
     publisher: {
       '@type': 'Organization',
       name: '한줄컴퍼니',
       logo: {
         '@type': 'ImageObject',
-        url: 'https://nutube.kr/logo-512.png',
+        url: 'https://project-blackbox-cpqy.vercel.app/logo-512.png',
       },
     },
     mainEntityOfPage: {
       '@type': 'WebPage',
-      '@id': `https://nutube.kr/knowhow/${slug}`,
+      '@id': `https://project-blackbox-cpqy.vercel.app/knowhow/${slug}`,
     },
   };
 }
