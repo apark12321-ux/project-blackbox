@@ -1,71 +1,9 @@
 /**
- * SEO 시맨틱 HTML 컴포넌트
+ * SEO 헬퍼 함수 모음
  *
- * 'use client' 페이지는 metadata export가 불가능합니다.
- * 대신 이 컴포넌트를 사용해 시맨틱 HTML 구조로 SEO 최적화합니다.
- * 크롤러는 시맨틱 태그(section, article, h1-h6)를 우선 인식합니다.
+ * 서버 컴포넌트에서는 next/script + Script 컴포넌트 직접 사용 권장
+ * 이 파일은 JSON-LD 객체를 만드는 헬퍼 함수만 export
  */
-
-import React from 'react';
-
-interface SEOSemanticProps {
-  pageTitle?: string;
-  pageDescription?: string;
-  breadcrumbs?: Array<{ name: string; url: string }>;
-}
-
-/**
- * 페이지 상단에 삽입하는 SEO 시맨틱 구조
- * 시각적으로는 숨기지만 크롤러는 읽을 수 있음
- */
-export function SEOSemanticMarker({ pageTitle, pageDescription, breadcrumbs }: SEOSemanticProps) {
-  return (
-    <>
-      {/* 스크린리더 & 크롤러용 페이지 설명 (sr-only) */}
-      <div
-        style={{
-          position: 'absolute',
-          width: '1px',
-          height: '1px',
-          padding: 0,
-          margin: '-1px',
-          overflow: 'hidden',
-          clip: 'rect(0, 0, 0, 0)',
-          whiteSpace: 'nowrap',
-          border: 0,
-        }}
-        aria-hidden="false"
-      >
-        {pageTitle && <h1>{pageTitle}</h1>}
-        {pageDescription && <p>{pageDescription}</p>}
-        {breadcrumbs && breadcrumbs.length > 0 && (
-          <nav aria-label="Breadcrumb">
-            <ol>
-              {breadcrumbs.map((b, i) => (
-                <li key={i}>
-                  {i < breadcrumbs.length - 1 ? <a href={b.url}>{b.name}</a> : b.name}
-                </li>
-              ))}
-            </ol>
-          </nav>
-        )}
-      </div>
-    </>
-  );
-}
-
-/**
- * JSON-LD 구조화 데이터 삽입 컴포넌트
- * 'use client' 페이지에서도 사용 가능
- */
-export function JsonLd({ data }: { data: Record<string, any> }) {
-  return (
-    <script
-      type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }}
-    />
-  );
-}
 
 /**
  * Breadcrumb JSON-LD 생성 헬퍼
@@ -84,7 +22,7 @@ export function generateBreadcrumbJsonLd(items: Array<{ name: string; url: strin
 }
 
 /**
- * Article JSON-LD 생성 헬퍼 (블로그 글용)
+ * Article JSON-LD 생성 헬퍼
  */
 export function generateArticleJsonLd({
   title,
@@ -148,7 +86,7 @@ export function generateFAQJsonLd(faqs: Array<{ question: string; answer: string
 }
 
 /**
- * HowTo JSON-LD 생성 헬퍼 (서비스 사용 방법 안내)
+ * HowTo JSON-LD 생성 헬퍼
  */
 export function generateHowToJsonLd({
   name,
