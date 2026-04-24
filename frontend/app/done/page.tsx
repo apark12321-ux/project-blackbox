@@ -150,78 +150,203 @@ export default function DonePage() {
           flex: 1; margin-left: 10px;
         }
 
-        /* YouTube 영상 섹션 */
-        .youtubeMain {
-          background: #fff;
-          border: 1px solid rgba(90, 74, 58, 0.08);
-          border-radius: 14px;
-          padding: 22px;
+        /* ============================================================
+           🔐 AlgoMaker 독자 알고리즘 박스 (미스터리 + 보호)
+           ============================================================ */
+        .algoBox {
+          position: relative;
+          background: linear-gradient(135deg, #2a2419 0%, #3a332a 100%);
+          border-radius: 16px;
+          padding: 28px 24px;
           margin-bottom: 28px;
+          overflow: hidden;
+          color: #f5f1ea;
+          user-select: none;
+          -webkit-user-select: none;
+          -moz-user-select: none;
+          -ms-user-select: none;
         }
-        .videoPreview {
-          aspect-ratio: 16 / 9;
-          background: linear-gradient(135deg, #3a332a 0%, #2a2419 100%);
-          border-radius: 12px;
-          display: flex; align-items: center; justify-content: center;
-          position: relative; overflow: hidden;
+        .no-select {
+          -webkit-user-select: none !important;
+          -moz-user-select: none !important;
+          -ms-user-select: none !important;
+          user-select: none !important;
+        }
+        .no-copy {
+          -webkit-touch-callout: none;
+          -webkit-user-drag: none;
+          pointer-events: auto;
+        }
+        .algoPattern {
+          position: absolute;
+          inset: 0;
+          background-image: 
+            radial-gradient(circle at 20% 20%, rgba(198, 95, 59, 0.15) 0%, transparent 50%),
+            radial-gradient(circle at 80% 80%, rgba(125, 155, 124, 0.1) 0%, transparent 50%);
+          pointer-events: none;
+        }
+        .algoHeader {
+          position: relative;
+          display: flex;
+          align-items: center;
+          gap: 10px;
           margin-bottom: 16px;
+          z-index: 1;
         }
-        .videoPreview::before {
-          content: ''; position: absolute; inset: 0;
-          background: radial-gradient(circle at 30% 30%, rgba(198, 95, 59, 0.2) 0%, transparent 60%);
-        }
-        .playBtn {
-          width: 64px; height: 64px;
-          background: rgba(255, 255, 255, 0.95);
+        .algoPulse {
+          width: 10px; height: 10px;
+          background: #5e7e5d;
           border-radius: 50%;
-          display: flex; align-items: center; justify-content: center;
-          box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
-          position: relative; z-index: 1; cursor: pointer;
+          position: relative;
         }
-        .playBtn::after {
-          content: ''; width: 0; height: 0;
-          border-top: 12px solid transparent;
-          border-bottom: 12px solid transparent;
-          border-left: 20px solid #c65f3b;
-          margin-left: 5px;
+        .algoPulse::before {
+          content: '';
+          position: absolute;
+          inset: -4px;
+          border-radius: 50%;
+          background: rgba(94, 126, 93, 0.4);
+          animation: pulseRing 2s ease-out infinite;
         }
-        .videoDuration {
-          position: absolute; bottom: 12px; right: 12px;
-          padding: 4px 10px;
-          background: rgba(0, 0, 0, 0.7); color: #fff;
-          border-radius: 4px;
-          font-size: 11px; font-weight: 700; z-index: 1;
+        @keyframes pulseRing {
+          0% { transform: scale(1); opacity: 1; }
+          100% { transform: scale(2.2); opacity: 0; }
         }
-        .videoBadge {
-          position: absolute; top: 12px; left: 12px;
-          padding: 4px 10px;
-          background: rgba(255, 255, 255, 0.95); color: #c65f3b;
-          border-radius: 999px;
-          font-size: 10px; font-weight: 800; z-index: 1;
+        .algoStatus {
+          font-size: 10.5px;
+          font-weight: 800;
+          letter-spacing: 0.2em;
+          color: rgba(245, 241, 234, 0.65);
         }
-        .downloadSection {
-          margin-top: 16px; padding: 16px 18px;
-          background: #faf8f4; border-radius: 10px;
+        .algoTitle {
+          position: relative;
+          font-size: 22px;
+          font-weight: 800;
+          letter-spacing: -0.025em;
+          line-height: 1.35;
+          margin-bottom: 8px;
+          z-index: 1;
         }
-        .downloadSection.disabled { opacity: 0.5; pointer-events: none; }
-        .downloadTitle {
-          font-size: 13px; font-weight: 800; color: #2a2419;
-          margin-bottom: 10px; letter-spacing: -0.015em;
+        .algoSubtitle {
+          position: relative;
+          font-size: 12.5px;
+          color: rgba(245, 241, 234, 0.55);
+          line-height: 1.6;
+          margin-bottom: 22px;
+          z-index: 1;
         }
-        .downloadBtns { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 8px; }
-        .primaryBtn {
-          padding: 11px 16px;
-          background: linear-gradient(135deg, #c65f3b 0%, #a64a2a 100%);
-          color: #fff; border: none; border-radius: 9px;
-          font-size: 13px; font-weight: 800; cursor: pointer;
-          font-family: inherit;
+        .algoProcess {
+          position: relative;
+          margin-bottom: 22px;
+          z-index: 1;
         }
-        .primaryBtn:disabled { opacity: 0.5; cursor: not-allowed; }
-        .secondaryBtn {
-          padding: 11px 14px; background: #fff; color: #564a3a;
-          border: 1px solid rgba(90, 74, 58, 0.15); border-radius: 9px;
-          font-size: 12px; font-weight: 700; cursor: pointer;
-          font-family: inherit;
+        .algoStep {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          padding: 11px 14px;
+          background: rgba(245, 241, 234, 0.04);
+          border: 1px solid rgba(245, 241, 234, 0.08);
+          border-radius: 10px;
+          margin-bottom: 6px;
+          transition: all 0.3s;
+        }
+        .algoStep.completed {
+          background: rgba(94, 126, 93, 0.08);
+          border-color: rgba(94, 126, 93, 0.2);
+        }
+        .algoStep.active {
+          background: rgba(198, 95, 59, 0.1);
+          border-color: rgba(198, 95, 59, 0.25);
+        }
+        .algoStepDot {
+          width: 8px; height: 8px;
+          border-radius: 50%;
+          background: rgba(245, 241, 234, 0.2);
+        }
+        .algoStep.completed .algoStepDot {
+          background: #5e7e5d;
+        }
+        .algoStep.active .algoStepDot {
+          background: #c65f3b;
+        }
+        .algoStepDot.pulse {
+          animation: dotPulse 1.5s ease-in-out infinite;
+        }
+        @keyframes dotPulse {
+          0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(198, 95, 59, 0.6); }
+          50% { opacity: 0.6; box-shadow: 0 0 0 6px rgba(198, 95, 59, 0); }
+        }
+        .algoStepText {
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+          gap: 2px;
+        }
+        .algoStepLabel {
+          font-size: 9.5px;
+          font-weight: 800;
+          letter-spacing: 0.15em;
+          color: rgba(245, 241, 234, 0.45);
+        }
+        .algoStepName {
+          font-size: 13px;
+          font-weight: 700;
+          color: #f5f1ea;
+        }
+        .algoStepCheck {
+          font-size: 14px;
+          color: #5e7e5d;
+          font-weight: 800;
+        }
+        .algoStepLoading {
+          font-size: 18px;
+          color: #f5a26b;
+          animation: loadingDots 1.5s ease-in-out infinite;
+        }
+        @keyframes loadingDots {
+          0%, 100% { opacity: 0.3; }
+          50% { opacity: 1; }
+        }
+        .algoResult {
+          position: relative;
+          background: rgba(198, 95, 59, 0.12);
+          border: 1px solid rgba(198, 95, 59, 0.3);
+          border-radius: 12px;
+          padding: 18px 22px;
+          margin-bottom: 22px;
+          text-align: center;
+          z-index: 1;
+        }
+        .algoResultLabel {
+          font-size: 11px;
+          font-weight: 700;
+          color: rgba(245, 241, 234, 0.7);
+          letter-spacing: 0.05em;
+          margin-bottom: 6px;
+        }
+        .algoResultValue {
+          font-size: 44px;
+          font-weight: 800;
+          color: #f5a26b;
+          letter-spacing: -0.03em;
+          line-height: 1;
+          margin-bottom: 8px;
+        }
+        .algoResultNote {
+          font-size: 11.5px;
+          color: rgba(245, 241, 234, 0.55);
+          line-height: 1.5;
+        }
+        .algoLockNote {
+          position: relative;
+          margin-top: 18px;
+          padding-top: 16px;
+          border-top: 1px solid rgba(245, 241, 234, 0.1);
+          font-size: 11px;
+          color: rgba(245, 241, 234, 0.5);
+          text-align: center;
+          line-height: 1.6;
+          z-index: 1;
         }
 
         /* 확장 섹션 */
@@ -754,20 +879,76 @@ export default function DonePage() {
           </p>
         </header>
 
-        {/* YouTube 영상 완성본 섹션 */}
+        {/* ============================================================
+            🔐 AlgoMaker 독자 알고리즘 작동 섹션
+            베일에 감춰진 알고리즘 - 사용자는 진행 상황만 볼 수 있음
+            ============================================================ */}
         <div className="sectionHeader">
-          <span className="sectionEmoji">📺</span>
+          <span className="sectionEmoji">🔐</span>
           <h2 className="sectionTitle">
-            <span style={{color: '#c65f3b'}}>YouTube</span> 영상 완성본
+            <span style={{color: '#c65f3b'}}>AlgoMaker</span> 독자 알고리즘 작동 중
           </h2>
           <div className="sectionDivider" />
         </div>
 
-        <section className="youtubeMain">
-          <div className="videoPreview">
-            <span className="videoBadge">⚡ Made by AlgoMaker</span>
-            <div className="playBtn" />
-            <span className="videoDuration">8:42</span>
+        <section className="algoBox no-select no-copy">
+          <div className="algoPattern" />
+
+          <div className="algoHeader">
+            <div className="algoPulse" />
+            <span className="algoStatus">ACTIVE · PROPRIETARY</span>
+          </div>
+
+          <div className="algoTitle">
+            알고메이커 전용 알고리즘이<br />
+            당신의 영상을 최적화하고 있습니다
+          </div>
+
+          <div className="algoSubtitle">
+            2026 유튜브 알고리즘 패턴 · 조회수 터지는 공식 · 타겟 시청자 분석
+          </div>
+
+          <div className="algoProcess">
+            <div className="algoStep completed">
+              <div className="algoStepDot" />
+              <div className="algoStepText">
+                <span className="algoStepLabel">STEP 1</span>
+                <span className="algoStepName">타겟 시청자 페르소나 분석</span>
+              </div>
+              <span className="algoStepCheck">✓</span>
+            </div>
+            <div className="algoStep completed">
+              <div className="algoStepDot" />
+              <div className="algoStepText">
+                <span className="algoStepLabel">STEP 2</span>
+                <span className="algoStepName">경쟁 채널 알고리즘 패턴 매칭</span>
+              </div>
+              <span className="algoStepCheck">✓</span>
+            </div>
+            <div className="algoStep completed">
+              <div className="algoStepDot" />
+              <div className="algoStepText">
+                <span className="algoStepLabel">STEP 3</span>
+                <span className="algoStepName">조회수 터지는 구조 설계</span>
+              </div>
+              <span className="algoStepCheck">✓</span>
+            </div>
+            <div className="algoStep active">
+              <div className="algoStepDot pulse" />
+              <div className="algoStepText">
+                <span className="algoStepLabel">STEP 4</span>
+                <span className="algoStepName">SEO 최적화 및 키워드 매핑</span>
+              </div>
+              <span className="algoStepLoading">···</span>
+            </div>
+          </div>
+
+          <div className="algoResult">
+            <div className="algoResultLabel">🎯 예상 조회수 부스팅</div>
+            <div className="algoResultValue">+280%</div>
+            <div className="algoResultNote">
+              일반 영상 대비 AlgoMaker 최적화 영상의 평균 조회수
+            </div>
           </div>
 
           <AlgoBooster
@@ -777,22 +958,9 @@ export default function DonePage() {
             variant="full"
           />
 
-          <section className={`downloadSection ${!applied ? 'disabled' : ''}`}>
-            <div className="downloadTitle">
-              {applied ? '🎉 HD 영상 다운로드' : '📥 다운로드 (레버 먼저)'}
-            </div>
-            <div className="downloadBtns">
-              <button className="primaryBtn" disabled={!applied}>
-                📥 HD 영상 (.mp4)
-              </button>
-              <button className="secondaryBtn" disabled={!applied}>
-                📝 대본 (.txt)
-              </button>
-              <button className="secondaryBtn" disabled={!applied}>
-                🏷️ 태그 복사
-              </button>
-            </div>
-          </section>
+          <div className="algoLockNote">
+            🔒 알고메이커의 독자 알고리즘은 특허 출원 중이며, 외부 공개/복제가 금지됩니다.
+          </div>
         </section>
 
         <div className="adWrap">
