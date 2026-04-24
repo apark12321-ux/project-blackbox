@@ -1,20 +1,27 @@
 'use client';
 /**
  * /contact - AdSense 심사 필수 페이지
- *
- * 필수 요소:
- * - 실제 이메일 주소 (운영자 연락 가능)
- * - 답변 가능한 문의 양식
- * - 응답 시간 안내
- * - 사업자 정보 (있으면)
- *
- * 주의: 연락처 이메일은 실제로 받을 수 있는 주소여야 함
- * AdSense 심사관이 실제로 메일 보낼 수 있음
+ * SEO: ContactPage JSON-LD + Breadcrumb
  */
 
 import { useState } from 'react';
 import Link from 'next/link';
 import { DashboardShell } from '../_shared/V11Shell';
+import { JsonLd, generateBreadcrumbJsonLd } from '../_shared/SEO';
+
+const contactJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'ContactPage',
+  name: 'AlgoMaker 문의하기',
+  description: 'AlgoMaker 서비스 문의, 광고·제휴 제안, 버그 신고',
+  url: 'https://nutube.kr/contact',
+  inLanguage: 'ko-KR',
+};
+
+const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+  { name: '홈', url: 'https://nutube.kr' },
+  { name: '문의하기', url: 'https://nutube.kr/contact' },
+]);
 
 // ⚠️ 예준님 실제 받을 수 있는 이메일로 바꿔주세요
 const CONTACT_EMAIL = 'contact@algomaker.kr';
@@ -43,6 +50,10 @@ export default function ContactPage() {
 
   return (
     <DashboardShell>
+      {/* SEO JSON-LD */}
+      <JsonLd data={contactJsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
+
       <style jsx>{`
         .page {
           padding: 32px 32px 60px;

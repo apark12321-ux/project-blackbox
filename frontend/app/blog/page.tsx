@@ -3,12 +3,35 @@
  * 블로그 메인 페이지 — 보호 버전
  *
  * 12개 노하우를 "왜 복잡한가" 톤으로 소개
- * 각 글 제목이 템플릿이 아닌 "문제 제기" 식
+ * SEO: CollectionPage JSON-LD + Breadcrumb
  */
 
 import Link from 'next/link';
 import { DashboardShell } from '../_shared/V11Shell';
 import AdSlot from '../_shared/AdSlot';
+import { JsonLd, generateBreadcrumbJsonLd } from '../_shared/SEO';
+
+// ============================================================
+// SEO JSON-LD 데이터
+// ============================================================
+const blogJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'Blog',
+  name: 'AlgoMaker 노하우 블로그',
+  description: '유튜브 알고리즘·조회수·썸네일·제목 등 크리에이터 노하우 12가지',
+  url: 'https://nutube.kr/blog',
+  publisher: {
+    '@type': 'Organization',
+    name: 'AlgoMaker',
+    url: 'https://nutube.kr',
+  },
+  inLanguage: 'ko-KR',
+};
+
+const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+  { name: '홈', url: 'https://nutube.kr' },
+  { name: '노하우 블로그', url: 'https://nutube.kr/blog' },
+]);
 
 const POSTS = [
   {
@@ -142,6 +165,10 @@ export default function BlogPage() {
 
   return (
     <DashboardShell>
+      {/* SEO JSON-LD */}
+      <JsonLd data={blogJsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
+
       <style jsx>{`
         .page {
           max-width: 1100px;

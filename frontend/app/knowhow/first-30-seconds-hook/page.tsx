@@ -5,16 +5,30 @@
  * URL: /knowhow/first-30-seconds-hook
  * 타겟 키워드: "영상 인트로 만들기", "영상 첫 30초"
  *
- * 🛡️ 보호 버전:
- * - 훅 공식/템플릿 완전 제거
- * - "왜 어려운가" 복잡성 강조
- * - AlgoMaker 자동화 유도
- * - 결과물만 공개
+ * 🛡️ 보호 버전 + SEO Article 구조화
  */
 
 import Link from 'next/link';
 import { DashboardShell } from '../../_shared/V11Shell';
 import AdSlot from '../../_shared/AdSlot';
+import { JsonLd, generateArticleJsonLd, generateBreadcrumbJsonLd } from '../../_shared/SEO';
+
+// ============================================================
+// SEO JSON-LD 데이터
+// ============================================================
+const articleJsonLd = generateArticleJsonLd({
+  title: '첫 30초가 영상의 운명을 결정합니다',
+  description: '왜 4명 중 3명이 30초 안에 떠나는가, 그리고 AlgoMaker의 해결법',
+  slug: 'first-30-seconds-hook',
+  publishedAt: '2026-04-23T00:00:00+09:00',
+  modifiedAt: new Date().toISOString(),
+});
+
+const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+  { name: '홈', url: 'https://nutube.kr' },
+  { name: '노하우 블로그', url: 'https://nutube.kr/blog' },
+  { name: '첫 30초가 영상의 운명을 결정합니다', url: 'https://nutube.kr/knowhow/first-30-seconds-hook' },
+]);
 
 export default function Knowhow05Page() {
   const publishedDate = '2026년 4월 23일';
@@ -22,6 +36,10 @@ export default function Knowhow05Page() {
 
   return (
     <DashboardShell>
+      {/* SEO Article JSON-LD */}
+      <JsonLd data={articleJsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
+
       <style jsx>{`
         .page {
           max-width: 860px;

@@ -1,15 +1,42 @@
 'use client';
 /**
- * About 페이지 — AlgoMaker 서비스 소개 (안전 버전)
+ * About 페이지 — AlgoMaker 서비스 소개
+ * SEO: AboutPage JSON-LD + 시맨틱 태그
  */
 
 import Link from 'next/link';
 import { DashboardShell, AlgoMakerLogo } from '../_shared/V11Shell';
 import AdSlot from '../_shared/AdSlot';
+import { JsonLd, generateBreadcrumbJsonLd } from '../_shared/SEO';
+
+// ============================================================
+// SEO JSON-LD 데이터
+// ============================================================
+const aboutJsonLd = {
+  '@context': 'https://schema.org',
+  '@type': 'AboutPage',
+  name: 'AlgoMaker 소개',
+  description: 'AlgoMaker는 한줄컴퍼니가 운영하는 AI 기반 유튜브 영상 자동 생성 서비스입니다.',
+  url: 'https://nutube.kr/about',
+  publisher: {
+    '@type': 'Organization',
+    name: '한줄컴퍼니',
+    url: 'https://nutube.kr',
+  },
+};
+
+const breadcrumbJsonLd = generateBreadcrumbJsonLd([
+  { name: '홈', url: 'https://nutube.kr' },
+  { name: 'AlgoMaker 소개', url: 'https://nutube.kr/about' },
+]);
 
 export default function AboutPage() {
   return (
     <DashboardShell>
+      {/* SEO JSON-LD */}
+      <JsonLd data={aboutJsonLd} />
+      <JsonLd data={breadcrumbJsonLd} />
+
       <style jsx>{`
         .page {
           max-width: 860px;

@@ -4,6 +4,8 @@
  *
  * Step 1: 카테고리 선택 (8개, 베일 벗기기)
  * → Step 2: 키워드 입력 (/keyword)
+ *
+ * SEO: 시맨틱 HTML 구조 + JSON-LD
  */
 
 import { useState, useEffect } from 'react';
@@ -11,6 +13,46 @@ import { useRouter } from 'next/navigation';
 import { DashboardShell, setProject, AlgoMakerLogo } from './_shared/V11Shell';
 import { CATEGORIES } from './_shared/platforms';
 import AdSlot from './_shared/AdSlot';
+import { JsonLd, generateHowToJsonLd, generateFAQJsonLd } from './_shared/SEO';
+
+// ============================================================
+// SEO JSON-LD 데이터
+// ============================================================
+const howToJsonLd = generateHowToJsonLd({
+  name: 'AlgoMaker로 AI 유튜브 영상 만드는 방법',
+  description: '키워드만 입력하면 AI가 유튜브 알고리즘에 맞는 영상을 자동 생성합니다',
+  steps: [
+    { name: '카테고리 선택', text: '경제, 건강, IT 등 8개 카테고리 중 하나를 선택합니다' },
+    { name: '키워드 입력', text: '영상 주제가 될 키워드를 입력합니다' },
+    { name: '시나리오 선택', text: 'AI가 추천하는 3가지 시나리오 중 하나를 선택합니다' },
+    { name: 'SNS 플랫폼 선택', text: '유튜브, 쇼츠, 틱톡, 릴스 중 업로드할 플랫폼을 선택합니다' },
+    { name: '메타데이터 확인', text: 'AI가 생성한 제목·설명·태그를 확인합니다' },
+    { name: '영상 생성 및 다운로드', text: '완성된 영상과 SNS 업로드 자료를 다운로드합니다' },
+  ],
+});
+
+const faqJsonLd = generateFAQJsonLd([
+  {
+    question: 'AlgoMaker는 어떤 서비스인가요?',
+    answer: 'AlgoMaker는 키워드만 입력하면 AI가 유튜브 알고리즘에 최적화된 영상을 자동으로 만들어주는 서비스입니다. 쇼츠·틱톡·릴스 업로드 자료까지 한 번에 생성됩니다.',
+  },
+  {
+    question: '사용 요금이 어떻게 되나요?',
+    answer: '기본 기능은 무료로 제공되며, 광고로 운영됩니다. 신용카드 없이 바로 시작할 수 있습니다.',
+  },
+  {
+    question: '어떤 플랫폼에 업로드할 수 있나요?',
+    answer: '유튜브 롱폼, 유튜브 쇼츠, 틱톡, 인스타그램 릴스 4개 플랫폼을 지원합니다. 각 플랫폼의 실제 업로드 화면을 그대로 재현해서 복사-붙여넣기만 하면 업로드가 완료됩니다.',
+  },
+  {
+    question: 'AI 이미지 프롬프트도 제공되나요?',
+    answer: '네, 영상 시나리오에 맞는 이미지와 영상 프롬프트를 한글 설명과 영문 디테일로 함께 제공합니다. Midjourney, DALL-E, Runway 등의 AI 툴에서 바로 사용 가능합니다.',
+  },
+  {
+    question: '어떤 카테고리를 지원하나요?',
+    answer: '경제·재테크, 건강·의료, IT·테크, 교육·자기계발, 요리·음식, 사회·이슈, 부동산, 게임 등 8가지 카테고리를 지원합니다.',
+  },
+]);
 
 export default function HomePage() {
   const router = useRouter();
@@ -51,6 +93,13 @@ export default function HomePage() {
 
   return (
     <DashboardShell>
+      {/* ============================================================
+          SEO: JSON-LD 구조화 데이터 (HowTo + FAQ)
+          Google 리치 스니펫에 Q&A 형식으로 노출됨
+          ============================================================ */}
+      <JsonLd data={howToJsonLd} />
+      <JsonLd data={faqJsonLd} />
+
       <style jsx>{`
         .page {
           padding: 0 0 48px;
@@ -269,7 +318,7 @@ export default function HomePage() {
       `}</style>
 
       <div className="page">
-        <section className="hero">
+        <section className="hero" aria-labelledby="hero-heading">
           <div className="heroLogoWrap">
             <AlgoMakerLogo size="lg" showSubtitle={false} />
           </div>
@@ -277,7 +326,7 @@ export default function HomePage() {
             <span>✨</span>
             <span>STEP 1 / 6 · 분야 선택</span>
           </div>
-          <h1 className="heroTitle">
+          <h1 className="heroTitle" id="hero-heading">
             어떤 분야의 영상을<br />
             <span className="accent">만들고 싶으세요?</span>
           </h1>
@@ -290,9 +339,9 @@ export default function HomePage() {
           </div>
         </section>
 
-        <section className="catSection">
+        <section className="catSection" aria-labelledby="category-heading">
           <div className="catHead">
-            <h2 className="catHeadTitle">📂 카테고리 선택</h2>
+            <h2 className="catHeadTitle" id="category-heading">📂 카테고리 선택</h2>
             <p className="catHeadSub">각 카드에 어떤 영상을 만들 수 있는지 예시가 들어있어요</p>
           </div>
 
