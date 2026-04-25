@@ -1,7 +1,7 @@
 'use client';
 import Link from 'next/link';
-import { V11Shell } from '../_shared/V11Shell';
-import AdSlot from '../_shared/AdSlot';
+import { V11Shell } from '../../_shared/V11Shell';
+import AdSlot from '../../_shared/AdSlot';
 
 export default function Page() {
   return (

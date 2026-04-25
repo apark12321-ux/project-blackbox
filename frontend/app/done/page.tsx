@@ -3,7 +3,6 @@
  * /done - 완료 페이지
  */
 
-import { useEffect } from 'react';
 import Link from 'next/link';
 import { V11Shell, getProject } from '../_shared/V11Shell';
 import { getCategoryById, CATEGORIES } from '../_shared/platforms';
