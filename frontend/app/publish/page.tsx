@@ -6,6 +6,7 @@
  * 1. 각 SNS 실제 업로드 화면과 동일한 UI
  * 2. 알고리즘 반영된 진짜 고퀄리티 콘텐츠
  * 3. 영상 제작 프롬프트 (한글 + 영문)
+ * 4. 광고 게이트 (Rewarded Ad - AdSense Offerwall)
  */
 
 import { useState, useEffect } from 'react';
@@ -21,6 +22,13 @@ import {
   getYouTubeCategory,
 } from '../_shared/contentEngine';
 import AdSlot from '../_shared/AdSlot';
+import RewardedAd, {
+  isFreeAvailable,
+  getRemainingFree,
+  incrementUsage,
+  addBonusCredit,
+  FREE_LIMIT,
+} from '../_shared/RewardedAd';
 
 type TabType = 'youtube-long' | 'youtube-shorts' | 'tiktok' | 'instagram-reels' | 'video-prompts';
 
@@ -32,13 +40,50 @@ export default function PublishPage() {
   const [copied, setCopied] = useState('');
   const [selectedTitleIdx, setSelectedTitleIdx] = useState(0);
   const [selectedThumbIdx, setSelectedThumbIdx] = useState(0);
+  
+  // 광고 게이트 관련 상태
+  const [showAd, setShowAd] = useState(false);
+  const [accessGranted, setAccessGranted] = useState(false);
+  const [remaining, setRemaining] = useState(0);
 
   useEffect(() => {
     const project = getProject();
     if (project.category) setCategory(project.category);
     if (project.keyword) setKeyword(project.keyword);
     if (project.scenarioStyleId) setScenarioId(project.scenarioStyleId);
+    
+    // 사용 횟수 확인
+    const free = getRemainingFree();
+    setRemaining(free);
+    
+    if (free > 0) {
+      // 무료 사용 가능 → 진입 시 카운트 1회 증가
+      incrementUsage();
+      setRemaining(getRemainingFree());
+      setAccessGranted(true);
+    } else {
+      // 무료 사용 종료 → 광고 시청 필요
+      setShowAd(true);
+    }
   }, []);
+
+  // 광고 시청 완료 시 호출
+  const handleAdComplete = () => {
+    addBonusCredit(); // 1회 추가 사용권 부여
+    setAccessGranted(true);
+    setRemaining(getRemainingFree());
+  };
+
+  // 광고 닫기 (보지 않고 나가기)
+  const handleAdClose = () => {
+    setShowAd(false);
+    if (!accessGranted) {
+      // 광고 안 보고 나가면 홈으로
+      if (typeof window !== 'undefined') {
+        window.location.href = '/';
+      }
+    }
+  };
 
   const cat = getCategoryById(category);
   const scenario = getScenarioById(scenarioId);
@@ -74,6 +119,14 @@ export default function PublishPage() {
 
   return (
     <V11Shell currentStep={4}>
+      {/* 광고 모달 - accessGranted 안 된 상태에서만 활성화 */}
+      <RewardedAd
+        open={showAd && !accessGranted}
+        rewardLabel="결과 페이지 1회 이용"
+        onComplete={handleAdComplete}
+        onClose={handleAdClose}
+      />
+      
       <style jsx>{`
         .page { max-width: 1400px; margin: 0 auto; padding: 32px 20px 60px; }
         .breadcrumb { display: flex; gap: 8px; font-size: 13px; color: #888; margin-bottom: 20px; }
@@ -96,6 +149,23 @@ export default function PublishPage() {
           letter-spacing: -0.025em; margin: 0 0 4px;
         }
         .sub { font-size: 14px; color: #555; }
+        .usageInfo {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          margin-top: 10px;
+          padding: 6px 12px;
+          background: rgba(198, 95, 59, 0.08);
+          border: 1px solid rgba(198, 95, 59, 0.2);
+          border-radius: 100px;
+          font-size: 12px;
+          color: #555;
+          font-weight: 500;
+        }
+        .usageInfo strong {
+          color: #c65f3b;
+          font-weight: 800;
+        }
         .summaryChips { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
         .chip {
           padding: 8px 14px; background: #fff; border: 1px solid #e5e5e5;
@@ -248,6 +318,13 @@ export default function PublishPage() {
             <span className="doneBadge">✓ AI 추천 완료</span>
             <h1 className="title">📝 SNS 업로드 자료</h1>
             <p className="sub">아래 내용을 그대로 복사해서 각 SNS에 붙여넣기만 하시면 됩니다</p>
+            <div className="usageInfo">
+              {remaining > 0 ? (
+                <>🎁 이번 달 무료 이용 <strong>{remaining}회</strong> 남았어요 (총 {FREE_LIMIT}회 무료)</>
+              ) : (
+                <>✨ 광고 시청으로 1회 이용 가능 · 다음 달에 무료 {FREE_LIMIT}회 갱신</>
+              )}
+            </div>
           </div>
           <div className="summaryChips">
             <span className="chip">{cat.emoji} <strong>{cat.name}</strong></span>
