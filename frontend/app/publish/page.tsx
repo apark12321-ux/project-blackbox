@@ -11,7 +11,7 @@
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
 import { V11Shell, getProject } from '../_shared/V11Shell';
-import { getCategoryById, getScenarioById } from '../_shared/platforms';
+import { getCategoryById, getScenarioById, getTrendingKeywords } from '../_shared/platforms';
 import {
   generateTitles,
   generateDescription,
@@ -333,6 +333,10 @@ export default function PublishPage() {
                       <span className="charLimit">1280×720 / 16:9</span>
                     </div>
                     <div className="fieldHelper">💡 알고리즘 검증된 3가지 콘셉트. 클릭해서 영상 프롬프트 확인.</div>
+                    <div style={{ background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: '#92400e', lineHeight: 1.6 }}>
+                      ⚠️ <strong>썸네일 한글 텍스트는 ChatGPT(GPT Image) 또는 Gemini 추천</strong>: Pollinations(현재 도구)는 한글이 깨질 수 있어요. 
+                      한글 텍스트가 정확한 썸네일을 원하시면 <a href="https://chatgpt.com" target="_blank" rel="noopener noreferrer" style={{ color: '#c65f3b', fontWeight: 700 }}>ChatGPT</a> 또는 <a href="https://gemini.google.com" target="_blank" rel="noopener noreferrer" style={{ color: '#c65f3b', fontWeight: 700 }}>Gemini</a>를 사용하세요.
+                    </div>
                     <div className="thumbCards">
                       {thumbnails.map((th, i) => (
                         <div key={i} className={`thumbCard ${selectedThumbIdx === i ? 'selected' : ''}`} onClick={() => setSelectedThumbIdx(i)}>
@@ -685,6 +689,11 @@ export default function PublishPage() {
                 {cat.competition === '낮음' ? '🟢 쉬움' : cat.competition === '높음' ? '🔴 어려움' : '🟡 보통'}
               </div>
               <div className="sidebarStatLabel">{cat.name} · 경쟁 정도</div>
+            </div>
+            <div className="sidebarSection">
+              <div className="sidebarLabel">추천 키워드</div>
+              <div className="sidebarStat">{getTrendingKeywords(cat.id).length}개</div>
+              <div className="sidebarStatLabel">{cat.name} 인기 키워드</div>
             </div>
             <div className="sidebarSection">
               <div className="sidebarLabel">📌 업로드 체크리스트</div>

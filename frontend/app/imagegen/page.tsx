@@ -50,7 +50,7 @@ function ImagegenPageInner() {
     const fromPublish = searchParams.get('prompt');
     if (fromPublish) {
       setPromptText(decodeURIComponent(fromPublish));
-      showToast('✨ /publish에서 프롬프트 가져왔어요');
+      showToast('✨ 결과 페이지에서 프롬프트 가져왔어요');
     }
     const ar = searchParams.get('ar');
     if (ar && ASPECT_DIMS[ar]) setAspectRatio(ar);
@@ -773,7 +773,7 @@ notebook and pen on desk, natural lighting, lifestyle photography`;
           border: 1px solid #fde0c5;
           border-radius: 10px;
           padding: 14px 16px;
-          margin-bottom: 20px;
+          margin-bottom: 16px;
         }
         .infoTitle {
           font-size: 13px;
@@ -785,6 +785,92 @@ notebook and pen on desk, natural lighting, lifestyle photography`;
           font-size: 12px;
           color: #555;
           line-height: 1.6;
+        }
+
+        /* 한글 텍스트 안내 카드 */
+        .hangulNotice {
+          background: linear-gradient(135deg, #fef3c7 0%, #fef9e7 100%);
+          border: 1.5px solid #f59e0b;
+          border-radius: 12px;
+          padding: 18px 20px;
+          margin-bottom: 20px;
+        }
+        .hangulTitle {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          font-size: 15px;
+          font-weight: 800;
+          color: #92400e;
+          margin-bottom: 12px;
+        }
+        .hangulIcon {
+          font-size: 20px;
+        }
+        .hangulBody {
+          font-size: 13px;
+        }
+        .hangulText {
+          font-size: 13px;
+          color: #555;
+          line-height: 1.6;
+          margin: 0 0 14px;
+        }
+        .hangulText strong {
+          color: #92400e;
+        }
+        .hangulTools {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 10px;
+          margin-bottom: 14px;
+        }
+        .hangulToolCard {
+          background: #fff;
+          border: 1.5px solid #fde68a;
+          border-radius: 10px;
+          padding: 12px 14px;
+          text-decoration: none;
+          color: inherit;
+          transition: all 0.15s;
+          display: block;
+        }
+        .hangulToolCard:hover {
+          border-color: #f59e0b;
+          background: #fffbeb;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(245, 158, 11, 0.15);
+        }
+        .hangulToolHead {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 6px;
+        }
+        .hangulToolEmoji {
+          font-size: 18px;
+        }
+        .hangulToolName {
+          font-size: 13px;
+          font-weight: 800;
+          color: #1a1a1a;
+        }
+        .hangulToolDesc {
+          font-size: 11.5px;
+          color: #555;
+          line-height: 1.5;
+        }
+        .hangulHint {
+          font-size: 12px;
+          color: #555;
+          line-height: 1.6;
+          padding: 10px 14px;
+          background: rgba(255, 255, 255, 0.6);
+          border-radius: 8px;
+          margin: 0;
+        }
+        .hangulHint strong {
+          color: #92400e;
         }
 
         .adArea {
@@ -814,8 +900,73 @@ notebook and pen on desk, natural lighting, lifestyle photography`;
           <div className="infoText">
             • <strong>한 줄에 하나씩</strong> 프롬프트를 입력하시면 각각의 이미지로 생성됩니다
             <br />• <strong>영문 프롬프트</strong>가 더 정확한 결과를 만듭니다 (한글도 작동하지만 품질 차이 있음)
-            <br />• /publish 페이지의 <strong>"🎨 이미지 생성"</strong> 또는 <strong>"🎨 썸네일 만들기"</strong> 버튼을 누르시면 프롬프트가 자동으로 채워집니다
+            <br />• <strong>SNS 업로드 자료 페이지</strong>의 <strong>"🎨 이미지 생성"</strong> 또는 <strong>"🎨 썸네일 만들기"</strong> 버튼을 누르시면 프롬프트가 자동으로 채워집니다
             <br />• <strong>첫 번째 이미지</strong>는 서버 준비 시간 때문에 30초까지 걸릴 수 있어요. 실패해도 <strong>"🔄 다시 생성"</strong> 버튼으로 재시도 가능합니다.
+          </div>
+        </div>
+
+        {/* 한글 텍스트 이미지 안내 카드 */}
+        <div className="hangulNotice">
+          <div className="hangulTitle">
+            <span className="hangulIcon">⚠️</span>
+            <span>한글 텍스트가 들어간 이미지를 만드시려면?</span>
+          </div>
+          <div className="hangulBody">
+            <p className="hangulText">
+              현재 사용 중인 <strong>Pollinations AI(무료)</strong>는 한글이 깨져서 나옵니다.
+              한국어 텍스트가 정확히 들어간 이미지가 필요하시면 아래 도구들이 가장 좋습니다:
+            </p>
+            <div className="hangulTools">
+              <a
+                href="https://chatgpt.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hangulToolCard"
+              >
+                <div className="hangulToolHead">
+                  <span className="hangulToolEmoji">🤖</span>
+                  <span className="hangulToolName">ChatGPT (GPT Image)</span>
+                </div>
+                <div className="hangulToolDesc">
+                  한글 정확도 95% 이상 · 가장 추천<br />
+                  <span style={{ color: '#888' }}>유료 (Plus $20/월)</span>
+                </div>
+              </a>
+              <a
+                href="https://gemini.google.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hangulToolCard"
+              >
+                <div className="hangulToolHead">
+                  <span className="hangulToolEmoji">✨</span>
+                  <span className="hangulToolName">Google Gemini</span>
+                </div>
+                <div className="hangulToolDesc">
+                  한글 텍스트 지원 (Nano Banana 2)<br />
+                  <span style={{ color: '#2e7d32', fontWeight: 700 }}>무료 사용 가능</span>
+                </div>
+              </a>
+              <a
+                href="https://www.canva.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hangulToolCard"
+              >
+                <div className="hangulToolHead">
+                  <span className="hangulToolEmoji">🎨</span>
+                  <span className="hangulToolName">Canva (편집)</span>
+                </div>
+                <div className="hangulToolDesc">
+                  AI 이미지 + 한글 텍스트 직접 추가<br />
+                  <span style={{ color: '#2e7d32', fontWeight: 700 }}>무료 가능</span>
+                </div>
+              </a>
+            </div>
+            <p className="hangulHint">
+              💡 <strong>추천 워크플로우</strong>: ① 본 사이트에서 영문 프롬프트로 배경 이미지 생성 →
+              ② Canva에서 한글 텍스트 추가 → ③ 완성!
+            </p>
           </div>
         </div>
 

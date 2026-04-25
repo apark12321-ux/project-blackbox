@@ -7,7 +7,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { V11Shell, setProject } from '../_shared/V11Shell';
-import { CATEGORIES } from '../_shared/platforms';
+import { CATEGORIES, getTrendingKeywords } from '../_shared/platforms';
 import AdSlot from '../_shared/AdSlot';
 
 function CreatePageInner() {
@@ -106,8 +106,15 @@ function CreatePageInner() {
           color: #fff; font-size: 9px; font-weight: 700;
           border-radius: 4px;
         }
+        .cardMeta {
+          margin-top: 8px;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          align-items: center;
+        }
         .cardLevel {
-          margin-top: 6px; font-size: 10px;
+          font-size: 10px;
           font-weight: 700; padding: 3px 8px;
           border-radius: 100px;
           display: inline-block;
@@ -115,6 +122,11 @@ function CreatePageInner() {
         .cardLevel.level-easy { background: #e8f5e9; color: #2e7d32; }
         .cardLevel.level-normal { background: #fff8e1; color: #f57c00; }
         .cardLevel.level-hard { background: #ffebee; color: #c62828; }
+        .cardKeywords {
+          font-size: 10px;
+          color: #888;
+          font-weight: 600;
+        }
 
         .ctaBtn {
           width: 100%; padding: 18px 24px;
@@ -156,21 +168,29 @@ function CreatePageInner() {
         </header>
 
         <div className="grid">
-          {CATEGORIES.map((cat) => (
-            <button
-              key={cat.id}
-              className={`card ${selected === cat.id ? 'selected' : ''}`}
-              onClick={() => setSelected(cat.id)}
-            >
-              {cat.hot && <div className="cardHot">HOT</div>}
-              <div className="cardEmoji">{cat.emoji}</div>
-              <div className="cardName">{cat.name}</div>
-              <div className="cardDesc">{cat.description}</div>
-              <div className={`cardLevel level-${cat.competition === '낮음' ? 'easy' : cat.competition === '높음' ? 'hard' : 'normal'}`}>
-                {cat.competition === '낮음' ? '🟢 입문 쉬움' : cat.competition === '높음' ? '🔴 경쟁 치열' : '🟡 보통 난이도'}
-              </div>
-            </button>
-          ))}
+          {CATEGORIES.map((cat) => {
+            const keywordCount = getTrendingKeywords(cat.id).length;
+            return (
+              <button
+                key={cat.id}
+                className={`card ${selected === cat.id ? 'selected' : ''}`}
+                onClick={() => setSelected(cat.id)}
+              >
+                {cat.hot && <div className="cardHot">HOT</div>}
+                <div className="cardEmoji">{cat.emoji}</div>
+                <div className="cardName">{cat.name}</div>
+                <div className="cardDesc">{cat.description}</div>
+                <div className="cardMeta">
+                  <span className={`cardLevel level-${cat.competition === '낮음' ? 'easy' : cat.competition === '높음' ? 'hard' : 'normal'}`}>
+                    {cat.competition === '낮음' ? '🟢 입문 쉬움' : cat.competition === '높음' ? '🔴 경쟁 치열' : '🟡 보통 난이도'}
+                  </span>
+                  <span className="cardKeywords">
+                    🎯 키워드 {keywordCount}개
+                  </span>
+                </div>
+              </button>
+            );
+          })}
         </div>
 
         <button className="ctaBtn" onClick={handleNext} disabled={!selected}>
