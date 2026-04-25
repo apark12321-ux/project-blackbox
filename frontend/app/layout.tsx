@@ -2,11 +2,10 @@ import type { Metadata, Viewport } from 'next';
 import ContentProtection from './_shared/ContentProtection';
 import OracleStatusBar from './_shared/OracleStatusBar';
 import SoundProvider from './_shared/SoundManager';
-import './globals.css';
 
 // ============================================================
-// AlgoMaker - Casino Neon Edition
-// 박예준 확정: 전체 사이트 네온 카지노 분위기 통일
+// AlgoMaker - Crystal Ball Edition (안전 버전)
+// globals.css 제거하여 기존 스타일 유지
 // ============================================================
 
 const SITE_URL = 'https://project-blackbox-cpqy.vercel.app';
