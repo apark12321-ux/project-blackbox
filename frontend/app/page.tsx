@@ -11,6 +11,7 @@ import { useRouter } from 'next/navigation';
 import { DashboardShell, setProject, AlgoMakerLogo } from './_shared/V11Shell';
 import { CATEGORIES } from './_shared/platforms';
 import AdSlot from './_shared/AdSlot';
+import AlgorithmReveal from './_shared/AlgorithmReveal';
 
 export default function HomePage() {
   const router = useRouter();
@@ -44,13 +45,26 @@ export default function HomePage() {
     };
   }, []);
 
+  const [revealing, setRevealing] = useState(false);
+  const [revealStage, setRevealStage] = useState('');
+
   const handleCategoryClick = (categoryId: string) => {
     setProject({ category: categoryId, step: 1 });
-    router.push('/keyword');
+    
+    // 🔮 알고리즘 작동 풀스크린
+    const cat = CATEGORIES.find(c => c.id === categoryId);
+    setRevealStage(`${cat?.name || '분야'} 알고리즘 분석`);
+    setRevealing(true);
+    
+    setTimeout(() => {
+      router.push('/keyword');
+    }, 2800);
   };
 
   return (
-    <DashboardShell>
+    <>
+      <AlgorithmReveal active={revealing} stage={revealStage} />
+      <DashboardShell>
       <style jsx>{`
         .page {
           padding: 0 0 48px;
@@ -330,5 +344,6 @@ export default function HomePage() {
         </div>
       </div>
     </DashboardShell>
+    </>
   );
 }

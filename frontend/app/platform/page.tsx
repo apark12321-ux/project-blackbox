@@ -12,6 +12,8 @@ import Link from 'next/link';
 import { DashboardShell, getProject, setProject } from '../_shared/V11Shell';
 import { PLATFORMS } from '../_shared/platforms';
 import AdSlot from '../_shared/AdSlot';
+import AlgorithmReveal from '../_shared/AlgorithmReveal';
+import LiveAnalysisBadge from '../_shared/LiveAnalysisBadge';
 
 export default function PlatformPage() {
   const router = useRouter();
@@ -35,22 +37,30 @@ export default function PlatformPage() {
     );
   };
 
+  const [revealing, setRevealing] = useState(false);
+
   const handleNext = () => {
     if (selected.length === 0) return;
     setProject({
       step: 4,
     });
-    // 로컬 스토리지에 선택한 플랫폼 저장
     if (typeof window !== 'undefined') {
       try {
         localStorage.setItem('v11_platforms', JSON.stringify(selected));
       } catch {}
     }
-    router.push('/metadata');
+    
+    // 🔮 알고리즘 작동 풀스크린
+    setRevealing(true);
+    setTimeout(() => {
+      router.push('/metadata');
+    }, 2800);
   };
 
   return (
-    <DashboardShell>
+    <>
+      <AlgorithmReveal active={revealing} stage="플랫폼 알고리즘 매핑 · 메타데이터 생성" />
+      <DashboardShell>
       <style jsx>{`
         .page {
           max-width: 1100px;
@@ -339,6 +349,8 @@ export default function PlatformPage() {
           <span>플랫폼 선택</span>
         </nav>
 
+        <LiveAnalysisBadge stage="플랫폼별 알고리즘 분석 중" signals={4892} />
+
         <section className="hero">
           <div className="stepBadge">⚠️ STEP 4 · 알고리즘 매핑</div>
           <h1 className="heroTitle">
@@ -429,5 +441,6 @@ export default function PlatformPage() {
         </div>
       </div>
     </DashboardShell>
+    </>
   );
 }

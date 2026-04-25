@@ -12,6 +12,8 @@ import Link from 'next/link';
 import { DashboardShell, getProject } from '../_shared/V11Shell';
 import { getPlatformById, getCategoryById } from '../_shared/platforms';
 import AdSlot from '../_shared/AdSlot';
+import AlgorithmReveal from '../_shared/AlgorithmReveal';
+import LiveAnalysisBadge from '../_shared/LiveAnalysisBadge';
 
 export default function MetadataPage() {
   const router = useRouter();
@@ -50,13 +52,15 @@ export default function MetadataPage() {
     setGenerating(true);
     setTimeout(() => {
       router.push('/done');
-    }, 2500);
+    }, 2800);  // AlgorithmReveal duration과 맞춤
   };
 
   if (platforms.length === 0) return null;
 
   return (
-    <DashboardShell>
+    <>
+      <AlgorithmReveal active={generating} stage="✦ 베일이 걷힙니다 ✦ 운명 공개 임박" />
+      <DashboardShell>
       <style jsx>{`
         .page {
           max-width: 1100px;
@@ -397,6 +401,8 @@ export default function MetadataPage() {
           <span>업로드 자료</span>
         </nav>
 
+        <LiveAnalysisBadge stage="제목·태그·썸네일 알고리즘 최적화 중" signals={6234} />
+
         <section className="hero">
           <div className="stepBadge">⚠️ STEP 5 · 알고리즘 자료 생성</div>
           <h1 className="heroTitle">
@@ -521,5 +527,6 @@ export default function MetadataPage() {
         )}
       </div>
     </DashboardShell>
+    </>
   );
 }
