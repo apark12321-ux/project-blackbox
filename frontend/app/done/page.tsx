@@ -37,19 +37,30 @@ export default function DonePage() {
 
   useEffect(() => {
     const project = getProject();
-    if (project.keyword) setKeyword(project.keyword);
-    if (project.category) setCategory(project.category);
-    if (project.scenarioStyleId) setScenarioId(project.scenarioStyleId);
+    
+    // 직접 접속 시 데모 데이터 자동 설정 (404 방지)
+    setKeyword(project.keyword || '2026 부동산 폭등');
+    setCategory(project.category || 'economy');
+    setScenarioId(project.scenarioStyleId || 'curiosity');
 
     if (typeof window !== 'undefined') {
       try {
         const platforms = localStorage.getItem('v11_platforms');
         if (platforms) {
           const arr = JSON.parse(platforms);
-          setSelectedPlatforms(arr);
-          if (arr[0]) setActivePlatform(arr[0]);
+          if (arr.length > 0) {
+            setSelectedPlatforms(arr);
+            if (arr[0]) setActivePlatform(arr[0]);
+            return;
+          }
         }
-      } catch {}
+        // 플랫폼 데이터 없으면 기본값
+        setSelectedPlatforms(['youtube']);
+        setActivePlatform('youtube');
+      } catch {
+        setSelectedPlatforms(['youtube']);
+        setActivePlatform('youtube');
+      }
     }
   }, []);
 

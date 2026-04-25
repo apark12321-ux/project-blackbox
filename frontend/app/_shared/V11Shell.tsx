@@ -203,8 +203,6 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
   const mainMenu = [
     { icon: '홈', label: '홈', path: '/', key: 'home' },
-    { icon: '영상', label: '내 영상', path: '/assets', key: 'assets' },
-    { icon: '분석', label: '경쟁 분석', path: '/analytics', key: 'analytics', badge: 'LIVE' },
     { icon: '글', label: '노하우', path: '/blog', key: 'blog' },
   ];
 
@@ -867,9 +865,8 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                   <h4>서비스</h4>
                   <ul>
                     <li><Link href="/" className="fLink">홈</Link></li>
-                    <li><Link href="/analytics" className="fLink">경쟁 분석</Link></li>
-                    <li><Link href="/assets" className="fLink">내 영상</Link></li>
                     <li><Link href="/blog" className="fLink">노하우</Link></li>
+                    <li><Link href="/about" className="fLink">서비스 소개</Link></li>
                   </ul>
                 </div>
 
