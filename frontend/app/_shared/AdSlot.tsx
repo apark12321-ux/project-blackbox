@@ -3,7 +3,7 @@ import { useEffect, useRef } from 'react';
 
 interface AdSlotProps {
   slot: string;
-  variant?: 'horizontal' | 'square' | 'sidebar' | 'sidebar-card';
+  variant?: 'horizontal' | 'square' | 'sidebar' | 'sidebar-card' | 'in-article';
 }
 
 declare global {
@@ -17,7 +17,7 @@ export default function AdSlot({ slot, variant = 'horizontal' }: AdSlotProps) {
   
   const client = (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_ADSENSE_CLIENT) || '';
   const slotEnvKey = `NEXT_PUBLIC_ADSENSE_SLOT_${slot.toUpperCase().replace(/-/g, '_')}`;
-  const slotId = (typeof process !== 'undefined' && process.env[slotEnvKey]) || '';
+  const slotId = (typeof process !== 'undefined' && (process.env as any)[slotEnvKey]) || '';
 
   useEffect(() => {
     if (!client || !slotId) return;
@@ -53,6 +53,7 @@ export default function AdSlot({ slot, variant = 'horizontal' }: AdSlotProps) {
       <style jsx>{`
         .adContainer { width: 100%; margin: 24px 0; padding: 8px 0; }
         .adContainer-horizontal { min-height: 100px; }
+        .adContainer-in-article { min-height: 100px; margin: 32px 0; }
         .adContainer-square { max-width: 336px; margin: 24px auto; }
         .adContainer-sidebar, .adContainer-sidebar-card { max-width: 300px; }
         .adLabel {

@@ -1,313 +1,116 @@
 'use client';
-/**
- * About 페이지 — AlgoMaker 서비스 소개 (안전 버전)
- */
-
 import Link from 'next/link';
-import { DashboardShell, AlgoMakerLogo } from '../_shared/V11Shell';
+import { V11Shell } from '../_shared/V11Shell';
 import AdSlot from '../_shared/AdSlot';
 
-export default function AboutPage() {
+export default function Page() {
   return (
-    <DashboardShell>
+    <V11Shell>
       <style jsx>{`
-        .page {
-          max-width: 860px;
-          margin: 0 auto;
-          padding: 40px 24px 64px;
+        .page { max-width: 920px; margin: 0 auto; padding: 56px 24px 60px; }
+        .breadcrumb {
+          display: flex; gap: 8px; font-size: 13px;
+          color: #888; margin-bottom: 24px;
         }
-
-        .hero {
-          text-align: center;
-          margin-bottom: 48px;
-          padding: 40px 24px;
-          background: linear-gradient(135deg, #fdf1e7 0%, #faf8f4 100%);
-          border-radius: 20px;
-        }
-        .heroLogo {
-          display: flex;
-          justify-content: center;
-          margin-bottom: 20px;
-        }
-        .heroTitle {
-          font-size: 34px;
-          font-weight: 800;
-          color: #2a2419;
-          letter-spacing: -0.035em;
-          line-height: 1.2;
-          margin-bottom: 14px;
-        }
-        .heroTitle .accent { color: #c65f3b; }
-        .heroSub {
-          font-size: 16px;
-          color: #564a3a;
-          line-height: 1.7;
-          font-weight: 500;
-          max-width: 560px;
-          margin: 0 auto;
-        }
-
-        .sectionTitle {
-          font-size: 22px;
-          font-weight: 800;
-          color: #2a2419;
-          letter-spacing: -0.025em;
+        .breadcrumb a:hover { color: #c65f3b; }
+        .breadcrumb .sep { color: #ccc; }
+        .pageBadge {
+          display: inline-block; padding: 6px 14px;
+          background: #fdf1e7; color: #c65f3b;
+          border-radius: 100px; font-size: 12px; font-weight: 700;
           margin-bottom: 16px;
-          padding-left: 14px;
-          border-left: 4px solid #c65f3b;
         }
-
-        .section {
-          margin-bottom: 40px;
+        .header { text-align: center; margin-bottom: 40px; }
+        .title {
+          font-size: 32px; font-weight: 800;
+          color: #1a1a1a; letter-spacing: -0.025em;
+          margin: 0 0 12px;
         }
-        .text {
-          font-size: 15px;
-          color: #2a2419;
-          line-height: 1.8;
-          margin-bottom: 14px;
+        .sub { font-size: 15px; color: #666; line-height: 1.7; }
+        @media (max-width: 600px) { .title { font-size: 24px; } }
+        .content {
+          background: #fff; border: 1px solid #e5e5e5;
+          border-radius: 14px; padding: 32px;
+          line-height: 1.8; color: #333;
         }
-        .text strong {
-          color: #c65f3b;
-          font-weight: 800;
+        .content h2 {
+          font-size: 19px; font-weight: 800;
+          color: #1a1a1a; margin: 28px 0 12px;
         }
-
-        .valueGrid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 14px;
+        .content h2:first-child { margin-top: 0; }
+        .content h3 {
+          font-size: 15px; font-weight: 700;
+          color: #1a1a1a; margin: 20px 0 8px;
+        }
+        .content p { margin: 0 0 14px; font-size: 14.5px; }
+        .content ul { padding-left: 24px; margin: 12px 0; }
+        .content li {
+          margin-bottom: 8px; font-size: 14px; color: #555;
+          line-height: 1.7;
+        }
+        .content strong { color: #c65f3b; font-weight: 700; }
+        .ctaBtn {
+          display: inline-block; padding: 14px 28px;
+          background: #c65f3b; color: #fff;
+          border-radius: 100px; font-size: 14px; font-weight: 700;
+          text-decoration: none; transition: all 0.2s;
           margin-top: 20px;
         }
-        .valueCard {
-          padding: 22px 24px;
-          background: #faf8f4;
-          border-radius: 14px;
-          border-top: 3px solid #c65f3b;
-        }
-        .valueEmoji {
-          font-size: 30px;
-          margin-bottom: 12px;
-          display: inline-block;
-        }
-        .valueTitle {
-          font-size: 16px;
-          font-weight: 800;
-          color: #2a2419;
-          letter-spacing: -0.02em;
-          margin-bottom: 8px;
-        }
-        .valueDesc {
-          font-size: 13px;
-          color: #564a3a;
-          line-height: 1.7;
-        }
-
-        .quote {
-          background: #faf8f4;
-          border-left: 4px solid #c65f3b;
-          padding: 22px 26px;
-          margin: 24px 0;
-          border-radius: 0 10px 10px 0;
-          font-size: 16px;
-          color: #2a2419;
-          line-height: 1.7;
-          font-weight: 500;
-          font-style: italic;
-        }
-        .quote strong {
-          font-style: normal;
-          color: #c65f3b;
-          font-weight: 800;
-        }
-
-        .infoBox {
-          background: #fff;
-          border: 1px solid rgba(90, 74, 58, 0.1);
-          border-radius: 12px;
-          padding: 20px 24px;
-          margin-top: 16px;
-        }
-        .infoRow {
-          display: flex;
-          padding: 10px 0;
-          border-bottom: 1px dashed rgba(90, 74, 58, 0.1);
-          font-size: 14px;
-        }
-        .infoRow:last-child { border-bottom: none; }
-        .infoLabel {
-          min-width: 120px;
-          color: #8a7d6a;
-          font-weight: 700;
-        }
-        .infoValue {
-          color: #2a2419;
-          font-weight: 500;
-          flex: 1;
-        }
-
-        .cta {
-          background: linear-gradient(135deg, #c65f3b 0%, #a64a2a 100%);
-          border-radius: 16px;
-          padding: 32px 28px;
-          text-align: center;
-          color: #fff;
-          margin-top: 40px;
-        }
-        .ctaTitle {
-          font-size: 22px;
-          font-weight: 800;
-          letter-spacing: -0.025em;
-          margin-bottom: 12px;
-        }
-        .ctaText {
-          font-size: 14px;
-          color: rgba(255, 255, 255, 0.9);
-          line-height: 1.6;
-          margin-bottom: 22px;
-        }
-        .ctaBtn {
-          display: inline-block;
-          padding: 14px 28px;
-          background: #fff;
-          color: #c65f3b;
-          border-radius: 999px;
-          font-size: 14px;
-          font-weight: 800;
-          letter-spacing: -0.01em;
-          transition: all 0.18s;
-        }
-        .ctaBtn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 6px 20px rgba(0, 0, 0, 0.2);
-        }
-
-        .adWrap {
-          margin: 32px 0;
-        }
-
-        @media (max-width: 768px) {
-          .page { padding: 24px 16px 48px; }
-          .hero { padding: 30px 20px; }
-          .heroTitle { font-size: 26px; }
-          .heroSub { font-size: 14px; }
-          .valueGrid { grid-template-columns: 1fr; }
-          .sectionTitle { font-size: 18px; }
-        }
+        .ctaBtn:hover { background: #a64a2a; }
+        .adArea { margin: 32px 0; }
       `}</style>
 
       <div className="page">
-        <section className="hero">
-          <div className="heroLogo">
-            <AlgoMakerLogo size="lg" showSubtitle={false} />
-          </div>
-          <h1 className="heroTitle">
-            영상 제작,<br />
-            <span className="accent">누구나 할 수 있어요</span>
-          </h1>
-          <p className="heroSub">
-            AlgoMaker는 영상 제작을 고민하는 모든 분들을 위해 만들어졌어요.
-            프로들이 쓰는 노하우가 AI에 자동으로 녹아있는,
-            한국어 최적화 영상 제작 스튜디오입니다.
-          </p>
-        </section>
+        <nav className="breadcrumb">
+          <Link href="/">홈</Link>
+          <span className="sep">/</span>
+          <span>서비스 소개</span>
+        </nav>
 
-        <section className="section">
-          <h2 className="sectionTitle">왜 AlgoMaker를 만들었나요</h2>
-          <p className="text">
-            영상 제작을 시작하고 싶은 분들은 많아요. 근데 문제는 <strong>"어디서부터 시작해야 할지 모르겠다"</strong>는 거예요.
-          </p>
-          <p className="text">
-            제목은 어떻게 지어야 조회수가 터지는지, 썸네일은 어떻게 만들어야 클릭률이 높아지는지,
-            대본 구조는 어떻게 짜야 시청자가 끝까지 보는지… 전문 지식이 너무 많아요.
-          </p>
-          <div className="quote">
-            "이 모든 노하우를 일반인도 쉽게 쓸 수 있다면?"<br />
-            <strong>그게 바로 AlgoMaker가 시작된 이유예요.</strong>
-          </div>
-          <p className="text">
-            프로 크리에이터들이 수년간 시행착오로 쌓은 노하우 12가지를 <strong>AI에 자동으로 반영</strong>해,
-            키워드 하나만 입력하면 검증된 구조의 영상이 만들어져요.
-          </p>
-        </section>
+        <header className="header">
+          <div className="pageBadge">About</div>
+          <h1 className="title">서비스 소개</h1>
+          <p className="sub">AI 콘텐츠 추천 도구 AlgoMaker가 어떻게 작동하는지</p>
+        </header>
 
-        <section className="section">
-          <h2 className="sectionTitle">AlgoMaker의 약속</h2>
-          <div className="valueGrid">
-            <div className="valueCard">
-              <div className="valueEmoji">🎯</div>
-              <div className="valueTitle">검증된 노하우</div>
-              <div className="valueDesc">
-                2026년 최신 영상 알고리즘 기준, 검증된 공식만 반영해요.
-              </div>
-            </div>
-            <div className="valueCard">
-              <div className="valueEmoji">🆓</div>
-              <div className="valueTitle">완전 무료</div>
-              <div className="valueDesc">
-                가입 없음, 결제 없음. 바로 키워드 넣고 영상 받으세요. 영원히 무료예요.
-              </div>
-            </div>
-            <div className="valueCard">
-              <div className="valueEmoji">🇰🇷</div>
-              <div className="valueTitle">한국어 최적화</div>
-              <div className="valueDesc">
-                자연스러운 한국어 내레이션, 한국 시청자 취향, 한국 시장 트렌드 반영해요.
-              </div>
-            </div>
-            <div className="valueCard">
-              <div className="valueEmoji">⚡</div>
-              <div className="valueTitle">5분 자동화</div>
-              <div className="valueDesc">
-                대본·음성·이미지·편집까지 전부 자동. 키워드만 입력하면 끝이에요.
-              </div>
-            </div>
-          </div>
-        </section>
+        <div className="content">
+          <h2>AlgoMaker란?</h2>
+          <p>
+            AlgoMaker는 <strong>키워드만 입력하면 AI가 영상 제목·태그·대본까지 추천</strong>해드리는 SaaS 도구입니다.
+            특히 40대 이상 시니어 분들과 퇴직 예정자분들이 쉽게 영상 콘텐츠를 시작할 수 있도록 설계되었습니다.
+          </p>
 
-        <div className="adWrap">
-          <AdSlot slot="about-mid" variant="horizontal" />
+          <h2>이런 분께 추천드립니다</h2>
+          <ul>
+            <li>🎯 회사 그만두고 유튜브를 시작하려는 40대 ~ 60대</li>
+            <li>📊 N잡으로 영상 콘텐츠를 만들고 싶은 직장인</li>
+            <li>🌱 시니어 라이프, 건강, 재테크 등 전문 분야 콘텐츠 제작자</li>
+            <li>💼 SNS에 콘텐츠를 빠르고 효과적으로 올리고 싶은 분</li>
+          </ul>
+
+          <h2>제공하는 기능</h2>
+          <ul>
+            <li><strong>12개 분야</strong> 카테고리별 트렌드 키워드 추천</li>
+            <li><strong>AI 영상 제목</strong> - 클릭률 높은 제목 3가지 자동 생성</li>
+            <li><strong>알고리즘 최적화 태그</strong> 자동 추천</li>
+            <li><strong>4개 SNS 플랫폼</strong> (YouTube, Shorts, TikTok, Reels) 메타데이터</li>
+            <li><strong>영상 대본 구조</strong> 6가지 시나리오</li>
+            <li><strong>썸네일 콘셉트</strong> 추천</li>
+          </ul>
+
+          <h2>완전 무료입니다</h2>
+          <p>
+            AlgoMaker는 회원가입도, 신용카드 등록도, 결제도 필요 없습니다.<br />
+            사이트 운영은 광고 수익으로 충당하고 있어, 누구나 자유롭게 사용하실 수 있습니다.
+          </p>
+
+          <Link href="/create" className="ctaBtn">🚀 지금 시작하기</Link>
         </div>
 
-        <section className="section">
-          <h2 className="sectionTitle">서비스 운영 정보</h2>
-          <div className="infoBox">
-            <div className="infoRow">
-              <span className="infoLabel">서비스명</span>
-              <span className="infoValue">AlgoMaker</span>
-            </div>
-            <div className="infoRow">
-              <span className="infoLabel">운영사</span>
-              <span className="infoValue">한줄컴퍼니</span>
-            </div>
-            <div className="infoRow">
-              <span className="infoLabel">대표자</span>
-              <span className="infoValue">박예준</span>
-            </div>
-            <div className="infoRow">
-              <span className="infoLabel">웹사이트</span>
-              <span className="infoValue">https://nutube.kr</span>
-            </div>
-            <div className="infoRow">
-              <span className="infoLabel">문의 이메일</span>
-              <span className="infoValue">contact@nutube.kr</span>
-            </div>
-            <div className="infoRow">
-              <span className="infoLabel">서비스 시작</span>
-              <span className="infoValue">2026년 4월</span>
-            </div>
-          </div>
-        </section>
-
-        <div className="cta">
-          <h3 className="ctaTitle">지금 바로 시작하기</h3>
-          <p className="ctaText">
-            복잡한 설정 없이, 키워드 하나만 넣으면 끝이에요.<br />
-            AlgoMaker가 도와드릴게요.
-          </p>
-          <Link href="/" className="ctaBtn">
-            무료로 시작하기 →
-          </Link>
+        <div className="adArea">
+          <AdSlot slot="page-bottom" variant="horizontal" />
         </div>
       </div>
-    </DashboardShell>
+    </V11Shell>
   );
 }

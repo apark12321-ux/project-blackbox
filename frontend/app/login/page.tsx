@@ -1,148 +1,118 @@
 'use client';
-/**
- * /login - 로그인 페이지
- *
- * Supabase가 설정돼 있으면: 실제 매직링크/비밀번호 로그인 UI
- * Supabase가 비활성 상태면: 기존 동작(/create로 리다이렉트)
- */
-import { useEffect, useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { useAuth } from '../../lib/useAuth';
+import Link from 'next/link';
+import { V11Shell } from '../_shared/V11Shell';
+import AdSlot from '../_shared/AdSlot';
 
-export default function LoginPage() {
-  const router = useRouter();
-  const { enabled, ready, isAuthenticated, signInWithEmail } = useAuth();
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-  const [usePassword, setUsePassword] = useState(false);
-  const [submitting, setSubmitting] = useState(false);
-  const [message, setMessage] = useState<{ type: 'ok' | 'err'; text: string } | null>(null);
-
-  // Supabase 비활성 상태면 기존 동작 유지
-  useEffect(() => {
-    if (ready && !enabled) {
-      router.replace('/create');
-    }
-  }, [ready, enabled, router]);
-
-  // 이미 로그인된 상태면 /assets 로
-  useEffect(() => {
-    if (ready && enabled && isAuthenticated) {
-      router.replace('/assets');
-    }
-  }, [ready, enabled, isAuthenticated, router]);
-
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!email) return;
-    setSubmitting(true);
-    setMessage(null);
-    try {
-      const { error } = await signInWithEmail(email, usePassword ? password : undefined);
-      if (error) {
-        setMessage({ type: 'err', text: error.message || '로그인 실패' });
-      } else if (usePassword) {
-        // 비밀번호 로그인 성공 → useEffect에서 자동 리다이렉트
-        setMessage({ type: 'ok', text: '로그인 중...' });
-      } else {
-        setMessage({ type: 'ok', text: `${email} 로 로그인 링크를 보냈어요. 메일함을 확인해주세요.` });
-      }
-    } catch (err: any) {
-      setMessage({ type: 'err', text: String(err?.message || err) });
-    } finally {
-      setSubmitting(false);
-    }
-  };
-
-  if (!ready) {
-    return (
-      <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#fff' }}>
-        <div style={{ width: 32, height: 32, border: '3px solid #e5e7eb', borderTopColor: '#cc0000', borderRadius: '50%', animation: 'spin 0.8s linear infinite' }} />
-        <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
-      </div>
-    );
-  }
-
-  if (!enabled) {
-    // 리다이렉트 진행 중 (위 useEffect)
-    return null;
-  }
-
+export default function Page() {
   return (
-    <div style={{ minHeight: '100vh', display: 'grid', placeItems: 'center', background: '#fafafa', padding: '24px', fontFamily: 'Pretendard, sans-serif' }}>
-      <div style={{ width: '100%', maxWidth: 400, background: '#fff', border: '1px solid #e5e5e5', borderRadius: 16, padding: 32, boxShadow: '0 4px 20px rgba(0,0,0,0.04)' }}>
-        <div style={{ textAlign: 'center', marginBottom: 28 }}>
-          <div style={{ fontSize: 11, fontWeight: 700, color: '#cc0000', letterSpacing: '0.12em', marginBottom: 6 }}>ALGOMAKER</div>
-          <h1 style={{ fontSize: 22, fontWeight: 800, letterSpacing: '-0.02em', margin: '0 0 6px' }}>로그인</h1>
-          <p style={{ fontSize: 13, color: '#606060', margin: 0 }}>이메일로 빠르게 시작하세요</p>
+    <V11Shell>
+      <style jsx>{`
+        .page { max-width: 920px; margin: 0 auto; padding: 56px 24px 60px; }
+        .breadcrumb {
+          display: flex; gap: 8px; font-size: 13px;
+          color: #888; margin-bottom: 24px;
+        }
+        .breadcrumb a:hover { color: #c65f3b; }
+        .breadcrumb .sep { color: #ccc; }
+        .pageBadge {
+          display: inline-block; padding: 6px 14px;
+          background: #fdf1e7; color: #c65f3b;
+          border-radius: 100px; font-size: 12px; font-weight: 700;
+          margin-bottom: 16px;
+        }
+        .header { text-align: center; margin-bottom: 40px; }
+        .title {
+          font-size: 32px; font-weight: 800;
+          color: #1a1a1a; letter-spacing: -0.025em;
+          margin: 0 0 12px;
+        }
+        .sub { font-size: 15px; color: #666; line-height: 1.7; }
+        @media (max-width: 600px) { .title { font-size: 24px; } }
+        .content {
+          background: #fff; border: 1px solid #e5e5e5;
+          border-radius: 14px; padding: 32px;
+          line-height: 1.8; color: #333;
+        }
+        .content h2 {
+          font-size: 19px; font-weight: 800;
+          color: #1a1a1a; margin: 28px 0 12px;
+        }
+        .content h2:first-child { margin-top: 0; }
+        .content h3 {
+          font-size: 15px; font-weight: 700;
+          color: #1a1a1a; margin: 20px 0 8px;
+        }
+        .content p { margin: 0 0 14px; font-size: 14.5px; }
+        .content ul { padding-left: 24px; margin: 12px 0; }
+        .content li {
+          margin-bottom: 8px; font-size: 14px; color: #555;
+          line-height: 1.7;
+        }
+        .content strong { color: #c65f3b; font-weight: 700; }
+        .ctaBtn {
+          display: inline-block; padding: 14px 28px;
+          background: #c65f3b; color: #fff;
+          border-radius: 100px; font-size: 14px; font-weight: 700;
+          text-decoration: none; transition: all 0.2s;
+          margin-top: 20px;
+        }
+        .ctaBtn:hover { background: #a64a2a; }
+        .adArea { margin: 32px 0; }
+      `}</style>
+
+      <div className="page">
+        <nav className="breadcrumb">
+          <Link href="/">홈</Link>
+          <span className="sep">/</span>
+          <span>로그인</span>
+        </nav>
+
+        <header className="header">
+          <div className="pageBadge">Login</div>
+          <h1 className="title">로그인</h1>
+          <p className="sub">AlgoMaker는 회원가입이 필요 없습니다</p>
+        </header>
+
+        <div className="content">
+          <h2>🎉 회원가입 없이 이용 가능</h2>
+          <p>
+            <strong>AlgoMaker는 회원가입이 필요하지 않습니다!</strong><br />
+            이메일, 비밀번호, 신용카드 등록 모두 필요 없습니다.
+          </p>
+
+          <h2>✓ 그냥 바로 쓰세요</h2>
+          <ul>
+            <li>회원가입 X</li>
+            <li>로그인 X</li>
+            <li>이메일 입력 X</li>
+            <li>신용카드 등록 X</li>
+            <li>그냥 바로 사용 ✅</li>
+          </ul>
+
+          <h2>📝 그래도 임시 저장은 됩니다</h2>
+          <p>
+            브라우저 localStorage에 마지막으로 만든 자료가 임시 저장됩니다.<br />
+            같은 브라우저로 다시 오시면 이어서 작업 가능합니다.
+          </p>
+
+          <h2>🔮 향후 회원 기능 (출시 예정)</h2>
+          <p>
+            추후 다음과 같은 회원 전용 기능을 검토 중입니다 (선택사항, 무료 유지).
+          </p>
+          <ul>
+            <li>여러 기기에서 자료 동기화</li>
+            <li>만든 콘텐츠 히스토리 영구 저장</li>
+            <li>즐겨찾는 키워드 관리</li>
+            <li>맞춤 추천 알고리즘</li>
+          </ul>
+
+          <Link href="/create" className="ctaBtn">🚀 바로 시작하기</Link>
         </div>
 
-        <form onSubmit={handleSubmit}>
-          <label style={{ display: 'block', marginBottom: 12 }}>
-            <span style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#404040', marginBottom: 6 }}>이메일</span>
-            <input
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              placeholder="you@example.com"
-              required
-              style={{ width: '100%', padding: '12px 14px', fontSize: 14, border: '1px solid #d4d4d4', borderRadius: 10, fontFamily: 'inherit', boxSizing: 'border-box' }}
-            />
-          </label>
-
-          {usePassword && (
-            <label style={{ display: 'block', marginBottom: 12 }}>
-              <span style={{ display: 'block', fontSize: 12, fontWeight: 700, color: '#404040', marginBottom: 6 }}>비밀번호</span>
-              <input
-                type="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                style={{ width: '100%', padding: '12px 14px', fontSize: 14, border: '1px solid #d4d4d4', borderRadius: 10, fontFamily: 'inherit', boxSizing: 'border-box' }}
-              />
-            </label>
-          )}
-
-          <button
-            type="submit"
-            disabled={submitting || !email}
-            style={{
-              width: '100%', padding: '13px', background: submitting ? '#888' : '#cc0000', color: '#fff',
-              border: 'none', borderRadius: 10, fontSize: 14, fontWeight: 700, cursor: submitting ? 'wait' : 'pointer',
-              fontFamily: 'inherit', marginTop: 8,
-            }}
-          >
-            {submitting ? '처리 중...' : usePassword ? '로그인' : '로그인 링크 받기'}
-          </button>
-        </form>
-
-        <button
-          onClick={() => { setUsePassword(!usePassword); setMessage(null); }}
-          style={{ width: '100%', marginTop: 12, background: 'transparent', border: 'none', color: '#666', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit' }}
-        >
-          {usePassword ? '메일 링크로 로그인' : '비밀번호로 로그인'}
-        </button>
-
-        {message && (
-          <div style={{
-            marginTop: 16, padding: '10px 12px', borderRadius: 8, fontSize: 12,
-            background: message.type === 'ok' ? '#f0fdf4' : '#fef2f2',
-            color: message.type === 'ok' ? '#166534' : '#991b1b',
-            border: `1px solid ${message.type === 'ok' ? '#bbf7d0' : '#fecaca'}`,
-          }}>
-            {message.text}
-          </div>
-        )}
-
-        <div style={{ marginTop: 24, paddingTop: 20, borderTop: '1px solid #f0f0f0', textAlign: 'center' }}>
-          <button
-            onClick={() => router.push('/create')}
-            style={{ background: 'transparent', border: 'none', color: '#888', fontSize: 12, cursor: 'pointer', fontFamily: 'inherit', textDecoration: 'underline' }}
-          >
-            로그인 없이 시작하기 →
-          </button>
+        <div className="adArea">
+          <AdSlot slot="page-bottom" variant="horizontal" />
         </div>
       </div>
-    </div>
+    </V11Shell>
   );
 }

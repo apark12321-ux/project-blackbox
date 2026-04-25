@@ -1,240 +1,187 @@
 'use client';
 /**
- * /create - 카테고리 선택 (YouTube 썸네일 카드 스타일)
+ * /create - 분야 선택 (12개 카테고리)
  */
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import Link from 'next/link';
 import { V11Shell, setProject } from '../_shared/V11Shell';
+import { CATEGORIES } from '../_shared/platforms';
+import AdSlot from '../_shared/AdSlot';
 
-const CATEGORIES = [
-  { slug: 'economy', label: '경제', icon: '💰', sub: '주식·부동산·연금·절세', cpm: '$12~18', thumb: 'linear-gradient(135deg, #FF6B6B 0%, #ee0979 100%)' },
-  { slug: 'health', label: '건강', icon: '🏥', sub: '시니어·질병예방·의학상식', cpm: '$15~22', thumb: 'linear-gradient(135deg, #00c6ff 0%, #0072ff 100%)' },
-  { slug: 'selfdev', label: '자기계발', icon: '🧠', sub: '습관·독서·마인드셋', cpm: '$8~14', thumb: 'linear-gradient(135deg, #ffa751 0%, #ffe259 100%)' },
-  { slug: 'tech', label: 'IT', icon: '💻', sub: 'AI·앱·디지털 트렌드', cpm: '$10~16', thumb: 'linear-gradient(135deg, #11998e 0%, #38ef7d 100%)' },
-  { slug: 'life', label: '라이프', icon: '🌿', sub: '요리·여행·인테리어', cpm: '$8~12', thumb: 'linear-gradient(135deg, #7F7FD5 0%, #86A8E7 100%)' },
-];
-
-export default function CreatePage() {
+function CreatePageInner() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [selected, setSelected] = useState<string>('');
+
+  useEffect(() => {
+    // URL 파라미터로 카테고리 미리 선택
+    const cat = searchParams.get('category');
+    if (cat && CATEGORIES.find(c => c.id === cat)) {
+      setSelected(cat);
+    }
+  }, [searchParams]);
 
   const handleNext = () => {
     if (!selected) return;
-    const cat = CATEGORIES.find((c) => c.slug === selected);
+    const cat = CATEGORIES.find((c) => c.id === selected);
     if (!cat) return;
-    setProject({ category: selected, categoryLabel: cat.label, step: 1 });
+    setProject({ category: selected, categoryLabel: cat.name, step: 1 });
     router.push('/keyword');
   };
 
   return (
     <V11Shell currentStep={1}>
       <style jsx>{`
-        .page {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 40px 24px 60px;
+        .page { max-width: 1100px; margin: 0 auto; padding: 40px 24px 60px; }
+        
+        .breadcrumb {
+          display: flex; gap: 8px; font-size: 13px;
+          color: #888; margin-bottom: 24px;
         }
-        .header {
-          text-align: center;
-          margin-bottom: 36px;
-        }
-        .eyebrow {
-          font-size: 12px;
-          font-weight: 700;
-          color: #ff0000;
-          letter-spacing: 0.12em;
-          margin-bottom: 8px;
+        .breadcrumb a:hover { color: #c65f3b; }
+        .breadcrumb .sep { color: #ccc; }
+
+        .header { text-align: center; margin-bottom: 36px; }
+        .stepBadge {
+          display: inline-block; padding: 6px 14px;
+          background: #fdf1e7; color: #c65f3b;
+          border-radius: 100px; font-size: 12px; font-weight: 700;
+          margin-bottom: 16px;
         }
         .title {
-          font-size: 32px;
-          font-weight: 800;
-          color: #0f0f0f;
-          letter-spacing: -0.02em;
-          margin: 0 0 10px;
+          font-size: 32px; font-weight: 800;
+          color: #1a1a1a; letter-spacing: -0.025em;
+          margin: 0 0 12px;
         }
-        .sub {
-          font-size: 15px;
-          color: #606060;
-          line-height: 1.6;
+        .sub { font-size: 15px; color: #666; line-height: 1.6; }
+        @media (max-width: 600px) { .title { font-size: 24px; } }
+
+        .steps {
+          display: flex; align-items: center; justify-content: center;
+          gap: 8px; margin-bottom: 32px;
+          font-size: 12px; color: #888;
+          flex-wrap: wrap;
         }
+        .stepDot {
+          width: 24px; height: 24px;
+          background: #c65f3b; color: #fff;
+          border-radius: 50%; line-height: 24px;
+          font-weight: 800; font-size: 11px;
+        }
+        .stepDot.inactive { background: #ddd; color: #888; }
+        .stepLine { width: 24px; height: 2px; background: #ddd; }
+
         .grid {
-          display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-          gap: 20px 16px;
-          margin-bottom: 32px;
+          display: grid; grid-template-columns: repeat(4, 1fr);
+          gap: 14px; margin-bottom: 32px;
         }
+        @media (max-width: 720px) { .grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 480px) { .grid { grid-template-columns: repeat(2, 1fr); } }
+
         .card {
-          background: none;
-          border: none;
-          padding: 0;
-          text-align: left;
-          cursor: pointer;
-          font-family: inherit;
-          transition: transform 0.2s;
-        }
-        .card:hover {
-          transform: translateY(-2px);
-        }
-        .thumb {
-          width: 100%;
-          aspect-ratio: 16/9;
-          border-radius: 12px;
+          background: #fff; border: 2px solid #e5e5e5;
+          border-radius: 14px; padding: 20px 14px;
+          cursor: pointer; transition: all 0.15s;
+          font-family: inherit; text-align: center;
           position: relative;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 64px;
-          overflow: hidden;
-          transition: all 0.2s;
         }
-        .cardSelected .thumb {
-          box-shadow: 0 0 0 3px #ff0000;
+        .card:hover { border-color: #c65f3b; background: #fffbf8; }
+        .card.selected {
+          border-color: #c65f3b; background: #fdf1e7;
         }
-        .thumbIcon {
-          filter: drop-shadow(0 4px 12px rgba(0,0,0,0.2));
+        .cardEmoji { font-size: 32px; margin-bottom: 8px; }
+        .cardName {
+          font-size: 14px; font-weight: 700;
+          color: #1a1a1a; margin-bottom: 4px;
         }
-        .cpmBadge {
-          position: absolute;
-          bottom: 8px;
-          right: 8px;
-          background: rgba(0,0,0,0.85);
-          color: #fff;
-          padding: 4px 8px;
-          border-radius: 4px;
-          font-size: 12px;
-          font-weight: 700;
-        }
-        .selectedCheck {
-          position: absolute;
-          top: 8px;
-          right: 8px;
-          width: 28px;
-          height: 28px;
-          background: #ff0000;
-          color: #fff;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 14px;
-          font-weight: 800;
-        }
-        .cardMeta {
-          padding: 12px 4px 0;
-        }
-        .cardRow {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-        }
-        .miniIcon {
-          width: 36px;
-          height: 36px;
-          border-radius: 50%;
-          background: #f2f2f2;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 18px;
-          flex-shrink: 0;
-        }
-        .cardText { flex: 1; min-width: 0; }
-        .cardTitle {
-          font-size: 15px;
-          font-weight: 700;
-          color: #0f0f0f;
-          margin: 0 0 3px;
-          letter-spacing: -0.01em;
-        }
-        .cardSub {
-          font-size: 13px;
-          color: #606060;
+        .cardDesc {
+          font-size: 11px; color: #888;
           line-height: 1.4;
-          margin: 0;
         }
-        .footerBar {
-          position: sticky;
-          bottom: 16px;
-          background: #fff;
-          padding: 10px;
-          border-radius: 999px;
-          box-shadow: 0 4px 24px rgba(0,0,0,0.1);
-          border: 1px solid #e5e5e5;
+        .cardHot {
+          position: absolute; top: 8px; right: 8px;
+          padding: 1px 6px; background: #ff6b35;
+          color: #fff; font-size: 9px; font-weight: 700;
+          border-radius: 4px;
         }
-        .nextBtn {
-          width: 100%;
-          padding: 14px;
-          background: #ff0000;
-          color: #fff;
-          border: none;
-          border-radius: 999px;
-          font-size: 15px;
-          font-weight: 700;
-          font-family: inherit;
-          cursor: pointer;
-          min-height: 52px;
-        }
-        .nextBtn:hover:not(:disabled) { background: #cc0000; }
-        .nextBtn:disabled {
-          background: #e5e5e5;
-          cursor: not-allowed;
-          color: #888;
+        .cardCpm {
+          margin-top: 6px; font-size: 10px;
+          color: #5e7e5d; font-weight: 700;
         }
 
-        @media (max-width: 640px) {
-          .page { padding: 24px 16px 40px; }
-          .header { margin-bottom: 24px; }
-          .title { font-size: 24px; }
-          .sub { font-size: 14px; }
-          .grid { grid-template-columns: 1fr; gap: 16px; }
-          .thumb { font-size: 56px; }
-          .cardTitle { font-size: 14px; }
-          .cardSub { font-size: 12px; }
-          .nextBtn { padding: 13px; font-size: 14px; }
+        .ctaBtn {
+          width: 100%; padding: 18px 24px;
+          background: #c65f3b; color: #fff;
+          border: none; border-radius: 12px;
+          font-size: 16px; font-weight: 800;
+          cursor: pointer; transition: all 0.2s;
+          font-family: inherit;
         }
+        .ctaBtn:hover:not(:disabled) {
+          background: #a64a2a; transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(198, 95, 59, 0.25);
+        }
+        .ctaBtn:disabled { background: #ccc; cursor: not-allowed; }
+        .adArea { margin: 32px 0; }
       `}</style>
 
       <div className="page">
-        <div className="header">
-          <div className="eyebrow">STEP 1 · 카테고리</div>
-          <h1 className="title">관심 분야를 선택하세요</h1>
-          <p className="sub">선택한 카테고리의 <strong>블루오션 키워드</strong>를 AI가 추천합니다</p>
+        <nav className="breadcrumb">
+          <Link href="/">홈</Link>
+          <span className="sep">/</span>
+          <span>분야 선택</span>
+        </nav>
+
+        <div className="steps">
+          <span className="stepDot">1</span>
+          <span className="stepLine" />
+          <span className="stepDot inactive">2</span>
+          <span className="stepLine" />
+          <span className="stepDot inactive">3</span>
+          <span className="stepLine" />
+          <span className="stepDot inactive">4</span>
         </div>
+
+        <header className="header">
+          <div className="stepBadge">STEP 1 · 분야 선택</div>
+          <h1 className="title">어떤 분야의 영상을 만드시나요?</h1>
+          <p className="sub">12개 분야 중 원하는 카테고리를 선택해주세요</p>
+        </header>
 
         <div className="grid">
           {CATEGORIES.map((cat) => (
             <button
-              key={cat.slug}
-              className={`card ${selected === cat.slug ? 'cardSelected' : ''}`}
-              onClick={() => setSelected(cat.slug)}
+              key={cat.id}
+              className={`card ${selected === cat.id ? 'selected' : ''}`}
+              onClick={() => setSelected(cat.id)}
             >
-              <div className="thumb" style={{ background: cat.thumb }}>
-                <span className="thumbIcon">{cat.icon}</span>
-                <div className="cpmBadge">CPM {cat.cpm}</div>
-                {selected === cat.slug && <div className="selectedCheck">✓</div>}
-              </div>
-              <div className="cardMeta">
-                <div className="cardRow">
-                  <div className="miniIcon">{cat.icon}</div>
-                  <div className="cardText">
-                    <h3 className="cardTitle">{cat.label}</h3>
-                    <p className="cardSub">{cat.sub}</p>
-                  </div>
-                </div>
-              </div>
+              {cat.hot && <div className="cardHot">HOT</div>}
+              <div className="cardEmoji">{cat.emoji}</div>
+              <div className="cardName">{cat.name}</div>
+              <div className="cardDesc">{cat.description}</div>
+              <div className="cardCpm">조회수 {cat.avgViews}</div>
             </button>
           ))}
         </div>
 
-        <div className="footerBar">
-          <button className="nextBtn" onClick={handleNext} disabled={!selected}>
-            {selected
-              ? `▶ ${CATEGORIES.find((c) => c.slug === selected)?.label} 키워드 받기`
-              : '카테고리를 선택하세요'}
-          </button>
+        <button className="ctaBtn" onClick={handleNext} disabled={!selected}>
+          다음 단계 →
+        </button>
+
+        <div className="adArea">
+          <AdSlot slot="create-bottom" variant="horizontal" />
         </div>
       </div>
     </V11Shell>
+  );
+}
+
+export default function CreatePage() {
+  return (
+    <Suspense fallback={<div />}>
+      <CreatePageInner />
+    </Suspense>
   );
 }

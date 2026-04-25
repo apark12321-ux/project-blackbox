@@ -1,349 +1,141 @@
 'use client';
-/**
- * /terms - 이용약관
- *
- * AdSense 승인에 필수.
- * 핵심 내용: 서비스 제공 범위, 사용자 의무, 제한 사항, 면책 조항
- */
-
 import Link from 'next/link';
-import { DashboardShell } from '../_shared/V11Shell';
+import { V11Shell } from '../_shared/V11Shell';
+import AdSlot from '../_shared/AdSlot';
 
-const LAST_UPDATED = '2026년 4월 23일';
-const CONTACT_EMAIL = 'contact@algomaker.kr';
-
-export default function TermsPage() {
+export default function Page() {
   return (
-    <DashboardShell>
+    <V11Shell>
       <style jsx>{`
-        .page {
-          padding: 32px 32px 60px;
-          max-width: 820px;
-          margin: 0 auto;
+        .page { max-width: 920px; margin: 0 auto; padding: 56px 24px 60px; }
+        .breadcrumb {
+          display: flex; gap: 8px; font-size: 13px;
+          color: #888; margin-bottom: 24px;
         }
-        .pageHeader {
-          margin-bottom: 22px;
-          padding-bottom: 18px;
-          border-bottom: 1px solid #e8e8e8;
-        }
+        .breadcrumb a:hover { color: #c65f3b; }
+        .breadcrumb .sep { color: #ccc; }
         .pageBadge {
-          display: inline-block;
-          padding: 4px 12px;
-          background: #f3e8ff;
-          color: #6b21a8;
-          border-radius: 999px;
-          font-size: 10px;
-          font-weight: 800;
-          letter-spacing: 0.1em;
-          margin-bottom: 12px;
+          display: inline-block; padding: 6px 14px;
+          background: #fdf1e7; color: #c65f3b;
+          border-radius: 100px; font-size: 12px; font-weight: 700;
+          margin-bottom: 16px;
         }
-        .pageTitle {
-          font-size: 28px;
-          font-weight: 800;
-          letter-spacing: -0.03em;
-          line-height: 1.2;
-          margin-bottom: 6px;
-          color: #0f0f0f;
+        .header { text-align: center; margin-bottom: 40px; }
+        .title {
+          font-size: 32px; font-weight: 800;
+          color: #1a1a1a; letter-spacing: -0.025em;
+          margin: 0 0 12px;
         }
-        .lastUpdated {
-          font-size: 12px;
-          color: #888;
-          font-weight: 500;
+        .sub { font-size: 15px; color: #666; line-height: 1.7; }
+        @media (max-width: 600px) { .title { font-size: 24px; } }
+        .content {
+          background: #fff; border: 1px solid #e5e5e5;
+          border-radius: 14px; padding: 32px;
+          line-height: 1.8; color: #333;
         }
-
-        .intro {
-          padding: 16px 20px;
-          background: #fafafa;
-          border-radius: 12px;
-          font-size: 13.5px;
-          color: #333;
+        .content h2 {
+          font-size: 19px; font-weight: 800;
+          color: #1a1a1a; margin: 28px 0 12px;
+        }
+        .content h2:first-child { margin-top: 0; }
+        .content h3 {
+          font-size: 15px; font-weight: 700;
+          color: #1a1a1a; margin: 20px 0 8px;
+        }
+        .content p { margin: 0 0 14px; font-size: 14.5px; }
+        .content ul { padding-left: 24px; margin: 12px 0; }
+        .content li {
+          margin-bottom: 8px; font-size: 14px; color: #555;
           line-height: 1.7;
-          margin-bottom: 28px;
-          border-left: 3px solid #6b21a8;
         }
-
-        .section {
-          margin-bottom: 28px;
+        .content strong { color: #c65f3b; font-weight: 700; }
+        .ctaBtn {
+          display: inline-block; padding: 14px 28px;
+          background: #c65f3b; color: #fff;
+          border-radius: 100px; font-size: 14px; font-weight: 700;
+          text-decoration: none; transition: all 0.2s;
+          margin-top: 20px;
         }
-        .sectionTitle {
-          font-size: 17px;
-          font-weight: 800;
-          letter-spacing: -0.02em;
-          margin-bottom: 10px;
-          color: #0f0f0f;
-          display: flex;
-          gap: 10px;
-          align-items: baseline;
-        }
-        .sectionNum {
-          font-size: 14px;
-          color: #6b21a8;
-          font-weight: 800;
-        }
-        .sectionBody {
-          font-size: 13.5px;
-          line-height: 1.75;
-          color: #333;
-        }
-        .sectionBody p { margin-bottom: 12px; }
-        .sectionBody ul { margin-bottom: 14px; padding-left: 22px; }
-        .sectionBody li { margin-bottom: 6px; line-height: 1.7; }
-        .sectionBody strong { color: #0f0f0f; font-weight: 700; }
-        .sectionBody a { color: #cc0000; text-decoration: underline; }
-
-        @media (max-width: 640px) {
-          .page { padding: 22px 16px 40px; }
-          .pageTitle { font-size: 22px; }
-        }
+        .ctaBtn:hover { background: #a64a2a; }
+        .adArea { margin: 32px 0; }
       `}</style>
 
       <div className="page">
-        <header className="pageHeader">
-          <span className="pageBadge">TERMS OF SERVICE</span>
-          <h1 className="pageTitle">이용약관</h1>
-          <div className="lastUpdated">최종 수정일: {LAST_UPDATED}</div>
+        <nav className="breadcrumb">
+          <Link href="/">홈</Link>
+          <span className="sep">/</span>
+          <span>이용약관</span>
+        </nav>
+
+        <header className="header">
+          
+          <h1 className="title">이용약관</h1>
+          <p className="sub">AlgoMaker 서비스 이용약관입니다</p>
         </header>
 
-        <div className="intro">
-          본 이용약관("약관")은 한줄컴퍼니가 제공하는 AlgoMaker("본 서비스")의
-          이용에 관한 조건을 규정합니다.
-          사용자는 본 서비스를 이용함으로써 본 약관에 동의한 것으로 간주됩니다.
+        <div className="content">
+          <h2>제1조 (목적)</h2>
+          <p>
+            본 약관은 한줄컴퍼니(이하 '회사')가 제공하는 AlgoMaker 서비스(이하 '서비스')의 이용 조건 및 절차를 규정함을 목적으로 합니다.
+          </p>
+
+          <h2>제2조 (서비스의 내용)</h2>
+          <p>회사가 제공하는 서비스는 다음과 같습니다.</p>
+          <ul>
+            <li>AI 기반 영상 콘텐츠 제목·태그·대본 추천</li>
+            <li>4개 SNS 플랫폼 (YouTube, Shorts, TikTok, Reels) 메타데이터 생성</li>
+            <li>트렌드 키워드 분석 및 추천</li>
+          </ul>
+
+          <h2>제3조 (이용료)</h2>
+          <p>
+            본 서비스는 <strong>완전 무료</strong>로 제공됩니다.
+            회원가입, 신용카드 등록, 결제가 필요 없습니다.
+            서비스 운영은 광고 수익으로 충당됩니다.
+          </p>
+
+          <h2>제4조 (이용자의 의무)</h2>
+          <ul>
+            <li>본인의 명의로 서비스를 이용할 것</li>
+            <li>타인의 권리를 침해하지 않을 것</li>
+            <li>서비스의 안정적 운영을 방해하지 않을 것</li>
+            <li>관련 법령 및 본 약관을 준수할 것</li>
+          </ul>
+
+          <h2>제5조 (저작권)</h2>
+          <p>
+            본 서비스에서 AI가 생성한 추천 결과(제목, 태그, 대본 등)는
+            사용자가 자유롭게 활용할 수 있습니다.
+            다만 결과물의 사용으로 인한 책임은 사용자에게 있습니다.
+          </p>
+
+          <h2>제6조 (서비스 제공의 중지)</h2>
+          <p>
+            회사는 천재지변, 시스템 점검, 운영상의 필요 등에 따라
+            서비스 제공을 일시적으로 중지할 수 있습니다.
+          </p>
+
+          <h2>제7조 (면책 조항)</h2>
+          <ul>
+            <li>회사는 AI 추천 결과의 정확성을 보장하지 않습니다.</li>
+            <li>실제 영상의 조회수, 구독자 증가 등의 성과는 보장되지 않습니다.</li>
+            <li>서비스 이용으로 발생한 손해에 대해 회사는 책임지지 않습니다.</li>
+          </ul>
+
+          <h2>제8조 (분쟁 해결)</h2>
+          <p>
+            본 약관에 관한 분쟁은 대한민국 법령에 따르며,
+            회사 본사 소재지 관할 법원에서 해결합니다.
+          </p>
+
+          <h2>부칙</h2>
+          <p>본 약관은 2026년 4월 25일부터 시행됩니다.</p>
         </div>
 
-        <section className="section">
-          <div className="sectionTitle">
-            <span className="sectionNum">제 1 조</span>
-            목적
-          </div>
-          <div className="sectionBody">
-            <p>
-              본 약관은 사용자가 본 서비스를 이용함에 있어 회사와 사용자 간의 권리·의무 및
-              책임사항, 이용조건 및 절차, 기타 필요한 사항을 규정함을 목적으로 합니다.
-            </p>
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="sectionTitle">
-            <span className="sectionNum">제 2 조</span>
-            용어의 정의
-          </div>
-          <div className="sectionBody">
-            <ul>
-              <li><strong>"본 서비스"</strong>란 AlgoMaker 플랫폼 및 관련 모든 기능을 의미합니다.</li>
-              <li><strong>"사용자"</strong>란 본 서비스에 접속하여 이를 이용하는 모든 자를 의미합니다.</li>
-              <li><strong>"콘텐츠"</strong>란 사용자가 본 서비스를 통해 생성한 영상, 대본, 이미지 등을 의미합니다.</li>
-              <li><strong>"회사"</strong>란 한줄컴퍼니를 의미합니다.</li>
-            </ul>
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="sectionTitle">
-            <span className="sectionNum">제 3 조</span>
-            서비스의 제공
-          </div>
-          <div className="sectionBody">
-            <p>회사는 사용자에게 다음 서비스를 제공합니다:</p>
-            <ul>
-              <li>AI 기반 유튜브 영상 대본 자동 생성</li>
-              <li>AI 기반 영상 합성 (음성·이미지·편집)</li>
-              <li>경쟁 채널 분석 정보 제공</li>
-              <li>크리에이터를 위한 블로그 콘텐츠 및 가이드</li>
-              <li>기타 회사가 정하는 부가 서비스</li>
-            </ul>
-            <p>
-              본 서비스는 현재 <strong>무료로 제공</strong>되며, 서비스 운영 비용은
-              페이지에 표시되는 광고를 통해 충당됩니다.
-              향후 유료 기능이 추가될 수 있으며, 그 경우 별도 고지 후 시행됩니다.
-            </p>
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="sectionTitle">
-            <span className="sectionNum">제 4 조</span>
-            사용자의 의무
-          </div>
-          <div className="sectionBody">
-            <p>사용자는 본 서비스 이용 시 다음 행위를 해서는 안 됩니다:</p>
-            <ul>
-              <li>허위 정보, 선정적, 폭력적, 혐오적 콘텐츠 생성</li>
-              <li>타인의 저작권, 초상권, 명예권 등을 침해하는 콘텐츠 생성</li>
-              <li>특정 개인, 집단을 비방·차별하는 콘텐츠 생성</li>
-              <li>도박, 성인물, 마약, 불법 금융 상품 등 현행 법령을 위반하는 콘텐츠 생성</li>
-              <li>서비스를 역공학(reverse engineering)하거나 비정상적 방식으로 이용하는 행위</li>
-              <li>자동화 도구(봇, 스크래퍼 등)를 이용한 과도한 요청</li>
-              <li>타인의 계정 정보나 권한을 무단으로 이용하는 행위</li>
-              <li>서비스의 안정적 운영을 방해하는 모든 행위</li>
-            </ul>
-            <p>
-              사용자가 위 의무를 위반할 경우 회사는 사전 통지 없이 서비스 이용을 제한할 수 있으며,
-              발생하는 모든 책임은 사용자에게 있습니다.
-            </p>
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="sectionTitle">
-            <span className="sectionNum">제 5 조</span>
-            콘텐츠의 권리와 책임
-          </div>
-          <div className="sectionBody">
-            <p>
-              사용자가 본 서비스를 통해 생성한 콘텐츠의 사용 권한은 사용자에게 있습니다.
-              사용자는 이를 자유롭게 수정, 배포, 상업적 이용할 수 있습니다.
-            </p>
-            <p>
-              단, 생성된 콘텐츠에 포함되는 이미지는 Pexels 등 외부 무료 라이선스 소스에서 제공되며,
-              각 소스의 라이선스 조건이 우선 적용됩니다.
-              사용자는 콘텐츠 사용 시 해당 라이선스를 준수해야 합니다.
-            </p>
-            <p>
-              <strong>사용자가 생성한 콘텐츠의 내용에 대한 최종 책임은 사용자에게 있습니다.</strong>
-              회사는 AI가 생성한 결과물의 정확성, 적법성, 상업적 사용 적합성을 보장하지 않으며,
-              사용자가 콘텐츠를 공개·유통함으로써 발생하는 모든 결과(저작권 분쟁, 명예훼손, 허위 정보 유포 등)에
-              대한 책임은 사용자가 부담합니다.
-            </p>
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="sectionTitle">
-            <span className="sectionNum">제 6 조</span>
-            지식재산권
-          </div>
-          <div className="sectionBody">
-            <p>
-              본 서비스의 소스코드, 디자인, 로고, 브랜드명, UI 구성 등 모든 지식재산권은 회사에 귀속됩니다.
-              사용자는 회사의 사전 서면 동의 없이 이를 복제, 배포, 2차 저작물 작성에 사용할 수 없습니다.
-            </p>
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="sectionTitle">
-            <span className="sectionNum">제 7 조</span>
-            광고의 게재
-          </div>
-          <div className="sectionBody">
-            <p>
-              회사는 서비스 운영을 위해 본 서비스에 광고(Google AdSense 등)를 게재할 수 있습니다.
-              사용자는 이에 동의하는 것을 조건으로 본 서비스를 이용합니다.
-            </p>
-            <p>
-              광고 클릭 시 외부 사이트로 이동할 수 있으며, 외부 사이트의 내용·거래·서비스에 대해서는
-              회사가 책임을 지지 않습니다.
-              자세한 내용은 <Link href="/privacy">개인정보 처리방침</Link>을 참고해주세요.
-            </p>
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="sectionTitle">
-            <span className="sectionNum">제 8 조</span>
-            서비스 이용 제한
-          </div>
-          <div className="sectionBody">
-            <p>
-              회사는 사용자가 다음 각 호에 해당하는 행위를 하였을 경우 사전 통지 없이
-              서비스 이용을 제한 또는 중단할 수 있습니다:
-            </p>
-            <ul>
-              <li>본 약관을 위반한 경우</li>
-              <li>공공의 안녕질서 또는 미풍양속을 해치는 경우</li>
-              <li>범죄와 결부된다고 객관적으로 판단되는 행위를 한 경우</li>
-              <li>과도한 리소스를 사용하여 다른 사용자의 이용을 방해하는 경우</li>
-            </ul>
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="sectionTitle">
-            <span className="sectionNum">제 9 조</span>
-            서비스 변경 및 중단
-          </div>
-          <div className="sectionBody">
-            <p>
-              회사는 상당한 이유가 있는 경우 본 서비스의 내용을 변경·개선하거나
-              일시적·영구적으로 중단할 수 있습니다.
-              중단 시 회사는 가능한 한 사전에 공지합니다.
-            </p>
-            <p>
-              서비스 변경 또는 중단으로 인해 사용자에게 발생한 손해에 대해,
-              회사는 고의 또는 중과실이 없는 한 책임을 지지 않습니다.
-            </p>
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="sectionTitle">
-            <span className="sectionNum">제 10 조</span>
-            면책 조항
-          </div>
-          <div className="sectionBody">
-            <p>
-              회사는 다음 각 호의 경우 책임을 지지 않습니다:
-            </p>
-            <ul>
-              <li>천재지변, 전쟁, 정전, 국가 비상사태 등 불가항력으로 인한 서비스 제공 불가</li>
-              <li>외부 API(Gemini, Pexels, YouTube 등)의 장애로 인한 서비스 중단</li>
-              <li>사용자의 귀책사유로 인한 서비스 이용 장애</li>
-              <li>사용자가 생성한 콘텐츠로 인한 제3자와의 분쟁</li>
-              <li>사용자 간 또는 사용자와 제3자 간 본 서비스를 매개로 한 거래·분쟁</li>
-              <li>AI가 생성한 결과물에 포함된 오류, 부정확한 정보, 사실과 다른 내용</li>
-            </ul>
-            <p>
-              본 서비스는 <strong>"있는 그대로(as-is)"</strong> 제공되며,
-              특정 목적 적합성, 상품성, 비침해성에 대한 어떠한 명시적·묵시적 보증도 하지 않습니다.
-            </p>
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="sectionTitle">
-            <span className="sectionNum">제 11 조</span>
-            약관의 변경
-          </div>
-          <div className="sectionBody">
-            <p>
-              회사는 필요 시 본 약관을 변경할 수 있으며, 변경된 약관은 본 페이지 공지 후 효력이 발생합니다.
-              중대한 변경의 경우 7일 이상의 유예기간을 두고 공지합니다.
-              사용자가 변경된 약관에 동의하지 않는 경우 서비스 이용을 중단할 수 있습니다.
-            </p>
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="sectionTitle">
-            <span className="sectionNum">제 12 조</span>
-            준거법 및 관할
-          </div>
-          <div className="sectionBody">
-            <p>
-              본 약관의 해석 및 회사와 사용자 간의 분쟁에 관하여는 대한민국 법을 적용합니다.
-              본 서비스 이용과 관련하여 발생한 분쟁에 대한 소송은 민사소송법상의 관할법원에 제기합니다.
-            </p>
-          </div>
-        </section>
-
-        <section className="section">
-          <div className="sectionTitle">
-            <span className="sectionNum">제 13 조</span>
-            문의
-          </div>
-          <div className="sectionBody">
-            <p>본 약관에 관한 문의는 아래로 연락주시기 바랍니다:</p>
-            <ul>
-              <li><strong>서비스명</strong>: AlgoMaker</li>
-              <li><strong>운영사</strong>: 한줄컴퍼니</li>
-              <li><strong>대표</strong>: 박예준</li>
-              <li><strong>이메일</strong>: <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a></li>
-              <li><strong>문의 양식</strong>: <Link href="/contact">/contact</Link></li>
-            </ul>
-          </div>
-        </section>
+        <div className="adArea">
+          <AdSlot slot="page-bottom" variant="horizontal" />
+        </div>
       </div>
-    </DashboardShell>
+    </V11Shell>
   );
 }

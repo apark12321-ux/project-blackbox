@@ -1,150 +1,163 @@
 'use client';
 /**
- * 키워드 페이지 - 시나리오 선택
- * 박예준 대표 컨셉: 깔끔한 도구
+ * /keyword - 키워드 입력
+ * 트렌드 키워드 10개 자동 표시 + 직접 입력
  */
 
 import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { DashboardShell, getProject, setProject } from '../_shared/V11Shell';
-import { getCategoryById } from '../_shared/platforms';
+import { V11Shell, getProject, setProject } from '../_shared/V11Shell';
+import { getCategoryById, getTrendingKeywords } from '../_shared/platforms';
 import AdSlot from '../_shared/AdSlot';
-
-const SCENARIOS = [
-  {
-    id: 'curiosity',
-    name: '호기심 자극형',
-    emoji: '🤔',
-    description: '시청자의 궁금증을 유발하는 구조',
-    structure: '문제 제기 → 단서 제공 → 핵심 공개',
-  },
-  {
-    id: 'tutorial',
-    name: '단계별 가이드',
-    emoji: '📋',
-    description: '따라하기 쉬운 단계별 설명',
-    structure: '도입 → 1단계 → 2단계 → 마무리',
-  },
-  {
-    id: 'review',
-    name: '리뷰·비교',
-    emoji: '⚖️',
-    description: '제품·서비스 비교 분석',
-    structure: '소개 → 장점 → 단점 → 결론',
-  },
-  {
-    id: 'storytelling',
-    name: '스토리텔링',
-    emoji: '📖',
-    description: '경험담 기반 자연스러운 흐름',
-    structure: '시작 → 갈등 → 해결 → 교훈',
-  },
-  {
-    id: 'list',
-    name: '리스트형',
-    emoji: '🔢',
-    description: 'BEST/TOP 형식 모음',
-    structure: '인트로 → 1위 → 2위 → 3위 → 정리',
-  },
-  {
-    id: 'qa',
-    name: 'Q&A형',
-    emoji: '💬',
-    description: '질문-답변 형식',
-    structure: '질문 → 답변 → 부연 설명',
-  },
-];
 
 export default function KeywordPage() {
   const router = useRouter();
   const [category, setCategory] = useState('');
   const [keyword, setKeyword] = useState('');
-  const [selected, setSelected] = useState('');
 
   useEffect(() => {
     const project = getProject();
-    if (!project.category || !project.keyword) {
-      router.push('/');
+    if (!project.category) {
+      router.push('/create');
       return;
     }
     setCategory(project.category);
-    setKeyword(project.keyword);
+    if (project.keyword) setKeyword(project.keyword);
   }, [router]);
 
   const cat = getCategoryById(category);
+  const trendingKeywords = getTrendingKeywords(category);
+
   if (!cat) return null;
 
+  const handleKeywordSelect = (kw: string) => setKeyword(kw);
+
   const handleNext = () => {
-    if (!selected) {
-      alert('시나리오를 선택해주세요.');
+    if (!keyword.trim()) {
+      alert('키워드를 선택하거나 입력해주세요.');
       return;
     }
-    setProject({
-      category, keyword,
-      scenarioStyleId: selected,
-      templateId: selected,
-      step: 3,
-    });
-    router.push('/platform');
+    setProject({ keyword: keyword.trim(), step: 2 });
+    router.push('/configure');
   };
 
   return (
-    <DashboardShell>
+    <V11Shell currentStep={2}>
       <style jsx>{`
-        .page { max-width: 920px; margin: 0 auto; padding: 40px 24px; }
-        .breadcrumb { display: flex; gap: 8px; font-size: 13px; color: #888; margin-bottom: 24px; }
+        .page { max-width: 920px; margin: 0 auto; padding: 40px 24px 60px; }
+        
+        .breadcrumb {
+          display: flex; gap: 8px; font-size: 13px;
+          color: #888; margin-bottom: 24px;
+        }
         .breadcrumb a:hover { color: #c65f3b; }
         .breadcrumb .sep { color: #ccc; }
-        .hero { text-align: center; margin-bottom: 36px; }
+
+        .steps {
+          display: flex; align-items: center; justify-content: center;
+          gap: 8px; margin-bottom: 32px;
+        }
+        .stepDot {
+          width: 24px; height: 24px;
+          background: #c65f3b; color: #fff;
+          border-radius: 50%; line-height: 24px;
+          font-weight: 800; font-size: 11px;
+          text-align: center;
+        }
+        .stepDot.inactive { background: #ddd; color: #888; }
+        .stepLine { width: 24px; height: 2px; background: #ddd; }
+        .stepLine.active { background: #c65f3b; }
+
+        .header { text-align: center; margin-bottom: 32px; }
         .stepBadge {
-          display: inline-block; padding: 6px 14px; background: #fdf1e7;
-          color: #c65f3b; border-radius: 100px; font-size: 12px;
-          font-weight: 700; margin-bottom: 16px;
+          display: inline-block; padding: 6px 14px;
+          background: #fdf1e7; color: #c65f3b;
+          border-radius: 100px; font-size: 12px; font-weight: 700;
+          margin-bottom: 16px;
         }
-        .heroTitle {
-          font-size: 32px; font-weight: 800; color: #1a1a1a;
-          letter-spacing: -0.025em; margin-bottom: 12px;
+        .title {
+          font-size: 32px; font-weight: 800;
+          color: #1a1a1a; letter-spacing: -0.025em;
+          margin: 0 0 12px;
         }
-        .heroSub { font-size: 15px; color: #666; line-height: 1.6; }
+        .sub { font-size: 15px; color: #666; line-height: 1.6; }
+        @media (max-width: 600px) { .title { font-size: 24px; } }
+
         .summary {
           background: #fafafa; border: 1px solid #e5e5e5;
-          border-radius: 12px; padding: 16px 20px; margin-bottom: 32px;
-          display: flex; align-items: center; gap: 12px; flex-wrap: wrap;
+          border-radius: 12px; padding: 14px 18px;
+          margin-bottom: 24px;
+          display: flex; align-items: center; gap: 12px;
+          font-size: 13px; color: #555;
         }
-        .summaryItem { display: flex; align-items: center; gap: 8px; font-size: 13px; color: #555; }
-        .summaryItem strong { color: #1a1a1a; }
-        .summarySep { width: 1px; height: 16px; background: #ddd; }
-        .sectionTitle { font-size: 16px; font-weight: 700; color: #1a1a1a; margin-bottom: 16px; }
-        .grid {
+        .summary strong { color: #1a1a1a; }
+
+        .keywordBox {
+          background: #fff; border: 1px solid #e5e5e5;
+          border-radius: 14px; padding: 24px;
+          margin-bottom: 28px;
+        }
+        .boxLabel {
+          font-size: 13px; font-weight: 700;
+          color: #555; margin-bottom: 14px;
+          display: flex; align-items: center; justify-content: space-between;
+        }
+        .boxLabel .selectedCat {
+          color: #c65f3b; font-weight: 800;
+        }
+        .keywordList {
           display: grid; grid-template-columns: repeat(2, 1fr);
-          gap: 12px; margin-bottom: 28px;
+          gap: 8px;
         }
-        @media (max-width: 720px) { .grid { grid-template-columns: 1fr; } }
-        .card {
-          background: #fff; border: 2px solid #e5e5e5;
-          border-radius: 12px; padding: 20px; cursor: pointer;
-          transition: all 0.15s; font-family: inherit; text-align: left;
+        @media (max-width: 600px) { .keywordList { grid-template-columns: 1fr; } }
+        .keywordItem {
+          padding: 11px 14px;
+          background: #fafafa; border: 1px solid #e5e5e5;
+          border-radius: 8px; cursor: pointer;
+          font-size: 13.5px; color: #333;
+          transition: all 0.15s; font-family: inherit;
+          text-align: left; font-weight: 500;
         }
-        .card:hover { border-color: #c65f3b; background: #fffbf8; }
-        .card.selected { border-color: #c65f3b; background: #fdf1e7; }
-        .cardHead { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
-        .cardEmoji { font-size: 24px; }
-        .cardName { font-size: 15px; font-weight: 700; color: #1a1a1a; }
-        .cardDesc { font-size: 13px; color: #666; line-height: 1.5; margin-bottom: 8px; }
-        .cardStruct {
-          font-size: 11.5px; color: #888; padding-top: 8px;
-          border-top: 1px dashed #e5e5e5;
+        .keywordItem:hover {
+          border-color: #c65f3b; background: #fffbf8; color: #c65f3b;
         }
-        .cardStruct strong { color: #555; }
+        .keywordItem.selected {
+          border-color: #c65f3b; background: #c65f3b;
+          color: #fff; font-weight: 700;
+        }
+
+        .divider {
+          display: flex; align-items: center; gap: 12px;
+          margin: 18px 0; font-size: 12px; color: #999;
+        }
+        .divider::before, .divider::after {
+          content: ''; flex: 1; height: 1px; background: #e5e5e5;
+        }
+
+        .input {
+          width: 100%; padding: 14px 16px;
+          font-size: 15px; font-family: inherit;
+          border: 2px solid #e5e5e5; border-radius: 10px;
+          background: #fff; color: #1a1a1a;
+          transition: all 0.2s; box-sizing: border-box;
+        }
+        .input:focus { outline: none; border-color: #c65f3b; }
+        .input::placeholder { color: #b0b0b0; }
+
         .ctaBtn {
-          width: 100%; padding: 16px 24px; background: #c65f3b;
-          color: #fff; border: none; border-radius: 12px;
-          font-size: 16px; font-weight: 800; cursor: pointer;
-          transition: all 0.2s; font-family: inherit;
+          width: 100%; padding: 18px 24px;
+          background: #c65f3b; color: #fff;
+          border: none; border-radius: 12px;
+          font-size: 16px; font-weight: 800;
+          cursor: pointer; transition: all 0.2s;
+          font-family: inherit;
         }
-        .ctaBtn:hover:not(:disabled) { background: #a64a2a; }
+        .ctaBtn:hover:not(:disabled) {
+          background: #a64a2a;
+        }
         .ctaBtn:disabled { background: #ccc; cursor: not-allowed; }
+
         .adArea { margin: 32px 0; }
       `}</style>
 
@@ -152,49 +165,67 @@ export default function KeywordPage() {
         <nav className="breadcrumb">
           <Link href="/">홈</Link>
           <span className="sep">/</span>
-          <span>시나리오 선택</span>
+          <Link href="/create">분야 선택</Link>
+          <span className="sep">/</span>
+          <span>키워드 입력</span>
         </nav>
 
-        <section className="hero">
-          <div className="stepBadge">STEP 2 · 시나리오 선택</div>
-          <h1 className="heroTitle">어떤 형식으로 만들까요?</h1>
-          <p className="heroSub">시청자가 끝까지 보게 만드는 영상 구조를 선택하세요</p>
-        </section>
+        <div className="steps">
+          <span className="stepDot">✓</span>
+          <span className="stepLine active" />
+          <span className="stepDot">2</span>
+          <span className="stepLine" />
+          <span className="stepDot inactive">3</span>
+          <span className="stepLine" />
+          <span className="stepDot inactive">4</span>
+        </div>
+
+        <header className="header">
+          <div className="stepBadge">STEP 2 · 키워드 입력</div>
+          <h1 className="title">어떤 키워드로 영상을 만드시나요?</h1>
+          <p className="sub">아래 추천 키워드를 클릭하거나 직접 입력해주세요</p>
+        </header>
 
         <div className="summary">
-          <div className="summaryItem">
-            <span>{cat.emoji}</span>
-            <strong>{cat.name}</strong>
-          </div>
-          <div className="summarySep" />
-          <div className="summaryItem">
-            <span>🎯</span>
-            <strong>{keyword}</strong>
-          </div>
+          <span>{cat.emoji} <strong>{cat.name}</strong></span>
+          <span>·</span>
+          <span>분야 선택 완료</span>
         </div>
 
-        <div className="sectionTitle">시나리오 6개 중 선택</div>
+        <div className="keywordBox">
+          <div className="boxLabel">
+            <span><span className="selectedCat">{cat.name}</span> 추천 키워드</span>
+            <span style={{ fontSize: 12, color: '#888' }}>10개</span>
+          </div>
 
-        <div className="grid">
-          {SCENARIOS.map((s) => (
-            <button
-              key={s.id}
-              className={`card ${selected === s.id ? 'selected' : ''}`}
-              onClick={() => setSelected(s.id)}
-            >
-              <div className="cardHead">
-                <span className="cardEmoji">{s.emoji}</span>
-                <div className="cardName">{s.name}</div>
-              </div>
-              <div className="cardDesc">{s.description}</div>
-              <div className="cardStruct">
-                <strong>구조:</strong> {s.structure}
-              </div>
-            </button>
-          ))}
+          <div className="keywordList">
+            {trendingKeywords.map((kw, idx) => (
+              <button
+                key={idx}
+                className={`keywordItem ${keyword === kw ? 'selected' : ''}`}
+                onClick={() => handleKeywordSelect(kw)}
+              >
+                {kw}
+              </button>
+            ))}
+          </div>
+
+          <div className="divider">또는 직접 입력</div>
+
+          <input
+            type="text"
+            className="input"
+            placeholder="원하는 키워드를 입력하세요 (예: 50대 운동 루틴)"
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+          />
         </div>
 
-        <button className="ctaBtn" onClick={handleNext} disabled={!selected}>
+        <button 
+          className="ctaBtn" 
+          onClick={handleNext}
+          disabled={!keyword.trim()}
+        >
           다음 단계 →
         </button>
 
@@ -202,6 +233,6 @@ export default function KeywordPage() {
           <AdSlot slot="keyword-bottom" variant="horizontal" />
         </div>
       </div>
-    </DashboardShell>
+    </V11Shell>
   );
 }
