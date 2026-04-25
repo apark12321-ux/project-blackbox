@@ -367,9 +367,18 @@ export default function PublishPage() {
                           <div className="seqPrompt">
                             <div className="seqPromptHead">
                               <span className="seqPromptLang en">EN</span>
-                              <button className={`copyBtn ${copied === `thumb-en-${selectedThumbIdx}` ? 'copied' : ''}`} onClick={() => copy(selectedThumb.imagePromptEn, `thumb-en-${selectedThumbIdx}`)}>
-                                {copied === `thumb-en-${selectedThumbIdx}` ? '✓' : '복사'}
-                              </button>
+                              <div style={{ display: 'flex', gap: 6 }}>
+                                <Link
+                                  href={`/imagegen?prompt=${encodeURIComponent(selectedThumb.imagePromptEn)}&ar=16:9`}
+                                  className="copyBtn"
+                                  style={{ background: '#c65f3b', color: '#fff', borderColor: '#c65f3b' }}
+                                >
+                                  🎨 썸네일 만들기
+                                </Link>
+                                <button className={`copyBtn ${copied === `thumb-en-${selectedThumbIdx}` ? 'copied' : ''}`} onClick={() => copy(selectedThumb.imagePromptEn, `thumb-en-${selectedThumbIdx}`)}>
+                                  {copied === `thumb-en-${selectedThumbIdx}` ? '✓' : '복사'}
+                                </button>
+                              </div>
                             </div>
                             {selectedThumb.imagePromptEn}
                           </div>
@@ -606,9 +615,18 @@ export default function PublishPage() {
                         <div className="seqPrompt">
                           <div className="seqPromptHead">
                             <span className="seqPromptLang en">EN · IMAGE</span>
-                            <button className={`copyBtn ${copied === `img-en-${idx}` ? 'copied' : ''}`} onClick={() => copy(seq.imagePromptEn, `img-en-${idx}`)}>
-                              {copied === `img-en-${idx}` ? '✓ 복사' : '복사'}
-                            </button>
+                            <div style={{ display: 'flex', gap: 6 }}>
+                              <Link
+                                href={`/imagegen?prompt=${encodeURIComponent(seq.imagePromptEn)}&ar=16:9`}
+                                className="copyBtn"
+                                style={{ background: '#c65f3b', color: '#fff', borderColor: '#c65f3b' }}
+                              >
+                                🎨 이미지 생성
+                              </Link>
+                              <button className={`copyBtn ${copied === `img-en-${idx}` ? 'copied' : ''}`} onClick={() => copy(seq.imagePromptEn, `img-en-${idx}`)}>
+                                {copied === `img-en-${idx}` ? '✓ 복사' : '복사'}
+                              </button>
+                            </div>
                           </div>
                           {seq.imagePromptEn}
                         </div>

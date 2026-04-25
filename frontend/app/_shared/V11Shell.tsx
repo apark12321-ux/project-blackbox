@@ -144,10 +144,11 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
     return () => clearInterval(t);
   }, []);
 
-  // 박 대표님 페이지 21개 모두 메뉴화 (404 메뉴 X)
+  // 박 대표님 페이지 21개 + 이미지 생성기 추가 = 22개
   const mainMenu = [
     { icon: '🏠', label: '홈', path: '/', key: 'home' },
     { icon: '✨', label: '영상 만들기', path: '/create', key: 'create' },
+    { icon: '🎨', label: 'AI 이미지 생성', path: '/imagegen', key: 'imagegen' },
     { icon: '🎬', label: '내 영상', path: '/assets', key: 'assets' },
     { icon: '📊', label: '분석', path: '/analytics', key: 'analytics' },
     { icon: '📰', label: '트렌드 뉴스', path: '/news', key: 'news' },
