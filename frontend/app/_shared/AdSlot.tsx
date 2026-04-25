@@ -1,26 +1,27 @@
 'use client';
 /**
- * AdSlot - Google AdSense 광고 컴포넌트
+ * AdSlot - Google AdSense 광고 슬롯
  *
- * 박예준 요청:
- * ✅ 광고 삽입 (AdSense)
- * ✅ AdSense ID 없어도 빌드 안 깨짐
- * ✅ 환경변수만 추가하면 즉시 작동
+ * AdSense 정책 준수:
+ * ✅ 명확한 "광고" 라벨 (사용자 혼동 방지)
+ * ✅ 콘텐츠와 충분한 간격
+ * ✅ 클릭 유도 문구 X
+ * ✅ Auto ads 지원
+ * ✅ 환경변수로 ID 관리 (코드 노출 X)
  *
  * 사용법:
- *   <AdSlot slot="home-bottom" variant="horizontal" />
+ *   <AdSlot slot="home-mid" variant="horizontal" />
  *
- * AdSense 승인 후:
- *   1. Vercel 환경변수: NEXT_PUBLIC_ADSENSE_CLIENT=ca-pub-XXXX
- *   2. 각 위치별: NEXT_PUBLIC_ADSENSE_SLOT_HOME_BOTTOM=1234567890
- *   3. 자동으로 실제 광고 표시
+ * 활성화 (AdSense 승인 후):
+ *   환경변수 NEXT_PUBLIC_ADSENSE_CLIENT 설정
+ *   환경변수 NEXT_PUBLIC_ADSENSE_SLOT_HOME_MID 설정
  */
 
 import { useEffect, useRef } from 'react';
 
 interface AdSlotProps {
   slot: string;
-  variant?: 'horizontal' | 'square' | 'sidebar-card';
+  variant?: 'horizontal' | 'square' | 'sidebar';
 }
 
 declare global {
@@ -30,7 +31,7 @@ declare global {
 }
 
 export default function AdSlot({ slot, variant = 'horizontal' }: AdSlotProps) {
-  const adRef = useRef<HTMLDivElement>(null);
+  const adRef = useRef<HTMLModElement>(null);
   
   // 환경변수에서 자동 로드
   const client = (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_ADSENSE_CLIENT) || '';
@@ -46,20 +47,24 @@ export default function AdSlot({ slot, variant = 'horizontal' }: AdSlotProps) {
         window.adsbygoogle.push({});
       }
     } catch (e) {
-      // 광고 로드 실패해도 사이트는 정상
+      // 광고 로드 실패해도 사이트는 정상 작동
     }
   }, [client, slotId]);
 
+  // AdSense ID 없으면 placeholder
   const showPlaceholder = !client || !slotId;
 
   return (
-    <div className={`adSlot adSlot-${variant}`} ref={adRef}>
+    <div className={`adContainer adContainer-${variant}`}>
+      <div className="adLabel">광고</div>
+      
       {showPlaceholder ? (
         <div className="adPlaceholder">
-          <div className="adLabel">광고</div>
+          <span>Advertisement</span>
         </div>
       ) : (
         <ins
+          ref={adRef}
           className="adsbygoogle"
           style={{ display: 'block' }}
           data-ad-client={client}
@@ -70,41 +75,56 @@ export default function AdSlot({ slot, variant = 'horizontal' }: AdSlotProps) {
       )}
 
       <style jsx>{`
-        .adSlot {
+        .adContainer {
           width: 100%;
-          margin: 16px 0;
+          margin: 24px 0;
+          padding: 8px 0;
         }
-        .adSlot-horizontal { min-height: 90px; }
-        .adSlot-square {
-          min-height: 250px;
+        
+        .adContainer-horizontal {
+          min-height: 100px;
+        }
+        
+        .adContainer-square {
           max-width: 336px;
-          margin: 16px auto;
+          margin: 24px auto;
         }
-        .adSlot-sidebar-card {
-          min-height: 250px;
-          margin: 12px 0;
+        
+        .adContainer-sidebar {
+          max-width: 300px;
         }
+        
+        /* "광고" 라벨 - AdSense 정책 권장 */
+        .adLabel {
+          font-size: 10px;
+          font-weight: 600;
+          color: #999;
+          text-align: left;
+          margin-bottom: 4px;
+          letter-spacing: 0.05em;
+        }
+        
         .adPlaceholder {
           width: 100%;
           min-height: 90px;
-          background: linear-gradient(135deg, rgba(245,241,234,0.5), rgba(250,248,244,0.8));
-          border: 1px dashed rgba(90,74,58,0.15);
-          border-radius: 12px;
+          background: #f5f5f5;
+          border: 1px solid #e5e5e5;
+          border-radius: 8px;
           display: flex;
           align-items: center;
           justify-content: center;
-          padding: 24px;
+          color: #999;
+          font-size: 12px;
+          font-weight: 500;
+          letter-spacing: 0.05em;
         }
-        .adSlot-square .adPlaceholder,
-        .adSlot-sidebar-card .adPlaceholder {
+        
+        .adContainer-square .adPlaceholder {
           min-height: 250px;
         }
-        .adLabel {
-          font-size: 9px;
-          font-weight: 800;
-          letter-spacing: 0.2em;
-          color: rgba(90,74,58,0.4);
-          text-transform: uppercase;
+        
+        .adContainer-sidebar .adPlaceholder {
+          min-height: 250px;
         }
       `}</style>
     </div>

@@ -71,7 +71,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 const NOTICES = [
   { dot: '🔥', text: '이번 주 인기 키워드: "2026 금리 전망" · 블루오션 지수 94점', tag: '인기' },
   { dot: '📈', text: '경제·사회 카테고리 조회수 평균 38% 상승 (지난주 대비)', tag: '트렌드' },
-  { dot: '💡', text: '미스터리 추적형 시나리오가 평균 유지율 95% 기록', tag: '팁' },
+  { dot: '💡', text: 'AI 추천 키워드를 활용하면 알고리즘 최적화에 도움이 됩니다', tag: '팁' },
   { dot: '🔮', text: '오늘 알고리즘 신호: IT·자기계발 폭발 임박', tag: '경고' },
   { dot: '✨', text: '다큐 스타일 업데이트 — 유지율 12% 향상', tag: '새소식' },
   { dot: '🎬', text: '어제 조회수 10만 돌파한 시나리오: "상식 깨기"', tag: '트렌드' },
@@ -181,7 +181,7 @@ function AlgoMakerLogo({ size = 'md', showSubtitle = true }: { size?: 'sm' | 'md
               marginTop: 3,
             }}
           >
-            알고리즘 결사체
+            AI 콘텐츠 추천
           </div>
         )}
       </div>
@@ -751,7 +751,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
             </Link>
             <span className="liveBadge">
               <span className="liveDot" />
-              ◆ ACTIVE
+              무료
             </span>
           </div>
 
@@ -830,13 +830,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
             </div>
 
             <div className="topBtns">
-              <div className="userChip">
-                <div className="userAvatar">박</div>
-                <div className="userInfo">
-                  <span className="userName">박예준</span>
-                  <span className="userRole">크리에이터</span>
-                </div>
-              </div>
+              {/* 사용자 정보 영역 제거 (AdSense 정책 준수) */}
             </div>
           </div>
 
@@ -875,7 +869,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                   <ul>
                     <li><Link href="/about" className="fLink">서비스 소개</Link></li>
                     <li><Link href="/contact" className="fLink">문의하기</Link></li>
-                    <li><Link href="/blog" className="fLink">크리에이터 가이드</Link></li>
+                    <li><Link href="/blog" className="fLink">이용 가이드</Link></li>
                   </ul>
                 </div>
 
