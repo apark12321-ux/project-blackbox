@@ -1,104 +1,127 @@
 ═══════════════════════════════════════════════════════
-🎯 AlgoMaker FINAL v3.3.1 - 광고 최적화 (수익 극대화)
+🎯 AlgoMaker FINAL v3.4.0 - AdSense 승인 + SEO 풀 최적화
 ═══════════════════════════════════════════════════════
 
-📌 박 대표님 결정사항 반영:
-- 최초 5회 무료 (평생, 월별 갱신 X)
-- 이후 모두 광고 시청 (수익 극대화)
-- 알아서 광고 최적화 (광고비 ↑ + 고객 불편 ↓)
+📌 이번 업데이트 (v3.3.0 → v3.4.0):
+
+🚀 AdSense 승인 + 검색 최적화 완전 패키지!
 
 ═══════════════════════════════════════════════════════
-🎯 광고 게이트 적용 위치 (수익 극대화 전략):
+📋 추가된 SEO 파일 목록:
 
-1️⃣ /publish 페이지 진입 (최우선)
-   - 가장 가치 있는 페이지 (알고리즘 분석 + SNS 자료)
-   - 광고 시청률 가장 높음 (CPM ↑)
-   - 사용자가 결과 보고 싶어서 시청 의사 강함
+1. ✨ 강화된 layout.tsx
+   - SEO 메타데이터 풀 셋
+   - Open Graph + Twitter Card
+   - JSON-LD 구조화 데이터 4종
+   - Schema.org WebSite + Organization + WebApp + FAQ
+   - AdSense 사이트 인증 메타 태그
+   - Google/Naver/Yandex 인증 태그
+   - 다국어 alternates
+   - 형식 자동 감지 OFF (전화번호 등)
+
+2. ✨ robots.ts (신규)
+   - 모든 봇 허용 + 영역 제한
+   - Googlebot, AdSense봇, Mediapartners-Google 명시
+   - Naver Yeti, Bing 명시
+   - Sitemap 자동 연결
+
+3. ✨ sitemap.ts (신규)
+   - 19개 페이지 자동 sitemap.xml
+   - 페이지별 우선순위 설정
+   - changeFrequency 설정 (검색 봇 효율)
+
+4. ✨ public/ads.txt (신규 - AdSense 필수!)
+   - AdSense 광고 인증
+   - 수익 보호 (가짜 광고주 차단)
+
+5. ✨ public/manifest.json (신규)
+   - PWA 잠재 지원
+   - 모바일 최적화
+
+6. ✨ 페이지별 layout.tsx 메타데이터 (7개)
+   - /create, /imagegen, /blog
+   - /about, /privacy, /terms, /contact
+   - 각 페이지 unique title + description
+
+7. ✨ .env.example (환경변수 가이드)
+   - AdSense Publisher ID
+   - Search Console 인증
+   - Google Analytics
+   - 도메인 설정
+
+═══════════════════════════════════════════════════════
+🎯 AdSense 승인 체크리스트:
+
+✅ 필수 페이지 모두 존재
+   - About / Contact / Privacy / Terms ✅
    
-2️⃣ /imagegen 이미지 생성 (중간)
-   - 서버 리소스 사용 → 광고 정당화
-   - 1회 광고 = 한 묶음 이미지 생성
-   - 4장 한번에 생성도 1회 광고로 OK
-
-📍 광고 게이트 적용 안 한 곳 (UX 우선):
-- 홈, 분야 선택, 키워드 입력
-- 광고 게이트 적용 시 이탈률 증가
-
-═══════════════════════════════════════════════════════
-📊 시스템 작동 흐름:
-
-[최초 5회]
-사용자 → /publish 진입 → 즉시 진행 (1회 차감)
-                        ↓
-                "🎁 무료 이용권 4회 남았어요"
-
-[5회 소진 후]
-사용자 → /publish 진입 → 광고 모달
-                        ↓
-                30초 광고 시청 (5초 후 스킵 가능)
-                        ↓
-                "🎉 광고 보너스 1회 사용 가능"
-                        ↓
-                결과 페이지 진입 (보너스 1회 차감)
-
-[이미지 생성 시]
-사용자 → 생성 시작 클릭 → 사용권 확인
-                       ↓
-            ┌──────────┴──────────┐
-            ↓                      ↓
-        무료/보너스 있음        없음
-            ↓                      ↓
-        즉시 생성              광고 시청
-                                  ↓
-                              완료 후 자동 생성
+✅ SEO 메타데이터
+   - 페이지별 unique title/description ✅
+   - Open Graph ✅
+   - JSON-LD ✅
+   - Canonical URL ✅
+   
+✅ 검색 엔진 친화
+   - robots.txt 자동 생성 ✅
+   - sitemap.xml 자동 생성 ✅
+   - 모바일 최적화 ✅
+   - 구조화된 데이터 ✅
+   
+✅ AdSense 정책
+   - ads.txt 파일 ✅
+   - 광고 슬롯 미리 준비 ✅
+   - Rewarded Ad (Offerwall 정책 준수) ✅
+   - 가짜 통계 제거됨 ✅
+   
+✅ 신뢰 신호
+   - 운영자: 한줄컴퍼니 박예준 (사이트 명시)
+   - 사업자 정보 (Schema.org Organization)
+   - 비즈니스 이메일
+   - 회사 소개 페이지
 
 ═══════════════════════════════════════════════════════
-✨ AdSense 정책 100% 준수:
+📝 박 대표님 적용 방법:
 
-✅ Rewarded Ads (Google 공식 기능)
-✅ 사용자 선택권 (광고 시청 vs 안 봄)
-✅ 보상 명확 표시 ("이미지 생성 1회")
-✅ 클릭 강요 X (시청만 요구)
-✅ 사이트 내 보상만 (외부 변환 X)
+1️⃣ ZIP 압축 풀기 + frontend/app 통째 드래그 (덮어쓰기)
+   ⚠️ 이번엔 frontend/public/, frontend/.env.example 도 포함!
 
-═══════════════════════════════════════════════════════
-🎁 사용자 경험:
+2️⃣ Vercel 환경변수 설정 (가장 중요!)
+   - Vercel 대시보드 → Settings → Environment Variables
+   - .env.example 보고 하나씩 추가:
+     • NEXT_PUBLIC_SITE_URL = https://nutube.kr
+     • (AdSense 승인 후) NEXT_PUBLIC_ADSENSE_CLIENT
+     • (선택) NEXT_PUBLIC_GA_ID
+     • (선택) NEXT_PUBLIC_GOOGLE_VERIFICATION
+   
+3️⃣ Vercel에서 nutube.kr 도메인 연결
+   - Vercel 대시보드 → Settings → Domains
+   - nutube.kr 추가 → DNS 설정 안내 따르기
 
-📍 헤더 알림 (사용자 친화):
-   무료 남음: "🎁 무료 이용권 N회 남았어요"
-   보너스 있음: "🎁 광고 보너스 N회 사용 가능"
-   둘 다 없음: "✨ 광고 1회 시청 = 1회 이용 가능"
+4️⃣ Google Search Console 등록
+   - search.google.com/search-console
+   - 속성 추가 → nutube.kr
+   - HTML 태그 인증 → content 값 환경변수에 입력
+   - sitemap.xml 제출: https://nutube.kr/sitemap.xml
 
-📍 토스트 알림:
-   무료 사용: "✨ 무료 이용권 사용 (N회 남음)"
-   보너스 사용: "🎁 광고 보너스 사용권으로 진행합니다"
-
-📍 광고 모달:
-   - 모던 다크 테마
-   - 30초 카운트다운 (5초 후 스킵)
-   - 시청 완료 시 🎉 보상 화면
-
-═══════════════════════════════════════════════════════
-🔧 현재 상태 (테스트 모드):
-- 가상 광고 (Mock)
-- localStorage로 사용 횟수 추적
-
-🚀 향후 실제 AdSense 연동 시:
-- "Rewarded Ads" 또는 "AdSense Offerwall" 활성화
-- 같은 위치에서 자동으로 실제 광고 표시
-- 광고 수익 자동 입금
-
-═══════════════════════════════════════════════════════
-📦 적용 방법:
-
-1️⃣ ZIP 압축 풀기
-2️⃣ GitHub Desktop → frontend/app 폴더 통째 드래그 (덮어쓰기)
-3️⃣ Commit & Push → Vercel 자동 빌드
+5️⃣ 사이트 콘텐츠 보강 (1~2주)
+   - 블로그/노하우 글 15~20개 작성
+   - 각 글 1,500자 이상
+   - 박 대표님 자체 노하우 + AI 활용
+   
+6️⃣ AdSense 신청 (1~2개월 후)
+   - adsense.google.com
+   - nutube.kr 사이트 추가 → 신청
+   - 승인 받으면 Publisher ID + ads.txt 업데이트
 
 ═══════════════════════════════════════════════════════
 🔍 빌드 검증:
 - TypeScript 에러 0개 ✅
-- 괄호 매칭 ✅
-- 새/수정 파일: RewardedAd.tsx, publish/page.tsx, imagegen/page.tsx
+- 모든 SEO 파일 정상 ✅
+- 새 파일 13개 추가:
+  • layout.tsx (재작성)
+  • robots.ts, sitemap.ts
+  • 페이지별 layout.tsx (7개)
+  • ads.txt, manifest.json
+  • .env.example
 
 ═══════════════════════════════════════════════════════
