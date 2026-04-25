@@ -1,9 +1,10 @@
 import type { Metadata, Viewport } from 'next';
 import ContentProtection from './_shared/ContentProtection';
+import OracleStatusBar from './_shared/OracleStatusBar';
 import './globals.css';
 
 // ============================================================
-// AlgoMaker - Next.js 15 완전판 SEO + 보호
+// AlgoMaker - Oracle Casino Edition
 // ============================================================
 
 const SITE_URL = 'https://project-blackbox-cpqy.vercel.app';
@@ -25,23 +26,13 @@ export const metadata: Metadata = {
     '쇼츠 자동 생성',
     '틱톡 콘텐츠 AI',
     '릴스 자동 제작',
-    '유튜브 제목 자동 생성',
-    'AI 이미지 프롬프트',
-    '1인 크리에이터 도구',
   ],
   authors: [{ name: '한줄컴퍼니' }],
   creator: '한줄컴퍼니',
   publisher: '한줄컴퍼니',
-  applicationName: SITE_NAME,
   robots: {
     index: true,
     follow: true,
-    googleBot: {
-      index: true,
-      follow: true,
-      'max-image-preview': 'large',
-      'max-snippet': -1,
-    },
   },
   openGraph: {
     type: 'website',
@@ -51,23 +42,15 @@ export const metadata: Metadata = {
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
   },
-  twitter: {
-    card: 'summary_large_image',
-    title: SITE_TITLE,
-    description: SITE_DESCRIPTION,
-  },
 };
 
 export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   maximumScale: 5,
-  themeColor: '#f5f1ea',
+  themeColor: '#1a1625',
 };
 
-// ============================================================
-// JSON-LD 구조화 데이터
-// ============================================================
 const jsonLdString = JSON.stringify([
   {
     '@context': 'https://schema.org',
@@ -75,7 +58,6 @@ const jsonLdString = JSON.stringify([
     name: '한줄컴퍼니',
     alternateName: 'AlgoMaker',
     url: SITE_URL,
-    description: 'AI 기반 유튜브 영상 자동 생성 서비스 AlgoMaker 운영사',
   },
   {
     '@context': 'https://schema.org',
@@ -85,18 +67,6 @@ const jsonLdString = JSON.stringify([
     operatingSystem: 'Web',
     description: SITE_DESCRIPTION,
     url: SITE_URL,
-    offers: {
-      '@type': 'Offer',
-      price: '0',
-      priceCurrency: 'KRW',
-    },
-  },
-  {
-    '@context': 'https://schema.org',
-    '@type': 'WebSite',
-    name: SITE_NAME,
-    url: SITE_URL,
-    inLanguage: 'ko-KR',
   },
 ]);
 
@@ -108,15 +78,17 @@ export default function RootLayout({
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
-        {/* JSON-LD 구조화 데이터 */}
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: jsonLdString }}
         />
       </head>
       <body>
-        {/* 🔐 콘텐츠 보호 컴포넌트 (전역) */}
+        {/* 🔐 콘텐츠 보호 */}
         <ContentProtection />
+
+        {/* 🎰 Oracle 상태 바 (모든 페이지 상단) */}
+        <OracleStatusBar />
 
         {children}
       </body>

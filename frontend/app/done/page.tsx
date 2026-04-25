@@ -3,7 +3,7 @@
  * 🎯 최종 /done 페이지
  *
  * 박예준 대표 최종 요청:
- * ✅ YouTube 영상 완성본 유지 (미리보기, 다운로드, 레버)
+ * ✅ AlgoOracle (베가스 카지노 드라마) 적용
  * ✅ 각 SNS의 실제 업로드 화면 그대로 재현
  * ✅ 빈칸에 들어갈 내용 모두 채워서 복붙만 하면 되게
  * ✅ 한글+영문 이미지/영상 프롬프트
@@ -16,6 +16,7 @@ import { DashboardShell, getProject } from '../_shared/V11Shell';
 import { getPlatformById, getCategoryById, PLATFORMS } from '../_shared/platforms';
 import { generatePromptPackages, type PromptPackage } from '../_shared/promptGenerator';
 import AlgoBooster, { BoosterData } from '../_shared/AlgoBooster';
+import AlgoOracle from '../_shared/AlgoOracle';
 import AdSlot from '../_shared/AdSlot';
 
 type TabKey = 'sns' | 'prompts';
@@ -880,87 +881,21 @@ export default function DonePage() {
         </header>
 
         {/* ============================================================
-            🔐 AlgoMaker 독자 알고리즘 작동 섹션
-            베일에 감춰진 알고리즘 - 사용자는 진행 상황만 볼 수 있음
+            🎰 AlgoOracle - Las Vegas Casino Edition
             ============================================================ */}
-        <div className="sectionHeader">
-          <span className="sectionEmoji">🔐</span>
-          <h2 className="sectionTitle">
-            <span style={{color: '#c65f3b'}}>AlgoMaker</span> 독자 알고리즘 작동 중
-          </h2>
-          <div className="sectionDivider" />
-        </div>
+        <AlgoOracle
+          category="economy"
+          keyword={keyword}
+          title={displayTitle}
+        />
 
-        <section className="algoBox no-select no-copy">
-          <div className="algoPattern" />
-
-          <div className="algoHeader">
-            <div className="algoPulse" />
-            <span className="algoStatus">ACTIVE · PROPRIETARY</span>
-          </div>
-
-          <div className="algoTitle">
-            알고메이커 전용 알고리즘이<br />
-            당신의 영상을 최적화하고 있습니다
-          </div>
-
-          <div className="algoSubtitle">
-            2026 유튜브 알고리즘 패턴 · 조회수 터지는 공식 · 타겟 시청자 분석
-          </div>
-
-          <div className="algoProcess">
-            <div className="algoStep completed">
-              <div className="algoStepDot" />
-              <div className="algoStepText">
-                <span className="algoStepLabel">STEP 1</span>
-                <span className="algoStepName">타겟 시청자 페르소나 분석</span>
-              </div>
-              <span className="algoStepCheck">✓</span>
-            </div>
-            <div className="algoStep completed">
-              <div className="algoStepDot" />
-              <div className="algoStepText">
-                <span className="algoStepLabel">STEP 2</span>
-                <span className="algoStepName">경쟁 채널 알고리즘 패턴 매칭</span>
-              </div>
-              <span className="algoStepCheck">✓</span>
-            </div>
-            <div className="algoStep completed">
-              <div className="algoStepDot" />
-              <div className="algoStepText">
-                <span className="algoStepLabel">STEP 3</span>
-                <span className="algoStepName">조회수 터지는 구조 설계</span>
-              </div>
-              <span className="algoStepCheck">✓</span>
-            </div>
-            <div className="algoStep active">
-              <div className="algoStepDot pulse" />
-              <div className="algoStepText">
-                <span className="algoStepLabel">STEP 4</span>
-                <span className="algoStepName">SEO 최적화 및 키워드 매핑</span>
-              </div>
-              <span className="algoStepLoading">···</span>
-            </div>
-          </div>
-
-          <div className="algoResult">
-            <div className="algoResultLabel">🎯 예상 조회수 부스팅</div>
-            <div className="algoResultValue">+280%</div>
-            <div className="algoResultNote">
-              일반 영상 대비 AlgoMaker 최적화 영상의 평균 조회수
-            </div>
-          </div>
-
+        <section className="oracleBoosterSection">
           <AlgoBooster
             initialData={initialData}
             optimizedData={optimizedData}
             onApply={() => setApplied(true)}
             variant="full"
           />
-
-          <div className="algoLockNote">
-            🔒 알고메이커의 독자 알고리즘은 특허 출원 중이며, 외부 공개/복제가 금지됩니다.
-          </div>
         </section>
 
         <div className="adWrap">
