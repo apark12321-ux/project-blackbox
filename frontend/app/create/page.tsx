@@ -106,10 +106,15 @@ function CreatePageInner() {
           color: #fff; font-size: 9px; font-weight: 700;
           border-radius: 4px;
         }
-        .cardCpm {
+        .cardLevel {
           margin-top: 6px; font-size: 10px;
-          color: #5e7e5d; font-weight: 700;
+          font-weight: 700; padding: 3px 8px;
+          border-radius: 100px;
+          display: inline-block;
         }
+        .cardLevel.level-easy { background: #e8f5e9; color: #2e7d32; }
+        .cardLevel.level-normal { background: #fff8e1; color: #f57c00; }
+        .cardLevel.level-hard { background: #ffebee; color: #c62828; }
 
         .ctaBtn {
           width: 100%; padding: 18px 24px;
@@ -161,7 +166,9 @@ function CreatePageInner() {
               <div className="cardEmoji">{cat.emoji}</div>
               <div className="cardName">{cat.name}</div>
               <div className="cardDesc">{cat.description}</div>
-              <div className="cardCpm">조회수 {cat.avgViews}</div>
+              <div className={`cardLevel level-${cat.competition === '낮음' ? 'easy' : cat.competition === '높음' ? 'hard' : 'normal'}`}>
+                {cat.competition === '낮음' ? '🟢 입문 쉬움' : cat.competition === '높음' ? '🔴 경쟁 치열' : '🟡 보통 난이도'}
+              </div>
             </button>
           ))}
         </div>

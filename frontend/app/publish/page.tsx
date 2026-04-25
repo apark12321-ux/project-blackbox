@@ -680,9 +680,11 @@ export default function PublishPage() {
               <div className="sidebarStatLabel">선택한 제목 기준</div>
             </div>
             <div className="sidebarSection">
-              <div className="sidebarLabel">분야 평균 조회수</div>
-              <div className="sidebarStat">{cat.avgViews}</div>
-              <div className="sidebarStatLabel">{cat.name} 영상당 평균</div>
+              <div className="sidebarLabel">분야 입문 난이도</div>
+              <div className="sidebarStat">
+                {cat.competition === '낮음' ? '🟢 쉬움' : cat.competition === '높음' ? '🔴 어려움' : '🟡 보통'}
+              </div>
+              <div className="sidebarStatLabel">{cat.name} · 경쟁 정도</div>
             </div>
             <div className="sidebarSection">
               <div className="sidebarLabel">📌 업로드 체크리스트</div>
