@@ -16,7 +16,7 @@ import { DashboardShell, getProject } from '../_shared/V11Shell';
 import { getPlatformById, getCategoryById, PLATFORMS } from '../_shared/platforms';
 import { generatePromptPackages, type PromptPackage } from '../_shared/promptGenerator';
 import AlgoBooster, { BoosterData } from '../_shared/AlgoBooster';
-import AlgoOracle from '../_shared/AlgoOracle';
+import CrystalBallOracle from '../_shared/CrystalBallOracle';
 import AdSlot from '../_shared/AdSlot';
 
 type TabKey = 'sns' | 'prompts';
@@ -881,9 +881,9 @@ export default function DonePage() {
         </header>
 
         {/* ============================================================
-            🎰 AlgoOracle - Las Vegas Casino Edition
+            🔮 CrystalBallOracle - 압도적 신비감
             ============================================================ */}
-        <AlgoOracle
+        <CrystalBallOracle
           category="economy"
           keyword={keyword}
           title={displayTitle}
