@@ -1,41 +1,44 @@
 ═══════════════════════════════════════════════════════
-🎯 AlgoMaker FINAL v3.1 - 빌드 에러 수정판
+🎯 AlgoMaker FINAL v3.2 - /publish 페이지 완전 재구축
 ═══════════════════════════════════════════════════════
 
-📦 적용 방법 (3단계):
+박 대표님 핵심 요구사항 100% 반영:
 
-1️⃣ 이 ZIP을 압축 풀기
-   - 압축 풀면 'frontend' 폴더가 생깁니다
+✅ 1. 각 SNS 실제 업로드 화면과 동일한 UI
+   - YouTube Studio · TikTok · Reels 색상/레이아웃 그대로 재현
+   - 5개 탭으로 플랫폼별 분리 (YouTube롱폼/Shorts/TikTok/Reels/영상프롬프트)
+
+✅ 2. 알고리즘 반영된 진짜 고퀄리티 콘텐츠
+   - 제목 3개 후보 (각각 CTR 예상치 + 알고리즘 분석 이유)
+   - 검색량/경쟁률 분석된 태그 15개
+   - 시청 유지율 검증된 6단계 영상 시퀀스
+   - 썸네일 콘셉트 3가지 (충격형/비포애프터/숫자형)
+   
+✅ 3. 영상 제작 프롬프트 (한글 + 영문)
+   - 시퀀스별 이미지 프롬프트 KR + EN
+   - 시퀀스별 영상 프롬프트 KR + EN
+   - Midjourney/SD/Runway/Pika/Sora/Kling 호환
+   - 각 프롬프트마다 개별 복사 버튼
+
+═══════════════════════════════════════════════════════
+📦 적용 방법:
+
+1️⃣ 이 ZIP 압축 풀기
+   → 'frontend' 폴더 안에 'app' 폴더 보임
 
 2️⃣ GitHub Desktop에서:
-   - Documents/GitHub/project-blackbox/ 폴더 열기
-   - 'frontend' 폴더 통째로 드래그 앤 드롭 (덮어쓰기)
-   - 변경사항 확인되면 → Commit → Push
+   - Documents/GitHub/project-blackbox/frontend/ 열기
+   - 'app' 폴더 통째로 드래그 앤 드롭 (덮어쓰기)
+   - Commit & Push
 
-3️⃣ Vercel이 자동 빌드 (3~5분)
-   - https://project-blackbox-cpqy.vercel.app/ 확인
-
-═══════════════════════════════════════════════════════
-✅ v3.1에서 수정된 것:
-- /knowhow/first-30-seconds-hook 페이지 import 경로 수정
-  (../_shared → ../../_shared, 2단계 깊이라서)
-- done 페이지 사용 안 하는 useEffect import 제거
-
-✅ 빌드 에러 점검 완료:
-- 모든 import 경로 검증 ✅
-- useSearchParams Suspense 래핑 ✅
-- next/link import 모두 OK ✅
-- TypeScript 타입 검증 ✅
+3️⃣ Vercel 자동 빌드 (3~5분 소요)
 
 ═══════════════════════════════════════════════════════
-✅ 통일된 컨셉 (변동 없음):
-- 타겟: 40대 퇴직 예정자 (김 부장)
-- 메시지: "키워드만 입력하면 AI가 모두 대신해드립니다"
-- 완전 무료 + AdSense 광고 모델
-- 21개 페이지 모두 V11Shell 사용
-- AdSense 정책 100% 준수
-
-✅ 흐름:
-/ → /create → /keyword → /configure → /processing → /publish → /done
+🔍 빌드 검증 완료:
+- TypeScript 컴파일 ✅
+- 모든 import 경로 ✅
+- 모든 함수/변수 export ✅
+- 괄호 매칭 ✅
+- contentEngine.ts (766줄), publish/page.tsx (703줄)
 
 ═══════════════════════════════════════════════════════
