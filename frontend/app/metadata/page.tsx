@@ -398,12 +398,14 @@ export default function MetadataPage() {
         </nav>
 
         <section className="hero">
-          <div className="stepBadge">STEP 5 / 6 · 업로드 자료 확인</div>
+          <div className="stepBadge">⚠️ STEP 5 · 알고리즘 자료 생성</div>
           <h1 className="heroTitle">
-            이 자료들을 <span className="accent">AI가 자동으로</span> 만들어요
+            제목·태그가<br />
+            <span className="accent">조회수를 결정합니다.</span>
           </h1>
           <p className="heroSub">
-            각 항목마다 3가지 안을 추천해드려요. 마음에 드는 걸 고르시면 돼요.
+            알고리즘이 분석한 최적의 조합.<br />
+            <strong>3개 중 운명을 고르세요.</strong>
           </p>
         </section>
 

@@ -516,25 +516,26 @@ export default function KeywordPage() {
         </nav>
 
         <section className="hero">
-          <div className="stepBadge">STEP 2 / 6 · 키워드 입력</div>
+          <div className="stepBadge">⚠️ STEP 2 · 키워드 해독</div>
           <Link href="/" className="catChip" style={{textDecoration: 'none'}}>
             <span>{currentCategory.emoji}</span>
             <span>{currentCategory.name}</span>
             <span className="change">변경 →</span>
           </Link>
           <h1 className="heroTitle">
-            어떤 주제로<br />
-            <span className="accent">만들어볼까요?</span>
+            한 단어가<br />
+            <span className="accent">운명을 가릅니다.</span>
           </h1>
           <p className="heroSub">
-            아래 추천 키워드를 눌러도 되고, 직접 입력해도 돼요
+            잘못된 키워드 = 영상 묻힘.<br />
+            <strong>알고리즘이 그 안의 신호를 해독합니다.</strong>
           </p>
         </section>
 
         {/* 추천 키워드 */}
         <section className="trendingSection">
           <div className="trendingLabel">
-            🔥 <strong>{currentCategory.name}</strong> 이번주 인기 키워드
+            🔮 <strong>{currentCategory.name}</strong> · 알고리즘이 감지한 신호
           </div>
           <div className="trendingGrid">
             {trending.map((t, i) => {

@@ -146,8 +146,8 @@ export default function CrystalBallOracle({ category = 'economy', keyword = '키
 
       {/* ============ 헤더 ============ */}
       <div className="oracleHeader">
-        <div className="headerKicker">✦ THE ALGORITHM ORACLE ✦</div>
-        <div className="headerTitle">당신의 영상의 운명이 드러납니다</div>
+        <div className="headerKicker">⚠️ ALGORITHM ENGAGED ⚠️</div>
+        <div className="headerTitle">베일 너머의 알고리즘이 작동합니다</div>
       </div>
 
       {/* ============ 메인 구슬볼 ============ */}

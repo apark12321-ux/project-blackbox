@@ -340,16 +340,14 @@ export default function PlatformPage() {
         </nav>
 
         <section className="hero">
-          <div className="stepBadge">STEP 4 / 6 · 플랫폼 선택</div>
+          <div className="stepBadge">⚠️ STEP 4 · 알고리즘 매핑</div>
           <h1 className="heroTitle">
-            어디에 올릴 영상인가요?<br />
-            <span className="accent">여러 개 선택 가능</span>
+            플랫폼마다<br />
+            <span className="accent">알고리즘이 다릅니다.</span>
           </h1>
           <p className="heroSub">
-            선택한 플랫폼마다 <strong>최적화된 업로드 자료</strong>를 자동으로 만들어드려요
-          </p>
-          <p className="heroHint">
-            💡 각 플랫폼 카드에 특징과 장점이 자세히 적혀있어요
+            같은 영상도 플랫폼별로 다르게 작동.<br />
+            <strong>알고리즘이 각각 최적화합니다.</strong>
           </p>
         </section>
 

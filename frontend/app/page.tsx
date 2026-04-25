@@ -274,26 +274,26 @@ export default function HomePage() {
             <AlgoMakerLogo size="lg" showSubtitle={false} />
           </div>
           <div className="stepBadge">
-            <span>✨</span>
-            <span>STEP 1 / 6 · 분야 선택</span>
+            <span>⚠️</span>
+            <span>WARNING · 99% 모르는 진실</span>
           </div>
           <h1 className="heroTitle">
-            어떤 분야의 영상을<br />
-            <span className="accent">만들고 싶으세요?</span>
+            AI로 영상 만들어도<br />
+            <span className="accent">조회수 100도 안 나옵니다.</span>
           </h1>
           <p className="heroSub">
-            카테고리를 선택하면 해당 분야 특화 AI가<br />
-            키워드 분석부터 영상 완성까지 자동 처리해요
+            알고리즘 없이는 묻힙니다.<br />
+            <strong>알고리즘이 있어야 터집니다.</strong>
           </p>
           <div className="heroMeta">
-            지금 <strong>{activeUsers.toLocaleString()}</strong>명이 AlgoMaker로 영상을 만들고 있어요
+            🔒 알고메이커가 그것을 작동시킵니다.
           </div>
         </section>
 
         <section className="catSection">
           <div className="catHead">
-            <h2 className="catHeadTitle">📂 카테고리 선택</h2>
-            <p className="catHeadSub">각 카드에 어떤 영상을 만들 수 있는지 예시가 들어있어요</p>
+            <h2 className="catHeadTitle">❦ 분야를 고르세요 ❦</h2>
+            <p className="catHeadSub">알고리즘은 분야마다 다릅니다.</p>
           </div>
 
           <div className="catGrid">
@@ -311,7 +311,7 @@ export default function HomePage() {
                 <div className="catName">{cat.name}</div>
                 <div className="catDesc">{cat.description}</div>
                 <div className="catExamples">
-                  <div className="catExamplesLabel">💡 이런 영상 만들 수 있어요</div>
+                  <div className="catExamplesLabel">🔮 알고리즘이 작동할 영역</div>
                   {cat.examples.slice(0, 2).map((ex, i) => (
                     <div key={i} className="catExample">{ex}</div>
                   ))}

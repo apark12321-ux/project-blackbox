@@ -1,70 +1,70 @@
-# 🔮 AlgoMaker - Crystal Ball Edition (전체 폴더)
+# 🔮 AlgoMaker v2 - "99%가 모르는 진실" Edition
 
-## 📦 압축 풀고 frontend 폴더만 통째로 드래그!
+## 🎯 박예준 확정: 메시지 전면 교체 (구조 유지)
 
-### 🚀 빠른 사용법
+### ✨ 핵심 변경사항
+- ✅ "AI 영상 만들어줍니다" → "알고리즘 없이는 망합니다"
+- ✅ "STEP 1/6 분야 선택" → "WARNING · 99% 모르는 진실"
+- ✅ "이런 영상 만들 수 있어요" → "🔮 알고리즘이 작동할 영역"
+- ✅ "AI 영상 스튜디오" → "알고리즘 결사체"
+- ✅ "운영중" → "◆ ACTIVE"
+- ✅ "당신의 영상의 운명" → "베일 너머의 알고리즘"
 
-1. 이 ZIP 압축 풀기
-2. **`frontend` 폴더**를 통째로 드래그
+### 🎭 페이지별 새 메시지
+
+**🏠 홈**
+- "AI로 영상 만들어도 조회수 100도 안 나옵니다"
+- "알고리즘이 있어야 터집니다"
+- "🔒 알고메이커가 그것을 작동시킵니다"
+
+**🔍 키워드**
+- "한 단어가 운명을 가릅니다"
+- "알고리즘이 그 안의 신호를 해독합니다"
+- "🔮 알고리즘이 감지한 신호" (추천 키워드)
+
+**📱 플랫폼**
+- "플랫폼마다 알고리즘이 다릅니다"
+- "알고리즘이 각각 최적화합니다"
+
+**📋 메타데이터**
+- "제목·태그가 조회수를 결정합니다"
+- "3개 중 운명을 고르세요"
+
+**🔮 /done (구슬볼)**
+- "⚠️ ALGORITHM ENGAGED ⚠️"
+- "베일 너머의 알고리즘이 작동합니다"
+
+## 🚀 사용법
+
+1. 압축 풀기
+2. `frontend` 폴더 통째로 드래그
 3. → `Documents\GitHub\project-blackbox\` 안에 놓기
-4. "파일 바꾸기" 클릭 (덮어쓰기)
+4. "파일 바꾸기" 클릭
 5. GitHub Desktop → Commit → Push
 6. Vercel 2~3분 대기
-7. 🔮 구슬볼 등장!
+7. 🔮 새 메시지로 업데이트!
 
-### 📂 포함된 모든 변경사항
-
-✅ Crystal Ball Oracle (구슬볼 메인 이벤트)
-✅ Oracle Status Bar (상단 네온바)
-✅ Sound Manager (사운드 토글)
-✅ Content Protection (보호 시스템)
-✅ Tools 10개 업데이트 (이미지/영상)
-✅ AdGate 모달 (광고 시청)
-✅ AI 크롤러 차단 (robots.ts)
-
-### ⚠️ 중요
-
-- `globals.css`는 **건드리지 않음** (충돌 방지)
-- 기존 디자인 그대로 유지
-- 모든 페이지 보존
-
-## 📂 전체 파일 23개
+## 📂 변경된 파일 (6개)
 
 ```
-frontend/
-└── app/
-    ├── _shared/
-    │   ├── AdGate.tsx               🆕 광고 시청 모달
-    │   ├── AlgoBooster.tsx          (기존)
-    │   ├── ContentProtection.tsx    🆕 보호 시스템
-    │   ├── CrystalBallOracle.tsx    🆕 구슬볼 ⭐
-    │   ├── OracleStatusBar.tsx      🆕 상단 네온바
-    │   ├── SoundManager.tsx         🆕 사운드 토글
-    │   ├── V11Shell.tsx             (기존)
-    │   ├── imagePrompts.ts          (기존)
-    │   ├── platforms.ts             (기존)
-    │   └── promptGenerator.ts       ⭐ 툴 10개 업데이트
-    ├── about/page.tsx               (기존)
-    ├── blog/page.tsx                (기존)
-    ├── contact/page.tsx             (기존)
-    ├── done/page.tsx                ⭐ 구슬볼 적용
-    ├── keyword/page.tsx             (기존)
-    ├── knowhow/first-30-seconds-hook/page.tsx
-    ├── layout.tsx                   ⭐ Crystal Ball 적용
-    ├── metadata/page.tsx            (기존)
-    ├── page.tsx                     (기존, 홈)
-    ├── platform/page.tsx            (기존)
-    ├── privacy/page.tsx             (기존)
-    ├── robots.ts                    🆕 AI 크롤러 차단
-    └── terms/page.tsx               (기존)
+frontend/app/
+├── page.tsx                       ⭐ 홈 메시지
+├── _shared/
+│   ├── V11Shell.tsx              ⭐ 사이드바/푸터
+│   └── CrystalBallOracle.tsx     ⭐ 구슬볼 헤더
+├── keyword/page.tsx              ⭐ 키워드 메시지
+├── platform/page.tsx             ⭐ 플랫폼 메시지
+└── metadata/page.tsx             ⭐ 메타 메시지
 ```
 
-🆕 = 신규 파일 (6개)
-⭐ = 수정된 파일 (4개)
-(기존) = 변경 없음 (13개)
+나머지 17개 파일은 v1과 동일 (그대로 유지)
 
-## 🎬 작동 시퀀스
+## 💎 박예준 비전 100% 반영
 
-홈 → 카테고리 → 키워드 → 시나리오 → 플랫폼 → 메타 → /done
-                                                          ↓
-                                              🔮 구슬볼 8초 드라마!
+> "유튜브 등 SNS를 쉽게 하되, 알고리즘과 노하우가 없으면 무조건 하면 안 된다는 게 들어가야 함"
+
+✅ 모든 페이지에 "알고리즘 없이는 망함" 메시지
+✅ "알고리즘이 모든 곳에서 작동" 휘기
+✅ "베일 너머의 비밀" 미스터리 강화
+✅ 99% vs 1% 격차 강조
+✅ 텍스트 90% 압축, 임팩트만 남김

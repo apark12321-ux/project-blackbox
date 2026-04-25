@@ -72,7 +72,7 @@ const NOTICES = [
   { dot: '🔥', text: '이번 주 인기 키워드: "2026 금리 전망" · 블루오션 지수 94점', tag: '인기' },
   { dot: '📈', text: '경제·사회 카테고리 조회수 평균 38% 상승 (지난주 대비)', tag: '트렌드' },
   { dot: '💡', text: '미스터리 추적형 시나리오가 평균 유지율 95% 기록', tag: '팁' },
-  { dot: '🎯', text: '이번 달 주목 카테고리: IT·자기계발 · 경쟁 강도 낮음', tag: '인기' },
+  { dot: '🔮', text: '오늘 알고리즘 신호: IT·자기계발 폭발 임박', tag: '경고' },
   { dot: '✨', text: '다큐 스타일 업데이트 — 유지율 12% 향상', tag: '새소식' },
   { dot: '🎬', text: '어제 조회수 10만 돌파한 시나리오: "상식 깨기"', tag: '트렌드' },
 ];
@@ -181,7 +181,7 @@ function AlgoMakerLogo({ size = 'md', showSubtitle = true }: { size?: 'sm' | 'md
               marginTop: 3,
             }}
           >
-            AI 영상 스튜디오
+            알고리즘 결사체
           </div>
         )}
       </div>
@@ -753,7 +753,7 @@ function ShellInner({ children }: { children: React.ReactNode }) {
             </Link>
             <span className="liveBadge">
               <span className="liveDot" />
-              운영중
+              ◆ ACTIVE
             </span>
           </div>
 
@@ -854,8 +854,8 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                     <AlgoMakerLogo size="md" showSubtitle={false} />
                   </div>
                   <div className="fTag">
-                    키워드 하나로 영상을 자동으로 만들어드리는 AI 스튜디오.
-                    크리에이터의 시간을 돌려드립니다.
+                    🔒 알고리즘 없이는 묻힙니다.<br />
+                    AlgoMaker가 그것을 작동시킵니다.
                   </div>
                   <div className="fCompany">
                     운영: 한줄컴퍼니<br />
