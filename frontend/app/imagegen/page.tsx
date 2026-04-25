@@ -14,6 +14,15 @@ import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { V11Shell } from '../_shared/V11Shell';
 import AdSlot from '../_shared/AdSlot';
+import RewardedAd, {
+  isFreeAvailable,
+  getRemainingFree,
+  incrementUsage,
+  addBonusCredit,
+  tryUseCredit,
+  getBonusCredits,
+  FREE_LIMIT,
+} from '../_shared/RewardedAd';
 
 // 비율별 이미지 크기
 const ASPECT_DIMS: Record<string, { w: number; h: number }> = {
@@ -44,8 +53,14 @@ function ImagegenPageInner() {
   const [toast, setToast] = useState('');
   const [lightbox, setLightbox] = useState<string | null>(null);
   const stopRef = useRef(false);
+  
+  // 광고 게이트 상태
+  const [showAd, setShowAd] = useState(false);
+  const [remaining, setRemaining] = useState(0);
+  const [bonusCredits, setBonusCredits] = useState(0);
+  const [pendingGeneration, setPendingGeneration] = useState(false);
 
-  // /publish에서 전달된 프롬프트 자동 채우기
+  // /publish에서 전달된 프롬프트 자동 채우기 + 사용 횟수 확인
   useEffect(() => {
     const fromPublish = searchParams.get('prompt');
     if (fromPublish) {
@@ -54,6 +69,10 @@ function ImagegenPageInner() {
     }
     const ar = searchParams.get('ar');
     if (ar && ASPECT_DIMS[ar]) setAspectRatio(ar);
+    
+    // 사용권 정보 로드
+    setRemaining(getRemainingFree());
+    setBonusCredits(getBonusCredits());
   }, [searchParams]);
 
   const showToast = (msg: string) => {
@@ -88,7 +107,8 @@ function ImagegenPageInner() {
 
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
 
-  const startGeneration = async () => {
+  // 실제 생성 로직 (게이트 통과 후 실행)
+  const doGeneration = async () => {
     const prompts = getPrompts();
     if (prompts.length === 0) {
       showToast('⚠️ 프롬프트를 입력해주세요');
@@ -201,6 +221,57 @@ function ImagegenPageInner() {
     }
   };
 
+  // 광고 게이트가 포함된 메인 진입 함수
+  const startGeneration = async () => {
+    const prompts = getPrompts();
+    if (prompts.length === 0) {
+      showToast('⚠️ 프롬프트를 입력해주세요');
+      return;
+    }
+    
+    // 사용권 확인
+    const result = tryUseCredit();
+    if (result.allowed) {
+      // 무료 또는 보너스 사용권 있음 → 즉시 진행
+      setRemaining(getRemainingFree());
+      setBonusCredits(getBonusCredits());
+      if (result.source === 'free') {
+        showToast(`✨ 무료 이용권 사용 (${getRemainingFree()}회 남음)`);
+      } else {
+        showToast('🎁 광고 보너스 사용권으로 진행합니다');
+      }
+      await doGeneration();
+    } else {
+      // 사용권 없음 → 광고 시청 필요
+      setPendingGeneration(true);
+      setShowAd(true);
+    }
+  };
+  
+  // 광고 시청 완료 후 자동 생성 시작
+  const handleAdComplete = async () => {
+    addBonusCredit();
+    setBonusCredits(getBonusCredits());
+    
+    if (pendingGeneration) {
+      setPendingGeneration(false);
+      // 약간 지연 후 생성 시작 (모달 닫힘 애니메이션)
+      setTimeout(async () => {
+        // 보너스 사용권 사용
+        const result = tryUseCredit();
+        if (result.allowed) {
+          setBonusCredits(getBonusCredits());
+          await doGeneration();
+        }
+      }, 300);
+    }
+  };
+  
+  const handleAdClose = () => {
+    setShowAd(false);
+    setPendingGeneration(false);
+  };
+
   const stopGeneration = () => {
     stopRef.current = true;
   };
@@ -292,6 +363,13 @@ notebook and pen on desk, natural lighting, lifestyle photography`;
 
   return (
     <V11Shell currentStep={0}>
+      {/* 광고 모달 */}
+      <RewardedAd
+        open={showAd}
+        rewardLabel="이미지 생성 1회"
+        onComplete={handleAdComplete}
+        onClose={handleAdClose}
+      />
       <style jsx>{`
         .page {
           max-width: 1400px;
@@ -893,6 +971,21 @@ notebook and pen on desk, natural lighting, lifestyle photography`;
             <br />
             영상 썸네일·콘텐츠·광고 이미지로 바로 활용하세요.
           </p>
+          <div style={{
+            display: 'inline-flex', alignItems: 'center', gap: 6,
+            marginTop: 12, padding: '6px 14px',
+            background: 'rgba(198, 95, 59, 0.08)',
+            border: '1px solid rgba(198, 95, 59, 0.2)',
+            borderRadius: 100, fontSize: 12, color: '#555', fontWeight: 500
+          }}>
+            {remaining > 0 ? (
+              <>🎁 무료 이용권 <strong style={{ color: '#c65f3b', fontWeight: 800 }}>{remaining}회</strong> 남았어요</>
+            ) : bonusCredits > 0 ? (
+              <>🎁 광고 보너스 <strong style={{ color: '#c65f3b', fontWeight: 800 }}>{bonusCredits}회</strong> 사용 가능</>
+            ) : (
+              <>✨ 광고 1회 시청 = 1장 이미지 생성</>
+            )}
+          </div>
         </div>
 
         <div className="infoBox">

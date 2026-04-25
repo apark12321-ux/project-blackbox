@@ -320,9 +320,9 @@ export default function PublishPage() {
             <p className="sub">아래 내용을 그대로 복사해서 각 SNS에 붙여넣기만 하시면 됩니다</p>
             <div className="usageInfo">
               {remaining > 0 ? (
-                <>🎁 이번 달 무료 이용 <strong>{remaining}회</strong> 남았어요 (총 {FREE_LIMIT}회 무료)</>
+                <>🎁 무료 이용권 <strong>{remaining}회</strong> 남았어요 (최초 {FREE_LIMIT}회 무료)</>
               ) : (
-                <>✨ 광고 시청으로 1회 이용 가능 · 다음 달에 무료 {FREE_LIMIT}회 갱신</>
+                <>✨ 광고 1회 시청 = 1회 추가 이용 가능</>
               )}
             </div>
           </div>

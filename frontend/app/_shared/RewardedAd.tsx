@@ -431,20 +431,15 @@ export default function RewardedAd({ open, rewardLabel, onComplete, onClose }: R
 
 // ============================================================
 // 사용 횟수 추적 유틸리티 (localStorage)
+// 박 대표님 결정: 최초 5회 무료 + 이후 모두 광고 시청
 // ============================================================
 
-const FREE_LIMIT_PER_MONTH = 3;
-
-export function getCurrentMonthKey(): string {
-  const now = new Date();
-  return `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}`;
-}
+const FREE_TOTAL_LIMIT = 5;  // 최초 5회 (월별 X, 평생 5회)
 
 export function getUsageCount(): number {
   if (typeof window === 'undefined') return 0;
   try {
-    const monthKey = getCurrentMonthKey();
-    const stored = localStorage.getItem(`algomaker_usage_${monthKey}`);
+    const stored = localStorage.getItem('algomaker_total_usage');
     return stored ? parseInt(stored, 10) : 0;
   } catch {
     return 0;
@@ -454,10 +449,9 @@ export function getUsageCount(): number {
 export function incrementUsage(): number {
   if (typeof window === 'undefined') return 0;
   try {
-    const monthKey = getCurrentMonthKey();
     const current = getUsageCount();
     const next = current + 1;
-    localStorage.setItem(`algomaker_usage_${monthKey}`, String(next));
+    localStorage.setItem('algomaker_total_usage', String(next));
     return next;
   } catch {
     return 0;
@@ -465,23 +459,56 @@ export function incrementUsage(): number {
 }
 
 export function getRemainingFree(): number {
-  return Math.max(0, FREE_LIMIT_PER_MONTH - getUsageCount());
+  return Math.max(0, FREE_TOTAL_LIMIT - getUsageCount());
 }
 
 export function isFreeAvailable(): boolean {
   return getRemainingFree() > 0;
 }
 
+// 광고 시청 후 보너스 사용권 추가
 export function addBonusCredit(): void {
-  // 광고 시청 후 1회 추가 사용권 제공
   if (typeof window === 'undefined') return;
   try {
-    const monthKey = getCurrentMonthKey();
-    const current = getUsageCount();
-    // 사용 횟수를 1 줄여서 1회 추가 제공
-    const next = Math.max(0, current - 1);
-    localStorage.setItem(`algomaker_usage_${monthKey}`, String(next));
+    const current = parseInt(localStorage.getItem('algomaker_bonus_credits') || '0', 10);
+    localStorage.setItem('algomaker_bonus_credits', String(current + 1));
   } catch {}
 }
 
-export const FREE_LIMIT = FREE_LIMIT_PER_MONTH;
+// 보너스 사용권 사용
+export function useBonusCredit(): boolean {
+  if (typeof window === 'undefined') return false;
+  try {
+    const current = parseInt(localStorage.getItem('algomaker_bonus_credits') || '0', 10);
+    if (current > 0) {
+      localStorage.setItem('algomaker_bonus_credits', String(current - 1));
+      return true;
+    }
+    return false;
+  } catch {
+    return false;
+  }
+}
+
+export function getBonusCredits(): number {
+  if (typeof window === 'undefined') return 0;
+  try {
+    return parseInt(localStorage.getItem('algomaker_bonus_credits') || '0', 10);
+  } catch {
+    return 0;
+  }
+}
+
+// 게이트 통과 확인 + 사용권 차감
+export function tryUseCredit(): { allowed: boolean; source: 'free' | 'bonus' | 'none' } {
+  if (isFreeAvailable()) {
+    incrementUsage();
+    return { allowed: true, source: 'free' };
+  }
+  if (useBonusCredit()) {
+    return { allowed: true, source: 'bonus' };
+  }
+  return { allowed: false, source: 'none' };
+}
+
+export const FREE_LIMIT = FREE_TOTAL_LIMIT;
