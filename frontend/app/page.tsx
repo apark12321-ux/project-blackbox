@@ -278,15 +278,15 @@ export default function HomePage() {
             <span>WARNING · 99% 모르는 진실</span>
           </div>
           <h1 className="heroTitle">
-            AI로 영상 만들어도<br />
-            <span className="accent">조회수 100도 안 나옵니다.</span>
+            AI 유튜브 영상도<br />
+            <span className="accent">SNS 알고리즘 없이는 묻힙니다.</span>
           </h1>
           <p className="heroSub">
-            알고리즘 없이는 묻힙니다.<br />
-            <strong>알고리즘이 있어야 터집니다.</strong>
+            쇼츠 자동 생성·틱톡·릴스 모두 알고리즘이 결정.<br />
+            <strong>AlgoMaker가 베일 너머의 알고리즘을 작동시킵니다.</strong>
           </p>
           <div className="heroMeta">
-            🔒 알고메이커가 그것을 작동시킵니다.
+            🔒 키워드 하나로 시작 · 무료 · 신용카드 불필요
           </div>
         </section>
 

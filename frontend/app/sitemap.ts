@@ -2,79 +2,90 @@ import type { MetadataRoute } from 'next';
 
 const SITE_URL = 'https://project-blackbox-cpqy.vercel.app';
 
-// 블로그 노하우 슬러그 목록
-const KNOWHOW_SLUGS = [
-  'first-30-seconds-hook',
-  'seo-title-formula',
-  'ctr-thumbnail',
-  'viral-topic-formula',
-  'algorithm-script-structure',
-  'first-page-tags',
-  '8min-hook-points',
-  'blue-ocean-keyword',
-  'retention-editing-rhythm',
-  '12-narrative-structures',
-  'target-viewer-design',
-  'narration-tone-match',
-];
-
+/**
+ * Sitemap.xml 자동 생성
+ * 
+ * 검색엔진 크롤러가 사이트 구조를 빠르게 파악할 수 있도록
+ * 모든 페이지의 URL과 우선순위를 명시
+ */
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
-
-  // 메인 페이지들 (우선순위 높음)
-  const mainPages: MetadataRoute.Sitemap = [
+  
+  return [
+    // 메인 페이지 (최고 우선순위)
     {
       url: SITE_URL,
       lastModified: now,
       changeFrequency: 'daily',
       priority: 1.0,
     },
+    
+    // 핵심 플로우 페이지
     {
-      url: `${SITE_URL}/blog`,
+      url: `${SITE_URL}/keyword`,
       lastModified: now,
       changeFrequency: 'weekly',
       priority: 0.9,
     },
+    {
+      url: `${SITE_URL}/platform`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}/metadata`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    {
+      url: `${SITE_URL}/done`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.9,
+    },
+    
+    // 마케팅 페이지
     {
       url: `${SITE_URL}/about`,
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.8,
     },
+    {
+      url: `${SITE_URL}/blog`,
+      lastModified: now,
+      changeFrequency: 'weekly',
+      priority: 0.7,
+    },
+    {
+      url: `${SITE_URL}/contact`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.6,
+    },
+    
+    // 블로그 글
+    {
+      url: `${SITE_URL}/knowhow/first-30-seconds-hook`,
+      lastModified: now,
+      changeFrequency: 'monthly',
+      priority: 0.7,
+    },
+    
+    // 법적 페이지
+    {
+      url: `${SITE_URL}/terms`,
+      lastModified: now,
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
+    {
+      url: `${SITE_URL}/privacy`,
+      lastModified: now,
+      changeFrequency: 'yearly',
+      priority: 0.3,
+    },
   ];
-
-  // 플로우 페이지들
-  const flowPages: MetadataRoute.Sitemap = [
-    'keyword',
-    'platform',
-    'metadata',
-    'done',
-  ].map((path) => ({
-    url: `${SITE_URL}/${path}`,
-    lastModified: now,
-    changeFrequency: 'weekly' as const,
-    priority: 0.7,
-  }));
-
-  // 노하우 블로그 글들
-  const knowhowPages: MetadataRoute.Sitemap = KNOWHOW_SLUGS.map((slug) => ({
-    url: `${SITE_URL}/knowhow/${slug}`,
-    lastModified: now,
-    changeFrequency: 'monthly' as const,
-    priority: 0.8,
-  }));
-
-  // 정책 페이지들 (낮은 우선순위)
-  const policyPages: MetadataRoute.Sitemap = [
-    'contact',
-    'privacy',
-    'terms',
-  ].map((path) => ({
-    url: `${SITE_URL}/${path}`,
-    lastModified: now,
-    changeFrequency: 'yearly' as const,
-    priority: 0.3,
-  }));
-
-  return [...mainPages, ...flowPages, ...knowhowPages, ...policyPages];
 }
