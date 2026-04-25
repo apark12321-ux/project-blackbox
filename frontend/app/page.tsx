@@ -1,349 +1,512 @@
 'use client';
 /**
- * 새 홈 페이지 - 카테고리 선택 먼저
+ * AlgoMaker 메인 페이지 v3 (CLEAN)
  *
- * Step 1: 카테고리 선택 (8개, 베일 벗기기)
- * → Step 2: 키워드 입력 (/keyword)
+ * 박예준 대표 컨셉 확정:
+ * - 타겟: 40대 퇴직 예정자 (김 부장)
+ * - 메시지: "키워드만 입력하면 AI가 다 해드립니다"
+ * - 수익: 완전 무료 + AdSense
+ * - 핵심: 조회수 잘 나올 제목/태그 AI 추천
+ *
+ * 디자인 원칙:
+ * ✅ 깔끔함 (구슬볼/오라클/매트릭스 X)
+ * ✅ 명확함 (5초 안에 이해)
+ * ✅ 안심감 (퇴직자도 부담 없이)
+ * ✅ 도구 느낌 (점술 X)
  */
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useRouter } from 'next/navigation';
-import { DashboardShell, setProject, AlgoMakerLogo } from './_shared/V11Shell';
+import Link from 'next/link';
+import { DashboardShell, setProject } from './_shared/V11Shell';
 import { CATEGORIES } from './_shared/platforms';
 import AdSlot from './_shared/AdSlot';
-import AlgorithmReveal from './_shared/AlgorithmReveal';
 
 export default function HomePage() {
   const router = useRouter();
-  const [activeUsers, setActiveUsers] = useState(0);
+  const [keyword, setKeyword] = useState('');
+  const [selectedCategory, setSelectedCategory] = useState<string>('');
 
-  useEffect(() => {
-    const calculateUsers = () => {
-      const now = new Date();
-      const startOfDay = new Date(now.getFullYear(), now.getMonth(), now.getDate());
-      const minutesSinceStart = Math.floor((now.getTime() - startOfDay.getTime()) / 60000);
-      const dailyStart = 1200;
-      const perMinute = 1.25;
-      return Math.floor(dailyStart + minutesSinceStart * perMinute);
-    };
-
-    setActiveUsers(calculateUsers());
-
-    // 10~30초마다 자연스럽게 1씩 증가 (절대 감소 X)
-    let timerId: NodeJS.Timeout;
-    const scheduleNext = () => {
-      const delay = 10000 + Math.random() * 20000;
-      timerId = setTimeout(() => {
-        setActiveUsers((u) => u + 1);
-        scheduleNext();
-      }, delay);
-    };
-    scheduleNext();
-
-    return () => {
-      if (timerId) clearTimeout(timerId);
-    };
-  }, []);
-
-  const [revealing, setRevealing] = useState(false);
-  const [revealStage, setRevealStage] = useState('');
-
-  const handleCategoryClick = (categoryId: string) => {
-    setProject({ category: categoryId, step: 1 });
-    
-    // 🔮 알고리즘 작동 풀스크린
-    const cat = CATEGORIES.find(c => c.id === categoryId);
-    setRevealStage(`${cat?.name || '분야'} 알고리즘 분석`);
-    setRevealing(true);
-    
-    setTimeout(() => {
-      router.push('/keyword');
-    }, 2800);
+  const handleStart = () => {
+    if (!keyword.trim()) {
+      alert('키워드를 입력해주세요.');
+      return;
+    }
+    if (!selectedCategory) {
+      alert('분야를 선택해주세요.');
+      return;
+    }
+    setProject({ 
+      category: selectedCategory, 
+      keyword: keyword.trim(),
+      step: 1 
+    });
+    router.push('/keyword');
   };
 
   return (
-    <>
-      <AlgorithmReveal active={revealing} stage={revealStage} />
-      <DashboardShell>
+    <DashboardShell>
       <style jsx>{`
         .page {
-          padding: 0 0 48px;
-          max-width: 1200px;
+          max-width: 880px;
           margin: 0 auto;
+          padding: 60px 24px 40px;
         }
 
+        /* ============ HERO ============ */
         .hero {
-          padding: 48px 32px 36px;
           text-align: center;
-          position: relative;
+          margin-bottom: 56px;
         }
-        .hero::before {
-          content: '';
-          position: absolute;
-          top: -60px; left: 50%;
-          transform: translateX(-50%);
-          width: 700px; height: 350px;
-          background: radial-gradient(ellipse, rgba(198, 95, 59, 0.1) 0%, transparent 60%);
-          pointer-events: none;
-        }
-        .heroLogoWrap {
-          display: flex;
-          justify-content: center;
-          margin-bottom: 20px;
-          position: relative;
-          z-index: 1;
-        }
-        .stepBadge {
+
+        .heroBadge {
           display: inline-flex;
           align-items: center;
           gap: 8px;
-          padding: 5px 14px;
-          background: linear-gradient(135deg, #fdf1e7 0%, #fbf3df 100%);
-          border: 1px solid rgba(198, 95, 59, 0.15);
-          border-radius: 999px;
-          font-size: 11px;
-          font-weight: 800;
-          color: #a64a2a;
-          margin-bottom: 16px;
-          letter-spacing: -0.01em;
-          position: relative;
-          z-index: 1;
-        }
-        .heroTitle {
-          font-size: 46px;
-          font-weight: 800;
-          letter-spacing: -0.04em;
-          line-height: 1.1;
-          color: #2a2419;
-          margin-bottom: 12px;
-          position: relative;
-          z-index: 1;
-        }
-        .heroTitle .accent { color: #c65f3b; }
-        .heroSub {
-          font-size: 16px;
-          color: #564a3a;
-          font-weight: 500;
-          line-height: 1.65;
-          max-width: 560px;
-          margin: 0 auto 22px;
-          position: relative;
-          z-index: 1;
-        }
-        .heroMeta {
-          font-size: 13px;
-          color: #8a7d6a;
-          margin-bottom: 10px;
-          position: relative;
-          z-index: 1;
-        }
-        .heroMeta strong {
-          color: #c65f3b;
+          padding: 6px 14px;
+          background: #fdf1e7;
+          border-radius: 100px;
+          font-size: 12px;
           font-weight: 700;
-          font-variant-numeric: tabular-nums;
+          color: #c65f3b;
+          margin-bottom: 20px;
         }
 
-        /* 카테고리 그리드 */
-        .catSection {
-          padding: 20px 32px 0;
+        .heroTitle {
+          font-size: 44px;
+          font-weight: 800;
+          letter-spacing: -0.025em;
+          color: #2a2419;
+          line-height: 1.2;
+          margin-bottom: 16px;
         }
-        .catHead {
-          text-align: center;
+
+        .heroTitle .accent {
+          color: #c65f3b;
+        }
+
+        .heroSub {
+          font-size: 17px;
+          line-height: 1.6;
+          color: #6b6557;
+          max-width: 560px;
+          margin: 0 auto 32px;
+        }
+
+        .heroFeatures {
+          display: flex;
+          justify-content: center;
+          gap: 24px;
+          flex-wrap: wrap;
+          font-size: 13px;
+          color: #6b6557;
           margin-bottom: 24px;
         }
-        .catHeadTitle {
+
+        .heroFeatures span {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .heroFeatures .check {
+          color: #5e7e5d;
+          font-weight: 700;
+        }
+
+        /* ============ INPUT BOX ============ */
+        .inputBox {
+          background: #fff;
+          border: 1px solid #e8e2d3;
+          border-radius: 16px;
+          padding: 32px;
+          margin-bottom: 40px;
+          box-shadow: 0 2px 16px rgba(0, 0, 0, 0.03);
+        }
+
+        .inputLabel {
+          display: block;
+          font-size: 14px;
+          font-weight: 700;
+          color: #2a2419;
+          margin-bottom: 8px;
+        }
+
+        .keywordInput {
+          width: 100%;
+          padding: 16px 20px;
+          font-size: 16px;
+          font-family: inherit;
+          border: 2px solid #e8e2d3;
+          border-radius: 12px;
+          background: #faf8f4;
+          color: #2a2419;
+          transition: all 0.2s;
+          margin-bottom: 24px;
+          box-sizing: border-box;
+        }
+
+        .keywordInput:focus {
+          outline: none;
+          border-color: #c65f3b;
+          background: #fff;
+        }
+
+        .keywordInput::placeholder {
+          color: #b8ad9b;
+        }
+
+        /* 분야 선택 */
+        .categoryLabel {
+          font-size: 14px;
+          font-weight: 700;
+          color: #2a2419;
+          margin-bottom: 12px;
+        }
+
+        .categoryGrid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 8px;
+          margin-bottom: 24px;
+        }
+
+        @media (max-width: 600px) {
+          .categoryGrid {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+
+        .categoryChip {
+          padding: 12px 10px;
+          background: #faf8f4;
+          border: 2px solid #e8e2d3;
+          border-radius: 10px;
+          cursor: pointer;
+          transition: all 0.15s;
+          text-align: center;
+          font-family: inherit;
+        }
+
+        .categoryChip:hover {
+          border-color: #d4a87b;
+          background: #fff;
+        }
+
+        .categoryChip.selected {
+          border-color: #c65f3b;
+          background: #fdf1e7;
+        }
+
+        .chipEmoji {
+          font-size: 22px;
+          margin-bottom: 4px;
+        }
+
+        .chipName {
+          font-size: 12px;
+          font-weight: 700;
+          color: #2a2419;
+        }
+
+        /* CTA 버튼 */
+        .ctaBtn {
+          width: 100%;
+          padding: 18px 24px;
+          background: #c65f3b;
+          color: #fff;
+          border: none;
+          border-radius: 12px;
+          font-size: 16px;
+          font-weight: 800;
+          letter-spacing: -0.01em;
+          cursor: pointer;
+          transition: all 0.2s;
+          font-family: inherit;
+        }
+
+        .ctaBtn:hover {
+          background: #a64a2a;
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(198, 95, 59, 0.3);
+        }
+
+        .ctaBtn:active {
+          transform: translateY(0);
+        }
+
+        .ctaBtnSub {
+          font-size: 12px;
+          font-weight: 500;
+          opacity: 0.85;
+          display: block;
+          margin-top: 4px;
+        }
+
+        /* ============ HOW IT WORKS ============ */
+        .howSection {
+          margin: 48px 0;
+        }
+
+        .sectionTitle {
           font-size: 22px;
           font-weight: 800;
           color: #2a2419;
-          letter-spacing: -0.025em;
+          text-align: center;
           margin-bottom: 8px;
-        }
-        .catHeadSub {
-          font-size: 14px;
-          color: #8a7d6a;
-          font-weight: 500;
         }
 
-        .catGrid {
+        .sectionSub {
+          font-size: 14px;
+          color: #6b6557;
+          text-align: center;
+          margin-bottom: 32px;
+        }
+
+        .stepsGrid {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 14px;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 16px;
         }
-        .catCard {
-          background: #faf8f4;
-          border: 1px solid rgba(90, 74, 58, 0.06);
-          border-radius: 16px;
-          padding: 24px 22px;
-          cursor: pointer;
-          transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
-          position: relative;
-          display: flex;
-          flex-direction: column;
-          min-height: 280px;
+
+        @media (max-width: 720px) {
+          .stepsGrid {
+            grid-template-columns: 1fr;
+          }
         }
-        .catCard:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 28px rgba(90, 74, 58, 0.1);
-          border-color: rgba(198, 95, 59, 0.2);
-        }
-        .catCardHead {
-          display: flex;
-          justify-content: space-between;
-          align-items: flex-start;
-          margin-bottom: 14px;
-        }
-        .catEmoji {
-          font-size: 34px;
-          line-height: 1;
-        }
-        .hotBadge {
-          padding: 3px 9px;
-          background: linear-gradient(135deg, #c65f3b 0%, #a64a2a 100%);
-          color: #fff;
-          border-radius: 5px;
-          font-size: 10px;
-          font-weight: 800;
-          letter-spacing: -0.01em;
-          box-shadow: 0 2px 6px rgba(198, 95, 59, 0.3);
-        }
-        .catName {
-          font-size: 16px;
-          font-weight: 800;
-          color: #2a2419;
-          letter-spacing: -0.02em;
-          line-height: 1.3;
-          margin-bottom: 8px;
-        }
-        .catDesc {
-          font-size: 12.5px;
-          color: #564a3a;
-          line-height: 1.55;
-          font-weight: 500;
-          margin-bottom: 14px;
-        }
-        .catExamples {
-          flex: 1;
+
+        .stepCard {
           background: #fff;
-          border-radius: 8px;
-          padding: 10px 12px;
-          margin-bottom: 14px;
+          border: 1px solid #e8e2d3;
+          border-radius: 12px;
+          padding: 24px 20px;
+          text-align: center;
         }
-        .catExamplesLabel {
-          font-size: 10px;
+
+        .stepNum {
+          display: inline-block;
+          width: 32px;
+          height: 32px;
+          background: #fdf1e7;
+          color: #c65f3b;
+          border-radius: 50%;
+          line-height: 32px;
+          font-size: 14px;
           font-weight: 800;
-          color: #8a7d6a;
-          letter-spacing: 0.05em;
+          margin-bottom: 12px;
+        }
+
+        .stepTitle {
+          font-size: 16px;
+          font-weight: 700;
+          color: #2a2419;
           margin-bottom: 6px;
         }
-        .catExample {
-          font-size: 11px;
-          color: #564a3a;
-          line-height: 1.55;
-          padding: 2px 0;
-          font-weight: 500;
+
+        .stepDesc {
+          font-size: 13px;
+          color: #6b6557;
+          line-height: 1.5;
         }
-        .catExample::before {
-          content: '•';
-          margin-right: 5px;
-          color: #c65f3b;
-          font-weight: 800;
+
+        /* ============ FEATURES ============ */
+        .featuresSection {
+          background: #faf8f4;
+          border-radius: 16px;
+          padding: 36px 28px;
+          margin: 48px 0;
         }
-        .catStats {
+
+        .featuresList {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 20px;
+        }
+
+        @media (max-width: 600px) {
+          .featuresList {
+            grid-template-columns: 1fr;
+          }
+        }
+
+        .featureItem {
           display: flex;
-          justify-content: space-between;
-          padding-top: 10px;
-          border-top: 1px dashed rgba(90, 74, 58, 0.1);
-          font-size: 10.5px;
-          color: #8a7d6a;
-          font-weight: 600;
+          gap: 12px;
+          align-items: flex-start;
         }
-        .catStats strong {
-          color: #2a2419;
+
+        .featureIcon {
+          flex-shrink: 0;
+          width: 36px;
+          height: 36px;
+          background: #fff;
+          border: 1px solid #e8e2d3;
+          border-radius: 10px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 18px;
+        }
+
+        .featureContent h3 {
+          font-size: 14px;
           font-weight: 700;
+          color: #2a2419;
+          margin: 0 0 4px;
         }
 
-        .adWrap {
-          padding: 40px 32px 0;
+        .featureContent p {
+          font-size: 12.5px;
+          color: #6b6557;
+          line-height: 1.5;
+          margin: 0;
         }
 
-        @media (max-width: 1024px) {
-          .catGrid { grid-template-columns: repeat(3, 1fr); }
-        }
-        @media (max-width: 768px) {
-          .hero { padding: 32px 20px 28px; }
-          .heroTitle { font-size: 30px; }
-          .heroSub { font-size: 14px; }
-          .catSection { padding: 16px 16px 0; }
-          .catGrid { grid-template-columns: repeat(2, 1fr); }
-          .adWrap { padding: 32px 16px 0; }
-        }
-        @media (max-width: 500px) {
-          .catGrid { grid-template-columns: 1fr; }
+        /* ============ AD AREA ============ */
+        .adArea {
+          margin: 32px 0;
         }
       `}</style>
 
       <div className="page">
+        {/* ============ HERO ============ */}
         <section className="hero">
-          <div className="heroLogoWrap">
-            <AlgoMakerLogo size="lg" showSubtitle={false} />
+          <div className="heroBadge">
+            <span>✓</span>
+            <span>AI 영상 자동 생성 도구</span>
           </div>
-          <div className="stepBadge">
-            <span>⚠️</span>
-            <span>WARNING · 99% 모르는 진실</span>
-          </div>
+
           <h1 className="heroTitle">
-            AI 유튜브 영상도<br />
-            <span className="accent">SNS 알고리즘 없이는 묻힙니다.</span>
+            키워드만 입력하면<br />
+            AI가 <span className="accent">모든 걸 대신해드립니다</span>
           </h1>
+
           <p className="heroSub">
-            쇼츠 자동 생성·틱톡·릴스 모두 알고리즘이 결정.<br />
-            <strong>AlgoMaker가 베일 너머의 알고리즘을 작동시킵니다.</strong>
+            영상 제목·태그·대본까지 자동 생성.<br />
+            유튜브, 쇼츠, 틱톡, 릴스 모두 한 번에.
           </p>
-          <div className="heroMeta">
-            🔒 키워드 하나로 시작 · 무료 · 신용카드 불필요
+
+          <div className="heroFeatures">
+            <span><span className="check">✓</span> 완전 무료</span>
+            <span><span className="check">✓</span> 회원가입 불필요</span>
+            <span><span className="check">✓</span> 신용카드 X</span>
           </div>
         </section>
 
-        <section className="catSection">
-          <div className="catHead">
-            <h2 className="catHeadTitle">❦ 분야를 고르세요 ❦</h2>
-            <p className="catHeadSub">알고리즘은 분야마다 다릅니다.</p>
-          </div>
+        {/* ============ 입력 박스 ============ */}
+        <div className="inputBox">
+          <label className="inputLabel" htmlFor="keyword-input">
+            🎯 영상 키워드를 입력하세요
+          </label>
+          <input
+            id="keyword-input"
+            type="text"
+            className="keywordInput"
+            placeholder="예: 50대 부동산 투자 전략, 퇴직 후 N잡 추천..."
+            value={keyword}
+            onChange={(e) => setKeyword(e.target.value)}
+            onKeyDown={(e) => e.key === 'Enter' && handleStart()}
+          />
 
-          <div className="catGrid">
-            {CATEGORIES.map((cat) => (
-              <div
+          <div className="categoryLabel">
+            📂 어떤 분야의 영상인가요?
+          </div>
+          <div className="categoryGrid">
+            {CATEGORIES.slice(0, 8).map((cat) => (
+              <button
                 key={cat.id}
-                className="catCard"
-                style={{ borderTop: `3px solid ${cat.color}` }}
-                onClick={() => handleCategoryClick(cat.id)}
+                className={`categoryChip ${selectedCategory === cat.id ? 'selected' : ''}`}
+                onClick={() => setSelectedCategory(cat.id)}
               >
-                <div className="catCardHead">
-                  <span className="catEmoji">{cat.emoji}</span>
-                  {cat.hot && <span className="hotBadge">🔥 인기</span>}
-                </div>
-                <div className="catName">{cat.name}</div>
-                <div className="catDesc">{cat.description}</div>
-                <div className="catExamples">
-                  <div className="catExamplesLabel">🔮 알고리즘이 작동할 영역</div>
-                  {cat.examples.slice(0, 2).map((ex, i) => (
-                    <div key={i} className="catExample">{ex}</div>
-                  ))}
-                </div>
-                <div className="catStats">
-                  <span>📊 평균 <strong>{cat.avgViews}</strong></span>
-                  <span>⚔️ 경쟁 <strong>{cat.competition}</strong></span>
-                </div>
-              </div>
+                <div className="chipEmoji">{cat.emoji}</div>
+                <div className="chipName">{cat.name}</div>
+              </button>
             ))}
           </div>
+
+          <button className="ctaBtn" onClick={handleStart}>
+            AI 분석 시작하기
+            <span className="ctaBtnSub">조회수 잘 나오는 제목·태그 자동 추천</span>
+          </button>
+        </div>
+
+        {/* ============ 광고 영역 ============ */}
+        <div className="adArea">
+          <AdSlot slot="home-mid" variant="horizontal" />
+        </div>
+
+        {/* ============ 어떻게 작동하나요? ============ */}
+        <section className="howSection">
+          <h2 className="sectionTitle">어떻게 작동하나요?</h2>
+          <p className="sectionSub">단 3단계로 영상 자료가 완성됩니다</p>
+
+          <div className="stepsGrid">
+            <div className="stepCard">
+              <div className="stepNum">1</div>
+              <h3 className="stepTitle">키워드 입력</h3>
+              <p className="stepDesc">
+                만들고 싶은 영상의<br />키워드와 분야 선택
+              </p>
+            </div>
+            <div className="stepCard">
+              <div className="stepNum">2</div>
+              <h3 className="stepTitle">AI 분석</h3>
+              <p className="stepDesc">
+                조회수 잘 나오는<br />제목·태그·대본 자동 추천
+              </p>
+            </div>
+            <div className="stepCard">
+              <div className="stepNum">3</div>
+              <h3 className="stepTitle">바로 사용</h3>
+              <p className="stepDesc">
+                완성된 자료를<br />복사해서 업로드
+              </p>
+            </div>
+          </div>
         </section>
 
-        <div className="adWrap">
+        {/* ============ 주요 기능 ============ */}
+        <section className="featuresSection">
+          <h2 className="sectionTitle">제공되는 자료</h2>
+          <p className="sectionSub">키워드 하나로 모두 자동 생성</p>
+
+          <div className="featuresList">
+            <div className="featureItem">
+              <div className="featureIcon">📝</div>
+              <div className="featureContent">
+                <h3>영상 제목 추천</h3>
+                <p>유튜브 알고리즘 분석으로 클릭률 높은 제목 3개 추천</p>
+              </div>
+            </div>
+            <div className="featureItem">
+              <div className="featureIcon">🏷️</div>
+              <div className="featureContent">
+                <h3>태그 자동 생성</h3>
+                <p>플랫폼별 최적화된 태그 자동 생성·복사 가능</p>
+              </div>
+            </div>
+            <div className="featureItem">
+              <div className="featureIcon">📄</div>
+              <div className="featureContent">
+                <h3>영상 대본</h3>
+                <p>30초~10분 길이 시나리오 구조 제공</p>
+              </div>
+            </div>
+            <div className="featureItem">
+              <div className="featureIcon">📱</div>
+              <div className="featureContent">
+                <h3>다중 플랫폼</h3>
+                <p>유튜브·쇼츠·틱톡·릴스 한 번에 자료 생성</p>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ============ 광고 영역 ============ */}
+        <div className="adArea">
           <AdSlot slot="home-bottom" variant="horizontal" />
         </div>
       </div>
     </DashboardShell>
-    </>
   );
 }
