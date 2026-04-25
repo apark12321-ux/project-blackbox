@@ -35,75 +35,35 @@ export interface ToolInfo {
   pricing: string;
 }
 
-// ========== AI 이미지 생성 툴 (2026년 4월 최신) ==========
-// 무료 7개 + 유료 3개 = 10개
-// Nano Banana Pro, DALL-E, Copilot 등 무료 최우선
+// ========== AI 이미지 생성 툴 ==========
 const IMAGE_TOOLS: { [key: string]: ToolInfo[] } = {
   photorealistic: [
-    { name: 'Google Gemini (Nano Banana Pro)', url: 'https://gemini.google.com', emoji: '🏆', pricing: '무료 (일 25회)' },
-    { name: 'ChatGPT (GPT Image 1.5)', url: 'https://chat.openai.com', emoji: '🤖', pricing: '무료 (일 제한)' },
-    { name: 'Microsoft Copilot', url: 'https://copilot.microsoft.com', emoji: '🟦', pricing: '무료' },
-    { name: 'Flux Pro', url: 'https://flux1.ai', emoji: '⚡', pricing: '무료 티어' },
-    { name: 'Leonardo AI', url: 'https://leonardo.ai', emoji: '💎', pricing: '무료 (150 토큰/일)' },
-    { name: 'Playground AI', url: 'https://playground.com', emoji: '🎨', pricing: '무료 (1000장/일)' },
-    { name: 'Canva AI', url: 'https://www.canva.com/ai-image-generator/', emoji: '✨', pricing: '무료 티어' },
-    { name: 'Midjourney v6', url: 'https://www.midjourney.com', emoji: '🎭', pricing: '$10/월~' },
-    { name: 'Adobe Firefly', url: 'https://firefly.adobe.com', emoji: '🔥', pricing: '$9.99/월~' },
-    { name: 'Ideogram', url: 'https://ideogram.ai', emoji: '📝', pricing: '무료 (일 10회)' },
+    { name: 'Midjourney v6', url: 'https://www.midjourney.com', emoji: '🎨', pricing: '$10/월~' },
+    { name: 'Flux Pro', url: 'https://flux1.ai', emoji: '⚡', pricing: 'Free tier' },
+    { name: 'DALL-E 3', url: 'https://chat.openai.com', emoji: '🤖', pricing: 'ChatGPT Plus' },
   ],
   illustration: [
-    { name: 'Google Gemini (Nano Banana Pro)', url: 'https://gemini.google.com', emoji: '🏆', pricing: '무료 (일 25회)' },
-    { name: 'ChatGPT (GPT Image 1.5)', url: 'https://chat.openai.com', emoji: '🤖', pricing: '무료 (일 제한)' },
-    { name: 'Leonardo AI', url: 'https://leonardo.ai', emoji: '💎', pricing: '무료 (150 토큰/일)' },
-    { name: 'Microsoft Copilot', url: 'https://copilot.microsoft.com', emoji: '🟦', pricing: '무료' },
-    { name: 'Canva AI', url: 'https://www.canva.com/ai-image-generator/', emoji: '✨', pricing: '무료 티어' },
-    { name: 'Playground AI', url: 'https://playground.com', emoji: '🎨', pricing: '무료 (1000장/일)' },
-    { name: 'Ideogram', url: 'https://ideogram.ai', emoji: '📝', pricing: '무료 (일 10회)' },
-    { name: 'Midjourney --style raw', url: 'https://www.midjourney.com', emoji: '🎭', pricing: '$10/월~' },
-    { name: 'Flux Pro', url: 'https://flux1.ai', emoji: '⚡', pricing: '무료 티어' },
-    { name: 'Adobe Firefly', url: 'https://firefly.adobe.com', emoji: '🔥', pricing: '$9.99/월~' },
+    { name: 'DALL-E 3', url: 'https://chat.openai.com', emoji: '🤖', pricing: 'ChatGPT Plus' },
+    { name: 'Midjourney --style raw', url: 'https://www.midjourney.com', emoji: '🎨', pricing: '$10/월~' },
+    { name: 'Leonardo AI', url: 'https://leonardo.ai', emoji: '💎', pricing: 'Free tier' },
   ],
   infographic: [
-    { name: 'Canva AI', url: 'https://www.canva.com/ai-image-generator/', emoji: '✨', pricing: '무료 티어' },
-    { name: 'Google Gemini (Nano Banana Pro)', url: 'https://gemini.google.com', emoji: '🏆', pricing: '무료 (일 25회)' },
-    { name: 'ChatGPT (GPT Image 1.5)', url: 'https://chat.openai.com', emoji: '🤖', pricing: '무료 (일 제한)' },
-    { name: 'Microsoft Copilot', url: 'https://copilot.microsoft.com', emoji: '🟦', pricing: '무료' },
-    { name: 'Ideogram', url: 'https://ideogram.ai', emoji: '📝', pricing: '무료 (일 10회)' },
-    { name: 'Leonardo AI', url: 'https://leonardo.ai', emoji: '💎', pricing: '무료 (150 토큰/일)' },
-    { name: 'Playground AI', url: 'https://playground.com', emoji: '🎨', pricing: '무료 (1000장/일)' },
-    { name: 'Adobe Firefly', url: 'https://firefly.adobe.com', emoji: '🔥', pricing: '$9.99/월~' },
-    { name: 'Midjourney v6', url: 'https://www.midjourney.com', emoji: '🎭', pricing: '$10/월~' },
-    { name: 'Flux Pro', url: 'https://flux1.ai', emoji: '⚡', pricing: '무료 티어' },
+    { name: 'Canva AI', url: 'https://www.canva.com/ai-image-generator/', emoji: '✨', pricing: 'Free tier' },
+    { name: 'DALL-E 3', url: 'https://chat.openai.com', emoji: '🤖', pricing: 'ChatGPT Plus' },
   ],
   cinematic: [
-    { name: 'Google Gemini (Nano Banana Pro)', url: 'https://gemini.google.com', emoji: '🏆', pricing: '무료 (일 25회)' },
-    { name: 'Flux Pro', url: 'https://flux1.ai', emoji: '⚡', pricing: '무료 티어' },
-    { name: 'ChatGPT (GPT Image 1.5)', url: 'https://chat.openai.com', emoji: '🤖', pricing: '무료 (일 제한)' },
-    { name: 'Leonardo AI', url: 'https://leonardo.ai', emoji: '💎', pricing: '무료 (150 토큰/일)' },
-    { name: 'Microsoft Copilot', url: 'https://copilot.microsoft.com', emoji: '🟦', pricing: '무료' },
-    { name: 'Playground AI', url: 'https://playground.com', emoji: '🎨', pricing: '무료 (1000장/일)' },
-    { name: 'Canva AI', url: 'https://www.canva.com/ai-image-generator/', emoji: '✨', pricing: '무료 티어' },
-    { name: 'Midjourney v6', url: 'https://www.midjourney.com', emoji: '🎭', pricing: '$10/월~' },
-    { name: 'Adobe Firefly', url: 'https://firefly.adobe.com', emoji: '🔥', pricing: '$9.99/월~' },
-    { name: 'Ideogram', url: 'https://ideogram.ai', emoji: '📝', pricing: '무료 (일 10회)' },
+    { name: 'Midjourney v6', url: 'https://www.midjourney.com', emoji: '🎨', pricing: '$10/월~' },
+    { name: 'Flux Pro', url: 'https://flux1.ai', emoji: '⚡', pricing: 'Free tier' },
   ],
 };
 
-// ========== AI 영상 생성 툴 (2026년 4월 최신) ==========
-// 무료 7개 + 유료 3개 = 10개
-// Veo 3, Kling 3.0, Hailuo 등 무료 최우선
+// ========== AI 영상 생성 툴 ==========
 const VIDEO_TOOLS: { [key: string]: ToolInfo[] } = {
   default: [
-    { name: 'Google Veo 3', url: 'https://gemini.google.com', emoji: '🏆', pricing: '무료 (최고 품질)' },
-    { name: 'Kling AI 3.0', url: 'https://app.klingai.com', emoji: '🎥', pricing: '무료 (일 6회)' },
-    { name: 'Hailuo AI (MiniMax)', url: 'https://hailuoai.video', emoji: '⚡', pricing: '무료 (일 제한)' },
-    { name: 'Vidu Q3', url: 'https://www.vidu.com', emoji: '🎬', pricing: '무료 (멀티샷)' },
-    { name: 'Seedance 2.0', url: 'https://seedance.ai', emoji: '🚀', pricing: '무료 (30초 생성)' },
-    { name: 'Pika', url: 'https://pika.art', emoji: '✨', pricing: '무료 티어' },
-    { name: 'Luma Dream Machine', url: 'https://lumalabs.ai/dream-machine', emoji: '💫', pricing: '무료 크레딧' },
-    { name: 'Runway Gen-4', url: 'https://runwayml.com', emoji: '🎞️', pricing: '$15/월~' },
-    { name: 'InVideo AI', url: 'https://invideo.io', emoji: '📹', pricing: '$20/월~' },
-    { name: 'HeyGen', url: 'https://www.heygen.com', emoji: '🎭', pricing: '$29/월~' },
+    { name: 'Runway Gen-3', url: 'https://runwayml.com', emoji: '🎬', pricing: '$12/월~' },
+    { name: 'Kling AI', url: 'https://kling.kuaishou.com', emoji: '🎥', pricing: 'Free tier' },
+    { name: 'Luma Dream Machine', url: 'https://lumalabs.ai/dream-machine', emoji: '💫', pricing: 'Free tier' },
+    { name: 'Sora (OpenAI)', url: 'https://openai.com/sora', emoji: '🌟', pricing: 'ChatGPT Pro' },
   ],
 };
 
