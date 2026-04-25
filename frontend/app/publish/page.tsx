@@ -245,9 +245,9 @@ export default function PublishPage() {
 
         <div className="header">
           <div>
-            <span className="doneBadge">✓ AI 분석 완료</span>
-            <h1 className="title">SNS 업로드 자료 준비 완료</h1>
-            <p className="sub">각 플랫폼 업로드 화면에 그대로 복사·붙여넣기하시면 됩니다</p>
+            <span className="doneBadge">✓ AI 추천 완료</span>
+            <h1 className="title">📝 SNS 업로드 자료</h1>
+            <p className="sub">아래 내용을 그대로 복사해서 각 SNS에 붙여넣기만 하시면 됩니다</p>
           </div>
           <div className="summaryChips">
             <span className="chip">{cat.emoji} <strong>{cat.name}</strong></span>
@@ -258,16 +258,16 @@ export default function PublishPage() {
 
         <div className="platformTabs">
           <button className={`tab ${activeTab === 'youtube-long' ? 'active' : ''}`} onClick={() => setActiveTab('youtube-long')}>
-            <span className="tabEmoji">📺</span><span>YouTube 롱폼</span>
+            <span className="tabEmoji">📺</span><span>유튜브 (긴 영상)</span>
           </button>
           <button className={`tab ${activeTab === 'youtube-shorts' ? 'active' : ''}`} onClick={() => setActiveTab('youtube-shorts')}>
-            <span className="tabEmoji">📱</span><span>YouTube Shorts</span>
+            <span className="tabEmoji">📱</span><span>유튜브 쇼츠</span>
           </button>
           <button className={`tab ${activeTab === 'tiktok' ? 'active' : ''}`} onClick={() => setActiveTab('tiktok')}>
-            <span className="tabEmoji">🎵</span><span>TikTok</span>
+            <span className="tabEmoji">🎵</span><span>틱톡</span>
           </button>
           <button className={`tab ${activeTab === 'instagram-reels' ? 'active' : ''}`} onClick={() => setActiveTab('instagram-reels')}>
-            <span className="tabEmoji">📸</span><span>Instagram Reels</span>
+            <span className="tabEmoji">📸</span><span>인스타 릴스</span>
           </button>
           <button className={`tab ${activeTab === 'video-prompts' ? 'active' : ''}`} onClick={() => setActiveTab('video-prompts')}>
             <span className="tabEmoji">🎬</span><span>영상 제작 프롬프트</span>
@@ -281,10 +281,10 @@ export default function PublishPage() {
                 <div className="platformHeader youtube">
                   <span className="platformLogo">📺</span>
                   <div className="platformInfo">
-                    <h3 className="platformName">YouTube Studio · 영상 세부정보</h3>
+                    <h3 className="platformName">유튜브 (긴 영상) 업로드 자료</h3>
                     <div className="platformSpecs">8분 이상 · 가로 16:9 · 광고 수익 가능</div>
                   </div>
-                  <span className="platformBadge">롱폼</span>
+                  <span className="platformBadge">긴 영상</span>
                 </div>
                 <div className="uploadBody">
                   <div className="formField">
@@ -426,10 +426,10 @@ export default function PublishPage() {
                 <div className="platformHeader shorts">
                   <span className="platformLogo">📱</span>
                   <div className="platformInfo">
-                    <h3 className="platformName">YouTube Shorts · 업로드</h3>
+                    <h3 className="platformName">유튜브 쇼츠 업로드 자료</h3>
                     <div className="platformSpecs">60초 이하 · 세로 9:16 · 빠른 구독 증가</div>
                   </div>
-                  <span className="platformBadge">SHORTS</span>
+                  <span className="platformBadge">쇼츠</span>
                 </div>
                 <div className="uploadBody">
                   <div className="formField">
@@ -475,10 +475,10 @@ export default function PublishPage() {
                 <div className="platformHeader tiktok">
                   <span className="platformLogo">🎵</span>
                   <div className="platformInfo">
-                    <h3 className="platformName">TikTok · Upload Video</h3>
+                    <h3 className="platformName">틱톡 업로드 자료</h3>
                     <div className="platformSpecs">15~60초 · 세로 9:16 · 바이럴 확산력 최강</div>
                   </div>
-                  <span className="platformBadge">TIKTOK</span>
+                  <span className="platformBadge">틱톡</span>
                 </div>
                 <div className="uploadBody">
                   <div className="formField">
@@ -524,10 +524,10 @@ export default function PublishPage() {
                 <div className="platformHeader reels">
                   <span className="platformLogo">📸</span>
                   <div className="platformInfo">
-                    <h3 className="platformName">Instagram · 새 릴스</h3>
+                    <h3 className="platformName">인스타 릴스 업로드 자료</h3>
                     <div className="platformSpecs">90초 이하 · 세로 9:16 · 브랜드 친화적</div>
                   </div>
-                  <span className="platformBadge">REELS</span>
+                  <span className="platformBadge">릴스</span>
                 </div>
                 <div className="uploadBody">
                   <div className="formField">
@@ -679,7 +679,7 @@ export default function PublishPage() {
           <aside className="sidebar">
             <h3 className="sidebarTitle">📊 알고리즘 분석</h3>
             <div className="sidebarSection">
-              <div className="sidebarLabel">예상 CTR (클릭률)</div>
+              <div className="sidebarLabel">예상 클릭률 (CTR)</div>
               <div className="sidebarStat">{titles[selectedTitleIdx]?.ctr_estimate || '7~10%'}</div>
               <div className="sidebarStatLabel">선택한 제목 기준</div>
             </div>
