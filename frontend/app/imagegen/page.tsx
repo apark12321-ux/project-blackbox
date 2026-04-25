@@ -68,11 +68,22 @@ function ImagegenPageInner() {
       .filter((l) => l.length > 0);
   };
 
-  const generateImageUrl = (prompt: string, ar: string): string => {
+  // 시도별 다른 엔드포인트 사용 (백업 API 전략)
+  const generateImageUrl = (prompt: string, ar: string, attempt: number = 0): string => {
     const { w, h } = ASPECT_DIMS[ar] || { w: 1024, h: 1024 };
     const seed = Math.floor(Math.random() * 999999);
     const encoded = encodeURIComponent(prompt);
-    return `https://image.pollinations.ai/prompt/${encoded}?width=${w}&height=${h}&model=${model}&seed=${seed}&nologo=true`;
+
+    // 시도 1: 기본 Pollinations (선택한 모델)
+    if (attempt === 0) {
+      return `https://image.pollinations.ai/prompt/${encoded}?width=${w}&height=${h}&model=${model}&seed=${seed}&nologo=true`;
+    }
+    // 시도 2: turbo 모델로 재시도 (더 빠른 응답, 콜드 스타트에 강함)
+    if (attempt === 1) {
+      return `https://image.pollinations.ai/prompt/${encoded}?width=${w}&height=${h}&model=turbo&seed=${seed}&nologo=true`;
+    }
+    // 시도 3: 새 엔드포인트 (gen.pollinations.ai)
+    return `https://image.pollinations.ai/prompt/${encoded}?width=${w}&height=${h}&seed=${seed}&nologo=true`;
   };
 
   const sleep = (ms: number) => new Promise((r) => setTimeout(r, ms));
@@ -112,30 +123,63 @@ function ImagegenPageInner() {
       });
       setProgress({ done: doneCount, total, status: `생성 중 (${i + 1}/${total})` });
 
-      try {
-        const imgUrl = generateImageUrl(newQueue[i].prompt, aspectRatio);
+      // 최대 3회 시도 (1차: 기본 모델, 2차: turbo, 3차: 기본 엔드포인트)
+      let success = false;
+      let finalImgUrl = '';
+      let lastError = '';
 
-        // 이미지 프리로드 (Pollinations는 URL 자체가 결과)
-        await new Promise<void>((resolve) => {
-          const img = new Image();
-          img.onload = () => resolve();
-          img.onerror = () => resolve();
-          img.src = imgUrl;
-          setTimeout(() => resolve(), 12000); // 12초 timeout
-        });
+      for (let attempt = 0; attempt < 3 && !success && !stopRef.current; attempt++) {
+        try {
+          const imgUrl = generateImageUrl(newQueue[i].prompt, aspectRatio, attempt);
+          
+          // 이미지 프리로드 (콜드 스타트 대응 - 30초 타임아웃)
+          const loadResult = await new Promise<'success' | 'error' | 'timeout'>((resolve) => {
+            const img = new Image();
+            const timer = setTimeout(() => resolve('timeout'), 30000); // 30초로 증가
+            img.onload = () => {
+              clearTimeout(timer);
+              // 이미지 크기로 깨짐 여부 추가 검증
+              if (img.naturalWidth > 100 && img.naturalHeight > 100) {
+                resolve('success');
+              } else {
+                resolve('error');
+              }
+            };
+            img.onerror = () => {
+              clearTimeout(timer);
+              resolve('error');
+            };
+            img.src = imgUrl;
+          });
 
-        // 완료 처리
+          if (loadResult === 'success') {
+            success = true;
+            finalImgUrl = imgUrl;
+          } else {
+            const reason = loadResult === 'timeout' ? '시간 초과' : '생성 실패';
+            const nextAction = attempt === 0 ? 'Turbo 모델로 재시도' : attempt === 1 ? '기본 모델로 재시도' : '재시도 종료';
+            lastError = `${reason} (${nextAction})`;
+            // 재시도 전 2초 대기
+            if (attempt < 2) await sleep(2000);
+          }
+        } catch (err: any) {
+          lastError = err?.message || '오류';
+          if (attempt < 2) await sleep(2000);
+        }
+      }
+
+      if (success) {
         setQueue((prev) => {
           const next = [...prev];
-          next[i] = { ...next[i], status: 'done', imgUrl };
+          next[i] = { ...next[i], status: 'done', imgUrl: finalImgUrl };
           return next;
         });
-        setResults((prev) => [...prev, { prompt: newQueue[i].prompt, imgUrl, ar: aspectRatio }]);
+        setResults((prev) => [...prev, { prompt: newQueue[i].prompt, imgUrl: finalImgUrl, ar: aspectRatio }]);
         doneCount++;
-      } catch (err: any) {
+      } else {
         setQueue((prev) => {
           const next = [...prev];
-          next[i] = { ...next[i], status: 'error', errorMsg: err?.message || '오류' };
+          next[i] = { ...next[i], status: 'error', errorMsg: lastError || '생성 실패' };
           return next;
         });
       }
@@ -159,6 +203,72 @@ function ImagegenPageInner() {
 
   const stopGeneration = () => {
     stopRef.current = true;
+  };
+
+  // 단일 이미지 재생성 (실패한 이미지) - 다중 백업 전략 적용
+  const regenerateSingle = async (idx: number) => {
+    const item = queue[idx];
+    if (!item) return;
+
+    // loading 상태로 변경
+    setQueue((prev) => {
+      const next = [...prev];
+      next[idx] = { ...next[idx], status: 'loading' };
+      return next;
+    });
+
+    let success = false;
+    let finalImgUrl = '';
+
+    // 최대 3회 시도 (재생성도 백업 전략 적용)
+    for (let attempt = 0; attempt < 3 && !success; attempt++) {
+      try {
+        const imgUrl = generateImageUrl(item.prompt, aspectRatio, attempt);
+        const loadResult = await new Promise<'success' | 'error' | 'timeout'>((resolve) => {
+          const img = new Image();
+          const timer = setTimeout(() => resolve('timeout'), 30000);
+          img.onload = () => {
+            clearTimeout(timer);
+            if (img.naturalWidth > 100 && img.naturalHeight > 100) {
+              resolve('success');
+            } else {
+              resolve('error');
+            }
+          };
+          img.onerror = () => {
+            clearTimeout(timer);
+            resolve('error');
+          };
+          img.src = imgUrl;
+        });
+
+        if (loadResult === 'success') {
+          success = true;
+          finalImgUrl = imgUrl;
+        } else if (attempt < 2) {
+          await sleep(2000);
+        }
+      } catch {
+        if (attempt < 2) await sleep(2000);
+      }
+    }
+
+    if (success) {
+      setQueue((prev) => {
+        const next = [...prev];
+        next[idx] = { ...next[idx], status: 'done', imgUrl: finalImgUrl };
+        return next;
+      });
+      setResults((prev) => [...prev, { prompt: item.prompt, imgUrl: finalImgUrl, ar: aspectRatio }]);
+      showToast('✅ 재생성 완료!');
+    } else {
+      setQueue((prev) => {
+        const next = [...prev];
+        next[idx] = { ...next[idx], status: 'error', errorMsg: '서버가 일시적으로 바쁩니다. 1~2분 후 다시 시도해주세요.' };
+        return next;
+      });
+      showToast('❌ 재생성 실패. 잠시 후 다시 시도해주세요.');
+    }
   };
 
   const downloadImage = (url: string, idx: number) => {
@@ -704,7 +814,8 @@ notebook and pen on desk, natural lighting, lifestyle photography`;
           <div className="infoText">
             • <strong>한 줄에 하나씩</strong> 프롬프트를 입력하시면 각각의 이미지로 생성됩니다
             <br />• <strong>영문 프롬프트</strong>가 더 정확한 결과를 만듭니다 (한글도 작동하지만 품질 차이 있음)
-            <br />• /publish 페이지에서 <strong>"이미지 생성하기"</strong> 버튼을 누르시면 프롬프트가 자동으로 채워집니다
+            <br />• /publish 페이지의 <strong>"🎨 이미지 생성"</strong> 또는 <strong>"🎨 썸네일 만들기"</strong> 버튼을 누르시면 프롬프트가 자동으로 채워집니다
+            <br />• <strong>첫 번째 이미지</strong>는 서버 준비 시간 때문에 30초까지 걸릴 수 있어요. 실패해도 <strong>"🔄 다시 생성"</strong> 버튼으로 재시도 가능합니다.
           </div>
         </div>
 
@@ -821,7 +932,22 @@ notebook and pen on desk, natural lighting, lifestyle photography`;
                       if (item.status === 'done' && item.imgUrl) {
                         return (
                           <div key={i} className="resultCard">
-                            <img className={`resultImg ${arClass}`} src={item.imgUrl} alt={item.prompt} onClick={() => setLightbox(item.imgUrl!)} />
+                            <img
+                              className={`resultImg ${arClass}`}
+                              src={item.imgUrl}
+                              alt={item.prompt}
+                              onClick={() => setLightbox(item.imgUrl!)}
+                              onError={(e) => {
+                                // 이미지 로드 실패 시 자동으로 error 상태로 변경
+                                setQueue((prev) => {
+                                  const next = [...prev];
+                                  if (next[i]) {
+                                    next[i] = { ...next[i], status: 'error', errorMsg: '이미지 로드 실패' };
+                                  }
+                                  return next;
+                                });
+                              }}
+                            />
                             <div className="resultInfo">
                               <div className="resultPrompt">{item.prompt}</div>
                               <div className="resultActions">
@@ -830,6 +956,14 @@ notebook and pen on desk, natural lighting, lifestyle photography`;
                                 </button>
                                 <button className="actionBtn" onClick={() => setLightbox(item.imgUrl!)}>
                                   🔍 확대
+                                </button>
+                                <button
+                                  className="actionBtn"
+                                  onClick={() => regenerateSingle(i)}
+                                  disabled={running}
+                                  title="다시 생성"
+                                >
+                                  🔄
                                 </button>
                               </div>
                             </div>
@@ -852,10 +986,20 @@ notebook and pen on desk, natural lighting, lifestyle photography`;
                           <div key={i} className="resultCard">
                             <div className={`resultLoading ${arClass}`} style={{ color: '#d63b3b' }}>
                               <div style={{ fontSize: 28 }}>❌</div>
-                              <span>오류: {item.errorMsg}</span>
+                              <span style={{ fontSize: 11, padding: '0 12px', textAlign: 'center' }}>{item.errorMsg}</span>
                             </div>
                             <div className="resultInfo">
                               <div className="resultPrompt">{item.prompt}</div>
+                              <div className="resultActions">
+                                <button
+                                  className="actionBtn"
+                                  style={{ background: '#c65f3b', color: '#fff', borderColor: '#c65f3b' }}
+                                  onClick={() => regenerateSingle(i)}
+                                  disabled={running}
+                                >
+                                  🔄 다시 생성
+                                </button>
+                              </div>
                             </div>
                           </div>
                         );
