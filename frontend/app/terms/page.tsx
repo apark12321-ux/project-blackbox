@@ -1,26 +1,13 @@
 'use client';
 /**
  * /terms - 이용약관
- * SEO: WebPage JSON-LD + Breadcrumb
+ *
+ * AdSense 승인에 필수.
+ * 핵심 내용: 서비스 제공 범위, 사용자 의무, 제한 사항, 면책 조항
  */
 
 import Link from 'next/link';
 import { DashboardShell } from '../_shared/V11Shell';
-import { JsonLd, generateBreadcrumbJsonLd } from '../_shared/SEO';
-
-const termsJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'WebPage',
-  name: '이용약관',
-  description: 'AlgoMaker 서비스 이용약관 - 서비스 제공 범위, 사용자 의무, 면책 조항',
-  url: 'https://nutube.kr/terms',
-  inLanguage: 'ko-KR',
-};
-
-const breadcrumbJsonLd = generateBreadcrumbJsonLd([
-  { name: '홈', url: 'https://nutube.kr' },
-  { name: '이용약관', url: 'https://nutube.kr/terms' },
-]);
 
 const LAST_UPDATED = '2026년 4월 23일';
 const CONTACT_EMAIL = 'contact@algomaker.kr';
@@ -28,10 +15,6 @@ const CONTACT_EMAIL = 'contact@algomaker.kr';
 export default function TermsPage() {
   return (
     <DashboardShell>
-      {/* SEO JSON-LD */}
-      <JsonLd data={termsJsonLd} />
-      <JsonLd data={breadcrumbJsonLd} />
-
       <style jsx>{`
         .page {
           padding: 32px 32px 60px;

@@ -1,26 +1,20 @@
 'use client';
 /**
  * /privacy - 개인정보 처리방침
- * SEO: WebPage JSON-LD + Breadcrumb
+ *
+ * AdSense 승인 필수 요소:
+ * - 쿠키 사용 명시 (Google AdSense, Analytics)
+ * - 제3자 광고 파트너 언급
+ * - DoubleClick DART 쿠키 설명
+ * - 사용자의 opt-out 권리 명시
+ * - GDPR / 한국 개인정보보호법 준수
+ *
+ * 중요: 이 내용은 AdSense 정책 페이지 참조하여 작성됨
+ * 운영자 이메일/업체명은 실제 정보로 교체 필수
  */
 
 import Link from 'next/link';
 import { DashboardShell } from '../_shared/V11Shell';
-import { JsonLd, generateBreadcrumbJsonLd } from '../_shared/SEO';
-
-const privacyJsonLd = {
-  '@context': 'https://schema.org',
-  '@type': 'WebPage',
-  name: '개인정보 처리방침',
-  description: 'AlgoMaker의 개인정보 수집·이용·보관·파기 방침',
-  url: 'https://nutube.kr/privacy',
-  inLanguage: 'ko-KR',
-};
-
-const breadcrumbJsonLd = generateBreadcrumbJsonLd([
-  { name: '홈', url: 'https://nutube.kr' },
-  { name: '개인정보 처리방침', url: 'https://nutube.kr/privacy' },
-]);
 
 const LAST_UPDATED = '2026년 4월 23일';
 const CONTACT_EMAIL = 'contact@algomaker.kr';
@@ -28,10 +22,6 @@ const CONTACT_EMAIL = 'contact@algomaker.kr';
 export default function PrivacyPage() {
   return (
     <DashboardShell>
-      {/* SEO JSON-LD */}
-      <JsonLd data={privacyJsonLd} />
-      <JsonLd data={breadcrumbJsonLd} />
-
       <style jsx>{`
         .page {
           padding: 32px 32px 60px;

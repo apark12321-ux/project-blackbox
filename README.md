@@ -1,46 +1,70 @@
-# Project Blackbox v2.1
+# 🔮 AlgoMaker - Crystal Ball Edition (전체 폴더)
 
-수익형 유튜브 자동화 솔루션 — 5모듈 파이프라인
+## 📦 압축 풀고 frontend 폴더만 통째로 드래그!
 
-## 아키텍처
+### 🚀 빠른 사용법
+
+1. 이 ZIP 압축 풀기
+2. **`frontend` 폴더**를 통째로 드래그
+3. → `Documents\GitHub\project-blackbox\` 안에 놓기
+4. "파일 바꾸기" 클릭 (덮어쓰기)
+5. GitHub Desktop → Commit → Push
+6. Vercel 2~3분 대기
+7. 🔮 구슬볼 등장!
+
+### 📂 포함된 모든 변경사항
+
+✅ Crystal Ball Oracle (구슬볼 메인 이벤트)
+✅ Oracle Status Bar (상단 네온바)
+✅ Sound Manager (사운드 토글)
+✅ Content Protection (보호 시스템)
+✅ Tools 10개 업데이트 (이미지/영상)
+✅ AdGate 모달 (광고 시청)
+✅ AI 크롤러 차단 (robots.ts)
+
+### ⚠️ 중요
+
+- `globals.css`는 **건드리지 않음** (충돌 방지)
+- 기존 디자인 그대로 유지
+- 모든 페이지 보존
+
+## 📂 전체 파일 23개
 
 ```
-Module A (Curation) → Module B (Script) → Module B-2 (Video) → Module C (Shield) → Module D (Publish)
+frontend/
+└── app/
+    ├── _shared/
+    │   ├── AdGate.tsx               🆕 광고 시청 모달
+    │   ├── AlgoBooster.tsx          (기존)
+    │   ├── ContentProtection.tsx    🆕 보호 시스템
+    │   ├── CrystalBallOracle.tsx    🆕 구슬볼 ⭐
+    │   ├── OracleStatusBar.tsx      🆕 상단 네온바
+    │   ├── SoundManager.tsx         🆕 사운드 토글
+    │   ├── V11Shell.tsx             (기존)
+    │   ├── imagePrompts.ts          (기존)
+    │   ├── platforms.ts             (기존)
+    │   └── promptGenerator.ts       ⭐ 툴 10개 업데이트
+    ├── about/page.tsx               (기존)
+    ├── blog/page.tsx                (기존)
+    ├── contact/page.tsx             (기존)
+    ├── done/page.tsx                ⭐ 구슬볼 적용
+    ├── keyword/page.tsx             (기존)
+    ├── knowhow/first-30-seconds-hook/page.tsx
+    ├── layout.tsx                   ⭐ Crystal Ball 적용
+    ├── metadata/page.tsx            (기존)
+    ├── page.tsx                     (기존, 홈)
+    ├── platform/page.tsx            (기존)
+    ├── privacy/page.tsx             (기존)
+    ├── robots.ts                    🆕 AI 크롤러 차단
+    └── terms/page.tsx               (기존)
 ```
 
-## Quick Start
+🆕 = 신규 파일 (6개)
+⭐ = 수정된 파일 (4개)
+(기존) = 변경 없음 (13개)
 
-```bash
-# 1. 환경변수 설정
-cp infra/.env.example .env
-# .env 파일에 API 키 입력
+## 🎬 작동 시퀀스
 
-# 2. Docker로 전체 실행
-cd infra && docker-compose up -d
-
-# 3. 프론트엔드
-cd frontend && npm install && npm run dev
-```
-
-## 구조
-
-| 디렉토리 | 모듈 | 역할 |
-|----------|------|------|
-| module_a/ | A | BOI v2 큐레이션 + 뉴스 수집 |
-| module_b/ | B | 3단 스크립트 (CPU-light, 수초) |
-| module_b2/ | B-2 | 영상 편집 (GPU-heavy, 5~10분) |
-| module_c/ | C | 3중 변주 + Safety Score |
-| module_d/ | D | Algo-Sync + SEO + 업로드 |
-| infra/ | - | DB, Celery, Docker, Config, OAuth |
-| frontend/ | - | Next.js 15 + Tailwind + Zustand |
-
-## API 키 필요 목록
-
-- Gemini API Key (Module A, B)
-- News API Key (Module A)
-- YouTube Data API v3 Key (Module A)
-- ElevenLabs API Key (Module B-2)
-- HeyGen API Key (Module B-2)
-- YouTube OAuth Client ID/Secret (Module D)
-
-
+홈 → 카테고리 → 키워드 → 시나리오 → 플랫폼 → 메타 → /done
+                                                          ↓
+                                              🔮 구슬볼 8초 드라마!
