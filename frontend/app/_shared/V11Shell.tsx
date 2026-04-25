@@ -194,7 +194,6 @@ function ShellInner({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [noticeIdx, setNoticeIdx] = useState(0);
-  const todayCount = useTodayCounter();
 
   useEffect(() => {
     const t = setInterval(() => setNoticeIdx((i) => (i + 1) % NOTICES.length), 4500);
@@ -786,15 +785,6 @@ function ShellInner({ children }: { children: React.ReactNode }) {
 
           <div className="spacer" />
 
-          <div className="statsCard">
-            <div className="statsTop">
-              <span className="statsDot" />
-              <span className="statsLabel">오늘 · LIVE</span>
-            </div>
-            <div className="statsValue">{todayCount.toLocaleString()}</div>
-            <div className="statsSub">개 영상이 만들어졌어요</div>
-          </div>
-
           <div className="sidebarAd">
             <AdSlot slot="sidebar" variant="sidebar-card" />
           </div>
@@ -846,8 +836,8 @@ function ShellInner({ children }: { children: React.ReactNode }) {
                     <AlgoMakerLogo size="md" showSubtitle={false} />
                   </div>
                   <div className="fTag">
-                    🔒 알고리즘 없이는 묻힙니다.<br />
-                    AlgoMaker가 그것을 작동시킵니다.
+                    키워드만 선택하면 AI가<br />
+                    영상 제목·태그·대본을 추천해드립니다.
                   </div>
                   <div className="fCompany">
                     운영: 한줄컴퍼니<br />
