@@ -144,11 +144,12 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
     return () => clearInterval(t);
   }, []);
 
-  // 박 대표님 페이지 21개 + 이미지 생성기 추가 = 22개
+  // 박 대표님 페이지 21개 + 이미지 생성기 + 워크플로우 = 23개
   const mainMenu = [
     { icon: '🏠', label: '홈', path: '/', key: 'home' },
     { icon: '✨', label: '영상 만들기', path: '/create', key: 'create' },
     { icon: '🎨', label: 'AI 이미지 생성', path: '/imagegen', key: 'imagegen' },
+    { icon: '🎬', label: '일관된 영상 가이드', path: '/workflow', key: 'workflow' },
     { icon: '🎬', label: '내 영상', path: '/assets', key: 'assets' },
     { icon: '📊', label: '분석', path: '/analytics', key: 'analytics' },
     { icon: '📰', label: '트렌드 뉴스', path: '/news', key: 'news' },

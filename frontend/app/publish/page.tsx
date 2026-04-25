@@ -664,6 +664,44 @@ export default function PublishPage() {
                   </div>
                 </div>
 
+                {/* 일관된 스타일 가이드 카드 */}
+                <div style={{
+                  background: 'linear-gradient(135deg, #fef3c7 0%, #fef9e7 100%)',
+                  border: '2px solid #f59e0b',
+                  borderRadius: 14,
+                  padding: 20,
+                  marginBottom: 20,
+                }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
+                    <span style={{ fontSize: 24 }}>💡</span>
+                    <span style={{ fontSize: 15, fontWeight: 800, color: '#92400e' }}>
+                      한 사람이 그린 듯한 일관된 영상 만드는 비결
+                    </span>
+                  </div>
+                  <p style={{ fontSize: 13, color: '#555', lineHeight: 1.7, margin: '0 0 14px' }}>
+                    AI 영상이 일관성이 없는 이유는 매번 새로 그리기 때문입니다.<br />
+                    <strong style={{ color: '#92400e' }}>NotebookLM(무료) + Pinterest(무료)</strong> 조합으로 60장 이미지를 일관된 스타일로 만들 수 있어요.<br />
+                    조회수 20만 채널들이 사용하는 무료 워크플로우입니다!
+                  </p>
+                  <Link
+                    href="/workflow"
+                    style={{
+                      display: 'inline-flex',
+                      alignItems: 'center',
+                      gap: 6,
+                      padding: '10px 18px',
+                      background: '#f59e0b',
+                      color: '#fff',
+                      borderRadius: 100,
+                      fontSize: 13,
+                      fontWeight: 700,
+                      textDecoration: 'none',
+                    }}
+                  >
+                    📚 5단계 무료 가이드 보기 →
+                  </Link>
+                </div>
+
                 {sequences.map((seq, idx) => (
                   <div key={seq.number} className="sequenceCard">
                     <div className="seqHead">
