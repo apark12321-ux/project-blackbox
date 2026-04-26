@@ -9,7 +9,6 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { V11Shell } from './_shared/V11Shell';
-import { CATEGORIES } from './_shared/platforms';
 import AdSlot from './_shared/AdSlot';
 
 export default function HomePage() {
@@ -76,35 +75,50 @@ export default function HomePage() {
         }
 
         /* 카테고리 그리드 */
-        .categoryGrid {
+        /* 차별화 카드 (떡상 엔진 강조) */
+        .diffGrid {
           display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 12px;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 14px;
         }
-        @media (max-width: 720px) { .categoryGrid { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 480px) { .categoryGrid { grid-template-columns: repeat(2, 1fr); } }
+        @media (max-width: 720px) { .diffGrid { grid-template-columns: 1fr; } }
         
-        .categoryCard {
-          background: #fff; border: 1px solid #e5e5e5;
-          border-radius: 12px; padding: 18px 12px;
-          text-align: center; cursor: pointer;
-          transition: all 0.15s; text-decoration: none;
-          color: inherit; display: block;
+        .diffCard {
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 14px;
+          padding: 24px 22px;
+          transition: all 0.2s;
         }
-        .categoryCard:hover {
-          border-color: #c65f3b; background: #fffbf8;
+        .diffCard:hover {
+          border-color: #c65f3b;
+          background: #fffbf8;
           transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(198, 95, 59, 0.08);
         }
-        .catEmoji { font-size: 28px; margin-bottom: 6px; }
-        .catName {
-          font-size: 13px; font-weight: 700;
-          color: #1a1a1a; line-height: 1.3;
+        .diffEmoji {
+          font-size: 32px;
+          margin-bottom: 10px;
+          display: inline-block;
         }
-        .catHot {
-          display: inline-block; margin-top: 4px;
-          padding: 1px 6px; background: #ff6b35;
-          color: #fff; font-size: 9px; font-weight: 700;
-          border-radius: 4px;
+        .diffTitle {
+          font-size: 17px;
+          font-weight: 800;
+          color: #1a1a1a;
+          margin-bottom: 8px;
+          letter-spacing: -0.02em;
+          line-height: 1.3;
+        }
+        @media (max-width: 600px) {
+          .diffTitle { font-size: 15.5px; }
+        }
+        .diffDesc {
+          font-size: 13.5px;
+          color: #555;
+          line-height: 1.7;
+        }
+        @media (max-width: 600px) {
+          .diffDesc { font-size: 13px; }
         }
 
         /* 작동 방식 */
@@ -235,23 +249,45 @@ export default function HomePage() {
         </div>
 
         {/* 카테고리 12개 */}
+        {/* 떡상 시나리오 차별화 */}
         <section className="section">
           <div className="sectionHeader">
-            <h2 className="sectionTitle">12개 분야 지원</h2>
-            <p className="sectionSub">40대 퇴직 예정자에게 인기 있는 분야 위주로 구성</p>
+            <h2 className="sectionTitle">왜 AlgoMaker일까요?</h2>
+            <p className="sectionSub">단순한 AI 글쓰기 도구가 아닙니다. 떡상 시나리오 엔진입니다.</p>
           </div>
-          <div className="categoryGrid">
-            {CATEGORIES.map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/create?category=${cat.id}`}
-                className="categoryCard"
-              >
-                <div className="catEmoji">{cat.emoji}</div>
-                <div className="catName">{cat.name}</div>
-                {cat.hot && <div className="catHot">HOT</div>}
-              </Link>
-            ))}
+          <div className="diffGrid">
+            <div className="diffCard">
+              <div className="diffEmoji">🎯</div>
+              <div className="diffTitle">키워드별 다른 트리거</div>
+              <div className="diffDesc">
+                부동산은 수치 중심, 영어는 경험담 중심.<br />
+                같은 도구가 아닌 분야별 맞춤 시나리오.
+              </div>
+            </div>
+            <div className="diffCard">
+              <div className="diffEmoji">🔄</div>
+              <div className="diffTitle">매번 다른 결과</div>
+              <div className="diffDesc">
+                같은 키워드도 &quot;다시 생성&quot; 누를 때마다 새 시나리오.<br />
+                100명이 같은 단어 입력해도 100가지 결과.
+              </div>
+            </div>
+            <div className="diffCard">
+              <div className="diffEmoji">💎</div>
+              <div className="diffTitle">자연스러운 한국어</div>
+              <div className="diffDesc">
+                AI 티 안 나는 진짜 사람 화법.<br />
+                조사 자동 처리로 어색함 0.
+              </div>
+            </div>
+            <div className="diffCard">
+              <div className="diffEmoji">📊</div>
+              <div className="diffTitle">구체적 수치 자동</div>
+              <div className="diffDesc">
+                &quot;8천만원 차익&quot;, &quot;-12kg&quot;, &quot;토익 850점&quot;<br />
+                AI가 분야에 맞는 진짜 같은 숫자 생성.
+              </div>
+            </div>
           </div>
         </section>
 
