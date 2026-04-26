@@ -85,31 +85,29 @@ const NOTICES = [
 ];
 
 // ============================================================
-// AdSlot Component (인라인)
+// AdSlot Component (인라인) - AdSense 승인 전 자동 숨김
 // ============================================================
 function AdSlot({ slot, variant = 'horizontal' }: { slot: string; variant?: string }) {
   const client = (typeof process !== 'undefined' && process.env.NEXT_PUBLIC_ADSENSE_CLIENT) || '';
   const slotEnvKey = `NEXT_PUBLIC_ADSENSE_SLOT_${slot.toUpperCase().replace(/-/g, '_')}`;
   const slotId = (typeof process !== 'undefined' && (process.env as any)[slotEnvKey]) || '';
-  const showPlaceholder = !client || !slotId;
+
+  // 🔑 AdSense 승인 전이면 완전히 숨김
+  if (!client || !slotId) {
+    return null;
+  }
 
   return (
     <div className={`adContainer adContainer-${variant}`}>
       <div className="adLabel">광고</div>
-      {showPlaceholder ? (
-        <div className="adPlaceholder">
-          <span>Advertisement</span>
-        </div>
-      ) : (
-        <ins
-          className="adsbygoogle"
-          style={{ display: 'block' }}
-          data-ad-client={client}
-          data-ad-slot={slotId}
-          data-ad-format="auto"
-          data-full-width-responsive="true"
-        />
-      )}
+      <ins
+        className="adsbygoogle"
+        style={{ display: 'block' }}
+        data-ad-client={client}
+        data-ad-slot={slotId}
+        data-ad-format="auto"
+        data-full-width-responsive="true"
+      />
 
       <style jsx>{`
         .adContainer { width: 100%; padding: 8px 0; }
@@ -117,14 +115,6 @@ function AdSlot({ slot, variant = 'horizontal' }: { slot: string; variant?: stri
           font-size: 10px; font-weight: 600; color: #999;
           text-align: left; margin-bottom: 4px; letter-spacing: 0.05em;
         }
-        .adPlaceholder {
-          width: 100%; min-height: 90px;
-          background: #f5f5f5; border: 1px solid #e5e5e5;
-          border-radius: 8px;
-          display: flex; align-items: center; justify-content: center;
-          color: #999; font-size: 12px; font-weight: 500;
-        }
-        .adContainer-sidebar-card .adPlaceholder { min-height: 250px; }
       `}</style>
     </div>
   );

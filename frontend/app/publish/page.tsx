@@ -7,9 +7,10 @@
  * 2. 알고리즘 반영된 진짜 고퀄리티 콘텐츠
  * 3. 영상 제작 프롬프트 (한글 + 영문)
  * 4. 광고 게이트 (Rewarded Ad - AdSense Offerwall)
+ * 5. 떡상 시나리오 - 매번 다른 결과 (다양성 + 진심)
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
 import Link from 'next/link';
 import { V11Shell, getProject } from '../_shared/V11Shell';
 import { getCategoryById, getScenarioById, getTrendingKeywords } from '../_shared/platforms';
@@ -20,6 +21,7 @@ import {
   generateVideoSequences,
   generateThumbnailConcepts,
   getYouTubeCategory,
+  bumpSeed,
 } from '../_shared/contentEngine';
 import AdSlot from '../_shared/AdSlot';
 import RewardedAd, {
@@ -40,6 +42,9 @@ export default function PublishPage() {
   const [copied, setCopied] = useState('');
   const [selectedTitleIdx, setSelectedTitleIdx] = useState(0);
   const [selectedThumbIdx, setSelectedThumbIdx] = useState(0);
+  
+  // 떡상 시나리오 - "다시 생성" 트리거
+  const [regenerationKey, setRegenerationKey] = useState(0);
   
   // 광고 게이트 관련 상태
   const [showAd, setShowAd] = useState(false);
@@ -89,12 +94,36 @@ export default function PublishPage() {
   const scenario = getScenarioById(scenarioId);
   if (!cat) return null;
 
-  const titles = generateTitles(keyword, scenarioId, cat.name);
-  const description = generateDescription(keyword, cat.name, scenarioId);
-  const tags = generateTags(keyword, cat.name);
-  const sequences = generateVideoSequences(keyword, scenarioId);
-  const thumbnails = generateThumbnailConcepts(keyword, cat.name);
+  // 떡상 시나리오 엔진 호출 - regenerationKey 변경 시 새 결과 생성
+  const titles = useMemo(
+    () => generateTitles(keyword, scenarioId, cat.name),
+    [keyword, scenarioId, cat.name, regenerationKey]
+  );
+  const description = useMemo(
+    () => generateDescription(keyword, cat.name, scenarioId),
+    [keyword, cat.name, scenarioId, regenerationKey]
+  );
+  const tags = useMemo(
+    () => generateTags(keyword, cat.name),
+    [keyword, cat.name, regenerationKey]
+  );
+  const sequences = useMemo(
+    () => generateVideoSequences(keyword, scenarioId),
+    [keyword, scenarioId, regenerationKey]
+  );
+  const thumbnails = useMemo(
+    () => generateThumbnailConcepts(keyword, cat.name),
+    [keyword, cat.name, regenerationKey]
+  );
   const youtubeCategory = getYouTubeCategory(category);
+
+  // "다시 생성" 핸들러 - 시드 변경 + 리렌더 트리거
+  const handleRegenerate = () => {
+    bumpSeed();
+    setRegenerationKey((k) => k + 1);
+    setSelectedTitleIdx(0);
+    setSelectedThumbIdx(0);
+  };
 
   const selectedTitle = titles[selectedTitleIdx]?.title || '';
   const selectedThumb = thumbnails[selectedThumbIdx];
@@ -173,6 +202,82 @@ export default function PublishPage() {
           display: inline-flex; align-items: center; gap: 6px;
         }
         .chip strong { color: #1a1a1a; }
+
+        /* 떡상 시나리오 다시 생성 바 */
+        .regenerateBar {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 16px;
+          padding: 14px 20px;
+          margin-bottom: 20px;
+          background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+          border: 1.5px solid #fbbf24;
+          border-radius: 12px;
+          flex-wrap: wrap;
+        }
+        @media (max-width: 600px) {
+          .regenerateBar { padding: 12px 14px; }
+        }
+        .regenerateInfo {
+          flex: 1;
+          min-width: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+        }
+        .regenerateBadge {
+          display: inline-block;
+          padding: 3px 10px;
+          background: #c65f3b;
+          color: #fff;
+          border-radius: 100px;
+          font-size: 10.5px;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+          width: fit-content;
+        }
+        .regenerateDesc {
+          font-size: 12.5px;
+          color: #555;
+          line-height: 1.55;
+        }
+        @media (max-width: 600px) {
+          .regenerateDesc { font-size: 12px; }
+        }
+        .regenerateBtn {
+          padding: 10px 18px;
+          background: #fff;
+          color: #c65f3b;
+          border: 1.5px solid #c65f3b;
+          border-radius: 100px;
+          font-size: 13px;
+          font-weight: 800;
+          cursor: pointer;
+          font-family: inherit;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          transition: all 0.15s;
+          flex-shrink: 0;
+          min-height: 40px;
+        }
+        .regenerateBtn:hover {
+          background: #c65f3b;
+          color: #fff;
+          transform: translateY(-1px);
+        }
+        .regenerateBtn:active {
+          transform: translateY(0);
+        }
+        .regenerateIcon {
+          display: inline-block;
+          transition: transform 0.4s;
+        }
+        .regenerateBtn:hover .regenerateIcon {
+          transform: rotate(180deg);
+        }
+
         .grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: flex-start; }
         @media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } .sidebar { display: none; } }
         .platformTabs {
@@ -331,6 +436,20 @@ export default function PublishPage() {
             <span className="chip">🎯 <strong>{keyword}</strong></span>
             {scenario && <span className="chip">{scenario.emoji} <strong>{scenario.name}</strong></span>}
           </div>
+        </div>
+
+        {/* 떡상 시나리오 - 다시 생성 영역 */}
+        <div className="regenerateBar">
+          <div className="regenerateInfo">
+            <span className="regenerateBadge">✨ 떡상 시나리오 엔진</span>
+            <span className="regenerateDesc">
+              마음에 안 들면 다시 만들어보세요. 매번 다른 진심 담은 시나리오가 나옵니다.
+            </span>
+          </div>
+          <button className="regenerateBtn" onClick={handleRegenerate}>
+            <span className="regenerateIcon">🔄</span>
+            <span>다시 생성</span>
+          </button>
         </div>
 
         <div className="platformTabs">

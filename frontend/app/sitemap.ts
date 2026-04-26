@@ -2,6 +2,25 @@ import type { MetadataRoute } from 'next';
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://nutube.kr';
 
+// 노하우 글 슬러그 (15개)
+const KNOWHOW_SLUGS = [
+  'youtube-algorithm',
+  'ctr-title-secrets',
+  'thumbnail-design',
+  'viewer-retention',
+  'first-30-seconds-hook',
+  'seo-tags',
+  'shorts-vs-longform',
+  'middle-aged-channel-tips',
+  'monetization-tips',
+  'trending-keywords-research',
+  'storytelling-structure',
+  'bgm-copyright-free',
+  'upload-time-optimization',
+  'channel-branding',
+  'community-engagement',
+];
+
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
@@ -29,7 +48,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
       url: `${SITE_URL}/blog`,
       lastModified: now,
       changeFrequency: 'daily',
-      priority: 0.85,
+      priority: 0.9,
     },
     {
       url: `${SITE_URL}/workflow`,
@@ -125,15 +144,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
     },
   ];
 
-  // 노하우 / 블로그 콘텐츠 (SEO 핵심)
-  const knowhowPages: MetadataRoute.Sitemap = [
-    {
-      url: `${SITE_URL}/knowhow/first-30-seconds-hook`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.85,
-    },
-  ];
+  // 노하우 / 블로그 콘텐츠 15개 (SEO 핵심!)
+  const knowhowPages: MetadataRoute.Sitemap = KNOWHOW_SLUGS.map((slug) => ({
+    url: `${SITE_URL}/knowhow/${slug}`,
+    lastModified: now,
+    changeFrequency: 'monthly',
+    priority: 0.85,
+  }));
 
   return [...mainPages, ...servicePages, ...infoPages, ...knowhowPages];
 }

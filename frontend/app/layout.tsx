@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import Script from 'next/script';
+import CookieConsent from './_shared/CookieConsent';
 import './globals.css';
 
 // ============================================================
@@ -56,7 +57,7 @@ const ORGANIZATION = {
   name: '알고파트너스',
   legalName: '알고파트너스',
   ceo: '박예준',
-  email: 'contact@nutube.kr',
+  email: 'apark12321@gmail.com',
   url: SITE_URL,
   logo: `${SITE_URL}/icon.png`,
 };
@@ -263,13 +264,6 @@ const webApplicationSchema = {
     priceCurrency: 'KRW',
     availability: 'https://schema.org/InStock',
   },
-  aggregateRating: {
-    '@type': 'AggregateRating',
-    ratingValue: '4.8',
-    ratingCount: '127',
-    bestRating: '5',
-    worstRating: '1',
-  },
   featureList: [
     'AI 영상 제목 추천 (CTR 분석)',
     '영상 태그 추천 (검색량 분석)',
@@ -279,6 +273,7 @@ const webApplicationSchema = {
     '한글/영문 영상 프롬프트',
     'AI 이미지 생성',
     'SNS 메타데이터 (유튜브/쇼츠/틱톡/릴스)',
+    'NotebookLM 일관된 영상 워크플로우',
   ],
   inLanguage: 'ko-KR',
   audience: {
@@ -369,6 +364,21 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
 
       <body>
+        {/* Google Consent Mode V2 (AdSense 필수) - 기본 거부 상태로 시작 */}
+        <Script id="consent-default" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('consent', 'default', {
+              ad_storage: 'denied',
+              ad_user_data: 'denied',
+              ad_personalization: 'denied',
+              analytics_storage: 'denied',
+              wait_for_update: 500
+            });
+          `}
+        </Script>
+
         {/* Google AdSense Script */}
         {ADSENSE_CLIENT && (
           <Script
@@ -400,6 +410,9 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         )}
 
         {children}
+
+        {/* Cookie Consent Banner (AdSense GDPR 준수 필수) */}
+        <CookieConsent />
       </body>
     </html>
   );
