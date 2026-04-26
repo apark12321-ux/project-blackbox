@@ -100,7 +100,7 @@ export default function Page() {
 
           <h2>🏢 회사 정보</h2>
           <p>
-            <strong>운영:</strong> 한줄컴퍼니<br />
+            <strong>운영:</strong> 알고파트너스<br />
             <strong>대표:</strong> 박예준<br />
             <strong>서비스:</strong> AlgoMaker - AI 콘텐츠 추천 도구
           </p>

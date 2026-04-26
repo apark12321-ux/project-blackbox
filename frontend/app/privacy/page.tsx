@@ -120,7 +120,7 @@ export default function Page() {
 
           <h2>제6조 (개인정보 보호 책임자)</h2>
           <p>
-            <strong>책임자:</strong> 박예준 (한줄컴퍼니 대표)<br />
+            <strong>책임자:</strong> 박예준 (알고파트너스 대표)<br />
             <strong>이메일:</strong> contact@algomaker.kr
           </p>
 

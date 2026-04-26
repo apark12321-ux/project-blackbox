@@ -48,13 +48,13 @@ const SITE_KEYWORDS = [
 ];
 
 const SITE_AUTHOR = {
-  name: '한줄컴퍼니',
+  name: '알고파트너스',
   url: SITE_URL,
 };
 
 const ORGANIZATION = {
-  name: '한줄컴퍼니',
-  legalName: '한줄컴퍼니',
+  name: '알고파트너스',
+  legalName: '알고파트너스',
   ceo: '박예준',
   email: 'contact@nutube.kr',
   url: SITE_URL,

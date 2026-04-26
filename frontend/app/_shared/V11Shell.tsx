@@ -407,7 +407,7 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
                   영상 제목·태그·대본을 추천해드립니다.
                 </div>
                 <div className="fCompany">
-                  운영: 한줄컴퍼니<br />
+                  운영: 알고파트너스<br />
                   대표: 박예준
                 </div>
               </div>
@@ -437,7 +437,7 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
               </div>
             </div>
             <div className="fBottom">
-              <div>© 2026 AlgoMaker · 한줄컴퍼니. 모든 권리 보유.</div>
+              <div>© 2026 AlgoMaker · 알고파트너스. 모든 권리 보유.</div>
               <div>
                 <Link href="/privacy" className="fLink">개인정보 처리방침</Link>
                 {' · '}
