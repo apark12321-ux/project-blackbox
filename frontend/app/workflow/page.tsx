@@ -203,8 +203,8 @@ const TOOL_COMPARISON = [
   {
     category: 'BGM',
     tools: [
-      { name: 'YouTube 오디오', free: '✅ 무료', desc: '저작권 X, 상업 사용 OK' },
-      { name: 'Pixabay Music', free: '✅ 무료', desc: '저작권 X' },
+      { name: 'YouTube 오디오 라이브러리', free: '✅ 무료', desc: '저작권 X, 상업 사용 OK' },
+      { name: '무료 BGM 사이트', free: '✅ 무료', desc: 'Royalty Free 음악 검색' },
     ],
   },
 ];
