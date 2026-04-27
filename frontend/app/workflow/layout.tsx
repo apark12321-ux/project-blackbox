@@ -1,30 +1,28 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: '일관된 스타일 영상 만드는 법 - 무료 워크플로우',
-  description:
-    '60장 이미지를 일관된 스타일로 만드는 NotebookLM 워크플로우. 한 사람이 그린 듯한 일관성으로 조회수 20만 채널 운영자들의 비결. Pinterest + NotebookLM + Pollinations 모두 무료.',
-  keywords: [
-    'NotebookLM 영상',
-    '일관된 이미지',
-    'AI 영상 일관성',
-    '무료 영상 제작',
-    'NotebookLM 가이드',
-    '영상 워크플로우',
-    'Pinterest 레퍼런스',
-    '60장 이미지',
-    '대사 없는 영상',
-  ],
+  title: '일관된 영상 만들기 6단계 워크플로우 | 박 대표님 가이드',
+  description: '대본 → 자막 → 제목 → 영상 → 음성 → 음악까지. 일관된 1분 쇼츠 만들기 6단계 워크플로우. AI 도구 추천 포함.',
+  keywords: ['영상 워크플로우', '쇼츠 만들기', 'AI 영상 제작', '자막 자동', '대본 작성', '영상 만들기 단계'],
+  authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
   openGraph: {
-    title: '일관된 스타일 영상 만드는 법 - 무료',
-    description: 'NotebookLM으로 60장 일관된 이미지 만드는 5단계 가이드',
-    type: 'article',
+    title: '일관된 영상 만들기 6단계 워크플로우 | 박 대표님 가이드',
+    description: '대본 → 자막 → 제목 → 영상 → 음성 → 음악까지. 일관된 1분 쇼츠 만들기 6단계 워크플로우. AI 도구 추천 포함.',
+    type: 'website',
+    siteName: 'AlgoMaker',
+    locale: 'ko_KR',
+    url: 'https://nutube.kr/workflow',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '일관된 영상 만들기 6단계 워크플로우 | 박 대표님 가이드',
+    description: '대본 → 자막 → 제목 → 영상 → 음성 → 음악까지. 일관된 1분 쇼츠 만들기 6단계 워크플로우. AI 도구 추천 포함.',
   },
   alternates: {
     canonical: '/workflow',
   },
 };
 
-export default function WorkflowLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return children;
 }

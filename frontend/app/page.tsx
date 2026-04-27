@@ -9,6 +9,7 @@
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { V11Shell } from './_shared/V11Shell';
+import { CATEGORIES } from './_shared/platforms';
 import AdSlot from './_shared/AdSlot';
 
 export default function HomePage() {
@@ -75,6 +76,39 @@ export default function HomePage() {
         }
 
         /* 카테고리 그리드 */
+        /* 12개 카테고리 그리드 (홈) */
+        .categoryGrid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 12px;
+        }
+        @media (max-width: 720px) { .categoryGrid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 480px) { .categoryGrid { grid-template-columns: repeat(2, 1fr); } }
+        
+        .categoryCard {
+          background: #fff; border: 1px solid #e5e5e5;
+          border-radius: 12px; padding: 18px 12px;
+          text-align: center; cursor: pointer;
+          transition: all 0.15s; text-decoration: none;
+          color: inherit; display: block;
+          position: relative;
+        }
+        .categoryCard:hover {
+          border-color: #c65f3b; background: #fffbf8;
+          transform: translateY(-2px);
+        }
+        .catEmoji { font-size: 28px; margin-bottom: 6px; }
+        .catName {
+          font-size: 13px; font-weight: 700;
+          color: #1a1a1a; line-height: 1.3;
+        }
+        .catHot {
+          display: inline-block; margin-top: 4px;
+          padding: 1px 6px; background: #ff6b35;
+          color: #fff; font-size: 9px; font-weight: 700;
+          border-radius: 4px;
+        }
+
         /* 차별화 카드 (떡상 엔진 강조) */
         .diffGrid {
           display: grid;
@@ -119,6 +153,72 @@ export default function HomePage() {
         }
         @media (max-width: 600px) {
           .diffDesc { font-size: 13px; }
+        }
+
+        /* 감성 스토리 카드 (D안 차별화) */
+        .storyCard {
+          max-width: 720px;
+          margin: 0 auto;
+          background: linear-gradient(135deg, #fdf1e7 0%, #fff8f3 100%);
+          border: 1px solid #fde0c5;
+          border-radius: 16px;
+          padding: 36px 32px;
+        }
+        @media (max-width: 600px) {
+          .storyCard { padding: 28px 22px; }
+        }
+        .storyQuote {
+          font-size: 18px;
+          font-weight: 700;
+          color: #1a1a1a;
+          line-height: 1.6;
+          letter-spacing: -0.02em;
+          padding-bottom: 20px;
+          border-bottom: 1.5px solid #fde0c5;
+          margin-bottom: 22px;
+          font-style: italic;
+        }
+        @media (max-width: 600px) {
+          .storyQuote { font-size: 15.5px; }
+        }
+        .storyText p {
+          font-size: 14.5px;
+          color: #444;
+          line-height: 1.85;
+          margin: 0 0 14px;
+        }
+        .storyText p:last-of-type {
+          margin-bottom: 0;
+        }
+        .storyText strong {
+          color: #c65f3b;
+          font-weight: 800;
+          font-size: 15.5px;
+        }
+        .storySign {
+          font-size: 13px !important;
+          color: #777 !important;
+          font-style: italic;
+          text-align: right;
+          margin-top: 18px !important;
+        }
+        .storyLink {
+          display: inline-block;
+          margin-top: 18px;
+          padding: 10px 18px;
+          background: #fff;
+          color: #c65f3b;
+          border: 1.5px solid #c65f3b;
+          border-radius: 100px;
+          font-size: 13px;
+          font-weight: 700;
+          text-decoration: none;
+          transition: all 0.15s;
+        }
+        .storyLink:hover {
+          background: #c65f3b;
+          color: #fff;
+          transform: translateY(-1px);
         }
 
         /* 작동 방식 */
@@ -249,6 +349,27 @@ export default function HomePage() {
         </div>
 
         {/* 카테고리 12개 */}
+        {/* 12개 분야 - 다양성 보여주기 (홈 마케팅용) */}
+        <section className="section">
+          <div className="sectionHeader">
+            <h2 className="sectionTitle">이런 분야들이 떡상해요</h2>
+            <p className="sectionSub">40대 ~ 60대에게 인기 있는 콘텐츠 분야 12개</p>
+          </div>
+          <div className="categoryGrid">
+            {CATEGORIES.map((cat) => (
+              <Link
+                key={cat.id}
+                href={`/create?category=${cat.id}`}
+                className="categoryCard"
+              >
+                <div className="catEmoji">{cat.emoji}</div>
+                <div className="catName">{cat.name}</div>
+                {cat.hot && <div className="catHot">HOT</div>}
+              </Link>
+            ))}
+          </div>
+        </section>
+
         {/* 떡상 시나리오 차별화 */}
         <section className="section">
           <div className="sectionHeader">
@@ -288,6 +409,29 @@ export default function HomePage() {
                 AI가 분야에 맞는 진짜 같은 숫자 생성.
               </div>
             </div>
+          </div>
+        </section>
+
+        {/* 감성 스토리 - 김 부장 이야기 (D안 차별화) */}
+        <section className="section">
+          <div className="sectionHeader">
+            <h2 className="sectionTitle">왜 만들었을까요?</h2>
+            <p className="sectionSub">박 대표님의 친구, 김 부장 이야기</p>
+          </div>
+          <div className="storyCard">
+            <div className="storyQuote">
+              "회사 그만두고 영상 시작하려는데<br />
+              제목은 어떻게 짓고, 태그는 뭘 넣고, 대본은 어떻게 쓰는지 모르겠어."
+            </div>
+            <div className="storyText">
+              <p>주변에 영상 시작하고 싶다고 말씀하시는 40대, 50대 분들이 정말 많았습니다.
+              그런데 막상 시작하려면 막막해서 한 발도 못 떼시는 분들이 대부분이었어요.</p>
+              <p><strong>"키워드 하나만으로 영상 자료를 완성해드리면 어떨까?"</strong></p>
+              <p>그게 AlgoMaker의 시작이었습니다. 비싼 강의도, 복잡한 도구도, 회원가입도 없이.
+              그냥 키워드 하나만 입력하시면 AI가 알아서 영상 제목, 태그, 대본, 썸네일까지 만들어드립니다.</p>
+              <p className="storySign">— 박예준, 알고파트너스 대표</p>
+            </div>
+            <Link href="/about" className="storyLink">자세한 이야기 보기 →</Link>
           </div>
         </section>
 

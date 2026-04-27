@@ -1,28 +1,28 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: '영상 노하우 블로그 - 알고리즘 비결',
-  description:
-    '영상 알고리즘이 어떻게 작동하는지, 클릭률 높은 제목 만드는 법, 시청 유지율 올리는 영상 구조까지. 40대 50대 시니어가 영상 콘텐츠로 성공하는 노하우 블로그.',
-  keywords: [
-    '영상 노하우',
-    '유튜브 알고리즘',
-    '영상 제목 노하우',
-    '클릭률 높이는 법',
-    '시청 유지율',
-    '40대 유튜브 노하우',
-    '시니어 영상 가이드',
-  ],
+  title: '유튜브 노하우 모음 | 영상 만들기 전 꼭 봐야 할 15개 글',
+  description: '40대 50대 유튜브 입문자를 위한 핵심 노하우 15개. 알고리즘 작동 원리, CTR 높이는 제목, 시청 유지율, SEO 태그, 수익화 전략까지 60,000자 정리.',
+  keywords: ['유튜브 노하우', '유튜브 알고리즘', 'CTR 제목', '시청 유지율', '유튜브 SEO', '유튜브 수익화', '40대 유튜브', '시니어 유튜브'],
+  authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
   openGraph: {
-    title: '영상 노하우 블로그 - 알고리즘 비결',
-    description: '영상 알고리즘 + 클릭률 + 시청 유지율 노하우',
+    title: '유튜브 노하우 모음 | 영상 만들기 전 꼭 봐야 할 15개 글',
+    description: '40대 50대 유튜브 입문자를 위한 핵심 노하우 15개. 알고리즘 작동 원리, CTR 높이는 제목, 시청 유지율, SEO 태그, 수익화 전략까지 60,000자 정리.',
     type: 'website',
+    siteName: 'AlgoMaker',
+    locale: 'ko_KR',
+    url: 'https://nutube.kr/blog',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '유튜브 노하우 모음 | 영상 만들기 전 꼭 봐야 할 15개 글',
+    description: '40대 50대 유튜브 입문자를 위한 핵심 노하우 15개. 알고리즘 작동 원리, CTR 높이는 제목, 시청 유지율, SEO 태그, 수익화 전략까지 60,000자 정리.',
   },
   alternates: {
     canonical: '/blog',
   },
 };
 
-export default function BlogLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return children;
 }

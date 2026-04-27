@@ -1,20 +1,28 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: '서비스 소개 - AlgoMaker는 어떤 도구?',
-  description:
-    'AlgoMaker는 알고파트너스가 운영하는 무료 AI 콘텐츠 추천 도구입니다. 40대 50대 시니어 영상 입문자가 키워드만 입력하면 AI가 영상 제목, 태그, 대본, 썸네일까지 추천해드립니다. 운영자: 알고파트너스 박예준.',
-  keywords: ['서비스 소개', 'AlgoMaker 소개', '알고파트너스', '박예준', 'AI 영상 도구 소개'],
+  title: '서비스 소개 | 알고파트너스 박예준 대표',
+  description: '40대 퇴직 예정자를 위한 AI 영상 콘텐츠 추천 도구 AlgoMaker 소개. 박예준 대표가 직접 만든 무료 도구. 사업자 정보 + 운영 방침 투명 공개.',
+  keywords: ['AlgoMaker 소개', '알고파트너스', '박예준 대표', 'AI 영상 도구', '40대 유튜브 입문', 'AlgoMaker 운영', '무료 영상 도구'],
+  authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
   openGraph: {
-    title: '서비스 소개 - AlgoMaker',
-    description: '알고파트너스가 운영하는 무료 AI 콘텐츠 추천 도구',
+    title: '서비스 소개 | 알고파트너스 박예준 대표',
+    description: '40대 퇴직 예정자를 위한 AI 영상 콘텐츠 추천 도구 AlgoMaker 소개. 박예준 대표가 직접 만든 무료 도구. 사업자 정보 + 운영 방침 투명 공개.',
     type: 'website',
+    siteName: 'AlgoMaker',
+    locale: 'ko_KR',
+    url: 'https://nutube.kr/about',
+  },
+  twitter: {
+    card: 'summary_large_image',
+    title: '서비스 소개 | 알고파트너스 박예준 대표',
+    description: '40대 퇴직 예정자를 위한 AI 영상 콘텐츠 추천 도구 AlgoMaker 소개. 박예준 대표가 직접 만든 무료 도구. 사업자 정보 + 운영 방침 투명 공개.',
   },
   alternates: {
     canonical: '/about',
   },
 };
 
-export default function AboutLayout({ children }: { children: React.ReactNode }) {
+export default function Layout({ children }: { children: React.ReactNode }) {
   return children;
 }

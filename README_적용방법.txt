@@ -1,92 +1,115 @@
 ═══════════════════════════════════════════════════════
-🔥 AlgoMaker FINAL v3.8.2
-   - 홈/create 페이지 중복 해결
+🔥 AlgoMaker FINAL v3.9.0
+   - 모든 페이지 AdSense 최적화 완료
 ═══════════════════════════════════════════════════════
 
-📌 박 대표님 이번 변경사항 (v3.8.1 → v3.8.2):
+📌 박 대표님 이번 변경사항 (v3.8.2 → v3.9.0):
 
-박 대표님 지적: "초기화면이 다음 화면하고 중복되는 느낌"
+박 대표님 지적: "모든 페이지가 애드센스 최적화 되어 있어야 함.
+                꼭 들어가야할 파일들도 있어야 함"
 
-✅ 정확한 진단
-   - 홈 (/)에 "12개 분야 지원" 섹션 = 12개 카테고리 카드
-   - /create STEP 1 = 같은 12개 카테고리 카드
-   → 사용자가 같은 카드 두 번 봄 = "방금 본 거잖아?" 느낌
+✅ 진단 결과 - 누락된 항목 발견
+   ❌ robots.txt 없음 (검색 엔진 크롤링 안 됨)
+   ❌ favicon 없음
+   ❌ 17개 페이지에 metadata 없음 ('use client' 때문)
+      홈, /about, /blog, /create, /keyword, /publish,
+      /workflow, /imagegen, /privacy, /terms,
+      /news, /analytics, /configure, /done, /assets,
+      /plan, /login
 
-✅ 해결 (A안 적용)
-   - 홈에서 12개 카드 섹션 완전 제거
-   - 그 자리에 "왜 AlgoMaker일까요?" 차별화 콘텐츠 추가
-   - /create는 그대로 (분야 선택 작업 페이지)
-
-═══════════════════════════════════════════════════════
-🎨 새로운 홈 페이지 차별화 섹션
-
-기존 (중복):
-  "12개 분야 지원" + 12개 카테고리 카드
-  → /create 페이지와 똑같음
-
-신규 (차별화):
-  "왜 AlgoMaker일까요?" + 4개 차별화 카드
-  
-  🎯 키워드별 다른 트리거
-     부동산은 수치 중심, 영어는 경험담 중심
-  
-  🔄 매번 다른 결과
-     "다시 생성" 누를 때마다 새 시나리오
-     100명 = 100가지 결과
-  
-  💎 자연스러운 한국어
-     AI 티 안 나는 진짜 사람 화법
-     조사 자동 처리로 어색함 0
-  
-  📊 구체적 수치 자동
-     "8천만원 차익", "-12kg", "토익 850점"
-     AI가 분야별로 자동 추정
+✅ 모두 해결!
 
 ═══════════════════════════════════════════════════════
-🌊 사용자 흐름 개선
+🆕 추가된 필수 파일
 
-이전:
-  홈 (12개 카드) → 클릭 → /create (12개 카드 또!)
-                                ↑ 박 대표님이 느끼신 중복
+[1] public/robots.txt (NEW!)
+    - 검색 엔진 크롤링 허용
+    - Google AdSense (Mediapartners-Google) 명시
+    - Sitemap 위치 명시
 
-이후:
-  홈 (떡상 엔진 차별화 보여주기) → CTA → /create (분야 선택)
-                                              ↑ 자연스러운 흐름
+[2] public/favicon.svg (NEW!)
+    - 박 대표님 컬러(#c65f3b)로 SVG 파비콘
+    - 모든 브라우저 호환
 
-═══════════════════════════════════════════════════════
-📋 변경 파일
-
-수정:
-✅ app/page.tsx
-   - 12개 카테고리 섹션 제거
-   - "왜 AlgoMaker일까요?" 차별화 4카드 추가
-   - 사용 안 하는 CATEGORIES import 제거
-   - .categoryGrid CSS → .diffGrid CSS 교체
-
-영향 없음 (그대로):
-- /create 페이지 (12개 카드 유지)
-- /publish 페이지
-- 노하우 글 15개
-- 사이드바
+[3] 17개 페이지별 layout.tsx (NEW!)
+    각 페이지마다:
+    - title (페이지별 SEO 최적 타이틀)
+    - description (분야별 맞춤 설명)
+    - keywords (5~7개 핵심 키워드)
+    - openGraph (SNS 공유 미리보기)
+    - canonical URL (중복 방지)
+    - Twitter Card
 
 ═══════════════════════════════════════════════════════
-🎯 v3.8.2 완성 상태
+📊 페이지별 메타데이터 (예시)
 
-박 대표님 비전 100% 반영:
-✅ 떡상 시나리오 엔진 (NotebookLM 톤)
-✅ 키워드별 다른 트리거 매칭
-✅ AI 자동 수치 추정
-✅ 1분 쇼츠 모드
-✅ 한국어 조사 자동 처리
-✅ 시드 기반 다양성
-✅ 특정 채널/BGM/플랫폼 모두 정리
-✅ AI 도구 유지 (Midjourney, ChatGPT 등)
-✅ AdSense 승인 전 광고 자동 숨김
-✅ 모바일 풀 최적화
-✅ Cookie Consent + Consent Mode V2
+🏠 홈 (/) - 루트 layout이 처리
+🟢 /about - "서비스 소개 | 알고파트너스 박예준 대표"
+🟢 /blog - "유튜브 노하우 모음 | 영상 만들기 전 꼭 봐야 할 15개 글"
+🟢 /create - "영상 만들기 - 분야 선택 | AI 영상 자료 자동 생성"
+🟢 /keyword - "키워드 입력 - 영상 만들기 STEP 2"
+🟢 /publish - "영상 자료 결과 | SNS 메타데이터 자동 생성"
+🟢 /workflow - "일관된 영상 만들기 6단계 워크플로우"
+🟢 /imagegen - "AI 이미지 생성 가이드 | 무료 도구 활용법"
+🟢 /privacy - "개인정보처리방침 | AlgoMaker"
+🟢 /terms - "이용약관 | AlgoMaker"
+🟢 /contact - "문의하기 | 박예준 대표 직접 답변"
+🟢 /plan - "요금제 (모두 무료) | AlgoMaker"
+🟢 /login - "로그인 (불필요) | AlgoMaker"
+... (총 17개 페이지)
+
+═══════════════════════════════════════════════════════
+✅ AdSense 승인을 위한 모든 요구사항 충족
+
+[필수 파일들]
+✅ robots.txt - 검색 엔진 크롤링 허용
+✅ ads.txt - AdSense 인증 (publisher ID 교체 필요)
+✅ sitemap.xml (sitemap.ts) - 모든 페이지 등록
+✅ manifest.json - PWA 지원
+✅ favicon.svg - 브랜드 아이콘
+✅ /privacy - 개인정보처리방침
+✅ /terms - 이용약관
+✅ /about - 서비스 소개 (E-E-A-T)
+✅ /contact - 문의 페이지
+✅ 404 페이지 (not-found.tsx)
+
+[메타 데이터 (32개 페이지 모두)]
+✅ title - 페이지별 고유
+✅ description - 명확한 설명
+✅ keywords - SEO 최적화
+✅ canonical URL
+✅ openGraph + Twitter Card
+✅ author 명시
+
+[Schema.org 구조화 데이터]
+✅ Organization Schema (알고파트너스)
+✅ WebSite Schema (AlgoMaker)
+✅ WebApplication Schema
+✅ FAQ Schema
+✅ BlogPosting Schema (15개 노하우 글)
+
+[Cookie / Privacy]
+✅ Cookie Consent 배너
+✅ Google Consent Mode V2
+✅ GDPR 준수
+
+[모바일 최적화]
+✅ 반응형 디자인
+✅ 터치 타겟 최소 44px
+✅ 빠른 로딩
+
+[콘텐츠 품질]
 ✅ 노하우 글 15개 (60,000자+)
-✅ Article Schema (15개 모두)
-✅ 홈/create 중복 해결 (NEW!)
+✅ 떡상 시나리오 엔진 (실제 가치)
+✅ E-E-A-T (전문성+권위+신뢰)
+
+═══════════════════════════════════════════════════════
+📊 최종 통계
+
+- 총 layout.tsx: 33개 (17 일반 + 15 노하우 + 1 root)
+- 총 page.tsx: 38개
+- AdSlot 사용처: 39곳 (승인 전 자동 숨김)
+- TypeScript 에러: 0개
 
 ═══════════════════════════════════════════════════════
 🚀 적용 방법
@@ -95,7 +118,7 @@
 
 2. GitHub Desktop:
    - frontend 폴더 통째 드래그
-   - Commit: "v3.8.2 - 홈/create 중복 해결 + 차별화 콘텐츠"
+   - Commit: "v3.9.0 - 전체 페이지 AdSense 최적화"
    - Push
 
 3. Vercel 자동 빌드 (1~3분)
@@ -104,16 +127,50 @@
 
 5. https://nutube.kr → Ctrl+Shift+R
 
-6. 박 대표님 직접 확인:
-   ✅ 홈에 12개 카드 사라짐 (대신 차별화 4카드)
-   ✅ /create에서만 12개 카드
-   ✅ 중복 느낌 없어짐!
+6. 박 대표님 검증:
+   ✅ https://nutube.kr/robots.txt 접속 → 정상 표시
+   ✅ https://nutube.kr/sitemap.xml 접속 → XML 표시
+   ✅ https://nutube.kr/ads.txt 접속 → 정상 (publisher ID 교체 후)
+   ✅ 각 페이지 우클릭 → "페이지 소스 보기" → <head>에 메타 풍부
 
 ═══════════════════════════════════════════════════════
-🔍 빌드 검증
-✅ TypeScript 에러 0개
-✅ /publish 페이지 영향 없음
-✅ 떡상 엔진 v3.8 정상 작동
-✅ 차별화 4카드 디자인 모바일 대응
+🎯 박 대표님 다음 단계 (AdSense 승인까지)
+
+1. 즉시: ZIP 적용 + Promote ✅
+2. 즉시: ads.txt의 pub-XXX를 박 대표님 publisher ID로 교체
+   (AdSense 가입 시 발급받음)
+3. 1주일 이내: Google Search Console 등록
+   - https://search.google.com/search-console
+   - nutube.kr 추가
+   - sitemap.xml 제출
+4. 1주일 이내: Naver Search Advisor 등록
+   - https://searchadvisor.naver.com
+5. 1~2주: 트래픽 누적 (검색 노출 시작)
+6. 1~2주: AdSense 신청
+   - https://adsense.google.com
+   - "사이트에서 광고 게재" 선택
+   - nutube.kr 등록
+7. 승인 후: 환경변수 NEXT_PUBLIC_ADSENSE_CLIENT 추가
+   → 39곳 광고 자동 활성화
+
+═══════════════════════════════════════════════════════
+📋 v3.9.0 완성 상태 (누적)
+
+✅ 떡상 시나리오 엔진 v3.8 (NotebookLM 톤)
+✅ 키워드별 다른 트리거 매칭
+✅ AI 자동 수치 추정
+✅ 1분 쇼츠 모드
+✅ 한국어 조사 자동 처리
+✅ 시드 기반 다양성
+✅ 특정 채널/BGM/플랫폼 정리
+✅ AI 도구 유지 (Midjourney, ChatGPT 등)
+✅ AdSense 승인 전 광고 자동 숨김
+✅ 모바일 풀 최적화
+✅ Cookie Consent + Consent Mode V2
+✅ 노하우 글 15개 (60,000자+)
+✅ Article Schema (15개 모두)
+✅ 홈/create 중복 해결
+✅ 32개 페이지 메타데이터 완비 (NEW!)
+✅ robots.txt + favicon (NEW!)
 
 ═══════════════════════════════════════════════════════

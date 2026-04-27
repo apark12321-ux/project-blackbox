@@ -154,10 +154,11 @@ export const metadata: Metadata = {
   // 아이콘
   icons: {
     icon: [
+      { url: '/favicon.svg', type: 'image/svg+xml' },
       { url: '/favicon.ico', sizes: 'any' },
-      { url: '/icon.png', type: 'image/png', sizes: '32x32' },
     ],
-    apple: [{ url: '/apple-icon.png', sizes: '180x180' }],
+    apple: [{ url: '/favicon.svg', sizes: '180x180', type: 'image/svg+xml' }],
+    shortcut: '/favicon.svg',
   },
 
   // manifest (PWA 잠재 지원)
