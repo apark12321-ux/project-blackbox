@@ -1,548 +1,917 @@
 'use client';
 /**
- * AlgoMaker 메인 랜딩 페이지
- * - SEO 최적화 (h1, h2, 풍부한 콘텐츠)
- * - AdSense 친화 (실제 가치 있는 콘텐츠)
- * - 김 부장 타겟 (40대 퇴직 예정자)
+ * AlgoMaker 메인 랜딩 페이지 v4.0
+ *
+ * 박예준 대표 비전:
+ * "광고 보고서라도 꼭 해야 할 가치"
+ *
+ * 2026 트렌드 반영:
+ * - SEO (전통 검색 최적화)
+ * - AEO (Answer Engine - ChatGPT, Perplexity 인용 가능)
+ * - GEO (Generative Engine - AI 추천 받기)
+ * - Story-driven Hero (Before → After)
+ * - Interactive Live Demo
+ * - Bold Typography + Micro-animation
  */
 
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { V11Shell } from './_shared/V11Shell';
-import { CATEGORIES } from './_shared/platforms';
 import AdSlot from './_shared/AdSlot';
+
+// ============================================================
+// 라이브 데모용 - 도메인별 떡상 후크 미리보기
+// ============================================================
+const DEMO_HOOKS: Record<string, { domain: string; hook: string; trigger: string }> = {
+  부동산: {
+    domain: '재테크',
+    hook: '부동산 매물 하나로 6개월 만에 8천만원 차익. 40대 평범한 직장인이었어요.',
+    trigger: '수치 중심 트리거',
+  },
+  주식: {
+    domain: '재테크',
+    hook: '주식, 1년 만에 자본금 5천만원으로 1억 만든 직장인 이야기.',
+    trigger: '수치 + 경험담',
+  },
+  영어: {
+    domain: '교육',
+    hook: '학원 한 번 안 가고 6개월 만에 토익 850점. 하루 15분만 투자한 결과.',
+    trigger: '경험담 + 시간효율',
+  },
+  '영어 회화': {
+    domain: '교육',
+    hook: '학원 안 가고 외국인이랑 30분 대화 가능해진 비결, 6개월의 기록.',
+    trigger: '경험담 중심',
+  },
+  다이어트: {
+    domain: '건강',
+    hook: '3개월 -12kg, 헬스장 한 번 안 갔습니다. 식단 강박도 없이.',
+    trigger: '비포애프터 중심',
+  },
+  AI: {
+    domain: 'AI/디지털',
+    hook: '지금 보신 이 영상, 빵원으로 만들었습니다. 그것도 횟수 제한 없이 무제한.',
+    trigger: '무료/무제한 중심',
+  },
+  은퇴: {
+    domain: '시니어',
+    hook: '은퇴 준비자였던 제가 직접 2년 도전한 진짜 이야기. 60대 시작해도 늦지 않습니다.',
+    trigger: '연령 가능성 증명',
+  },
+  코딩: {
+    domain: '자기계발',
+    hook: '평범한 직장인이 하루 30분으로 6개월 만에 코딩 마스터한 방법.',
+    trigger: '평범인 변신',
+  },
+  요리: {
+    domain: '음식',
+    hook: '재료 3개로 5분 만에 끝. 자취생도 매번 성공하는 진짜 방법.',
+    trigger: '쉬움 강조',
+  },
+  여행: {
+    domain: '여행',
+    hook: '3박 4일 50만원으로 다녀온 진짜 일정. 현지인만 아는 코스 공개합니다.',
+    trigger: '가성비 + 비밀',
+  },
+};
+
+// 키워드 → 도메인 매핑 (간단 버전)
+function getKeywordPreview(keyword: string) {
+  const k = keyword.trim();
+  if (!k) return null;
+  
+  // 정확 매칭
+  if (DEMO_HOOKS[k]) return DEMO_HOOKS[k];
+  
+  // 부분 매칭
+  if (/부동산|아파트|매물|청약|분양/.test(k)) return DEMO_HOOKS['부동산'];
+  if (/주식|투자|코인|비트|증권/.test(k)) return DEMO_HOOKS['주식'];
+  if (/영어|토익|토플|회화/.test(k)) return DEMO_HOOKS['영어 회화'];
+  if (/다이어트|살빼기|체중|헬스|운동/.test(k)) return DEMO_HOOKS['다이어트'];
+  if (/ai|chatgpt|gpt|미드저니|notebook|gemini/i.test(k)) return DEMO_HOOKS['AI'];
+  if (/은퇴|시니어|50대|60대|노후/.test(k)) return DEMO_HOOKS['은퇴'];
+  if (/코딩|프로그래밍|개발/.test(k)) return DEMO_HOOKS['코딩'];
+  if (/요리|레시피|음식/.test(k)) return DEMO_HOOKS['요리'];
+  if (/여행|투어|관광/.test(k)) return DEMO_HOOKS['여행'];
+  
+  // 기본
+  return {
+    domain: '일반',
+    hook: `${k} 직접 1년 해본 결과를 솔직하게 정리했습니다. 끝까지만 봐주세요.`,
+    trigger: '경험담 + 진정성',
+  };
+}
+
+// ============================================================
+// 8개 분야별 트리거 매핑 (AEO 핵심 정보)
+// ============================================================
+const TRIGGER_MATRIX = [
+  { emoji: '🏠', domain: '부동산/재테크', trigger: '수치 + 시간단축', example: '"6개월 만에 8천만원 차익"' },
+  { emoji: '🗣️', domain: '영어/외국어', trigger: '경험담 + 시간효율', example: '"학원 안 가고 토익 850점"' },
+  { emoji: '💪', domain: '다이어트/건강', trigger: '비포애프터', example: '"3개월 -12kg, 헬스장 X"' },
+  { emoji: '📚', domain: '자기계발/공부', trigger: '시간효율 + 평범인변신', example: '"하루 30분으로 변화"' },
+  { emoji: '🤖', domain: 'AI/디지털 도구', trigger: '무료 + 무제한', example: '"빵원으로, 무제한 사용"' },
+  { emoji: '👴', domain: '시니어/은퇴', trigger: '연령 가능성', example: '"60대도 가능합니다"' },
+  { emoji: '🍳', domain: '요리/맛집', trigger: '쉬움 + 검증', example: '"재료 3개로 5분 컷"' },
+  { emoji: '✈️', domain: '여행/취미', trigger: '가성비 + 비밀', example: '"3박 50만원, 현지인 코스"' },
+];
+
+// ============================================================
+// FAQ - AEO 핵심 (ChatGPT, Perplexity 인용 형식)
+// ============================================================
+const FAQ_LIST = [
+  {
+    q: 'AlgoMaker는 무엇인가요?',
+    a: 'AlgoMaker는 키워드 하나만 입력하면 AI가 영상 제목, 태그, 대본, 썸네일, SNS 메타데이터를 모두 자동 생성해주는 무료 도구입니다. 알고파트너스(대표 박예준)가 운영하며, 40대 50대 영상 콘텐츠 입문자를 주 타겟으로 합니다.',
+  },
+  {
+    q: '다른 AI 글쓰기 도구와 무엇이 다른가요?',
+    a: '키워드별로 다른 떡상 트리거를 자동 매칭한다는 점이 가장 큰 차이입니다. 부동산은 수치 중심, 영어는 경험담 중심, 다이어트는 비포애프터 중심으로 각 분야에 최적화된 시나리오를 만듭니다. 또한 "다시 생성" 버튼을 누를 때마다 완전히 새로운 결과가 나와 100명이 같은 키워드를 입력해도 100가지 다른 시나리오가 만들어집니다.',
+  },
+  {
+    q: '정말 완전 무료인가요? 회원가입은요?',
+    a: '네, 100% 무료입니다. 회원가입, 신용카드 등록, 결제 절대 필요 없습니다. 서비스 운영비는 Google AdSense 광고 수익으로 충당하며, 사용자 데이터를 판매하거나 유료 구독으로 전환하지 않습니다.',
+  },
+  {
+    q: '어떤 분야의 영상을 만들 수 있나요?',
+    a: '8개 주요 분야가 자동 인식됩니다: 재테크/부동산, 영어/외국어, 다이어트/건강, 자기계발/공부, AI/디지털 도구, 시니어/은퇴, 요리/맛집, 여행/취미. 키워드만 입력하면 AI가 분야를 자동 감지해 맞는 트리거를 적용합니다.',
+  },
+  {
+    q: '생성된 결과물은 어디서 사용할 수 있나요?',
+    a: '유튜브, 유튜브 쇼츠, 틱톡, 인스타그램 릴스 4개 SNS 플랫폼에 그대로 사용 가능한 메타데이터를 제공합니다. 영상 대본 7단계 시퀀스, 한글/영문 영상 생성 프롬프트, 썸네일 콘셉트도 포함됩니다.',
+  },
+  {
+    q: '40대 50대 영상 입문자도 사용할 수 있나요?',
+    a: '네, 그게 주 타겟입니다. 회원가입도 결제도 필요 없고, 키워드 하나만 입력하면 끝입니다. 디지털 도구가 익숙하지 않으셔도 1분 안에 영상 자료가 완성됩니다. 40대 50대 시청자에게 인기 있는 분야(시니어 라이프, 재테크, 건강 등) 위주로 트리거가 최적화되어 있습니다.',
+  },
+];
+
+// ============================================================
+// Definition Box - AEO/GEO 핵심
+// ChatGPT, Perplexity가 인용하기 좋은 명확한 정의
+// ============================================================
+const DEFINITION = {
+  what: 'AlgoMaker는 키워드 하나로 영상 콘텐츠 자료(제목, 태그, 대본, 썸네일, SNS 메타데이터)를 자동 생성하는 무료 AI 도구입니다.',
+  who: '알고파트너스(대표 박예준)가 운영하는 한국 서비스로, 40대 50대 영상 콘텐츠 입문자를 주 타겟으로 합니다.',
+  how: '8개 도메인을 자동 인식하고 분야별 떡상 트리거를 매칭해 시나리오를 생성합니다. 키워드별로 다른 패턴이 적용됩니다.',
+  why: '회원가입, 결제, 신용카드 등록이 일절 필요 없으며 광고 시청만으로 무제한 사용 가능합니다.',
+};
 
 export default function HomePage() {
   const router = useRouter();
+  const [demoKeyword, setDemoKeyword] = useState('');
+  const [demoResult, setDemoResult] = useState<ReturnType<typeof getKeywordPreview>>(null);
+  const demoTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 라이브 데모: 키워드 입력 시 실시간 미리보기
+  useEffect(() => {
+    if (demoTimerRef.current) clearTimeout(demoTimerRef.current);
+    if (!demoKeyword.trim()) {
+      setDemoResult(null);
+      return;
+    }
+    demoTimerRef.current = setTimeout(() => {
+      setDemoResult(getKeywordPreview(demoKeyword));
+    }, 300);
+  }, [demoKeyword]);
+
+  // 데모 키워드로 실제 시작
+  const handleDemoStart = () => {
+    if (demoKeyword.trim()) {
+      router.push(`/create?demo=${encodeURIComponent(demoKeyword)}`);
+    } else {
+      router.push('/create');
+    }
+  };
 
   return (
     <V11Shell>
+      {/* AEO/GEO용 - 페이지 상단 hidden 정의 (AI 인용용) */}
+      <div style={{ position: 'absolute', left: '-9999px', overflow: 'hidden' }} aria-hidden="false">
+        <h1>AlgoMaker - AI 영상 콘텐츠 자료 자동 생성 도구</h1>
+        <p>
+          <strong>AlgoMaker란?</strong> {DEFINITION.what}
+        </p>
+        <p>
+          <strong>운영:</strong> {DEFINITION.who}
+        </p>
+        <p>
+          <strong>작동 방식:</strong> {DEFINITION.how}
+        </p>
+        <p>
+          <strong>비용:</strong> {DEFINITION.why}
+        </p>
+      </div>
+
       <style jsx>{`
-        .page { max-width: 1100px; margin: 0 auto; padding: 56px 24px 60px; }
-        
-        /* HERO */
-        .hero { text-align: center; margin-bottom: 56px; }
+        .page { max-width: 920px; margin: 0 auto; padding: 0 24px 60px; }
+        @media (max-width: 600px) { .page { padding: 0 18px 40px; } }
+
+        /* ============================================ */
+        /* [1] HERO - 떡상 후크 */
+        /* ============================================ */
+        .hero {
+          padding: 64px 0 48px;
+          text-align: center;
+          position: relative;
+        }
+        @media (max-width: 600px) { .hero { padding: 40px 0 32px; } }
+
         .heroBadge {
-          display: inline-flex; align-items: center; gap: 8px;
-          padding: 6px 14px; background: #fdf1e7;
-          border-radius: 100px; font-size: 12px; font-weight: 700;
-          color: #c65f3b; margin-bottom: 20px;
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 6px 14px;
+          background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+          color: #92400e;
+          border-radius: 100px;
+          font-size: 12px;
+          font-weight: 800;
+          margin-bottom: 20px;
+          letter-spacing: 0.04em;
+          animation: pulse 2.5s ease-in-out infinite;
         }
+        @keyframes pulse {
+          0%, 100% { transform: scale(1); }
+          50% { transform: scale(1.03); }
+        }
+
         .heroTitle {
-          font-size: 48px; font-weight: 800;
-          letter-spacing: -0.025em; color: #1a1a1a;
-          line-height: 1.2; margin: 0 0 18px;
+          font-size: 44px;
+          font-weight: 800;
+          line-height: 1.2;
+          margin: 0 0 16px;
+          letter-spacing: -0.03em;
+          color: #1a1a1a;
         }
-        .heroTitle .accent { color: #c65f3b; }
+        @media (max-width: 720px) { .heroTitle { font-size: 32px; } }
+        @media (max-width: 480px) { .heroTitle { font-size: 26px; } }
+
+        .accent {
+          background: linear-gradient(120deg, #c65f3b 0%, #ea7755 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
         .heroSub {
-          font-size: 17px; line-height: 1.7; color: #555;
-          max-width: 580px; margin: 0 auto 28px;
+          font-size: 17px;
+          color: #555;
+          line-height: 1.7;
+          margin: 0 auto 28px;
+          max-width: 640px;
         }
-        .heroFeatures {
-          display: flex; justify-content: center; gap: 24px;
-          flex-wrap: wrap; margin-bottom: 32px;
-          font-size: 13px; color: #555;
-        }
-        .heroFeatures span {
-          display: inline-flex; align-items: center; gap: 6px;
-          font-weight: 600;
-        }
-        .heroFeatures .check { color: #5e7e5d; font-weight: 800; }
-        .heroCTA {
-          display: inline-block; padding: 18px 40px;
-          background: #c65f3b; color: #fff;
-          border-radius: 100px; font-size: 16px; font-weight: 800;
-          text-decoration: none; transition: all 0.2s;
-        }
-        .heroCTA:hover {
-          background: #a64a2a; transform: translateY(-1px);
-          box-shadow: 0 8px 20px rgba(198, 95, 59, 0.25);
+        @media (max-width: 600px) { .heroSub { font-size: 15px; } }
+
+        /* 핵심 통계 (proof density) */
+        .heroStats {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 12px;
+          max-width: 600px;
+          margin: 0 auto 32px;
         }
         @media (max-width: 600px) {
-          .heroTitle { font-size: 32px; }
-          .heroSub { font-size: 15px; }
+          .heroStats { grid-template-columns: 1fr; gap: 8px; }
+        }
+        .heroStat {
+          padding: 16px 12px;
+          background: #fff;
+          border: 1px solid #fde0c5;
+          border-radius: 12px;
+          text-align: center;
+        }
+        .heroStatNum {
+          font-size: 22px;
+          font-weight: 800;
+          color: #c65f3b;
+          letter-spacing: -0.02em;
+          line-height: 1.2;
+          margin-bottom: 4px;
+        }
+        .heroStatLabel {
+          font-size: 12px;
+          color: #666;
+          font-weight: 600;
+          line-height: 1.4;
         }
 
-        /* 섹션 공통 */
-        .section { margin-bottom: 56px; }
-        .sectionHeader { text-align: center; margin-bottom: 32px; }
+        /* ============================================ */
+        /* [2] LIVE DEMO - 라이브 데모 */
+        /* ============================================ */
+        .demoSection {
+          margin: 0 auto 48px;
+          max-width: 720px;
+          background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
+          border: 1.5px solid #fbbf24;
+          border-radius: 16px;
+          padding: 28px 24px;
+        }
+        @media (max-width: 600px) {
+          .demoSection { padding: 22px 16px; }
+        }
+        .demoTitle {
+          font-size: 16px;
+          font-weight: 800;
+          color: #92400e;
+          margin: 0 0 6px;
+          letter-spacing: -0.02em;
+          text-align: center;
+        }
+        .demoDesc {
+          font-size: 13px;
+          color: #78350f;
+          margin: 0 0 18px;
+          text-align: center;
+          line-height: 1.6;
+        }
+        .demoInputWrap {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 14px;
+        }
+        @media (max-width: 480px) {
+          .demoInputWrap { flex-direction: column; }
+        }
+        .demoInput {
+          flex: 1;
+          padding: 14px 18px;
+          font-size: 16px;
+          font-weight: 700;
+          border: 2px solid #fff;
+          border-radius: 100px;
+          background: #fff;
+          color: #1a1a1a;
+          outline: none;
+          font-family: inherit;
+          transition: all 0.15s;
+          min-height: 50px;
+        }
+        .demoInput:focus {
+          border-color: #c65f3b;
+          box-shadow: 0 0 0 3px rgba(198, 95, 59, 0.15);
+        }
+        .demoInput::placeholder { color: #aaa; }
+        .demoBtn {
+          padding: 14px 26px;
+          background: #c65f3b;
+          color: #fff;
+          border: none;
+          border-radius: 100px;
+          font-size: 14px;
+          font-weight: 800;
+          cursor: pointer;
+          font-family: inherit;
+          white-space: nowrap;
+          transition: all 0.15s;
+          min-height: 50px;
+        }
+        .demoBtn:hover {
+          background: #b04e2d;
+          transform: translateY(-1px);
+        }
+
+        .demoResult {
+          background: #fff;
+          border-radius: 12px;
+          padding: 18px 20px;
+          border-left: 4px solid #c65f3b;
+          opacity: 0;
+          transform: translateY(8px);
+          animation: fadeIn 0.3s ease forwards;
+        }
+        @keyframes fadeIn {
+          to { opacity: 1; transform: translateY(0); }
+        }
+        .demoResultLabel {
+          font-size: 11px;
+          font-weight: 800;
+          color: #c65f3b;
+          letter-spacing: 0.06em;
+          margin-bottom: 6px;
+        }
+        .demoResultTags {
+          display: flex;
+          gap: 6px;
+          flex-wrap: wrap;
+          margin-bottom: 10px;
+        }
+        .demoTag {
+          padding: 3px 10px;
+          background: #fdf1e7;
+          color: #c65f3b;
+          border-radius: 100px;
+          font-size: 11px;
+          font-weight: 700;
+        }
+        .demoHook {
+          font-size: 14.5px;
+          color: #1a1a1a;
+          line-height: 1.7;
+          font-weight: 500;
+        }
+        @media (max-width: 600px) { .demoHook { font-size: 13.5px; } }
+        
+        .demoHints {
+          display: flex;
+          gap: 6px;
+          flex-wrap: wrap;
+          justify-content: center;
+          margin-top: 14px;
+        }
+        .demoHint {
+          padding: 5px 12px;
+          background: rgba(255,255,255,0.7);
+          color: #92400e;
+          border-radius: 100px;
+          font-size: 12px;
+          font-weight: 700;
+          cursor: pointer;
+          border: 1px solid rgba(146, 64, 14, 0.15);
+          transition: all 0.15s;
+        }
+        .demoHint:hover {
+          background: #fff;
+          border-color: #c65f3b;
+        }
+
+        /* ============================================ */
+        /* [공통] 섹션 */
+        /* ============================================ */
+        .section {
+          margin-bottom: 60px;
+        }
+        @media (max-width: 600px) { .section { margin-bottom: 44px; } }
+        .sectionHeader {
+          text-align: center;
+          margin-bottom: 32px;
+        }
         .sectionTitle {
-          font-size: 28px; font-weight: 800;
-          color: #1a1a1a; margin: 0 0 8px;
+          font-size: 30px;
+          font-weight: 800;
+          color: #1a1a1a;
+          letter-spacing: -0.025em;
+          margin: 0 0 10px;
+          line-height: 1.25;
+        }
+        @media (max-width: 600px) { .sectionTitle { font-size: 22px; } }
+        .sectionSub {
+          font-size: 15px;
+          color: #666;
+          line-height: 1.6;
+        }
+        @media (max-width: 600px) { .sectionSub { font-size: 13.5px; } }
+
+        /* ============================================ */
+        /* [3] BEFORE vs AFTER */
+        /* ============================================ */
+        .compareGrid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+          margin-bottom: 16px;
+        }
+        @media (max-width: 720px) { .compareGrid { grid-template-columns: 1fr; } }
+        .compareCard {
+          padding: 24px 22px;
+          border-radius: 14px;
+          line-height: 1.7;
+        }
+        .compareCard.before {
+          background: #fafafa;
+          border: 1px solid #e5e5e5;
+        }
+        .compareCard.after {
+          background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
+          border: 2px solid #c65f3b;
+          box-shadow: 0 4px 12px rgba(198, 95, 59, 0.1);
+        }
+        .compareLabel {
+          display: inline-block;
+          padding: 4px 11px;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.05em;
+          border-radius: 100px;
+          margin-bottom: 12px;
+        }
+        .compareCard.before .compareLabel {
+          background: #888;
+          color: #fff;
+        }
+        .compareCard.after .compareLabel {
+          background: #c65f3b;
+          color: #fff;
+        }
+        .compareTitle {
+          font-size: 14px;
+          font-weight: 700;
+          color: #1a1a1a;
+          margin: 0 0 10px;
+        }
+        .compareText {
+          font-size: 14px;
+          color: #444;
+          line-height: 1.75;
+          margin: 0;
+        }
+        .compareCard.before .compareText { color: #888; }
+
+        /* ============================================ */
+        /* [4] 8개 분야별 트리거 매트릭스 */
+        /* ============================================ */
+        .matrixGrid {
+          display: grid;
+          grid-template-columns: repeat(2, 1fr);
+          gap: 12px;
+        }
+        @media (max-width: 600px) { .matrixGrid { grid-template-columns: 1fr; gap: 10px; } }
+        .matrixCard {
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 12px;
+          padding: 18px 20px;
+          display: flex;
+          align-items: flex-start;
+          gap: 14px;
+          transition: all 0.2s;
+        }
+        .matrixCard:hover {
+          border-color: #c65f3b;
+          background: #fffbf8;
+          transform: translateY(-1px);
+        }
+        .matrixEmoji {
+          font-size: 28px;
+          flex-shrink: 0;
+          line-height: 1;
+        }
+        .matrixContent { flex: 1; min-width: 0; }
+        .matrixDomain {
+          font-size: 14px;
+          font-weight: 800;
+          color: #1a1a1a;
+          margin: 0 0 4px;
           letter-spacing: -0.02em;
         }
-        .sectionSub {
-          font-size: 15px; color: #666;
+        .matrixTrigger {
+          font-size: 12px;
+          color: #c65f3b;
+          font-weight: 700;
+          margin-bottom: 6px;
+        }
+        .matrixExample {
+          font-size: 12.5px;
+          color: #666;
+          line-height: 1.55;
+          font-style: italic;
         }
 
-        /* 카테고리 그리드 */
-        /* 12개 카테고리 그리드 (홈) */
-        .categoryGrid {
+        /* ============================================ */
+        /* [5] FAQ - AEO 핵심 */
+        /* ============================================ */
+        .faqList {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .faqItem {
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 12px;
+          overflow: hidden;
+        }
+        .faqQuestion {
+          padding: 18px 22px;
+          background: #fafafa;
+          font-size: 15px;
+          font-weight: 800;
+          color: #1a1a1a;
+          letter-spacing: -0.02em;
+          line-height: 1.5;
+        }
+        @media (max-width: 600px) {
+          .faqQuestion { padding: 16px 18px; font-size: 14px; }
+        }
+        .faqQuestion::before {
+          content: 'Q. ';
+          color: #c65f3b;
+          font-weight: 800;
+        }
+        .faqAnswer {
+          padding: 18px 22px;
+          font-size: 14px;
+          color: #444;
+          line-height: 1.75;
+          border-top: 1px solid #f0f0f0;
+        }
+        @media (max-width: 600px) {
+          .faqAnswer { padding: 16px 18px; font-size: 13px; }
+        }
+        .faqAnswer::before {
+          content: 'A. ';
+          color: #c65f3b;
+          font-weight: 800;
+        }
+
+        /* ============================================ */
+        /* [6] HOW IT WORKS */
+        /* ============================================ */
+        .howGrid {
           display: grid;
           grid-template-columns: repeat(4, 1fr);
           gap: 12px;
         }
-        @media (max-width: 720px) { .categoryGrid { grid-template-columns: repeat(3, 1fr); } }
-        @media (max-width: 480px) { .categoryGrid { grid-template-columns: repeat(2, 1fr); } }
-        
-        .categoryCard {
-          background: #fff; border: 1px solid #e5e5e5;
-          border-radius: 12px; padding: 18px 12px;
-          text-align: center; cursor: pointer;
-          transition: all 0.15s; text-decoration: none;
-          color: inherit; display: block;
-          position: relative;
-        }
-        .categoryCard:hover {
-          border-color: #c65f3b; background: #fffbf8;
-          transform: translateY(-2px);
-        }
-        .catEmoji { font-size: 28px; margin-bottom: 6px; }
-        .catName {
-          font-size: 13px; font-weight: 700;
-          color: #1a1a1a; line-height: 1.3;
-        }
-        .catHot {
-          display: inline-block; margin-top: 4px;
-          padding: 1px 6px; background: #ff6b35;
-          color: #fff; font-size: 9px; font-weight: 700;
-          border-radius: 4px;
-        }
-
-        /* 차별화 카드 (떡상 엔진 강조) */
-        .diffGrid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 14px;
-        }
-        @media (max-width: 720px) { .diffGrid { grid-template-columns: 1fr; } }
-        
-        .diffCard {
+        @media (max-width: 720px) { .howGrid { grid-template-columns: 1fr 1fr; } }
+        .howCard {
           background: #fff;
           border: 1px solid #e5e5e5;
-          border-radius: 14px;
-          padding: 24px 22px;
+          border-radius: 12px;
+          padding: 22px 18px;
+          text-align: center;
           transition: all 0.2s;
         }
-        .diffCard:hover {
+        .howCard:hover {
           border-color: #c65f3b;
-          background: #fffbf8;
           transform: translateY(-2px);
-          box-shadow: 0 8px 20px rgba(198, 95, 59, 0.08);
         }
-        .diffEmoji {
-          font-size: 32px;
-          margin-bottom: 10px;
-          display: inline-block;
+        .howNum {
+          width: 36px;
+          height: 36px;
+          margin: 0 auto 10px;
+          background: #c65f3b;
+          color: #fff;
+          border-radius: 100px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 16px;
+          font-weight: 800;
         }
-        .diffTitle {
-          font-size: 17px;
+        .howTitle {
+          font-size: 14px;
           font-weight: 800;
           color: #1a1a1a;
-          margin-bottom: 8px;
-          letter-spacing: -0.02em;
-          line-height: 1.3;
+          margin-bottom: 4px;
         }
-        @media (max-width: 600px) {
-          .diffTitle { font-size: 15.5px; }
-        }
-        .diffDesc {
-          font-size: 13.5px;
-          color: #555;
-          line-height: 1.7;
-        }
-        @media (max-width: 600px) {
-          .diffDesc { font-size: 13px; }
+        .howDesc {
+          font-size: 12px;
+          color: #666;
+          line-height: 1.5;
         }
 
-        /* 감성 스토리 카드 (D안 차별화) */
-        .storyCard {
-          max-width: 720px;
-          margin: 0 auto;
-          background: linear-gradient(135deg, #fdf1e7 0%, #fff8f3 100%);
-          border: 1px solid #fde0c5;
-          border-radius: 16px;
-          padding: 36px 32px;
+        /* ============================================ */
+        /* [7] FINAL CTA */
+        /* ============================================ */
+        .finalCTA {
+          background: linear-gradient(135deg, #c65f3b 0%, #ea7755 100%);
+          border-radius: 18px;
+          padding: 48px 32px;
+          text-align: center;
+          margin: 60px 0 0;
         }
         @media (max-width: 600px) {
-          .storyCard { padding: 28px 22px; }
+          .finalCTA { padding: 36px 22px; }
         }
-        .storyQuote {
-          font-size: 18px;
-          font-weight: 700;
-          color: #1a1a1a;
-          line-height: 1.6;
-          letter-spacing: -0.02em;
-          padding-bottom: 20px;
-          border-bottom: 1.5px solid #fde0c5;
-          margin-bottom: 22px;
-          font-style: italic;
-        }
-        @media (max-width: 600px) {
-          .storyQuote { font-size: 15.5px; }
-        }
-        .storyText p {
-          font-size: 14.5px;
-          color: #444;
-          line-height: 1.85;
-          margin: 0 0 14px;
-        }
-        .storyText p:last-of-type {
-          margin-bottom: 0;
-        }
-        .storyText strong {
-          color: #c65f3b;
+        .finalCTATitle {
+          font-size: 28px;
           font-weight: 800;
-          font-size: 15.5px;
+          color: #fff;
+          letter-spacing: -0.025em;
+          margin: 0 0 10px;
+          line-height: 1.3;
         }
-        .storySign {
-          font-size: 13px !important;
-          color: #777 !important;
-          font-style: italic;
-          text-align: right;
-          margin-top: 18px !important;
+        @media (max-width: 600px) { .finalCTATitle { font-size: 22px; } }
+        .finalCTASub {
+          font-size: 15px;
+          color: #ffe0d0;
+          margin: 0 0 24px;
+          line-height: 1.6;
         }
-        .storyLink {
+        .finalCTABtn {
           display: inline-block;
-          margin-top: 18px;
-          padding: 10px 18px;
+          padding: 16px 36px;
           background: #fff;
           color: #c65f3b;
-          border: 1.5px solid #c65f3b;
           border-radius: 100px;
-          font-size: 13px;
-          font-weight: 700;
+          font-size: 15px;
+          font-weight: 800;
           text-decoration: none;
           transition: all 0.15s;
         }
-        .storyLink:hover {
-          background: #c65f3b;
-          color: #fff;
-          transform: translateY(-1px);
+        .finalCTABtn:hover {
+          transform: translateY(-2px) scale(1.02);
+          box-shadow: 0 8px 20px rgba(0,0,0,0.15);
         }
 
-        /* 작동 방식 */
-        .howGrid {
-          display: grid; grid-template-columns: repeat(4, 1fr);
-          gap: 16px;
-        }
-        @media (max-width: 720px) { .howGrid { grid-template-columns: 1fr 1fr; } }
-        @media (max-width: 480px) { .howGrid { grid-template-columns: 1fr; } }
-        
-        .howCard {
-          background: #fafafa; border: 1px solid #e5e5e5;
-          border-radius: 12px; padding: 24px 18px;
-          text-align: center;
-        }
-        .howNum {
-          display: inline-block; width: 32px; height: 32px;
-          background: #fdf1e7; color: #c65f3b;
-          border-radius: 50%; line-height: 32px;
-          font-size: 13px; font-weight: 800;
-          margin-bottom: 12px;
-        }
-        .howTitle {
-          font-size: 15px; font-weight: 700;
-          color: #1a1a1a; margin-bottom: 6px;
-        }
-        .howDesc {
-          font-size: 13px; color: #666; line-height: 1.5;
-        }
-
-        /* SNS 플랫폼 */
-        .platformGrid {
-          display: grid; grid-template-columns: repeat(4, 1fr);
-          gap: 12px;
-        }
-        @media (max-width: 720px) { .platformGrid { grid-template-columns: 1fr 1fr; } }
-        
-        .platformItem {
-          background: #fff; border: 1px solid #e5e5e5;
-          border-radius: 10px; padding: 16px 12px;
-          text-align: center;
-        }
-        .platformEmoji { font-size: 28px; margin-bottom: 6px; }
-        .platformName {
-          font-size: 13.5px; font-weight: 700;
-          color: #1a1a1a; margin-bottom: 2px;
-        }
-        .platformDesc {
-          font-size: 11px; color: #888;
-        }
-
-        /* FAQ */
-        .faqList { max-width: 720px; margin: 0 auto; }
-        .faqItem {
-          background: #fafafa; border: 1px solid #e5e5e5;
-          border-radius: 10px; padding: 18px 20px;
-          margin-bottom: 10px;
-        }
-        .faqQ {
-          font-size: 14.5px; font-weight: 700;
-          color: #1a1a1a; margin-bottom: 8px;
-          display: flex; align-items: center; gap: 8px;
-        }
-        .faqQ::before {
-          content: 'Q'; color: #c65f3b; font-weight: 800;
-        }
-        .faqA {
-          font-size: 13.5px; color: #555;
-          line-height: 1.7; padding-left: 18px;
-        }
-
-        /* 광고 */
-        .adArea { margin: 40px 0; }
-
-        /* 마지막 CTA */
-        .finalCTA {
-          background: linear-gradient(135deg, #fdf1e7, #f5e8df);
-          border-radius: 16px; padding: 48px 32px;
-          text-align: center; margin: 48px 0 0;
-        }
-        .finalCTATitle {
-          font-size: 26px; font-weight: 800;
-          color: #1a1a1a; margin-bottom: 12px;
-          letter-spacing: -0.02em;
-        }
-        .finalCTASub {
-          font-size: 15px; color: #555; line-height: 1.6;
-          margin-bottom: 24px;
-        }
-        @media (max-width: 600px) {
-          .finalCTATitle { font-size: 22px; }
-        }
+        .adArea { margin: 32px 0; }
       `}</style>
 
       <div className="page">
-        {/* HERO */}
+        {/* ============================================ */}
+        {/* [1] HERO */}
+        {/* ============================================ */}
         <section className="hero">
           <div className="heroBadge">
             <span>✓</span>
-            <span>AI 콘텐츠 추천 도구 · 완전 무료</span>
+            <span>완전 무료 · 회원가입 불필요 · 광고 보고 무제한 사용</span>
           </div>
 
           <h1 className="heroTitle">
-            키워드만 입력하면<br />
-            <span className="accent">AI가 모두 대신해드립니다</span>
+            키워드 하나로<br />
+            <span className="accent">떡상 시나리오</span>가 만들어집니다
           </h1>
 
           <p className="heroSub">
-            영상 제목·태그·대본·썸네일 추천부터 SNS 업로드 메타데이터까지.<br />
-            유튜브, 쇼츠, 틱톡, 릴스 한 번에 자동 생성.
+            AI가 분야별로 다른 트리거를 자동 매칭합니다.<br />
+            부동산은 수치 중심, 영어는 경험담 중심, 다이어트는 비포애프터 중심으로.
           </p>
 
-          <div className="heroFeatures">
-            <span><span className="check">✓</span> 완전 무료</span>
-            <span><span className="check">✓</span> 회원가입 불필요</span>
-            <span><span className="check">✓</span> 신용카드 X</span>
-            <span><span className="check">✓</span> 1분 만에 완성</span>
+          <div className="heroStats">
+            <div className="heroStat">
+              <div className="heroStatNum">100명 = 100가지</div>
+              <div className="heroStatLabel">매번 다른 결과</div>
+            </div>
+            <div className="heroStat">
+              <div className="heroStatNum">8개 분야</div>
+              <div className="heroStatLabel">자동 인식 + 트리거 매칭</div>
+            </div>
+            <div className="heroStat">
+              <div className="heroStatNum">무제한 무료</div>
+              <div className="heroStatLabel">결제 / 신용카드 X</div>
+            </div>
           </div>
-
-          <Link href="/create" className="heroCTA">
-            🚀 지금 바로 시작하기
-          </Link>
         </section>
 
-        {/* 광고 */}
+        {/* ============================================ */}
+        {/* [2] LIVE DEMO - 라이브 데모 (혹하게!) */}
+        {/* ============================================ */}
+        <section className="demoSection">
+          <h2 className="demoTitle">🔥 키워드 하나만 입력해보세요</h2>
+          <p className="demoDesc">
+            실시간으로 어떤 떡상 시나리오가 만들어지는지 미리 확인하세요
+          </p>
+
+          <div className="demoInputWrap">
+            <input
+              type="text"
+              className="demoInput"
+              placeholder="예: 부동산, 영어 회화, 다이어트, AI 영상..."
+              value={demoKeyword}
+              onChange={(e) => setDemoKeyword(e.target.value)}
+              onKeyDown={(e) => e.key === 'Enter' && handleDemoStart()}
+              maxLength={30}
+            />
+            <button className="demoBtn" onClick={handleDemoStart}>
+              {demoKeyword.trim() ? '시작 →' : '바로 시작'}
+            </button>
+          </div>
+
+          {demoResult && (
+            <div className="demoResult" key={demoKeyword}>
+              <div className="demoResultLabel">✨ 떡상 시나리오 미리보기 (예시 후크)</div>
+              <div className="demoResultTags">
+                <span className="demoTag">📂 {demoResult.domain}</span>
+                <span className="demoTag">🎯 {demoResult.trigger}</span>
+              </div>
+              <div className="demoHook">"{demoResult.hook}"</div>
+            </div>
+          )}
+
+          {!demoResult && (
+            <div className="demoHints">
+              <button className="demoHint" onClick={() => setDemoKeyword('부동산')}>부동산</button>
+              <button className="demoHint" onClick={() => setDemoKeyword('영어 회화')}>영어 회화</button>
+              <button className="demoHint" onClick={() => setDemoKeyword('다이어트')}>다이어트</button>
+              <button className="demoHint" onClick={() => setDemoKeyword('AI 영상')}>AI 영상</button>
+              <button className="demoHint" onClick={() => setDemoKeyword('은퇴 부업')}>은퇴 부업</button>
+            </div>
+          )}
+        </section>
+
         <div className="adArea">
-          <AdSlot slot="home-mid" variant="horizontal" />
+          <AdSlot slot="home-mid-1" variant="horizontal" />
         </div>
 
-        {/* 카테고리 12개 */}
-        {/* 12개 분야 - 다양성 보여주기 (홈 마케팅용) */}
+        {/* ============================================ */}
+        {/* [3] BEFORE vs AFTER */}
+        {/* ============================================ */}
         <section className="section">
           <div className="sectionHeader">
-            <h2 className="sectionTitle">이런 분야들이 떡상해요</h2>
-            <p className="sectionSub">40대 ~ 60대에게 인기 있는 콘텐츠 분야 12개</p>
+            <h2 className="sectionTitle">일반 AI 글쓰기 vs AlgoMaker</h2>
+            <p className="sectionSub">같은 키워드 "부동산" 입력 시 결과가 이렇게 다릅니다</p>
           </div>
-          <div className="categoryGrid">
-            {CATEGORIES.map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/create?category=${cat.id}`}
-                className="categoryCard"
-              >
-                <div className="catEmoji">{cat.emoji}</div>
-                <div className="catName">{cat.name}</div>
-                {cat.hot && <div className="catHot">HOT</div>}
-              </Link>
+          <div className="compareGrid">
+            <div className="compareCard before">
+              <span className="compareLabel">🟡 일반 AI 도구</span>
+              <h3 className="compareTitle">일기장 톤 / 추상적</h3>
+              <p className="compareText">
+                "솔직히 처음에는 부동산을 만만하게 봤습니다. 하지만 시간이 지나면서 한 가지 비결을 알게 되었어요. 오늘은 그 이야기를 나눠드리려 합니다..."
+              </p>
+            </div>
+            <div className="compareCard after">
+              <span className="compareLabel">🔥 AlgoMaker 떡상 엔진</span>
+              <h3 className="compareTitle">결과 먼저 / 구체적 수치</h3>
+              <p className="compareText">
+                "지금 보여드릴 부동산 매물 하나로 6개월 만에 8천만원 차익 만들었습니다. 40대 평범한 직장인이었어요. 학력도 자본도 평범했습니다..."
+              </p>
+            </div>
+          </div>
+          <p style={{ fontSize: '13px', color: '#888', textAlign: 'center', margin: '14px 0 0', lineHeight: 1.6 }}>
+            💡 같은 키워드도 매번 다른 결과 · 100명이 입력해도 100가지 시나리오
+          </p>
+        </section>
+
+        {/* ============================================ */}
+        {/* [4] 8개 분야 트리거 매트릭스 (AEO 핵심) */}
+        {/* ============================================ */}
+        <section className="section">
+          <div className="sectionHeader">
+            <h2 className="sectionTitle">분야별 다른 떡상 트리거</h2>
+            <p className="sectionSub">AI가 키워드를 분석해 8개 도메인 중 하나로 자동 매칭합니다</p>
+          </div>
+          <div className="matrixGrid">
+            {TRIGGER_MATRIX.map((item, i) => (
+              <div key={i} className="matrixCard">
+                <div className="matrixEmoji">{item.emoji}</div>
+                <div className="matrixContent">
+                  <div className="matrixDomain">{item.domain}</div>
+                  <div className="matrixTrigger">{item.trigger}</div>
+                  <div className="matrixExample">{item.example}</div>
+                </div>
+              </div>
             ))}
           </div>
         </section>
 
-        {/* 떡상 시나리오 차별화 */}
+        <div className="adArea">
+          <AdSlot slot="home-mid-2" variant="horizontal" />
+        </div>
+
+        {/* ============================================ */}
+        {/* [5] FAQ - AEO ★★★ */}
+        {/* ============================================ */}
         <section className="section">
           <div className="sectionHeader">
-            <h2 className="sectionTitle">왜 AlgoMaker일까요?</h2>
-            <p className="sectionSub">단순한 AI 글쓰기 도구가 아닙니다. 떡상 시나리오 엔진입니다.</p>
+            <h2 className="sectionTitle">자주 묻는 질문</h2>
+            <p className="sectionSub">사용 전 궁금하신 점들</p>
           </div>
-          <div className="diffGrid">
-            <div className="diffCard">
-              <div className="diffEmoji">🎯</div>
-              <div className="diffTitle">키워드별 다른 트리거</div>
-              <div className="diffDesc">
-                부동산은 수치 중심, 영어는 경험담 중심.<br />
-                같은 도구가 아닌 분야별 맞춤 시나리오.
+          <div className="faqList">
+            {FAQ_LIST.map((item, i) => (
+              <div key={i} className="faqItem">
+                <div className="faqQuestion">{item.q}</div>
+                <div className="faqAnswer">{item.a}</div>
               </div>
-            </div>
-            <div className="diffCard">
-              <div className="diffEmoji">🔄</div>
-              <div className="diffTitle">매번 다른 결과</div>
-              <div className="diffDesc">
-                같은 키워드도 &quot;다시 생성&quot; 누를 때마다 새 시나리오.<br />
-                100명이 같은 단어 입력해도 100가지 결과.
-              </div>
-            </div>
-            <div className="diffCard">
-              <div className="diffEmoji">💎</div>
-              <div className="diffTitle">자연스러운 한국어</div>
-              <div className="diffDesc">
-                AI 티 안 나는 진짜 사람 화법.<br />
-                조사 자동 처리로 어색함 0.
-              </div>
-            </div>
-            <div className="diffCard">
-              <div className="diffEmoji">📊</div>
-              <div className="diffTitle">구체적 수치 자동</div>
-              <div className="diffDesc">
-                &quot;8천만원 차익&quot;, &quot;-12kg&quot;, &quot;토익 850점&quot;<br />
-                AI가 분야에 맞는 진짜 같은 숫자 생성.
-              </div>
-            </div>
+            ))}
           </div>
         </section>
 
-        {/* 감성 스토리 - 김 부장 이야기 (D안 차별화) */}
+        {/* ============================================ */}
+        {/* [6] HOW IT WORKS - 4단계 */}
+        {/* ============================================ */}
         <section className="section">
           <div className="sectionHeader">
-            <h2 className="sectionTitle">왜 만들었을까요?</h2>
-            <p className="sectionSub">박 대표님의 친구, 김 부장 이야기</p>
-          </div>
-          <div className="storyCard">
-            <div className="storyQuote">
-              "회사 그만두고 영상 시작하려는데<br />
-              제목은 어떻게 짓고, 태그는 뭘 넣고, 대본은 어떻게 쓰는지 모르겠어."
-            </div>
-            <div className="storyText">
-              <p>주변에 영상 시작하고 싶다고 말씀하시는 40대, 50대 분들이 정말 많았습니다.
-              그런데 막상 시작하려면 막막해서 한 발도 못 떼시는 분들이 대부분이었어요.</p>
-              <p><strong>"키워드 하나만으로 영상 자료를 완성해드리면 어떨까?"</strong></p>
-              <p>그게 AlgoMaker의 시작이었습니다. 비싼 강의도, 복잡한 도구도, 회원가입도 없이.
-              그냥 키워드 하나만 입력하시면 AI가 알아서 영상 제목, 태그, 대본, 썸네일까지 만들어드립니다.</p>
-              <p className="storySign">— 박예준, 알고파트너스 대표</p>
-            </div>
-            <Link href="/about" className="storyLink">자세한 이야기 보기 →</Link>
-          </div>
-        </section>
-
-        {/* 작동 방식 */}
-        <section className="section">
-          <div className="sectionHeader">
-            <h2 className="sectionTitle">어떻게 사용하나요?</h2>
-            <p className="sectionSub">단 4단계, 1분 만에 완성</p>
+            <h2 className="sectionTitle">사용은 단 4단계</h2>
+            <p className="sectionSub">키워드 하나에서 영상 자료 완성까지 1분</p>
           </div>
           <div className="howGrid">
             <div className="howCard">
               <div className="howNum">1</div>
               <div className="howTitle">분야 선택</div>
-              <div className="howDesc">12개 분야 중<br />원하는 카테고리</div>
+              <div className="howDesc">12개 카테고리에서<br />원하는 분야</div>
             </div>
             <div className="howCard">
               <div className="howNum">2</div>
               <div className="howTitle">키워드 입력</div>
-              <div className="howDesc">관심 있는 주제<br />키워드 입력</div>
+              <div className="howDesc">관심 있는 주제<br />키워드 1개</div>
             </div>
             <div className="howCard">
               <div className="howNum">3</div>
-              <div className="howTitle">AI 분석</div>
-              <div className="howDesc">AI가 알고리즘<br />자동 분석·생성</div>
+              <div className="howTitle">AI 자동 분석</div>
+              <div className="howDesc">분야별 트리거<br />자동 매칭</div>
             </div>
             <div className="howCard">
               <div className="howNum">4</div>
               <div className="howTitle">결과 받기</div>
-              <div className="howDesc">제목·태그·대본<br />복사해서 사용</div>
+              <div className="howDesc">제목 · 태그 · 대본<br />복사해서 사용</div>
             </div>
           </div>
         </section>
 
-        {/* SNS 플랫폼 4개 */}
-        <section className="section">
-          <div className="sectionHeader">
-            <h2 className="sectionTitle">4개 SNS 플랫폼 지원</h2>
-            <p className="sectionSub">한 번 입력으로 모든 플랫폼 메타데이터 자동 생성</p>
-          </div>
-          <div className="platformGrid">
-            <div className="platformItem">
-              <div className="platformEmoji">📺</div>
-              <div className="platformName">YouTube 롱폼</div>
-              <div className="platformDesc">8분 이상 / 16:9</div>
-            </div>
-            <div className="platformItem">
-              <div className="platformEmoji">📱</div>
-              <div className="platformName">YouTube Shorts</div>
-              <div className="platformDesc">60초 이하 / 9:16</div>
-            </div>
-            <div className="platformItem">
-              <div className="platformEmoji">🎵</div>
-              <div className="platformName">TikTok</div>
-              <div className="platformDesc">15-60초 / 9:16</div>
-            </div>
-            <div className="platformItem">
-              <div className="platformEmoji">📸</div>
-              <div className="platformName">Instagram Reels</div>
-              <div className="platformDesc">90초 이하 / 9:16</div>
-            </div>
-          </div>
-        </section>
-
-        {/* 광고 */}
-        <div className="adArea">
-          <AdSlot slot="home-mid2" variant="horizontal" />
-        </div>
-
-        {/* FAQ (SEO) */}
-        <section className="section">
-          <div className="sectionHeader">
-            <h2 className="sectionTitle">자주 묻는 질문</h2>
-            <p className="sectionSub">AlgoMaker에 대해 궁금한 점들</p>
-          </div>
-          <div className="faqList">
-            <div className="faqItem">
-              <div className="faqQ">정말 완전 무료인가요?</div>
-              <div className="faqA">네, AlgoMaker는 완전 무료입니다. 회원가입도 필요 없고, 신용카드 등록도 없습니다. 사이트 운영은 광고 수익으로 충당합니다.</div>
-            </div>
-            <div className="faqItem">
-              <div className="faqQ">AI는 어떤 걸 추천해주나요?</div>
-              <div className="faqA">키워드를 입력하면 AI가 영상 제목 3가지, 알고리즘 최적화 태그, 영상 설명, 썸네일 콘셉트, 영상 대본 구조까지 자동 추천합니다. 4개 SNS 플랫폼별로 최적화된 메타데이터를 받을 수 있습니다.</div>
-            </div>
-            <div className="faqItem">
-              <div className="faqQ">컴퓨터를 잘 못해도 사용할 수 있나요?</div>
-              <div className="faqA">네, 4단계만 따라하면 됩니다. 분야 선택 → 키워드 입력 → AI 분석 → 결과 복사. 50대~60대 분들도 어려움 없이 사용하실 수 있도록 설계되었습니다.</div>
-            </div>
-            <div className="faqItem">
-              <div className="faqQ">유튜브 외에 다른 플랫폼도 지원하나요?</div>
-              <div className="faqA">네, YouTube 롱폼, YouTube Shorts, TikTok, Instagram Reels 4개 플랫폼을 지원합니다. 각 플랫폼별로 최적화된 제목, 설명, 해시태그를 자동 생성합니다.</div>
-            </div>
-            <div className="faqItem">
-              <div className="faqQ">정말 조회수가 잘 나오는 제목을 추천해주나요?</div>
-              <div className="faqA">AI가 알고리즘 데이터와 트렌드 키워드를 분석하여 클릭률이 높은 제목 패턴을 추천합니다. 다만 영상의 실제 성과는 콘텐츠 품질, 썸네일, 업로드 시간 등 다양한 요소에 영향을 받습니다.</div>
-            </div>
-          </div>
-        </section>
-
-        {/* 최종 CTA */}
-        <div className="finalCTA">
-          <h2 className="finalCTATitle">
-            지금 바로 시작해보세요
-          </h2>
+        {/* ============================================ */}
+        {/* [7] FINAL CTA */}
+        {/* ============================================ */}
+        <section className="finalCTA">
+          <h2 className="finalCTATitle">지금 바로 시작해보세요</h2>
           <p className="finalCTASub">
-            1분이면 영상 제목·태그·대본까지 완성됩니다.<br />
-            회원가입도, 신용카드도, 어려운 설정도 없어요.
+            회원가입도, 결제도, 신용카드도 필요 없습니다.<br />
+            키워드 하나만 입력하면 1분 안에 결과 확인.
           </p>
-          <Link href="/create" className="heroCTA">
+          <Link href="/create" className="finalCTABtn">
             🚀 무료로 시작하기
           </Link>
-        </div>
+        </section>
       </div>
     </V11Shell>
   );

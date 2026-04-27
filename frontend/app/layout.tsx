@@ -283,44 +283,100 @@ const webApplicationSchema = {
   },
 };
 
-// FAQ 구조화 데이터 (Rich Result 노출)
+// FAQ 구조화 데이터 (AEO 최적화 - ChatGPT, Perplexity 인용 가능)
 const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
   mainEntity: [
     {
       '@type': 'Question',
-      name: 'AlgoMaker는 무료인가요?',
+      name: 'AlgoMaker는 무엇인가요?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: '네, AlgoMaker는 완전 무료로 사용하실 수 있습니다. 회원가입도 필요 없으며, 신용카드도 입력하지 않습니다.',
+        text: 'AlgoMaker는 키워드 하나만 입력하면 AI가 영상 제목, 태그, 대본, 썸네일, SNS 메타데이터를 모두 자동 생성해주는 무료 도구입니다. 알고파트너스(대표 박예준)가 운영하며, 40대 50대 영상 콘텐츠 입문자를 주 타겟으로 합니다.',
       },
     },
     {
       '@type': 'Question',
-      name: '키워드만 입력하면 무엇이 만들어지나요?',
+      name: '다른 AI 글쓰기 도구와 무엇이 다른가요?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'AI가 영상 제목 3가지 후보, 영상 설명, 검색량 분석된 태그 15개, 썸네일 콘셉트 3가지, 영상 대본 시퀀스 6단계, 한글과 영문 영상 프롬프트까지 모두 생성합니다.',
+        text: '키워드별로 다른 떡상 트리거를 자동 매칭한다는 점이 가장 큰 차이입니다. 부동산은 수치 중심, 영어는 경험담 중심, 다이어트는 비포애프터 중심으로 각 분야에 최적화된 시나리오를 만듭니다. 또한 다시 생성 버튼을 누를 때마다 완전히 새로운 결과가 나와 100명이 같은 키워드를 입력해도 100가지 다른 시나리오가 만들어집니다.',
       },
     },
     {
       '@type': 'Question',
-      name: '어떤 SNS에서 사용할 수 있나요?',
+      name: '정말 완전 무료인가요? 회원가입은요?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: '유튜브 (긴 영상), 유튜브 쇼츠, 틱톡, 인스타그램 릴스 모두 사용 가능합니다. 각 플랫폼의 업로드 화면에 그대로 복사 붙여넣기만 하시면 됩니다.',
+        text: '네, 100% 무료입니다. 회원가입, 신용카드 등록, 결제가 절대 필요 없습니다. 서비스 운영비는 Google AdSense 광고 수익으로 충당하며, 사용자 데이터를 판매하거나 유료 구독으로 전환하지 않습니다.',
       },
     },
     {
       '@type': 'Question',
-      name: '40대 이상도 사용하기 쉬운가요?',
+      name: '어떤 분야의 영상을 만들 수 있나요?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: '네, AlgoMaker는 40대 50대 시니어 입문자를 위해 설계되었습니다. 키워드 하나만 입력하시면 AI가 모든 자료를 자동으로 만들어드리기 때문에 별도 학습이 필요 없습니다.',
+        text: '8개 주요 분야가 자동 인식됩니다. 재테크/부동산, 영어/외국어, 다이어트/건강, 자기계발/공부, AI/디지털 도구, 시니어/은퇴, 요리/맛집, 여행/취미. 키워드만 입력하면 AI가 분야를 자동 감지해 맞는 트리거를 적용합니다.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: '생성된 결과물은 어디서 사용할 수 있나요?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: '유튜브, 유튜브 쇼츠, 틱톡, 인스타그램 릴스 4개 SNS 플랫폼에 그대로 사용 가능한 메타데이터를 제공합니다. 영상 대본 7단계 시퀀스, 한글/영문 영상 생성 프롬프트, 썸네일 콘셉트도 포함됩니다.',
+      },
+    },
+    {
+      '@type': 'Question',
+      name: '40대 50대 영상 입문자도 사용할 수 있나요?',
+      acceptedAnswer: {
+        '@type': 'Answer',
+        text: '네, 그게 주 타겟입니다. 회원가입도 결제도 필요 없고, 키워드 하나만 입력하면 끝입니다. 디지털 도구가 익숙하지 않으셔도 1분 안에 영상 자료가 완성됩니다. 40대 50대 시청자에게 인기 있는 분야(시니어 라이프, 재테크, 건강 등) 위주로 트리거가 최적화되어 있습니다.',
       },
     },
   ],
+};
+
+// HowTo 구조화 데이터 (AEO - ChatGPT가 사용법 추천 시 인용)
+const howToSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'HowTo',
+  name: 'AlgoMaker로 영상 자료 만드는 방법',
+  description: '키워드 하나로 영상 제목, 태그, 대본, 썸네일을 자동 생성하는 4단계 가이드',
+  step: [
+    {
+      '@type': 'HowToStep',
+      position: 1,
+      name: '분야 선택',
+      text: '12개 카테고리 중 원하는 분야를 선택합니다. 재테크, 부동산, 건강, 시니어 등 40대 50대에게 인기 있는 분야 위주로 구성되어 있습니다.',
+    },
+    {
+      '@type': 'HowToStep',
+      position: 2,
+      name: '키워드 입력',
+      text: '관심 있는 주제의 키워드 1개를 입력합니다. AI가 자동으로 8개 도메인 중 하나로 분류합니다.',
+    },
+    {
+      '@type': 'HowToStep',
+      position: 3,
+      name: 'AI 자동 분석',
+      text: 'AI가 분야별 떡상 트리거를 매칭합니다. 부동산은 수치 중심, 영어는 경험담 중심으로 다르게 처리됩니다.',
+    },
+    {
+      '@type': 'HowToStep',
+      position: 4,
+      name: '결과 확인 및 사용',
+      text: '영상 제목 3개, 태그 13개, 대본 7단계 시퀀스, 썸네일 콘셉트, SNS 메타데이터를 받아 그대로 복사해 사용합니다.',
+    },
+  ],
+  totalTime: 'PT1M',
+  estimatedCost: {
+    '@type': 'MonetaryAmount',
+    currency: 'KRW',
+    value: '0',
+  },
 };
 
 // ============================================================
@@ -347,6 +403,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
         />
 
         {/* Pretendard 폰트 (한글 가독성 최적화) */}
