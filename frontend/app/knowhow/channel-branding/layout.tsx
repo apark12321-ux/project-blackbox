@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: '기억에 남는 채널 브랜딩 만드는 7가지 요소',
   description: '구독자가 다른 영상에서도 한눈에 알아보는 채널 만들기',
-  keywords: ['channel branding', '기억에 남는 채널 브랜딩 만드는 7가지 요소', '유튜브 노하우', '영상 만들기', 'AlgoMaker', '알고파트너스'],
+  keywords: ['channel branding', '기억에 남는 채널 브랜딩 만드는 7가지 요소', '유튜브 노하우', '영상 만들기', 'AlgoMaker'],
   authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
   openGraph: {
     title: '기억에 남는 채널 브랜딩 만드는 7가지 요소',
@@ -36,8 +36,7 @@ const articleSchema = {
   },
   publisher: {
     '@type': 'Organization',
-    name: '알고파트너스',
-    url: 'https://nutube.kr',
+    name: url: 'https://nutube.kr',
   },
   datePublished: '2026-04-25T00:00:00Z',
   dateModified: '2026-04-25T00:00:00Z',

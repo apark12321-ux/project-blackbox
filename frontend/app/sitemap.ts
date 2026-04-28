@@ -19,6 +19,7 @@ const KNOWHOW_SLUGS = [
   'upload-time-optimization',
   'channel-branding',
   'community-engagement',
+  'family-story-shorts',
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

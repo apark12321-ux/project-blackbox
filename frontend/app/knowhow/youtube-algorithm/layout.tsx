@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: '유튜브 알고리즘이 영상을 추천하는 5가지 진짜 기준',
   description: '구독자 수보다 더 중요한, AI가 영상을 평가하는 핵심 지표 정리',
-  keywords: ['youtube algorithm', '유튜브 알고리즘이 영상을 추천하는 5가지 진짜 기준', '유튜브 노하우', '영상 만들기', 'AlgoMaker', '알고파트너스'],
+  keywords: ['youtube algorithm', '유튜브 알고리즘이 영상을 추천하는 5가지 진짜 기준', '유튜브 노하우', '영상 만들기', 'AlgoMaker'],
   authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
   openGraph: {
     title: '유튜브 알고리즘이 영상을 추천하는 5가지 진짜 기준',
@@ -36,8 +36,7 @@ const articleSchema = {
   },
   publisher: {
     '@type': 'Organization',
-    name: '알고파트너스',
-    url: 'https://nutube.kr',
+    name: url: 'https://nutube.kr',
   },
   datePublished: '2026-04-25T00:00:00Z',
   dateModified: '2026-04-25T00:00:00Z',

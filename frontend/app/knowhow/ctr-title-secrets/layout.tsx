@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: '클릭률(CTR) 8% 이상 만드는 제목 작성법 18가지',
   description: '유튜브 알고리즘이 좋아하는 제목 패턴과 실제 성공 사례 분석',
-  keywords: ['ctr title secrets', '클릭률(CTR) 8% 이상 만드는 제목 작성법 18가지', '유튜브 노하우', '영상 만들기', 'AlgoMaker', '알고파트너스'],
+  keywords: ['ctr title secrets', '클릭률(CTR) 8% 이상 만드는 제목 작성법 18가지', '유튜브 노하우', '영상 만들기', 'AlgoMaker'],
   authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
   openGraph: {
     title: '클릭률(CTR) 8% 이상 만드는 제목 작성법 18가지',
@@ -36,8 +36,7 @@ const articleSchema = {
   },
   publisher: {
     '@type': 'Organization',
-    name: '알고파트너스',
-    url: 'https://nutube.kr',
+    name: url: 'https://nutube.kr',
   },
   datePublished: '2026-04-25T00:00:00Z',
   dateModified: '2026-04-25T00:00:00Z',

@@ -125,6 +125,7 @@ type DomainType =
   | 'senior'        // 시니어/은퇴
   | 'food'          // 요리/맛집
   | 'travel'        // 여행/취미
+  | 'family'        // 가족 사연/감동 (시어머니/며느리/시댁/친정 등)
   | 'general';      // 일반 (fallback)
 
 interface DomainProfile {
@@ -331,6 +332,35 @@ const DOMAIN_PROFILES: Record<DomainType, DomainProfile> = {
     emphasis: ['직접 가보니', '진짜', '여행 10년차', '실제로'],
   },
 
+  // 🎯 family 도메인 - 가족 사연/감동 (1분 쇼츠 최적, 시니어층 폭발)
+  // 패턴: 보편적 가족 갈등 → 사이다 결말
+  // 톤: 감동 + 카타르시스 + 익명성
+  family: {
+    type: 'family',
+    primaryTriggers: ['공감', '카타르시스', '의외성'],
+    numbers: {
+      primary: ['10년 묵은', '20년 만에', '결혼 5년차', '시집 3년 만에', '명절 한 번에'],
+      duration: ['10년', '20년', '5년', '명절 한 번', '결혼 후'],
+      daily: [],
+      sub: ['처음으로', '결국에는', '뜻밖에도', '진심으로'],
+    },
+    mirror: [
+      '시댁 갈 때마다 마음이 무거우시잖아요',
+      '명절만 되면 스트레스 받으시죠',
+      '가족 모임이 부담스러우신 분들 많으실 거예요',
+      '며느리/사위 입장에서 말 못 하는 일들 있잖아요',
+      '시어머니/장모님께 서운한 일 한두 번 아니죠',
+    ],
+    secrets: [
+      '진짜 답은 참는 게 아니라 한 번 솔직하게 말하는 거예요',
+      '가족이라고 다 이해해줄 거라는 건 착각이에요',
+      '관계는 거리를 두는 게 더 가까워지는 길이에요',
+      '진심은 결국 통한다는 게 진짜였어요',
+    ],
+    audience: ['결혼 5년차 며느리', '40대 사위', '시어머니 입장', '시집간 딸', '맞벌이 부부', '50대 어머니'],
+    emphasis: ['진짜로', '솔직히', '그날따라', '뜻밖에도', '결국엔'],
+  },
+
   general: {
     type: 'general',
     primaryTriggers: ['수치', '경험담', '거울'],
@@ -360,6 +390,10 @@ function detectDomain(keyword: string, categoryName?: string): DomainProfile {
   const k = keyword.toLowerCase();
   const c = (categoryName || '').toLowerCase();
 
+  // 가족 사연/감동 (1분 쇼츠 떡상 카테고리 - 우선 감지)
+  if (/시어머니|며느리|사위|장인|장모|시댁|친정|시부모|시아버지|시집|장가|결혼|이혼|가족|사연|감동|사이다|시누이|시동생|동서|올케|친척|명절|제사|차례/.test(k + c)) {
+    return DOMAIN_PROFILES.family;
+  }
   // 부동산/재테크
   if (/부동산|아파트|주식|투자|재테크|매수|매도|분양|청약|월세|전세|적금|예금|펀드|증권|코인|비트|이더|nft|매물|상가|토지|경매/.test(k + c)) {
     return DOMAIN_PROFILES.realestate;
@@ -373,7 +407,7 @@ function detectDomain(keyword: string, categoryName?: string): DomainProfile {
     return DOMAIN_PROFILES.fitness;
   }
   // 시니어/은퇴
-  if (/시니어|은퇴|노후|50대|60대|중년|퇴직|연금|시니어라이프|재취업/.test(k + c)) {
+  if (/시니어|은퇴|노후|50대|60대|70대|중년|퇴직|연금|시니어라이프|재취업/.test(k + c)) {
     return DOMAIN_PROFILES.senior;
   }
   // AI/디지털
@@ -715,6 +749,44 @@ function generateTitlesForDomain(
         reasoning: '여행 첫 방문자가 가장 적극적으로 정보 검색.',
       }),
     ],
+    family: [
+      (d) => ({
+        title: `${keyword}, ${d.duration} 참았다가 한 번에 터졌습니다`,
+        pattern: '카타르시스형',
+        ctr_estimate: '9~13%',
+        reasoning: `"참다가 터진" 구조는 시니어 시청자의 공감 + 카타르시스를 동시에 자극. 사연 콘텐츠의 황금 패턴입니다.`,
+      }),
+      (d) => ({
+        title: `${d.audience}이 ${keyword} 듣고 한 마디로 정리한 이야기`,
+        pattern: '사이다 결말형',
+        ctr_estimate: '8.5~12%',
+        reasoning: `"한 마디로 정리"는 사이다 결말 약속. 시니어 시청자가 가장 좋아하는 카타르시스 트리거.`,
+      }),
+      (d) => ({
+        title: `${keyword}, ${d.audience}의 진짜 이야기`,
+        pattern: '실화 사연형',
+        ctr_estimate: '8~11%',
+        reasoning: `"진짜 이야기"는 사연 콘텐츠의 핵심 약속. 시니어층은 실화/각색 사연에 가장 강하게 반응.`,
+      }),
+      (d) => ({
+        title: `명절에 ${keyword}, 결국엔 이렇게 됐습니다`,
+        pattern: '명절 갈등형',
+        ctr_estimate: '8.5~12%',
+        reasoning: `"명절"은 가족 갈등이 가장 극대화되는 키워드. 보편 공감.`,
+      }),
+      (d) => ({
+        title: `${keyword}, 시집간 후 처음 한 말`,
+        pattern: '인내 + 폭발형',
+        ctr_estimate: '8~11%',
+        reasoning: `오래 참다가 한 번에 표현하는 구조. 시니어 시청자의 보편 공감.`,
+      }),
+      (d) => ({
+        title: `${keyword}, 이게 진짜 가능한가요?`,
+        pattern: '의외성 질문형',
+        ctr_estimate: '7.5~10%',
+        reasoning: `의외의 결말을 시사하는 질문형. 호기심 + 끝까지 보고 싶은 욕구.`,
+      }),
+    ],
     general: [
       (d) => ({
         title: `${keyword}, ${d.duration} 직접 해본 후기`,
@@ -914,6 +986,12 @@ function buildHook(
       `${keyword}, ${detail.primaryNum} 진짜로 됩니다. 패키지 안 잡고 ${detail.duration} 다녀온 결과예요. 오늘 그 일정 다 풀어드립니다.`,
       `${keyword} 처음 가시는 분들께 드리는 영상입니다. ${detail.emphasis} 정리한 진짜 정보예요.`,
     ],
+    family: [
+      `오랫동안 묻어둔 ${keyword} 이야기, ${detail.emphasis} 한 번에 풀어놓겠습니다. ${detail.audience}${jong(detail.audience, "이라면", "라면")} 한 번쯤 겪어보셨을 거예요.`,
+      `${keyword}, 결혼하고 한참 만에 처음 입을 떼었습니다. ${detail.audience}${jong(detail.audience, "으로", "로")} 살면서 가장 힘들었던 순간이었어요. 끝까지 들어주세요.`,
+      `${keyword} 듣고 그날 밤 잠을 못 잤습니다. ${detail.audience}${jong(detail.audience, "이라면", "라면")} 분명 공감하실 거예요. 오늘은 ${detail.emphasis} 그 이야기를 풀어볼게요.`,
+      `${keyword}, ${detail.audience}의 진짜 사연입니다. ${detail.duration} 참다가 결국 한 마디 했어요. 그날 이후로 모든 게 달라졌습니다.`,
+    ],
     general: [
       `${keyword} 직접 ${detail.duration} 해본 결과를 솔직하게 정리했습니다. 끝까지만 봐주시면 도움 되실 거예요.`,
       `${keyword} 시작하시려는 분들께 진심으로 드리는 영상입니다. ${detail.emphasis} 알게 된 핵심만 풀어드릴게요.`,
@@ -977,6 +1055,11 @@ function buildBonus(
     ],
     travel: [
       `${detail.primaryNum} 진짜예요. 패키지보다 자유롭고 비용도 적게 들어요. 핵심은 일정이 아니라 동선이에요. 오늘 그 노하우 풀어드릴게요.`,
+    ],
+    family: [
+      `${detail.audience}${jong(detail.audience, "이라면", "라면")} 다 겪는 일이에요. 저만 그런 줄 알았는데 알고 보니 모두 비슷하더라고요. ${detail.emphasis} 이야기 풀어드릴게요.`,
+      `이게 ${detail.audience}만의 문제가 아니에요. 누구나 한 번쯤은 겪는 갈등입니다. 다행히 ${detail.duration} 만에 답을 찾았어요.`,
+      `참기만 하는 게 답이 아니더라고요. ${detail.emphasis} 한 번 솔직하게 말한 후로 관계가 오히려 좋아졌습니다. 그 비결 공유해드릴게요.`,
     ],
     general: [
       `누구나 가능한 방법입니다. 특별한 재능이 필요한 게 아니에요. ${detail.daily}만 꾸준히 투자하시면 ${detail.duration} 안에 변화를 느끼실 거예요.`,
@@ -1305,6 +1388,11 @@ export function generateShortsScript(
     travel: [
       `${keyword} ${detail.primaryNum}으로 가는 진짜 일정 1분 정리.`,
       `현지인만 아는 ${keyword} 코스, 60초 압축.`,
+    ],
+    family: [
+      `${detail.duration} 참았던 ${keyword} 이야기, 한 번에 풀었습니다.`,
+      `${keyword}, ${detail.audience}의 진짜 사연 1분 압축본.`,
+      `명절에 ${keyword}, 그날 그 한 마디로 다 끝났어요.`,
     ],
     general: [
       `${keyword} ${detail.duration} 직접 해본 결과, 1분에 정리.`,

@@ -1,12 +1,12 @@
 import type { Metadata } from 'next';
 
 export const metadata: Metadata = {
-  title: '40대 50대 시니어가 유튜브 시작할 때 꼭 알아야 할 7가지',
+  title: '시니어층(40대~70대)가 유튜브 시작할 때 꼭 알아야 할 7가지',
   description: '퇴직 후 유튜브 시작하는 시니어를 위한 현실적인 가이드',
-  keywords: ['middle aged channel tips', '40대 50대 시니어가 유튜브 시작할 때 꼭 알아야 할 7가지', '유튜브 노하우', '영상 만들기', 'AlgoMaker', '알고파트너스'],
+  keywords: ['middle aged channel tips', '시니어층(40대~70대)가 유튜브 시작할 때 꼭 알아야 할 7가지', '유튜브 노하우', '영상 만들기', 'AlgoMaker'],
   authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
   openGraph: {
-    title: '40대 50대 시니어가 유튜브 시작할 때 꼭 알아야 할 7가지',
+    title: '시니어층(40대~70대)가 유튜브 시작할 때 꼭 알아야 할 7가지',
     description: '퇴직 후 유튜브 시작하는 시니어를 위한 현실적인 가이드',
     type: 'article',
     publishedTime: '2026-04-25T00:00:00Z',
@@ -15,7 +15,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: 'summary_large_image',
-    title: '40대 50대 시니어가 유튜브 시작할 때 꼭 알아야 할 7가지',
+    title: '시니어층(40대~70대)가 유튜브 시작할 때 꼭 알아야 할 7가지',
     description: '퇴직 후 유튜브 시작하는 시니어를 위한 현실적인 가이드',
   },
   alternates: {
@@ -27,7 +27,7 @@ export const metadata: Metadata = {
 const articleSchema = {
   '@context': 'https://schema.org',
   '@type': 'BlogPosting',
-  headline: '40대 50대 시니어가 유튜브 시작할 때 꼭 알아야 할 7가지',
+  headline: '시니어층(40대~70대)가 유튜브 시작할 때 꼭 알아야 할 7가지',
   description: '퇴직 후 유튜브 시작하는 시니어를 위한 현실적인 가이드',
   author: {
     '@type': 'Person',
@@ -36,8 +36,7 @@ const articleSchema = {
   },
   publisher: {
     '@type': 'Organization',
-    name: '알고파트너스',
-    url: 'https://nutube.kr',
+    name: url: 'https://nutube.kr',
   },
   datePublished: '2026-04-25T00:00:00Z',
   dateModified: '2026-04-25T00:00:00Z',

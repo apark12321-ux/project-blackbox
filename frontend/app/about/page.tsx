@@ -205,27 +205,28 @@ export default function Page() {
             한 번에 생성합니다.
           </p>
           <p>
-            특히 <strong>40대 50대 시니어 분들</strong>, <strong>퇴직 예정자분들</strong>,
+            특히 <strong>시니어층(40대~70대) 분들</strong>, <strong>퇴직 예정자분들</strong>,
             그리고 영상 콘텐츠를 처음 시작하는 분들이 쉽게 사용할 수 있도록 설계되었습니다.
             복잡한 회원가입도, 결제도, 신용카드 등록도 필요 없습니다.
           </p>
 
           <h2>왜 이 서비스를 만들게 되었나요?</h2>
           <div className="founderCard">
-            <div className="founderTitle">FOUNDER</div>
-            <div className="founderName">박예준</div>
-            <div className="founderRole">알고파트너스 대표 / AlgoMaker 기획·운영</div>
+            <div className="founderTitle">OUR STORY</div>
+            <div className="founderName">키워드 하나면 충분합니다</div>
+            <div className="founderRole">영상 입문이 어려운 분들을 위한 도구</div>
             <div className="founderQuote">
-              "주변에 영상 시작하고 싶다고 말씀하시는 40대, 50대 분들이 정말 많았습니다.
-              그런데 막상 시작하려면 제목은 어떻게 짓고, 태그는 뭘 넣고, 대본은 어떻게 쓰는지
-              막막해서 한 발도 못 떼시는 분들이 대부분이었어요. 키워드 하나만으로 영상 자료를
-              완성해드리면 어떨까? 그게 AlgoMaker의 시작이었습니다."
+              "영상 시작하고 싶지만 막막한 분들이 정말 많습니다.
+              제목은 어떻게 짓고, 태그는 뭘 넣고, 대본은 어떻게 쓰는지
+              막막해서 한 발도 못 떼시는 분들이 대부분이었어요.
+              키워드 하나만으로 영상 자료를 완성해드리면 어떨까?
+              그게 AlgoMaker의 시작이었습니다."
             </div>
           </div>
 
           <h2>이런 분들께 도움이 됩니다</h2>
           <ul>
-            <li>🎯 회사 그만두고 영상 콘텐츠를 시작하려는 40대 ~ 60대</li>
+            <li>🎯 회사 그만두고 영상 콘텐츠를 시작하려는 시니어층(40대~70대)</li>
             <li>📊 N잡으로 영상 콘텐츠를 만들고 싶은 직장인</li>
             <li>🌱 시니어 라이프, 건강, 재테크 등 전문 분야 콘텐츠 제작자</li>
             <li>💼 SNS 채널 자료 만드는데 시간이 너무 오래 걸리는 분</li>

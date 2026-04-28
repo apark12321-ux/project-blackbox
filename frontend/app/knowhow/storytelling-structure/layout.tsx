@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: '10만 조회수 영상의 스토리텔링 구조 분석',
   description: '시청자가 끝까지 보는 영상에 숨겨진 4단계 이야기 공식',
-  keywords: ['storytelling structure', '10만 조회수 영상의 스토리텔링 구조 분석', '유튜브 노하우', '영상 만들기', 'AlgoMaker', '알고파트너스'],
+  keywords: ['storytelling structure', '10만 조회수 영상의 스토리텔링 구조 분석', '유튜브 노하우', '영상 만들기', 'AlgoMaker'],
   authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
   openGraph: {
     title: '10만 조회수 영상의 스토리텔링 구조 분석',
@@ -36,8 +36,7 @@ const articleSchema = {
   },
   publisher: {
     '@type': 'Organization',
-    name: '알고파트너스',
-    url: 'https://nutube.kr',
+    name: url: 'https://nutube.kr',
   },
   datePublished: '2026-04-25T00:00:00Z',
   dateModified: '2026-04-25T00:00:00Z',

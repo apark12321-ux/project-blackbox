@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: '트렌드 키워드 발굴하는 무료 도구 7가지',
   description: '유료 도구 없이 검색량 높은 키워드를 찾는 실전 방법',
-  keywords: ['trending keywords research', '트렌드 키워드 발굴하는 무료 도구 7가지', '유튜브 노하우', '영상 만들기', 'AlgoMaker', '알고파트너스'],
+  keywords: ['trending keywords research', '트렌드 키워드 발굴하는 무료 도구 7가지', '유튜브 노하우', '영상 만들기', 'AlgoMaker'],
   authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
   openGraph: {
     title: '트렌드 키워드 발굴하는 무료 도구 7가지',
@@ -36,8 +36,7 @@ const articleSchema = {
   },
   publisher: {
     '@type': 'Organization',
-    name: '알고파트너스',
-    url: 'https://nutube.kr',
+    name: url: 'https://nutube.kr',
   },
   datePublished: '2026-04-25T00:00:00Z',
   dateModified: '2026-04-25T00:00:00Z',

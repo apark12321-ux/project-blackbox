@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: '시청 유지율 50% 넘기는 영상 구조 7단계',
   description: '시청자가 끝까지 보게 만드는 검증된 영상 구성법',
-  keywords: ['viewer retention', '시청 유지율 50% 넘기는 영상 구조 7단계', '유튜브 노하우', '영상 만들기', 'AlgoMaker', '알고파트너스'],
+  keywords: ['viewer retention', '시청 유지율 50% 넘기는 영상 구조 7단계', '유튜브 노하우', '영상 만들기', 'AlgoMaker'],
   authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
   openGraph: {
     title: '시청 유지율 50% 넘기는 영상 구조 7단계',
@@ -36,8 +36,7 @@ const articleSchema = {
   },
   publisher: {
     '@type': 'Organization',
-    name: '알고파트너스',
-    url: 'https://nutube.kr',
+    name: url: 'https://nutube.kr',
   },
   datePublished: '2026-04-25T00:00:00Z',
   dateModified: '2026-04-25T00:00:00Z',

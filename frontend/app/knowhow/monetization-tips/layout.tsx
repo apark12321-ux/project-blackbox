@@ -3,7 +3,7 @@ import type { Metadata } from 'next';
 export const metadata: Metadata = {
   title: '구독자 1,000명 안 되어도 가능한 수익화 5가지',
   description: '유튜브 광고 외에도 수익을 만드는 다양한 방법 정리',
-  keywords: ['monetization tips', '구독자 1,000명 안 되어도 가능한 수익화 5가지', '유튜브 노하우', '영상 만들기', 'AlgoMaker', '알고파트너스'],
+  keywords: ['monetization tips', '구독자 1,000명 안 되어도 가능한 수익화 5가지', '유튜브 노하우', '영상 만들기', 'AlgoMaker'],
   authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
   openGraph: {
     title: '구독자 1,000명 안 되어도 가능한 수익화 5가지',
@@ -36,8 +36,7 @@ const articleSchema = {
   },
   publisher: {
     '@type': 'Organization',
-    name: '알고파트너스',
-    url: 'https://nutube.kr',
+    name: url: 'https://nutube.kr',
   },
   datePublished: '2026-04-25T00:00:00Z',
   dateModified: '2026-04-25T00:00:00Z',

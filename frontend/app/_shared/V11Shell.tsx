@@ -79,7 +79,7 @@ export function AlgoMakerLogo({ size = 'md', showSubtitle = true }: { size?: 'sm
 // ============================================================
 const NOTICES = [
   { dot: '💡', text: 'AI 추천 키워드 활용으로 알고리즘 최적화', tag: '팁' },
-  { dot: '🎯', text: '40대 퇴직 예정자에게 인기있는 분야 12개 제공', tag: '신규' },
+  { dot: '🎯', text: '퇴직 예정/예정자 (40대~70대)에게 인기있는 분야 12개 제공', tag: '신규' },
   { dot: '✨', text: '키워드 입력 한 번이면 4개 SNS 메타데이터 한 번에', tag: '편리' },
   { dot: '🚀', text: '완전 무료 · 회원가입 불필요 · 신용카드 X', tag: '무료' },
 ];
@@ -397,8 +397,8 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
                   영상 제목·태그·대본을 추천해드립니다.
                 </div>
                 <div className="fCompany">
-                  운영: 알고파트너스<br />
-                  대표: 박예준
+                  무료 · 회원가입 X<br />
+                  광고 보고 무제한 사용
                 </div>
               </div>
               <div className="footerCol">

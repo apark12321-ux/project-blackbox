@@ -74,6 +74,21 @@ const DEMO_HOOKS: Record<string, { domain: string; hook: string; trigger: string
     hook: '3박 4일 50만원으로 다녀온 진짜 일정. 현지인만 아는 코스 공개합니다.',
     trigger: '가성비 + 비밀',
   },
+  시어머니: {
+    domain: '가족 사연',
+    hook: '시집 10년 만에 처음 한 마디 했습니다. 그날따라 진심으로 풀어놓겠습니다.',
+    trigger: '공감 + 카타르시스',
+  },
+  며느리: {
+    domain: '가족 사연',
+    hook: '며느리 5년 차의 진짜 이야기. 명절에 결국 한 번에 터졌습니다.',
+    trigger: '공감 + 사이다',
+  },
+  가족사연: {
+    domain: '가족 사연',
+    hook: '오랫동안 묻어둔 가족 이야기, 한 번에 풀어놓겠습니다. 누구나 한 번쯤 겪어보셨을 거예요.',
+    trigger: '보편 공감',
+  },
 };
 
 // 키워드 → 도메인 매핑 (간단 버전)
@@ -84,13 +99,14 @@ function getKeywordPreview(keyword: string) {
   // 정확 매칭
   if (DEMO_HOOKS[k]) return DEMO_HOOKS[k];
   
-  // 부분 매칭
+  // 부분 매칭 - family 우선 (시어머니, 며느리 등)
+  if (/시어머니|며느리|사위|장인|장모|시댁|친정|가족.*사연|시집|이혼|명절|제사|시동생|동서|올케/.test(k)) return DEMO_HOOKS['시어머니'];
   if (/부동산|아파트|매물|청약|분양/.test(k)) return DEMO_HOOKS['부동산'];
   if (/주식|투자|코인|비트|증권/.test(k)) return DEMO_HOOKS['주식'];
   if (/영어|토익|토플|회화/.test(k)) return DEMO_HOOKS['영어 회화'];
   if (/다이어트|살빼기|체중|헬스|운동/.test(k)) return DEMO_HOOKS['다이어트'];
   if (/ai|chatgpt|gpt|미드저니|notebook|gemini/i.test(k)) return DEMO_HOOKS['AI'];
-  if (/은퇴|시니어|50대|60대|노후/.test(k)) return DEMO_HOOKS['은퇴'];
+  if (/은퇴|시니어|50대|60대|70대|노후/.test(k)) return DEMO_HOOKS['은퇴'];
   if (/코딩|프로그래밍|개발/.test(k)) return DEMO_HOOKS['코딩'];
   if (/요리|레시피|음식/.test(k)) return DEMO_HOOKS['요리'];
   if (/여행|투어|관광/.test(k)) return DEMO_HOOKS['여행'];
@@ -113,6 +129,7 @@ const TRIGGER_MATRIX = [
   { emoji: '📚', domain: '자기계발/공부', trigger: '시간효율 + 평범인변신', example: '"하루 30분으로 변화"' },
   { emoji: '🤖', domain: 'AI/디지털 도구', trigger: '무료 + 무제한', example: '"빵원으로, 무제한 사용"' },
   { emoji: '👴', domain: '시니어/은퇴', trigger: '연령 가능성', example: '"60대도 가능합니다"' },
+  { emoji: '💝', domain: '가족 사연/감동', trigger: '공감 + 카타르시스', example: '"시집 10년 만에 처음 한 말"' },
   { emoji: '🍳', domain: '요리/맛집', trigger: '쉬움 + 검증', example: '"재료 3개로 5분 컷"' },
   { emoji: '✈️', domain: '여행/취미', trigger: '가성비 + 비밀', example: '"3박 50만원, 현지인 코스"' },
 ];
@@ -123,7 +140,7 @@ const TRIGGER_MATRIX = [
 const FAQ_LIST = [
   {
     q: 'AlgoMaker는 무엇인가요?',
-    a: 'AlgoMaker는 키워드 하나만 입력하면 AI가 영상 제목, 태그, 대본, 썸네일, SNS 메타데이터를 모두 자동 생성해주는 무료 도구입니다. 알고파트너스(대표 박예준)가 운영하며, 40대 50대 영상 콘텐츠 입문자를 주 타겟으로 합니다.',
+    a: 'AlgoMaker는 키워드 하나만 입력하면 AI가 영상 제목, 태그, 대본, 썸네일, SNS 메타데이터를 모두 자동 생성해주는 무료 도구입니다. 부동산은 수치 중심, 영어는 경험담 중심처럼 분야별로 다른 떡상 트리거를 자동 매칭하는 것이 특징입니다.',
   },
   {
     q: '다른 AI 글쓰기 도구와 무엇이 다른가요?',
@@ -142,19 +159,20 @@ const FAQ_LIST = [
     a: '유튜브, 유튜브 쇼츠, 틱톡, 인스타그램 릴스 4개 SNS 플랫폼에 그대로 사용 가능한 메타데이터를 제공합니다. 영상 대본 7단계 시퀀스, 한글/영문 영상 생성 프롬프트, 썸네일 콘셉트도 포함됩니다.',
   },
   {
-    q: '40대 50대 영상 입문자도 사용할 수 있나요?',
-    a: '네, 그게 주 타겟입니다. 회원가입도 결제도 필요 없고, 키워드 하나만 입력하면 끝입니다. 디지털 도구가 익숙하지 않으셔도 1분 안에 영상 자료가 완성됩니다. 40대 50대 시청자에게 인기 있는 분야(시니어 라이프, 재테크, 건강 등) 위주로 트리거가 최적화되어 있습니다.',
+    q: '시니어층(40대~70대)도 사용할 수 있나요?',
+    a: '네, 그게 주 타겟입니다. 회원가입도 결제도 필요 없고, 키워드 하나만 입력하면 끝입니다. 디지털 도구가 익숙하지 않으셔도 1분 안에 영상 자료가 완성됩니다. 시니어층(40대~70대) 시청자에게 인기 있는 분야 - 시니어 라이프, 재테크, 건강, 가족 관계, 사연/감동 콘텐츠 - 위주로 트리거가 최적화되어 있습니다.',
   },
 ];
 
 // ============================================================
 // Definition Box - AEO/GEO 핵심
 // ChatGPT, Perplexity가 인용하기 좋은 명확한 정의
+// 사용자 가치 중심 (운영자 정보는 /about 하단에만)
 // ============================================================
 const DEFINITION = {
   what: 'AlgoMaker는 키워드 하나로 영상 콘텐츠 자료(제목, 태그, 대본, 썸네일, SNS 메타데이터)를 자동 생성하는 무료 AI 도구입니다.',
-  who: '알고파트너스(대표 박예준)가 운영하는 한국 서비스로, 40대 50대 영상 콘텐츠 입문자를 주 타겟으로 합니다.',
-  how: '8개 도메인을 자동 인식하고 분야별 떡상 트리거를 매칭해 시나리오를 생성합니다. 키워드별로 다른 패턴이 적용됩니다.',
+  feature: '8개 도메인을 자동 인식하고 분야별로 다른 떡상 트리거를 매칭합니다. 부동산은 수치 중심, 영어는 경험담 중심, 다이어트는 비포애프터 중심으로 작동합니다.',
+  how: '키워드 하나만 입력하면 AI가 영상 제목 3개, 태그 13개, 대본 7단계 시퀀스, 썸네일 콘셉트, 4개 SNS 메타데이터를 자동 생성합니다.',
   why: '회원가입, 결제, 신용카드 등록이 일절 필요 없으며 광고 시청만으로 무제한 사용 가능합니다.',
 };
 
@@ -194,7 +212,7 @@ export default function HomePage() {
           <strong>AlgoMaker란?</strong> {DEFINITION.what}
         </p>
         <p>
-          <strong>운영:</strong> {DEFINITION.who}
+          <strong>차별점:</strong> {DEFINITION.feature}
         </p>
         <p>
           <strong>작동 방식:</strong> {DEFINITION.how}
@@ -785,7 +803,7 @@ export default function HomePage() {
               <button className="demoHint" onClick={() => setDemoKeyword('영어 회화')}>영어 회화</button>
               <button className="demoHint" onClick={() => setDemoKeyword('다이어트')}>다이어트</button>
               <button className="demoHint" onClick={() => setDemoKeyword('AI 영상')}>AI 영상</button>
-              <button className="demoHint" onClick={() => setDemoKeyword('은퇴 부업')}>은퇴 부업</button>
+              <button className="demoHint" onClick={() => setDemoKeyword('시어머니 사연')}>시어머니 사연</button>
             </div>
           )}
         </section>
