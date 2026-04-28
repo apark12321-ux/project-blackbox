@@ -19,6 +19,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { V11Shell, setProject } from './_shared/V11Shell';
 import { detectCategoryFromKeyword, getCategoryById } from './_shared/platforms';
+import { getFeaturedViralCases } from './_shared/contentEngine';
 import AdSlot from './_shared/AdSlot';
 
 // ============================================================
@@ -849,7 +850,119 @@ export default function HomePage() {
         }
 
         /* ============================================ */
-        /* [4-2] 외부 수익화 5가지 경로 */
+        /* [4-1.5] 떡상 영상 사례 갤러리 - Phase 1 */
+        /* ============================================ */
+        .viralGallerySection { margin-top: 28px; }
+        .viralBadge {
+          display: inline-block;
+          padding: 6px 14px;
+          background: #c65f3b;
+          color: #fff;
+          border-radius: 100px;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+          margin-bottom: 10px;
+        }
+        .viralGrid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+          gap: 14px;
+        }
+        @media (max-width: 600px) {
+          .viralGrid { grid-template-columns: 1fr; gap: 10px; }
+        }
+        .viralCard {
+          background: #fff;
+          border: 1.5px solid #e5e5e5;
+          border-radius: 14px;
+          padding: 18px 18px 16px;
+          cursor: pointer;
+          transition: all 0.25s;
+          display: flex;
+          flex-direction: column;
+        }
+        .viralCard:hover {
+          border-color: #c65f3b;
+          transform: translateY(-3px);
+          box-shadow: 0 10px 26px rgba(198, 95, 59, 0.15);
+        }
+        .viralCardHead {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 10px;
+        }
+        .viralCardEmoji {
+          font-size: 22px;
+        }
+        .viralCardCat {
+          padding: 3px 9px;
+          background: #fdf1e7;
+          color: #c65f3b;
+          border-radius: 100px;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.02em;
+        }
+        .viralCardPattern {
+          font-size: 15px;
+          font-weight: 800;
+          color: #1a1a1a;
+          margin-bottom: 8px;
+          letter-spacing: -0.02em;
+        }
+        .viralCardHook {
+          font-size: 13.5px;
+          color: #c65f3b;
+          font-style: italic;
+          font-weight: 700;
+          margin-bottom: 10px;
+          line-height: 1.5;
+        }
+        .viralCardWhy {
+          font-size: 12.5px;
+          color: #555;
+          line-height: 1.65;
+          margin-bottom: 12px;
+          flex: 1;
+        }
+        .viralCardMeta {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          font-size: 11.5px;
+          color: #888;
+          margin-bottom: 12px;
+          padding-bottom: 12px;
+          border-bottom: 1px dashed #f0f0f0;
+        }
+        .viralCardExample {
+          margin-bottom: 12px;
+        }
+        .viralCardLabel {
+          display: block;
+          font-size: 10.5px;
+          font-weight: 800;
+          color: #888;
+          letter-spacing: 0.04em;
+          margin-bottom: 3px;
+        }
+        .viralCardKw {
+          font-size: 13px;
+          color: #1a1a1a;
+          font-weight: 700;
+        }
+        .viralCardCta {
+          font-size: 12px;
+          font-weight: 800;
+          color: #c65f3b;
+          text-align: right;
+          padding-top: 4px;
+        }
+
+        /* ============================================ */
+        /* [4-2] 영상 콘텐츠 다양한 활용법 */
         /* ============================================ */
         .revenueSection {
           background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
@@ -1369,6 +1482,72 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* ============================================ */}
+        {/* [4-1.5] 떡상 영상 사례 갤러리 - Phase 1 NEW */}
+        {/* ============================================ */}
+        <section className="section viralGallerySection">
+          <div className="sectionHeader">
+            <span className="viralBadge">🔥 실제 떡상 패턴 분석</span>
+            <h2 className="sectionTitle">분야별 떡상 영상 패턴</h2>
+            <p className="sectionSub">
+              실제로 잘된 영상들의 공통 패턴을 분석했어요. 카드 클릭하면 그 패턴으로 만들기 시작합니다.
+            </p>
+          </div>
+
+          <div className="viralGrid">
+            {getFeaturedViralCases().map((vc, i) => {
+              const cat = TRIGGER_MATRIX.find(t => {
+                const map: Record<string, string> = {
+                  realestate: '부동산',
+                  economy: '재테크/투자',
+                  language: '영어/외국어',
+                  health: '다이어트/건강',
+                  selfdev: '자기계발',
+                  aitech: 'AI/디지털',
+                  senior: '시니어 라이프',
+                  food: '요리/맛집',
+                  travel: '여행/취미',
+                  family: '가족 사연',
+                  jobs: '부업/창업',
+                };
+                return t.domain === map[vc.categoryId];
+              });
+              return (
+                <div
+                  key={i}
+                  className="viralCard"
+                  onClick={() => {
+                    setProject({
+                      category: vc.categoryId,
+                      categoryLabel: cat?.domain || '',
+                      keyword: vc.example,
+                      step: 4,
+                    });
+                    router.push(`/publish?keyword=${encodeURIComponent(vc.example)}&category=${vc.categoryId}&scenario=curiosity`);
+                  }}
+                >
+                  <div className="viralCardHead">
+                    <span className="viralCardEmoji">{vc.emoji}</span>
+                    <span className="viralCardCat">{cat?.domain || vc.categoryId}</span>
+                  </div>
+                  <div className="viralCardPattern">{vc.pattern}</div>
+                  <div className="viralCardHook">"{vc.hook}"</div>
+                  <div className="viralCardWhy">{vc.why}</div>
+                  <div className="viralCardMeta">
+                    <span>⏱️ {vc.videoLength}</span>
+                    <span>🎯 {vc.keyElement}</span>
+                  </div>
+                  <div className="viralCardExample">
+                    <span className="viralCardLabel">예시 키워드</span>
+                    <span className="viralCardKw">"{vc.example}"</span>
+                  </div>
+                  <div className="viralCardCta">→ 이 패턴으로 만들기</div>
+                </div>
+              );
+            })}
           </div>
         </section>
 

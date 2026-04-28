@@ -25,19 +25,21 @@ import {
   generateVideoSequences,
   generateThumbnailConcepts,
   generateShortsScript,
+  getViralCases,
   bumpSeed,
 } from '../_shared/contentEngine';
 import AdSlot from '../_shared/AdSlot';
 import RewardedAd from '../_shared/RewardedAd';
 
-type StepId = 'title' | 'script' | 'video' | 'meta' | 'sns';
+type StepId = 'cases' | 'title' | 'script' | 'video' | 'meta' | 'sns';
 
 const STEPS: { id: StepId; emoji: string; label: string; sub: string; color: string; bg: string }[] = [
-  { id: 'title', emoji: '✏️', label: 'STEP 1', sub: '제목 선택', color: '#534AB7', bg: '#EEEDFE' },
-  { id: 'script', emoji: '🎬', label: 'STEP 2', sub: '대본 7단계', color: '#993C1D', bg: '#FAECE7' },
-  { id: 'video', emoji: '🎨', label: 'STEP 3', sub: '영상 제작', color: '#0F6E56', bg: '#E1F5EE' },
-  { id: 'meta', emoji: '🏷️', label: 'STEP 4', sub: '메타데이터', color: '#854F0B', bg: '#FAEEDA' },
-  { id: 'sns', emoji: '📲', label: 'STEP 5', sub: 'SNS 업로드', color: '#185FA5', bg: '#E6F1FB' },
+  { id: 'cases', emoji: '📺', label: 'STEP 1', sub: '비슷한 떡상 사례', color: '#185FA5', bg: '#E6F1FB' },
+  { id: 'title', emoji: '✏️', label: 'STEP 2', sub: '제목 선택', color: '#534AB7', bg: '#EEEDFE' },
+  { id: 'script', emoji: '🎬', label: 'STEP 3', sub: '대본 7단계', color: '#993C1D', bg: '#FAECE7' },
+  { id: 'video', emoji: '🎨', label: 'STEP 4', sub: '영상 제작', color: '#0F6E56', bg: '#E1F5EE' },
+  { id: 'meta', emoji: '🏷️', label: 'STEP 5', sub: '메타데이터', color: '#854F0B', bg: '#FAEEDA' },
+  { id: 'sns', emoji: '📲', label: 'STEP 6', sub: 'SNS 업로드', color: '#D4537E', bg: '#FBEAF0' },
 ];
 
 function PublishPageInner() {
@@ -52,6 +54,7 @@ function PublishPageInner() {
 
   // 단계별 펼치기/접기
   const [openSteps, setOpenSteps] = useState<Record<StepId, boolean>>({
+    cases: true,
     title: true,
     script: true,
     video: false,
@@ -105,6 +108,12 @@ function PublishPageInner() {
     [keyword, scenarioId, regenerateKey]
   );
 
+  // Phase 1: 비슷한 떡상 영상 사례 매칭
+  const viralCases = useMemo(
+    () => getViralCases(categoryId, 3),
+    [categoryId]
+  );
+
   // 해시태그 자동 변환 (띄어쓰기 제거 + #)
   const toHashtag = (text: string) => '#' + text.replace(/[\s·,.\-]/g, '').replace(/[^가-힣a-zA-Z0-9]/g, '');
   const hashtagsBase = tags.slice(0, 8).map(t => toHashtag(t.tag)).join(' ');
@@ -147,11 +156,11 @@ function PublishPageInner() {
   };
 
   const expandAll = () => {
-    setOpenSteps({ title: true, script: true, video: true, meta: true, sns: true });
+    setOpenSteps({ cases: true, title: true, script: true, video: true, meta: true, sns: true });
   };
 
   const collapseAll = () => {
-    setOpenSteps({ title: false, script: false, video: false, meta: false, sns: false });
+    setOpenSteps({ cases: false, title: false, script: false, video: false, meta: false, sns: false });
   };
 
   if (!keyword) {
@@ -336,6 +345,105 @@ function PublishPageInner() {
         /* ============================================ */
         /* STEP 1 - 제목 선택 */
         /* ============================================ */
+        /* ============================================ */
+        /* STEP 1 - 비슷한 떡상 영상 사례 (Phase 1) */
+        /* ============================================ */
+        .casesIntro {
+          background: linear-gradient(135deg, #e6f1fb 0%, #d3e7f8 100%);
+          border-left: 3px solid #185FA5;
+          padding: 12px 16px;
+          border-radius: 0 8px 8px 0;
+          font-size: 13px;
+          color: #042c53;
+          line-height: 1.7;
+          margin: 16px 0 18px;
+        }
+        .casesList {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+        }
+        .caseCard {
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 12px;
+          padding: 16px 18px;
+          transition: all 0.2s;
+        }
+        .caseCard:hover {
+          border-color: #185FA5;
+          background: #fafbfd;
+        }
+        .caseCardHead {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 12px;
+          padding-bottom: 10px;
+          border-bottom: 1px dashed #e5e5e5;
+        }
+        .caseCardEmoji {
+          font-size: 22px;
+        }
+        .caseCardPattern {
+          font-size: 14.5px;
+          font-weight: 800;
+          color: #1a1a1a;
+          letter-spacing: -0.02em;
+          flex: 1;
+        }
+        .caseCardLength {
+          font-size: 11.5px;
+          color: #888;
+          font-weight: 600;
+        }
+        .caseCardLabel {
+          display: block;
+          font-size: 10.5px;
+          font-weight: 800;
+          color: #185FA5;
+          letter-spacing: 0.04em;
+          margin-bottom: 4px;
+        }
+        .caseCardHook {
+          background: #e6f1fb;
+          border-radius: 8px;
+          padding: 10px 12px;
+          margin-bottom: 12px;
+        }
+        .caseCardHookText {
+          font-size: 14px;
+          font-weight: 700;
+          color: #042c53;
+          font-style: italic;
+          line-height: 1.5;
+        }
+        .caseCardWhy {
+          margin-bottom: 12px;
+        }
+        .caseCardWhy p {
+          font-size: 13px;
+          color: #555;
+          line-height: 1.7;
+          margin: 0;
+        }
+        .caseCardKey {
+          padding: 8px 12px;
+          background: #fafafa;
+          border-radius: 8px;
+          font-size: 12.5px;
+          color: #444;
+          line-height: 1.55;
+        }
+        .caseCardKey .caseCardKeyLabel {
+          font-weight: 700;
+          color: #c65f3b;
+          margin-right: 4px;
+        }
+
+        /* ============================================ */
+        /* STEP 2 - 제목 선택 */
+        /* ============================================ */
         .titleHelp {
           background: #fff8f3;
           border-left: 3px solid #c65f3b;
@@ -485,6 +593,55 @@ function PublishPageInner() {
           letter-spacing: -0.01em;
         }
         @media (max-width: 600px) { .seqScriptBox { font-size: 13.5px; padding: 14px 16px; } }
+
+        /* ============================================ */
+        /* AI 이미지 미리보기 (Phase 1 - Pollinations) */
+        /* ============================================ */
+        .seqImagePreview {
+          padding: 12px 18px;
+          background: #fafbff;
+          border-top: 1px solid #f0f0f0;
+        }
+        @media (max-width: 600px) { .seqImagePreview { padding: 10px 16px; } }
+        .seqImageLabel {
+          font-size: 11.5px;
+          font-weight: 800;
+          color: #6366f1;
+          letter-spacing: 0.04em;
+          margin-bottom: 8px;
+        }
+        .seqImageWrap {
+          position: relative;
+          width: 100%;
+          aspect-ratio: 16 / 9;
+          background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
+          border-radius: 10px;
+          overflow: hidden;
+          margin-bottom: 8px;
+        }
+        .seqImage {
+          width: 100%;
+          height: 100%;
+          object-fit: cover;
+          display: block;
+        }
+        .seqImageFallback {
+          position: absolute;
+          inset: 0;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          justify-content: center;
+          gap: 8px;
+          color: #6b7280;
+          font-size: 13px;
+        }
+        .seqImageFallback span:first-child { font-size: 32px; }
+        .seqImageNote {
+          font-size: 11px;
+          color: #888;
+          line-height: 1.5;
+        }
 
         .seqActions {
           display: flex; gap: 8px;
@@ -979,15 +1136,62 @@ function PublishPageInner() {
         </div>
 
         {/* ============================================ */}
-        {/* STEP 1 - 제목 선택 */}
+        {/* STEP 1 - 비슷한 떡상 영상 사례 (Phase 1 NEW) */}
         {/* ============================================ */}
-        <div className={`step ${openSteps.title ? 'active' : ''}`}>
-          <div className="stepHead" onClick={() => toggleStep('title')}>
+        <div className={`step ${openSteps.cases ? 'active' : ''}`}>
+          <div className="stepHead" onClick={() => toggleStep('cases')}>
             <div className="stepEmoji" style={{ background: STEPS[0].bg, color: STEPS[0].color }}>
               {STEPS[0].emoji}
             </div>
             <div className="stepInfo">
               <div className="stepLabel" style={{ color: STEPS[0].color }}>{STEPS[0].label}</div>
+              <div className="stepTitle">비슷한 떡상 영상 사례 — 어떤 패턴으로 잘 됐을까</div>
+            </div>
+            <div className={`stepArrow ${openSteps.cases ? 'open' : ''}`}>▼</div>
+          </div>
+          {openSteps.cases && (
+            <div className="stepBody">
+              <div className="casesIntro">
+                💡 "{cat.name}" 분야에서 실제로 잘된 영상들의 공통 패턴이에요.
+                내 영상도 이런 패턴으로 만들면 좋아요.
+              </div>
+              <div className="casesList">
+                {viralCases.map((vc, i) => (
+                  <div key={i} className="caseCard">
+                    <div className="caseCardHead">
+                      <span className="caseCardEmoji">{vc.emoji}</span>
+                      <span className="caseCardPattern">{vc.pattern}</span>
+                      <span className="caseCardLength">⏱️ {vc.videoLength}</span>
+                    </div>
+                    <div className="caseCardHook">
+                      <span className="caseCardLabel">핵심 후크 (첫 3초)</span>
+                      <div className="caseCardHookText">"{vc.hook}"</div>
+                    </div>
+                    <div className="caseCardWhy">
+                      <span className="caseCardLabel">왜 떡상했을까?</span>
+                      <p>{vc.why}</p>
+                    </div>
+                    <div className="caseCardKey">
+                      <span className="caseCardKeyLabel">🎯 핵심 요소:</span>
+                      <span>{vc.keyElement}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ============================================ */}
+        {/* STEP 2 - 제목 선택 */}
+        {/* ============================================ */}
+        <div className={`step ${openSteps.title ? 'active' : ''}`}>
+          <div className="stepHead" onClick={() => toggleStep('title')}>
+            <div className="stepEmoji" style={{ background: STEPS[1].bg, color: STEPS[1].color }}>
+              {STEPS[1].emoji}
+            </div>
+            <div className="stepInfo">
+              <div className="stepLabel" style={{ color: STEPS[1].color }}>{STEPS[1].label}</div>
               <div className="stepTitle">제목 선택 — 마음에 드는 제목 1개를 골라주세요</div>
             </div>
             <div className={`stepArrow ${openSteps.title ? 'open' : ''}`}>▼</div>
@@ -1032,11 +1236,11 @@ function PublishPageInner() {
         {/* ============================================ */}
         <div className={`step ${openSteps.script ? 'active' : ''}`}>
           <div className="stepHead" onClick={() => toggleStep('script')}>
-            <div className="stepEmoji" style={{ background: STEPS[1].bg, color: STEPS[1].color }}>
-              {STEPS[1].emoji}
+            <div className="stepEmoji" style={{ background: STEPS[2].bg, color: STEPS[2].color }}>
+              {STEPS[2].emoji}
             </div>
             <div className="stepInfo">
-              <div className="stepLabel" style={{ color: STEPS[1].color }}>{STEPS[1].label} · 메인 콘텐츠</div>
+              <div className="stepLabel" style={{ color: STEPS[2].color }}>{STEPS[2].label} · 메인 콘텐츠</div>
               <div className="stepTitle">떡상 시나리오 {sequences.length}단계 — 영상 대본 흐름</div>
             </div>
             <div className={`stepArrow ${openSteps.script ? 'open' : ''}`}>▼</div>
@@ -1065,6 +1269,35 @@ function PublishPageInner() {
                       <strong>📌 목적:</strong> {seq.purpose}
                     </div>
                     <div className="seqScriptBox">{seq.script}</div>
+
+                    {/* Phase 1 - AI 이미지 미리보기 (Pollinations 무료 API) */}
+                    <div className="seqImagePreview">
+                      <div className="seqImageLabel">🎨 이 장면 AI 이미지 미리보기</div>
+                      <div className="seqImageWrap">
+                        <img
+                          src={`https://image.pollinations.ai/prompt/${encodeURIComponent(seq.imagePromptEn)}?width=720&height=405&nologo=true&seed=${(idx + 1) * 100}`}
+                          alt={`시퀀스 ${seq.number} 미리보기`}
+                          className="seqImage"
+                          loading="lazy"
+                          onError={(e) => {
+                            (e.target as HTMLImageElement).style.display = 'none';
+                            const wrap = (e.target as HTMLImageElement).parentElement;
+                            if (wrap) {
+                              const fallback = wrap.querySelector('.seqImageFallback') as HTMLElement;
+                              if (fallback) fallback.style.display = 'flex';
+                            }
+                          }}
+                        />
+                        <div className="seqImageFallback" style={{ display: 'none' }}>
+                          <span>🎨</span>
+                          <span>이미지 생성 중... 잠시 후 새로고침해주세요</span>
+                        </div>
+                      </div>
+                      <div className="seqImageNote">
+                        💡 무료 AI 이미지 미리보기 (Pollinations.ai 제공) · 실제 사용시 Midjourney·DALL-E로 고품질 생성 가능
+                      </div>
+                    </div>
+
                     <div className="seqActions">
                       <button
                         className={`seqActionBtn ${copied === `seq-${idx}` ? 'copied' : ''}`}
@@ -1116,11 +1349,11 @@ function PublishPageInner() {
         {/* ============================================ */}
         <div className={`step ${openSteps.video ? 'active' : ''}`}>
           <div className="stepHead" onClick={() => toggleStep('video')}>
-            <div className="stepEmoji" style={{ background: STEPS[2].bg, color: STEPS[2].color }}>
-              {STEPS[2].emoji}
+            <div className="stepEmoji" style={{ background: STEPS[3].bg, color: STEPS[3].color }}>
+              {STEPS[3].emoji}
             </div>
             <div className="stepInfo">
-              <div className="stepLabel" style={{ color: STEPS[2].color }}>{STEPS[2].label}</div>
+              <div className="stepLabel" style={{ color: STEPS[3].color }}>{STEPS[3].label}</div>
               <div className="stepTitle">영상 제작 — AI 도구용 프롬프트 (단계별)</div>
             </div>
             <div className={`stepArrow ${openSteps.video ? 'open' : ''}`}>▼</div>
@@ -1158,11 +1391,11 @@ function PublishPageInner() {
         {/* ============================================ */}
         <div className={`step ${openSteps.meta ? 'active' : ''}`}>
           <div className="stepHead" onClick={() => toggleStep('meta')}>
-            <div className="stepEmoji" style={{ background: STEPS[3].bg, color: STEPS[3].color }}>
-              {STEPS[3].emoji}
+            <div className="stepEmoji" style={{ background: STEPS[4].bg, color: STEPS[4].color }}>
+              {STEPS[4].emoji}
             </div>
             <div className="stepInfo">
-              <div className="stepLabel" style={{ color: STEPS[3].color }}>{STEPS[3].label}</div>
+              <div className="stepLabel" style={{ color: STEPS[4].color }}>{STEPS[4].label}</div>
               <div className="stepTitle">메타데이터 — 설명·태그·썸네일</div>
             </div>
             <div className={`stepArrow ${openSteps.meta ? 'open' : ''}`}>▼</div>
@@ -1266,11 +1499,11 @@ function PublishPageInner() {
         {/* ============================================ */}
         <div className={`step ${openSteps.sns ? 'active' : ''}`}>
           <div className="stepHead" onClick={() => toggleStep('sns')}>
-            <div className="stepEmoji" style={{ background: STEPS[4].bg, color: STEPS[4].color }}>
-              {STEPS[4].emoji}
+            <div className="stepEmoji" style={{ background: STEPS[5].bg, color: STEPS[5].color }}>
+              {STEPS[5].emoji}
             </div>
             <div className="stepInfo">
-              <div className="stepLabel" style={{ color: STEPS[4].color }}>{STEPS[4].label}</div>
+              <div className="stepLabel" style={{ color: STEPS[5].color }}>{STEPS[5].label}</div>
               <div className="stepTitle">SNS 업로드 — 4개 플랫폼별 자료</div>
             </div>
             <div className={`stepArrow ${openSteps.sns ? 'open' : ''}`}>▼</div>

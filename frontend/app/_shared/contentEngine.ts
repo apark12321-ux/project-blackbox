@@ -1521,3 +1521,373 @@ export function getYouTubeCategory(categoryId: string): string {
   };
   return mapping[categoryId] || '교육';
 }
+
+// ============================================================
+// 11. 떡상 영상 사례 데이터베이스 (Phase 1 - 박 대표님 비전)
+// ============================================================
+//
+// 박 대표님 원칙:
+// - 채널명/사람이름 X (일반화된 패턴만)
+// - 자극적 수익 표현 X
+// - "왜 떡상했는가"의 패턴 분석 중심
+//
+
+export interface ViralCase {
+  pattern: string;           // 패턴 이름 (예: "비포애프터형")
+  videoLength: string;        // 영상 길이 (예: "1분 30초")
+  hook: string;               // 핵심 후크 (첫 3초)
+  why: string;                // 떡상 이유 (패턴 분석)
+  example: string;            // 예시 키워드 (사용자가 따라 만들 수 있는)
+  keyElement: string;         // 핵심 요소
+  emoji: string;
+}
+
+const VIRAL_CASES_BY_DOMAIN: Record<string, ViralCase[]> = {
+  realestate: [
+    {
+      pattern: '시간 압축형',
+      videoLength: '1분 ~ 1분 30초',
+      hook: '"○년 전 이 동네는..."',
+      why: '과거 사진과 현재를 빠르게 교차하면서 변화를 시각적으로 보여줌. 시청자가 "내 동네는?"이라는 호기심으로 끝까지 시청',
+      example: '○○동 5년 전 vs 지금',
+      keyElement: 'Before/After 사진 + 큰 숫자',
+      emoji: '🏘️',
+    },
+    {
+      pattern: '실수 회피형',
+      videoLength: '5분 ~ 8분',
+      hook: '"이거 모르고 계약하면 후회합니다"',
+      why: '경험자의 후회담은 입문자에게 가장 강력한 신호. "나도 이 실수 할 뻔" 공감 댓글 폭발',
+      example: '청약 신청 전 알았으면 좋았을 5가지',
+      keyElement: '구체적 사례 + 체크리스트',
+      emoji: '⚠️',
+    },
+    {
+      pattern: '데이터 시각화형',
+      videoLength: '8분 이상',
+      hook: '"실거래가 데이터로 본 진실"',
+      why: '주관적 느낌 X, 데이터 기반 신뢰. 검색 의도 있는 시청자가 끝까지 시청 + 저장',
+      example: '2026년 부동산 진짜 흐름 (데이터 분석)',
+      keyElement: '그래프 + 출처 명시',
+      emoji: '📊',
+    },
+  ],
+  economy: [
+    {
+      pattern: '평범인 기록형',
+      videoLength: '5분 ~ 10분',
+      hook: '"평범한 직장인이 ○년 동안..."',
+      why: '비슷한 처지의 사람이 만든 변화는 가장 강력한 동기부여. 시청자가 "나도 가능하다" 느낌',
+      example: '40대 직장인의 자산 정리 노하우',
+      keyElement: '구체적 과정 + 솔직한 실수담',
+      emoji: '📈',
+    },
+    {
+      pattern: '단계별 가이드형',
+      videoLength: '8분 ~ 12분',
+      hook: '"5단계만 따라하면 됩니다"',
+      why: '복잡한 정보를 단순한 단계로 정리 → 저장/공유 욕구 폭발',
+      example: '월급 외 수익 만드는 5단계',
+      keyElement: '명확한 단계 + 실행 가능한 액션',
+      emoji: '📋',
+    },
+    {
+      pattern: '실수 공개형',
+      videoLength: '7분 ~ 10분',
+      hook: '"투자 시작 1년, 솔직한 실수담"',
+      why: '성공담보다 실수담이 진심으로 받아들여짐. 댓글에서 비슷한 경험 공유',
+      example: '재테크 처음 시작했을 때 큰 실수',
+      keyElement: '솔직함 + 교훈',
+      emoji: '💭',
+    },
+  ],
+  language: [
+    {
+      pattern: '시간 한정 챌린지형',
+      videoLength: '8분 ~ 15분',
+      hook: '"하루 30분, ○개월 만에"',
+      why: '시간 제약이 있어야 시청자가 "나도 시작해볼까" 생각. 단기 변화의 매력',
+      example: '하루 30분 영어, 6개월 후 변화',
+      keyElement: '구체적 일정표 + 방법론',
+      emoji: '⏰',
+    },
+    {
+      pattern: '평범인 변화형',
+      videoLength: '10분 이상',
+      hook: '"영어 0점부터 시작한 직장인"',
+      why: '바닥부터 시작한 사람의 진심 어린 기록은 입문자의 두려움 해소',
+      example: '40대에 영어 시작해서 알게 된 것들',
+      keyElement: '비포애프터 + 솔직한 어려움',
+      emoji: '🌱',
+    },
+    {
+      pattern: '도구 추천형',
+      videoLength: '5분 ~ 8분',
+      hook: '"무료 앱 ○개로 충분합니다"',
+      why: '무료 도구 정보는 저장/공유율이 매우 높음. 즉시 실행 가능',
+      example: '영어 회화 무료 앱 5개',
+      keyElement: '비교표 + 사용법',
+      emoji: '🛠️',
+    },
+  ],
+  health: [
+    {
+      pattern: '비포애프터 시각형',
+      videoLength: '1분 ~ 3분',
+      hook: '"○개월 변화 기록"',
+      why: '시각적 변화는 가장 강력한 후크. 첫 3초에 결과 보여주면 이탈률 최저',
+      example: '집에서 운동 3개월 변화',
+      keyElement: '동일 각도 사진 + 날짜',
+      emoji: '💪',
+    },
+    {
+      pattern: '하루 일과형',
+      videoLength: '5분 ~ 10분',
+      hook: '"식단 + 운동 하루 루틴"',
+      why: 'V-log 형식이라 친근함. 시청자가 일상 따라하기 쉬움',
+      example: '체중 감량 중 평일 하루',
+      keyElement: '시간대별 정리 + 실제 모습',
+      emoji: '🌅',
+    },
+    {
+      pattern: '실수 공개형',
+      videoLength: '7분 ~ 12분',
+      hook: '"이 운동, 이렇게 하면 안 됩니다"',
+      why: '잘못된 정보 정정 콘텐츠는 신뢰 + 저장 동시 유도',
+      example: '집 운동 흔한 실수 5가지',
+      keyElement: '비교 시연 + 올바른 자세',
+      emoji: '🚫',
+    },
+  ],
+  selfdev: [
+    {
+      pattern: '습관 변화형',
+      videoLength: '7분 ~ 12분',
+      hook: '"하루 ○분 루틴, ○년 변화"',
+      why: '작은 시작 → 큰 변화는 시청자의 부담을 줄여줌. "나도 할 수 있다" 신호',
+      example: '아침 5분 루틴 1년 변화',
+      keyElement: '구체적 시간 + 변화 기록',
+      emoji: '⏱️',
+    },
+    {
+      pattern: '책 추천 큐레이션형',
+      videoLength: '10분 이상',
+      hook: '"○○를 위한 책 5권"',
+      why: '큐레이션 콘텐츠는 저장률 최상. 시청자가 "이건 봐둬야지" 자동 저장',
+      example: '40대 직장인이 꼭 읽어야 할 책',
+      keyElement: '책 표지 + 핵심 인용구',
+      emoji: '📚',
+    },
+    {
+      pattern: '실패 공유형',
+      videoLength: '8분 ~ 15분',
+      hook: '"자기계발 5년, 깨달은 것"',
+      why: '실패 후 깨달음은 가장 진정성 있는 콘텐츠. 댓글 활성화 최고',
+      example: '자기계발 시작했다가 포기한 이유',
+      keyElement: '솔직한 회고 + 교훈',
+      emoji: '🔄',
+    },
+  ],
+  aitech: [
+    {
+      pattern: '무료 도구 비교형',
+      videoLength: '5분 ~ 10분',
+      hook: '"유료 안 써도 됩니다"',
+      why: '무료 대안 정보는 검색량 최상. 즉시 실행 + 저장 + 공유',
+      example: '유료 AI 대신 무료 도구 5가지',
+      keyElement: '비교표 + 실제 결과물',
+      emoji: '🆓',
+    },
+    {
+      pattern: '결과물 시연형',
+      videoLength: '3분 ~ 8분',
+      hook: '"이거 AI로 만든 거예요"',
+      why: '결과물부터 먼저 보여주면 호기심 폭발. "어떻게 만들었지?" 끝까지 시청',
+      example: 'AI로 만든 영상, 30분 만에',
+      keyElement: '결과물 먼저 + 과정 공개',
+      emoji: '🤖',
+    },
+    {
+      pattern: 'Step-by-step형',
+      videoLength: '10분 ~ 15분',
+      hook: '"0부터 따라하시면 됩니다"',
+      why: '입문자 친화 콘텐츠는 저장/북마크 매우 높음',
+      example: 'AI 영상 만들기 처음부터 끝까지',
+      keyElement: '화면 캡처 + 큰 글씨',
+      emoji: '📝',
+    },
+  ],
+  senior: [
+    {
+      pattern: '나이 가능성형',
+      videoLength: '5분 ~ 10분',
+      hook: '"○○세에 시작했습니다"',
+      why: '나이 강조 + 시작 이야기는 시니어층의 공감 폭발. 댓글에 비슷한 시작 이야기 모임',
+      example: '60대에 디지털 도구 시작',
+      keyElement: '나이 명시 + 구체적 시작 계기',
+      emoji: '🌳',
+    },
+    {
+      pattern: '인생 2막형',
+      videoLength: '8분 이상',
+      hook: '"은퇴 후 새로운 도전"',
+      why: '비슷한 처지 시청자가 깊이 공감. 정성 들인 영상은 신뢰 + 구독으로 이어짐',
+      example: '은퇴 후 시작한 새로운 일',
+      keyElement: '진심 + 구체적 일상',
+      emoji: '🌅',
+    },
+    {
+      pattern: '디지털 입문형',
+      videoLength: '7분 ~ 12분',
+      hook: '"핸드폰만 있으면 가능"',
+      why: '시니어층 진입 장벽 해소가 핵심. 실제 화면 캡처는 저장 폭발',
+      example: '60대도 핸드폰만으로 영상 만들기',
+      keyElement: '큰 글씨 + 단계별 캡처',
+      emoji: '📱',
+    },
+  ],
+  food: [
+    {
+      pattern: '간단 레시피형',
+      videoLength: '1분 ~ 3분',
+      hook: '"3가지 재료로 끝"',
+      why: '재료 적음 = 진입 장벽 낮음. 즉시 따라하기 가능 → 저장 폭발',
+      example: '냉장고 재료로 만드는 한 끼',
+      keyElement: '재료 클로즈업 + 빠른 컷',
+      emoji: '🍳',
+    },
+    {
+      pattern: '실패 없는 레시피형',
+      videoLength: '5분 ~ 8분',
+      hook: '"이대로만 하면 무조건 성공"',
+      why: '"실패할까봐" 두려움이 가장 큰 진입 장벽. 보장 멘트는 강력한 후크',
+      example: '초보자도 성공하는 김치찌개',
+      keyElement: '구체적 분량 + 시간 명시',
+      emoji: '✅',
+    },
+    {
+      pattern: '비교 시연형',
+      videoLength: '5분 ~ 10분',
+      hook: '"○○ vs ○○ 어느 쪽이 맛있을까"',
+      why: '비교 콘텐츠는 시청자가 끝까지 결과 보고 싶어함',
+      example: '집에서 vs 식당 김치찌개 비교',
+      keyElement: '두 가지 동시 시연',
+      emoji: '⚖️',
+    },
+  ],
+  travel: [
+    {
+      pattern: '예산 한정형',
+      videoLength: '8분 ~ 15분',
+      hook: '"○○만원으로 ○일 여행"',
+      why: '예산 명시는 즉시 따라하기 가능. 저장 + 공유 폭발',
+      example: '50만원으로 제주 3일',
+      keyElement: '예산 항목별 정리 + 영수증',
+      emoji: '💰',
+    },
+    {
+      pattern: '숨은 명소형',
+      videoLength: '5분 ~ 10분',
+      hook: '"현지인만 아는 곳"',
+      why: '관광지 X 정보는 차별화. 저장/공유 욕구 자극',
+      example: '○○ 숨은 카페 5곳',
+      keyElement: '위치 + 가는 법 + 분위기',
+      emoji: '🗺️',
+    },
+    {
+      pattern: '시간 한정형',
+      videoLength: '3분 ~ 5분',
+      hook: '"하루 일정 완벽 정리"',
+      why: '한 페이지 정리 = 저장하고 다음에 사용. 활용도 매우 높음',
+      example: '○○ 하루 코스 (시간대별)',
+      keyElement: '시간표 + 이동 경로',
+      emoji: '⏰',
+    },
+  ],
+  family: [
+    {
+      pattern: '사연 공유형',
+      videoLength: '7분 ~ 12분',
+      hook: '"우리 가족 이야기인데..."',
+      why: '진심 어린 사연은 깊은 공감. 비슷한 경험 댓글로 모임',
+      example: '시어머니와 화해하기까지',
+      keyElement: '담담한 톤 + 솔직한 감정',
+      emoji: '💝',
+    },
+    {
+      pattern: '인생 회고형',
+      videoLength: '10분 이상',
+      hook: '"○○년이 지나서야 알았습니다"',
+      why: '시간이 지나서 깨달음은 가장 진정성 있는 콘텐츠. 시청자도 자기 인생 돌아봄',
+      example: '부모님께 못 한 말',
+      keyElement: '서두르지 않는 호흡 + 침묵',
+      emoji: '🍂',
+    },
+    {
+      pattern: '에피소드형',
+      videoLength: '5분 ~ 10분',
+      hook: '"○○하다 일어난 일"',
+      why: '구체적 사건은 시청자가 빠져듦. 끝까지 시청률 매우 높음',
+      example: '명절에 있었던 작은 일',
+      keyElement: '시간순 + 디테일',
+      emoji: '📖',
+    },
+  ],
+  jobs: [
+    {
+      pattern: '솔직한 후기형',
+      videoLength: '8분 ~ 12분',
+      hook: '"○○ 시작 ○개월, 솔직하게"',
+      why: '광고 아닌 진짜 후기는 신뢰 형성. 저장 + 구독으로 이어짐',
+      example: '재택 부업 6개월, 솔직 후기',
+      keyElement: '수치 + 솔직한 어려움',
+      emoji: '📊',
+    },
+    {
+      pattern: '실패 공유형',
+      videoLength: '10분 이상',
+      hook: '"이거 ○○ 했다가 망한 이유"',
+      why: '실패담은 동일 실수 회피하고 싶은 시청자에게 강력함',
+      example: '창업 1년 만에 그만둔 이유',
+      keyElement: '구체적 실수 + 교훈',
+      emoji: '⚠️',
+    },
+    {
+      pattern: '비교 분석형',
+      videoLength: '7분 ~ 12분',
+      hook: '"○○ vs ○○ 비교해봤습니다"',
+      why: '결정 도와주는 콘텐츠는 검색량 + 저장률 최상',
+      example: 'N잡 5가지 비교 분석',
+      keyElement: '표 + 장단점',
+      emoji: '⚖️',
+    },
+  ],
+};
+
+/**
+ * 키워드/카테고리에 맞는 떡상 사례 3개 매칭
+ */
+export function getViralCases(categoryId: string, count = 3): ViralCase[] {
+  const cases = VIRAL_CASES_BY_DOMAIN[categoryId] || VIRAL_CASES_BY_DOMAIN.realestate;
+  return cases.slice(0, count);
+}
+
+/**
+ * 모든 도메인의 떡상 사례 (메인 페이지 갤러리용)
+ */
+export function getAllViralCases(): Array<{ categoryId: string; cases: ViralCase[] }> {
+  return Object.entries(VIRAL_CASES_BY_DOMAIN).map(([categoryId, cases]) => ({
+    categoryId,
+    cases,
+  }));
+}
+
+/**
+ * 도메인별 대표 사례 1개씩 (메인 갤러리용 - 9개 카드)
+ */
+export function getFeaturedViralCases(): Array<ViralCase & { categoryId: string }> {
+  return Object.entries(VIRAL_CASES_BY_DOMAIN).map(([categoryId, cases]) => ({
+    ...cases[0],
+    categoryId,
+  }));
+}
