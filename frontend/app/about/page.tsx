@@ -258,7 +258,6 @@ export default function Page() {
           <h2>운영 정보 (Transparency)</h2>
           <div className="businessInfo">
             <div><strong>운영 회사</strong> 알고파트너스</div>
-            <div><strong>대표자</strong> 박예준</div>
             <div><strong>서비스명</strong> AlgoMaker</div>
             <div><strong>도메인</strong> nutube.kr</div>
             <div><strong>문의 이메일</strong> contact@nutube.kr</div>

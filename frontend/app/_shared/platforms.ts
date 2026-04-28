@@ -393,6 +393,31 @@ export function getCategoryById(id: string) {
 }
 
 // ============================================================
+// 키워드 → 카테고리 자동 감지 (홈에서 입력 시 자동 분류)
+// ============================================================
+const CATEGORY_KEYWORDS: Record<string, RegExp> = {
+  realestate: /부동산|청약|아파트|주택|월세|전세|재개발|상가|경매/,
+  economy: /재테크|투자|주식|배당|금리|연금|예금|적금|자산|은퇴|퇴직금/,
+  language: /영어|영어회화|영문법|토익|토플|일본어|중국어|회화|외국어|스페인어/,
+  health: /다이어트|운동|헬스|체중|체지방|식단|건강|요가|필라테스|스트레칭/,
+  selfdev: /자기계발|독서|공부법|시간관리|루틴|습관|성공|마인드|메모/,
+  aitech: /AI|인공지능|챗GPT|챗지피티|미드저니|영상편집|AI도구|프롬프트|ChatGPT/i,
+  senior: /시니어|중장년|은퇴자|50대|60대|70대|노후|중년/,
+  food: /요리|레시피|반찬|음식|밀키트|요리법|식당|맛집/,
+  travel: /여행|관광|해외여행|국내여행|패키지|배낭여행|항공권|호텔/,
+  jobs: /N잡|부업|창업|재택|프리랜서|취업|이직|커리어/,
+  family: /가족|아이|육아|부모|자녀|효도|시어머니|결혼|명절|시댁|친정/,
+};
+
+export function detectCategoryFromKeyword(keyword: string): string {
+  if (!keyword) return 'realestate';
+  for (const [catId, regex] of Object.entries(CATEGORY_KEYWORDS)) {
+    if (regex.test(keyword)) return catId;
+  }
+  return 'realestate'; // 기본값
+}
+
+// ============================================================
 // 트렌드 키워드 (카테고리별 10개씩)
 // ============================================================
 export const TRENDING_KEYWORDS: Record<string, string[]> = {

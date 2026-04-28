@@ -4,13 +4,13 @@ export const metadata: Metadata = {
   title: '시니어층(40대~70대)가 유튜브 시작할 때 꼭 알아야 할 7가지',
   description: '퇴직 후 유튜브 시작하는 시니어를 위한 현실적인 가이드',
   keywords: ['middle aged channel tips', '시니어층(40대~70대)가 유튜브 시작할 때 꼭 알아야 할 7가지', '유튜브 노하우', '영상 만들기', 'AlgoMaker'],
-  authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
+  authors: [{ name: '알고파트너스', url: 'https://nutube.kr/about' }],
   openGraph: {
     title: '시니어층(40대~70대)가 유튜브 시작할 때 꼭 알아야 할 7가지',
     description: '퇴직 후 유튜브 시작하는 시니어를 위한 현실적인 가이드',
     type: 'article',
     publishedTime: '2026-04-25T00:00:00Z',
-    authors: ['박예준'],
+    authors: ['알고파트너스'],
     siteName: 'AlgoMaker',
   },
   twitter: {
@@ -31,7 +31,7 @@ const articleSchema = {
   description: '퇴직 후 유튜브 시작하는 시니어를 위한 현실적인 가이드',
   author: {
     '@type': 'Person',
-    name: '박예준',
+    name: '알고파트너스',
     url: 'https://nutube.kr/about',
   },
   publisher: {

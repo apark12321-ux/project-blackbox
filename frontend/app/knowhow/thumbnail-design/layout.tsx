@@ -4,13 +4,13 @@ export const metadata: Metadata = {
   title: '조회수 10배 차이 만드는 썸네일 디자인 7가지 법칙',
   description: '한글 텍스트 잘 들어간 썸네일과 그렇지 못한 썸네일의 차이',
   keywords: ['thumbnail design', '조회수 10배 차이 만드는 썸네일 디자인 7가지 법칙', '유튜브 노하우', '영상 만들기', 'AlgoMaker'],
-  authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
+  authors: [{ name: '알고파트너스', url: 'https://nutube.kr/about' }],
   openGraph: {
     title: '조회수 10배 차이 만드는 썸네일 디자인 7가지 법칙',
     description: '한글 텍스트 잘 들어간 썸네일과 그렇지 못한 썸네일의 차이',
     type: 'article',
     publishedTime: '2026-04-25T00:00:00Z',
-    authors: ['박예준'],
+    authors: ['알고파트너스'],
     siteName: 'AlgoMaker',
   },
   twitter: {
@@ -31,7 +31,7 @@ const articleSchema = {
   description: '한글 텍스트 잘 들어간 썸네일과 그렇지 못한 썸네일의 차이',
   author: {
     '@type': 'Person',
-    name: '박예준',
+    name: '알고파트너스',
     url: 'https://nutube.kr/about',
   },
   publisher: {

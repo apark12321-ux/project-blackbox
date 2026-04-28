@@ -80,7 +80,7 @@ export default function Page() {
             영업일 기준 1~3일 내에 답변드립니다.
           </p>
           <p>
-            <strong>이메일:</strong> apark12321@gmail.com<br />
+            <strong>이메일:</strong> contact@nutube.kr<br />
             <strong>운영시간:</strong> 평일 09:00 ~ 18:00 (주말·공휴일 제외)
           </p>
 
@@ -101,7 +101,6 @@ export default function Page() {
           <h2>🏢 회사 정보</h2>
           <p>
             <strong>운영:</strong> 알고파트너스<br />
-            <strong>대표:</strong> 박예준<br />
             <strong>서비스:</strong> AlgoMaker - AI 콘텐츠 추천 도구
           </p>
         </div>

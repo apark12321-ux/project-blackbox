@@ -120,8 +120,8 @@ export default function Page() {
 
           <h2>제6조 (개인정보 보호 책임자)</h2>
           <p>
-            <strong>책임자:</strong> 박예준 (알고파트너스 대표)<br />
-            <strong>이메일:</strong> apark12321@gmail.com
+            <strong>책임 부서:</strong> 알고파트너스 개인정보보호 담당<br />
+            <strong>이메일:</strong> contact@nutube.kr
           </p>
 
           <h2>제7조 (개정)</h2>

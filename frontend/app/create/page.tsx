@@ -14,6 +14,7 @@ function CreatePageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [selected, setSelected] = useState<string>('');
+  const [demoKeyword, setDemoKeyword] = useState<string>('');
 
   useEffect(() => {
     // URL 파라미터로 카테고리 미리 선택
@@ -21,14 +22,29 @@ function CreatePageInner() {
     if (cat && CATEGORIES.find(c => c.id === cat)) {
       setSelected(cat);
     }
+    // 홈에서 입력한 키워드 보존
+    const demo = searchParams.get('demo');
+    if (demo) {
+      setDemoKeyword(demo);
+    }
   }, [searchParams]);
 
   const handleNext = () => {
     if (!selected) return;
     const cat = CATEGORIES.find((c) => c.id === selected);
     if (!cat) return;
-    setProject({ category: selected, categoryLabel: cat.name, step: 1 });
-    router.push('/keyword');
+    setProject({
+      category: selected,
+      categoryLabel: cat.name,
+      keyword: demoKeyword || undefined,  // 홈에서 입력한 키워드 보존
+      step: 1
+    });
+    // 키워드가 이미 있으면 /keyword 페이지에 미리 채워서 보냄
+    if (demoKeyword) {
+      router.push(`/keyword?category=${selected}&kw=${encodeURIComponent(demoKeyword)}`);
+    } else {
+      router.push('/keyword');
+    }
   };
 
   return (

@@ -28,7 +28,7 @@ const articleSchema = {
   description: '시니어층이 가장 빠르게 영상 수익화에 성공한 모델. 가족 사연/감동 1분 쇼츠 만드는 방법과 실전 노하우 정리.',
   author: {
     '@type': 'Person',
-    name: '박예준',
+    name: '알고파트너스',
     url: 'https://nutube.kr/about',
   },
   publisher: {

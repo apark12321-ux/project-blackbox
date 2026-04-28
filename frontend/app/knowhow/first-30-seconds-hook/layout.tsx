@@ -4,13 +4,13 @@ export const metadata: Metadata = {
   title: '첫 30초가 90%를 결정한다 - 후크(Hook) 작성법',
   description: '시청자 이탈률 50%에서 10%로 만드는 영상 시작 비결',
   keywords: ['후크', '영상 시작', '시청 유지율', '유튜브 노하우', '영상 만들기', 'AlgoMaker'],
-  authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
+  authors: [{ name: '알고파트너스', url: 'https://nutube.kr/about' }],
   openGraph: {
     title: '첫 30초가 90%를 결정한다 - 후크(Hook) 작성법',
     description: '시청자 이탈률 50%에서 10%로 만드는 영상 시작 비결',
     type: 'article',
     publishedTime: '2026-04-18T00:00:00Z',
-    authors: ['박예준'],
+    authors: ['알고파트너스'],
     siteName: 'AlgoMaker',
   },
   twitter: {
@@ -31,7 +31,7 @@ const articleSchema = {
   description: '시청자 이탈률 50%에서 10%로 만드는 영상 시작 비결',
   author: {
     '@type': 'Person',
-    name: '박예준',
+    name: '알고파트너스',
     url: 'https://nutube.kr/about',
   },
   publisher: {

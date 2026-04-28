@@ -4,13 +4,13 @@ export const metadata: Metadata = {
   title: '저작권 걱정 없는 무료 BGM 사이트 10개 정리',
   description: '유튜브 수익화 가능한 무료 음악 다운로드 가이드',
   keywords: ['bgm copyright free', '저작권 걱정 없는 무료 BGM 사이트 10개 정리', '유튜브 노하우', '영상 만들기', 'AlgoMaker'],
-  authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
+  authors: [{ name: '알고파트너스', url: 'https://nutube.kr/about' }],
   openGraph: {
     title: '저작권 걱정 없는 무료 BGM 사이트 10개 정리',
     description: '유튜브 수익화 가능한 무료 음악 다운로드 가이드',
     type: 'article',
     publishedTime: '2026-04-25T00:00:00Z',
-    authors: ['박예준'],
+    authors: ['알고파트너스'],
     siteName: 'AlgoMaker',
   },
   twitter: {
@@ -31,7 +31,7 @@ const articleSchema = {
   description: '유튜브 수익화 가능한 무료 음악 다운로드 가이드',
   author: {
     '@type': 'Person',
-    name: '박예준',
+    name: '알고파트너스',
     url: 'https://nutube.kr/about',
   },
   publisher: {

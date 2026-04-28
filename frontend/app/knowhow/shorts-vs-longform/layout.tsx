@@ -4,13 +4,13 @@ export const metadata: Metadata = {
   title: '쇼츠 vs 긴 영상, 어디에 집중해야 할까? 데이터 분석',
   description: '신규 채널 vs 기존 채널의 최적 영상 형식 선택 가이드',
   keywords: ['shorts vs longform', '쇼츠 vs 긴 영상, 어디에 집중해야 할까? 데이터 분석', '유튜브 노하우', '영상 만들기', 'AlgoMaker'],
-  authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
+  authors: [{ name: '알고파트너스', url: 'https://nutube.kr/about' }],
   openGraph: {
     title: '쇼츠 vs 긴 영상, 어디에 집중해야 할까? 데이터 분석',
     description: '신규 채널 vs 기존 채널의 최적 영상 형식 선택 가이드',
     type: 'article',
     publishedTime: '2026-04-25T00:00:00Z',
-    authors: ['박예준'],
+    authors: ['알고파트너스'],
     siteName: 'AlgoMaker',
   },
   twitter: {
@@ -31,7 +31,7 @@ const articleSchema = {
   description: '신규 채널 vs 기존 채널의 최적 영상 형식 선택 가이드',
   author: {
     '@type': 'Person',
-    name: '박예준',
+    name: '알고파트너스',
     url: 'https://nutube.kr/about',
   },
   publisher: {

@@ -14,10 +14,11 @@
  * - Bold Typography + Micro-animation
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, Suspense } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { V11Shell } from './_shared/V11Shell';
+import { V11Shell, setProject } from './_shared/V11Shell';
+import { detectCategoryFromKeyword, getCategoryById } from './_shared/platforms';
 import AdSlot from './_shared/AdSlot';
 
 // ============================================================
@@ -248,11 +249,24 @@ export default function HomePage() {
     }, 300);
   }, [demoKeyword]);
 
-  // 데모 키워드로 실제 시작
+  // 데모 키워드로 실제 시작 (v5.2.1 - 3단계 흐름)
   const handleDemoStart = () => {
-    if (demoKeyword.trim()) {
-      router.push(`/create?demo=${encodeURIComponent(demoKeyword)}`);
+    const kw = demoKeyword.trim();
+    if (kw) {
+      // 키워드 자동 분야 감지 + 시나리오 톤 자동 매칭
+      const catId = detectCategoryFromKeyword(kw);
+      const cat = getCategoryById(catId);
+      // 프로젝트 상태 저장 (라우팅 보호용)
+      setProject({
+        category: catId,
+        categoryLabel: cat?.name || '',
+        keyword: kw,
+        step: 4,
+      });
+      // /publish로 바로 이동 (시나리오는 기본 curiosity)
+      router.push(`/publish?keyword=${encodeURIComponent(kw)}&category=${catId}&scenario=curiosity`);
     } else {
+      // 키워드 비어있으면 기존 흐름 (/create부터)
       router.push('/create');
     }
   };
@@ -415,6 +429,152 @@ export default function HomePage() {
           color: #666;
           font-weight: 600;
           line-height: 1.4;
+        }
+
+        /* ============================================ */
+        /* [1.5] How It Works - 작동 과정 안내 */
+        /* ============================================ */
+        .howItWorks {
+          background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
+          border-radius: 20px;
+          padding: 40px 32px;
+          margin: 28px 0;
+        }
+        @media (max-width: 600px) { .howItWorks { padding: 28px 18px; margin: 20px 0; } }
+        .howHeader { text-align: center; margin-bottom: 32px; }
+        .howBadge {
+          display: inline-block;
+          padding: 6px 14px;
+          background: #c65f3b;
+          color: #fff;
+          border-radius: 100px;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+          margin-bottom: 10px;
+        }
+        .howTitle {
+          font-size: 22px;
+          font-weight: 800;
+          color: #1a1a1a;
+          letter-spacing: -0.025em;
+          margin: 0 0 6px;
+        }
+        @media (max-width: 600px) { .howTitle { font-size: 18px; } }
+        .howSub {
+          font-size: 13.5px;
+          color: #78350f;
+          margin: 0;
+        }
+
+        /* 3단계 흐름 */
+        .howFlow {
+          display: grid;
+          grid-template-columns: 1fr auto 1fr auto 1fr;
+          gap: 14px;
+          align-items: center;
+          margin-bottom: 28px;
+        }
+        @media (max-width: 720px) {
+          .howFlow {
+            grid-template-columns: 1fr;
+            gap: 8px;
+          }
+        }
+        .howStep {
+          background: #fff;
+          border: 1.5px solid #fef3c7;
+          border-radius: 14px;
+          padding: 18px 16px 16px;
+          position: relative;
+          text-align: center;
+          transition: all 0.2s;
+        }
+        .howStep:hover {
+          border-color: #c65f3b;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(198, 95, 59, 0.12);
+        }
+        .howStepNum {
+          position: absolute;
+          top: -12px;
+          left: 50%;
+          transform: translateX(-50%);
+          width: 26px;
+          height: 26px;
+          background: #c65f3b;
+          color: #fff;
+          border-radius: 50%;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          font-size: 13px;
+          font-weight: 800;
+        }
+        .howStepIcon {
+          font-size: 32px;
+          margin: 8px 0 10px;
+        }
+        .howStepTitle {
+          font-size: 14.5px;
+          font-weight: 800;
+          color: #1a1a1a;
+          margin-bottom: 6px;
+          letter-spacing: -0.02em;
+        }
+        .howStepDesc {
+          font-size: 12.5px;
+          color: #555;
+          line-height: 1.55;
+        }
+        .howStepEx {
+          color: #c65f3b;
+          font-weight: 700;
+          font-size: 11.5px;
+        }
+        .howArrow {
+          font-size: 22px;
+          color: #c65f3b;
+          font-weight: 800;
+          text-align: center;
+        }
+        @media (max-width: 720px) {
+          .howArrow { transform: rotate(90deg); font-size: 18px; }
+        }
+
+        /* 결과물 미리보기 */
+        .howResult {
+          background: #fff;
+          border-radius: 14px;
+          padding: 18px 22px;
+          border: 1px solid #fef3c7;
+        }
+        .howResultLabel {
+          font-size: 12px;
+          font-weight: 800;
+          color: #92400e;
+          letter-spacing: 0.04em;
+          margin-bottom: 10px;
+        }
+        .howResultGrid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 8px;
+        }
+        @media (max-width: 720px) {
+          .howResultGrid { grid-template-columns: 1fr 1fr; }
+        }
+        @media (max-width: 480px) {
+          .howResultGrid { grid-template-columns: 1fr; }
+        }
+        .howResultItem {
+          background: #fff8f3;
+          border-radius: 8px;
+          padding: 9px 12px;
+          font-size: 12.5px;
+          color: #555;
+          font-weight: 600;
+          border: 1px solid #fdf1e7;
         }
 
         /* ============================================ */
@@ -1046,12 +1206,78 @@ export default function HomePage() {
         </section>
 
         {/* ============================================ */}
+        {/* [1.5] 작동 과정 안내 - 박 대표님 의도 반영 */}
+        {/* ============================================ */}
+        <section className="howItWorks">
+          <div className="howHeader">
+            <span className="howBadge">🎯 이렇게 작동합니다</span>
+            <h2 className="howTitle">키워드 하나로 영상 자료가 완성되는 과정</h2>
+            <p className="howSub">3단계만 거치면 바로 영상 만들 준비가 끝나요</p>
+          </div>
+
+          <div className="howFlow">
+            <div className="howStep">
+              <div className="howStepNum">1</div>
+              <div className="howStepIcon">✏️</div>
+              <div className="howStepBody">
+                <div className="howStepTitle">키워드 입력</div>
+                <div className="howStepDesc">
+                  관심 있는 주제 한 단어<br />
+                  <span className="howStepEx">예: "부동산", "다이어트", "영어"</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="howArrow">→</div>
+
+            <div className="howStep">
+              <div className="howStepNum">2</div>
+              <div className="howStepIcon">🤖</div>
+              <div className="howStepBody">
+                <div className="howStepTitle">AI 자동 분석</div>
+                <div className="howStepDesc">
+                  분야 자동 감지 + 떡상 트리거 매칭<br />
+                  <span className="howStepEx">9개 도메인 중 자동 분류</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="howArrow">→</div>
+
+            <div className="howStep">
+              <div className="howStepNum">3</div>
+              <div className="howStepIcon">📦</div>
+              <div className="howStepBody">
+                <div className="howStepTitle">영상 자료 완성</div>
+                <div className="howStepDesc">
+                  제목·대본·태그·썸네일 한 번에<br />
+                  <span className="howStepEx">5단계 시나리오 + 4개 SNS용 자료</span>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div className="howResult">
+            <div className="howResultLabel">💡 받게 될 자료</div>
+            <div className="howResultGrid">
+              <div className="howResultItem">📝 제목 3가지 (CTR 예측)</div>
+              <div className="howResultItem">🎬 대본 7단계 시나리오</div>
+              <div className="howResultItem">🎨 영상 제작 프롬프트</div>
+              <div className="howResultItem">🏷️ 태그 13개 + 썸네일</div>
+              <div className="howResultItem">📲 SNS 4개 플랫폼 자료</div>
+              <div className="howResultItem">⚡ 1분 쇼츠 버전 별도</div>
+            </div>
+          </div>
+        </section>
+
+        {/* ============================================ */}
         {/* [2] LIVE DEMO - 라이브 데모 (혹하게!) */}
         {/* ============================================ */}
         <section className="demoSection">
-          <h2 className="demoTitle">🔥 키워드 하나만 입력해보세요</h2>
+          <h2 className="demoTitle">✨ 지금 직접 체험해보세요</h2>
           <p className="demoDesc">
-            실시간으로 어떤 떡상 시나리오가 만들어지는지 미리 확인하세요
+            관심 있는 키워드 하나만 입력하면, AI가 어떤 영상 시나리오를 만들어주는지<br />
+            바로 미리보기로 확인할 수 있어요
           </p>
 
           <div className="demoInputWrap">

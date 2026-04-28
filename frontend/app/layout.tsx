@@ -56,8 +56,7 @@ const SITE_AUTHOR = {
 const ORGANIZATION = {
   name: '알고파트너스',
   legalName: '알고파트너스',
-  ceo: '박예준',
-  email: 'apark12321@gmail.com',
+  email: 'contact@nutube.kr',
   url: SITE_URL,
   logo: `${SITE_URL}/icon.png`,
 };
@@ -228,10 +227,6 @@ const organizationSchema = {
     url: ORGANIZATION.logo,
     width: 512,
     height: 512,
-  },
-  founder: {
-    '@type': 'Person',
-    name: ORGANIZATION.ceo,
   },
   contactPoint: {
     '@type': 'ContactPoint',

@@ -4,13 +4,13 @@ export const metadata: Metadata = {
   title: '트렌드 키워드 발굴하는 무료 도구 7가지',
   description: '유료 도구 없이 검색량 높은 키워드를 찾는 실전 방법',
   keywords: ['trending keywords research', '트렌드 키워드 발굴하는 무료 도구 7가지', '유튜브 노하우', '영상 만들기', 'AlgoMaker'],
-  authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
+  authors: [{ name: '알고파트너스', url: 'https://nutube.kr/about' }],
   openGraph: {
     title: '트렌드 키워드 발굴하는 무료 도구 7가지',
     description: '유료 도구 없이 검색량 높은 키워드를 찾는 실전 방법',
     type: 'article',
     publishedTime: '2026-04-25T00:00:00Z',
-    authors: ['박예준'],
+    authors: ['알고파트너스'],
     siteName: 'AlgoMaker',
   },
   twitter: {
@@ -31,7 +31,7 @@ const articleSchema = {
   description: '유료 도구 없이 검색량 높은 키워드를 찾는 실전 방법',
   author: {
     '@type': 'Person',
-    name: '박예준',
+    name: '알고파트너스',
     url: 'https://nutube.kr/about',
   },
   publisher: {

@@ -4,13 +4,13 @@ export const metadata: Metadata = {
   title: '유튜브 SEO 태그 최적화 - 검색 노출 3배 늘리는 법',
   description: '키워드 분석부터 태그 배치까지 검색 상위 노출 완벽 가이드',
   keywords: ['seo tags', '유튜브 SEO 태그 최적화 - 검색 노출 3배 늘리는 법', '유튜브 노하우', '영상 만들기', 'AlgoMaker'],
-  authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
+  authors: [{ name: '알고파트너스', url: 'https://nutube.kr/about' }],
   openGraph: {
     title: '유튜브 SEO 태그 최적화 - 검색 노출 3배 늘리는 법',
     description: '키워드 분석부터 태그 배치까지 검색 상위 노출 완벽 가이드',
     type: 'article',
     publishedTime: '2026-04-25T00:00:00Z',
-    authors: ['박예준'],
+    authors: ['알고파트너스'],
     siteName: 'AlgoMaker',
   },
   twitter: {
@@ -31,7 +31,7 @@ const articleSchema = {
   description: '키워드 분석부터 태그 배치까지 검색 상위 노출 완벽 가이드',
   author: {
     '@type': 'Person',
-    name: '박예준',
+    name: '알고파트너스',
     url: 'https://nutube.kr/about',
   },
   publisher: {

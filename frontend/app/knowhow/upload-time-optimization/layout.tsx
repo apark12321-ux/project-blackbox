@@ -4,13 +4,13 @@ export const metadata: Metadata = {
   title: '유튜브 업로드 최적 시간 - 데이터로 검증된 황금 시간',
   description: '내 채널 시청자가 가장 많이 접속하는 시간대 찾는 법',
   keywords: ['upload time optimization', '유튜브 업로드 최적 시간 - 데이터로 검증된 황금 시간', '유튜브 노하우', '영상 만들기', 'AlgoMaker'],
-  authors: [{ name: '박예준', url: 'https://nutube.kr/about' }],
+  authors: [{ name: '알고파트너스', url: 'https://nutube.kr/about' }],
   openGraph: {
     title: '유튜브 업로드 최적 시간 - 데이터로 검증된 황금 시간',
     description: '내 채널 시청자가 가장 많이 접속하는 시간대 찾는 법',
     type: 'article',
     publishedTime: '2026-04-25T00:00:00Z',
-    authors: ['박예준'],
+    authors: ['알고파트너스'],
     siteName: 'AlgoMaker',
   },
   twitter: {
@@ -31,7 +31,7 @@ const articleSchema = {
   description: '내 채널 시청자가 가장 많이 접속하는 시간대 찾는 법',
   author: {
     '@type': 'Person',
-    name: '박예준',
+    name: '알고파트너스',
     url: 'https://nutube.kr/about',
   },
   publisher: {
