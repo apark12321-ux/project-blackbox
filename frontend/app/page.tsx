@@ -77,17 +77,27 @@ const DEMO_HOOKS: Record<string, { domain: string; hook: string; trigger: string
   시어머니: {
     domain: '가족 사연',
     hook: '시집 10년 만에 처음 한 마디 했습니다. 그날따라 진심으로 풀어놓겠습니다.',
-    trigger: '공감 + 카타르시스',
+    trigger: '사이다형 (참다가 폭발)',
   },
   며느리: {
     domain: '가족 사연',
     hook: '며느리 5년 차의 진짜 이야기. 명절에 결국 한 번에 터졌습니다.',
-    trigger: '공감 + 사이다',
+    trigger: '사이다형 (고부 갈등)',
   },
   가족사연: {
     domain: '가족 사연',
     hook: '오랫동안 묻어둔 가족 이야기, 한 번에 풀어놓겠습니다. 누구나 한 번쯤 겪어보셨을 거예요.',
-    trigger: '보편 공감',
+    trigger: '보편 공감 (큐레이션)',
+  },
+  황혼사랑: {
+    domain: '가족 사연',
+    hook: '60대에 만난 인생 2막의 시작이었어요. 누구도 예상 못 한 반전, 끝까지 들어주세요.',
+    trigger: '인생 반전형',
+  },
+  수면사연: {
+    domain: '가족 사연',
+    hook: '오늘 밤 편히 잠드시기 전에 들려드릴 이야기. 마음이 따뜻해질 거예요.',
+    trigger: '수면 라디오형',
   },
 };
 
@@ -99,8 +109,10 @@ function getKeywordPreview(keyword: string) {
   // 정확 매칭
   if (DEMO_HOOKS[k]) return DEMO_HOOKS[k];
   
-  // 부분 매칭 - family 우선 (시어머니, 며느리 등)
-  if (/시어머니|며느리|사위|장인|장모|시댁|친정|가족.*사연|시집|이혼|명절|제사|시동생|동서|올케/.test(k)) return DEMO_HOOKS['시어머니'];
+  // 부분 매칭 - family 우선 + 5가지 톤 변형 자동 분기
+  if (/황혼|노후 사랑|인생 2막|인생.{0,2}반전|시니어 로맨스/.test(k)) return DEMO_HOOKS['황혼사랑'];
+  if (/수면|잠.{0,2}자|잠들기|밤에 듣는|베개|잘자/.test(k)) return DEMO_HOOKS['수면사연'];
+  if (/시어머니|며느리|사위|장인|장모|시댁|친정|가족.*사연|시집|이혼|명절|제사|시동생|동서|올케|고부/.test(k)) return DEMO_HOOKS['시어머니'];
   if (/부동산|아파트|매물|청약|분양/.test(k)) return DEMO_HOOKS['부동산'];
   if (/주식|투자|코인|비트|증권/.test(k)) return DEMO_HOOKS['주식'];
   if (/영어|토익|토플|회화/.test(k)) return DEMO_HOOKS['영어 회화'];
@@ -802,8 +814,8 @@ export default function HomePage() {
               <button className="demoHint" onClick={() => setDemoKeyword('부동산')}>부동산</button>
               <button className="demoHint" onClick={() => setDemoKeyword('영어 회화')}>영어 회화</button>
               <button className="demoHint" onClick={() => setDemoKeyword('다이어트')}>다이어트</button>
-              <button className="demoHint" onClick={() => setDemoKeyword('AI 영상')}>AI 영상</button>
               <button className="demoHint" onClick={() => setDemoKeyword('시어머니 사연')}>시어머니 사연</button>
+              <button className="demoHint" onClick={() => setDemoKeyword('황혼 사랑')}>황혼 사랑</button>
             </div>
           )}
         </section>

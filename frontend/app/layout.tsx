@@ -99,6 +99,7 @@ export const metadata: Metadata = {
   },
 
   // Open Graph (Facebook, LinkedIn 등)
+  // og-image는 /opengraph-image.tsx로 동적 생성됨 (1200x630)
   openGraph: {
     type: 'website',
     locale: 'ko_KR',
@@ -107,24 +108,15 @@ export const metadata: Metadata = {
     siteName: SITE_NAME,
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    images: [
-      {
-        url: `${SITE_URL}/og-image.png`,
-        width: 1200,
-        height: 630,
-        alt: 'AlgoMaker - AI 콘텐츠 추천 도구',
-      },
-    ],
   },
 
-  // Twitter Card
+  // Twitter Card (twitter-image.tsx로 동적 생성)
   twitter: {
     card: 'summary_large_image',
     site: '@algomaker',
     creator: '@algomaker',
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
-    images: [`${SITE_URL}/og-image.png`],
   },
 
   // Canonical URL (중복 콘텐츠 방지)
@@ -132,6 +124,8 @@ export const metadata: Metadata = {
     canonical: SITE_URL,
     languages: {
       'ko-KR': SITE_URL,
+      'ko': SITE_URL,
+      'x-default': SITE_URL,
     },
   },
 
@@ -464,6 +458,15 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
                 gtag('js', new Date());
                 gtag('config', '${GA_ID}', {
                   page_path: window.location.pathname,
+                  anonymize_ip: true,
+                  cookie_flags: 'SameSite=None;Secure',
+                });
+                
+                // Consent Mode V2 통합 - 쿠키 동의 후 GA4 활성화
+                window.addEventListener('algomaker:consent-granted', function() {
+                  gtag('consent', 'update', {
+                    analytics_storage: 'granted',
+                  });
                 });
               `}
             </Script>

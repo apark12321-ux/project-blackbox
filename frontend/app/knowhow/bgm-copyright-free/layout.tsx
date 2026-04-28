@@ -36,7 +36,8 @@ const articleSchema = {
   },
   publisher: {
     '@type': 'Organization',
-    name: url: 'https://nutube.kr',
+    name: '알고파트너스',
+    url: 'https://nutube.kr',
   },
   datePublished: '2026-04-25T00:00:00Z',
   dateModified: '2026-04-25T00:00:00Z',
@@ -46,6 +47,31 @@ const articleSchema = {
   },
   inLanguage: 'ko-KR',
 };
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: '홈',
+      item: 'https://nutube.kr',
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: '노하우',
+      item: 'https://nutube.kr/blog',
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: '저작권 걱정 없는 무료 BGM 사이트 10개 정리',
+      item: 'https://nutube.kr/knowhow/bgm-copyright-free',
+    },
+  ],
+};
+
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -53,6 +79,10 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       {children}
     </>

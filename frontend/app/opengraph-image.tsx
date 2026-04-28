@@ -1,253 +1,162 @@
 import { ImageResponse } from 'next/og';
 
-// ============================================================
-// AlgoMaker - Open Graph Image (React로 자동 생성!)
-// 
-// 박예준 확정: React로 OG 이미지 만들기
-// 빌드 시 자동으로 1200x630 PNG 생성
-// URL: /opengraph-image
-// 카카오톡, 슬랙, 페이스북 공유 시 자동 표시
-// ============================================================
-
 export const runtime = 'edge';
-export const alt = 'AlgoMaker - AI가 만드는 유튜브 영상, 알고리즘이 작동합니다';
+export const alt = 'AlgoMaker - 키워드 하나로 떡상 시나리오';
 export const size = {
   width: 1200,
   height: 630,
 };
 export const contentType = 'image/png';
 
-export default async function Image() {
+export default async function OGImage() {
   return new ImageResponse(
     (
       <div
         style={{
+          background: 'linear-gradient(135deg, #c65f3b 0%, #ea7755 100%)',
           width: '100%',
           height: '100%',
           display: 'flex',
           flexDirection: 'column',
           alignItems: 'center',
           justifyContent: 'center',
-          background: 'linear-gradient(135deg, #1a1230 0%, #2a1f4d 50%, #0a0518 100%)',
           padding: '60px',
-          position: 'relative',
+          fontFamily: 'system-ui, -apple-system, sans-serif',
         }}
       >
-        {/* 배경 글로우 효과 */}
+        {/* 로고/뱃지 */}
         <div
           style={{
-            position: 'absolute',
-            top: '-200px',
-            left: '-200px',
-            width: '600px',
-            height: '600px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(138, 43, 226, 0.4) 0%, transparent 70%)',
-            display: 'flex',
-          }}
-        />
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '-200px',
-            right: '-200px',
-            width: '700px',
-            height: '700px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle, rgba(255, 215, 0, 0.3) 0%, transparent 70%)',
-            display: 'flex',
-          }}
-        />
-
-        {/* 큰 구슬볼 (오른쪽 아래) */}
-        <div
-          style={{
-            position: 'absolute',
-            right: '-80px',
-            bottom: '-80px',
-            width: '500px',
-            height: '500px',
-            borderRadius: '50%',
-            background: 'radial-gradient(circle at 30% 30%, rgba(255, 215, 0, 0.5), rgba(138, 43, 226, 0.5) 30%, rgba(75, 0, 130, 0.6) 60%, rgba(20, 10, 40, 0.8) 100%)',
-            boxShadow: '0 0 100px rgba(255, 215, 0, 0.4), inset -40px -40px 80px rgba(0, 0, 0, 0.5)',
             display: 'flex',
             alignItems: 'center',
-            justifyContent: 'center',
-            flexDirection: 'column',
+            gap: '14px',
+            marginBottom: '40px',
+            padding: '12px 28px',
+            background: 'rgba(255, 255, 255, 0.95)',
+            borderRadius: '100px',
+            fontSize: '22px',
+            fontWeight: 800,
+            color: '#c65f3b',
+            letterSpacing: '0.02em',
           }}
         >
-          {/* 구슬 안 텍스트 */}
           <div
             style={{
-              fontSize: '90px',
-              fontWeight: 900,
-              color: '#ffd700',
-              fontFamily: 'serif',
-              textShadow: '0 0 30px rgba(255, 215, 0, 0.8)',
-              display: 'flex',
-            }}
-          >
-            +280%
-          </div>
-          <div
-            style={{
-              fontSize: '14px',
-              color: 'rgba(245, 241, 234, 0.85)',
-              letterSpacing: '0.3em',
-              fontWeight: 700,
-              marginTop: '8px',
-              display: 'flex',
-            }}
-          >
-            VIRAL BOOST
-          </div>
-        </div>
-
-        {/* 코너 장식 */}
-        <div
-          style={{
-            position: 'absolute',
-            top: '40px',
-            left: '40px',
-            fontSize: '36px',
-            color: '#ffd700',
-            opacity: 0.5,
-            display: 'flex',
-          }}
-        >
-          ❦
-        </div>
-        <div
-          style={{
-            position: 'absolute',
-            top: '40px',
-            right: '40px',
-            fontSize: '36px',
-            color: '#ffd700',
-            opacity: 0.5,
-            display: 'flex',
-          }}
-        >
-          ❦
-        </div>
-        <div
-          style={{
-            position: 'absolute',
-            bottom: '40px',
-            left: '40px',
-            fontSize: '36px',
-            color: '#ffd700',
-            opacity: 0.5,
-            display: 'flex',
-          }}
-        >
-          ❦
-        </div>
-
-        {/* 메인 콘텐츠 (왼쪽) */}
-        <div
-          style={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'flex-start',
-            justifyContent: 'center',
-            maxWidth: '700px',
-            position: 'relative',
-            zIndex: 2,
-          }}
-        >
-          {/* 경고 배지 */}
-          <div
-            style={{
-              padding: '10px 28px',
-              background: 'rgba(255, 215, 0, 0.1)',
-              border: '1px solid rgba(255, 215, 0, 0.5)',
-              borderRadius: '100px',
-              color: '#ffd700',
-              fontSize: '18px',
-              fontWeight: 800,
-              letterSpacing: '0.3em',
-              marginBottom: '32px',
-              display: 'flex',
-            }}
-          >
-            ⚠️ 99% 모르는 진실
-          </div>
-
-          {/* 메인 타이틀 */}
-          <div
-            style={{
-              fontSize: '78px',
-              fontWeight: 900,
-              lineHeight: 1.1,
-              color: '#f5f1ea',
-              letterSpacing: '-0.025em',
-              marginBottom: '24px',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <div style={{ display: 'flex' }}>AI 영상도 알고리즘</div>
-            <div style={{ display: 'flex', color: '#ffd700', fontStyle: 'italic', fontFamily: 'serif' }}>
-              없이는 묻힙니다.
-            </div>
-          </div>
-
-          {/* 서브타이틀 */}
-          <div
-            style={{
-              fontSize: '24px',
-              color: 'rgba(245, 241, 234, 0.85)',
-              lineHeight: 1.5,
-              marginBottom: '40px',
-              display: 'flex',
-              flexDirection: 'column',
-            }}
-          >
-            <div style={{ display: 'flex' }}>AlgoMaker가 베일 너머의 알고리즘을</div>
-            <div style={{ display: 'flex', color: '#ff0080', fontWeight: 700, marginTop: '4px' }}>
-              작동시킵니다.
-            </div>
-          </div>
-
-          {/* 로고 */}
-          <div
-            style={{
+              width: '36px',
+              height: '36px',
+              background: '#c65f3b',
+              borderRadius: '8px',
               display: 'flex',
               alignItems: 'center',
-              gap: '16px',
+              justifyContent: 'center',
+              color: '#fff',
+              fontSize: '20px',
+              fontWeight: 800,
             }}
           >
-            <div
-              style={{
-                width: '64px',
-                height: '64px',
-                background: 'linear-gradient(135deg, #c65f3b 0%, #a64a2a 100%)',
-                borderRadius: '14px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontSize: '32px',
-                fontWeight: 900,
-                boxShadow: '0 4px 20px rgba(198, 95, 59, 0.5)',
-              }}
-            >
-              ▶
-            </div>
-            <div
-              style={{
-                color: '#f5f1ea',
-                fontSize: '36px',
-                fontWeight: 800,
-                letterSpacing: '-0.02em',
-                display: 'flex',
-              }}
-            >
-              <span style={{ color: '#ffd700' }}>Algo</span>
-              <span>Maker</span>
-            </div>
+            A
           </div>
+          AlgoMaker
+        </div>
+
+        {/* 메인 헤드라인 */}
+        <div
+          style={{
+            fontSize: '74px',
+            fontWeight: 800,
+            color: '#ffffff',
+            textAlign: 'center',
+            letterSpacing: '-0.03em',
+            lineHeight: 1.15,
+            marginBottom: '24px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <span>키워드 하나로</span>
+          <span style={{ color: '#fef3c7' }}>떡상 시나리오 완성</span>
+        </div>
+
+        {/* 부제 */}
+        <div
+          style={{
+            fontSize: '26px',
+            color: 'rgba(255, 255, 255, 0.95)',
+            textAlign: 'center',
+            lineHeight: 1.5,
+            maxWidth: '900px',
+            marginBottom: '48px',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+          }}
+        >
+          <span>AI가 분야별로 다른 떡상 트리거를 자동 매칭</span>
+          <span>부동산은 수치, 영어는 경험담, 다이어트는 비포애프터</span>
+        </div>
+
+        {/* 통계 박스 3개 */}
+        <div
+          style={{
+            display: 'flex',
+            gap: '16px',
+            marginTop: '12px',
+          }}
+        >
+          {[
+            { num: '9개', label: '도메인 자동 인식' },
+            { num: '100명 = 100가지', label: '매번 다른 결과' },
+            { num: '무료', label: '회원가입 X' },
+          ].map((stat) => (
+            <div
+              key={stat.label}
+              style={{
+                display: 'flex',
+                flexDirection: 'column',
+                alignItems: 'center',
+                padding: '18px 28px',
+                background: 'rgba(255, 255, 255, 0.95)',
+                borderRadius: '14px',
+                minWidth: '180px',
+              }}
+            >
+              <div
+                style={{
+                  fontSize: '24px',
+                  fontWeight: 800,
+                  color: '#c65f3b',
+                  letterSpacing: '-0.02em',
+                  marginBottom: '4px',
+                }}
+              >
+                {stat.num}
+              </div>
+              <div
+                style={{
+                  fontSize: '15px',
+                  color: '#666',
+                  fontWeight: 600,
+                }}
+              >
+                {stat.label}
+              </div>
+            </div>
+          ))}
+        </div>
+
+        {/* 하단 도메인 */}
+        <div
+          style={{
+            position: 'absolute',
+            bottom: '32px',
+            fontSize: '20px',
+            color: 'rgba(255, 255, 255, 0.85)',
+            fontWeight: 700,
+            letterSpacing: '0.02em',
+          }}
+        >
+          nutube.kr
         </div>
       </div>
     ),
