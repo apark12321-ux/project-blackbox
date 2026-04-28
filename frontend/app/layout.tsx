@@ -350,7 +350,7 @@ const howToSchema = {
       '@type': 'HowToStep',
       position: 2,
       name: '키워드 입력',
-      text: '관심 있는 주제의 키워드 1개를 입력합니다. AI가 자동으로 8개 도메인 중 하나로 분류합니다.',
+      text: '관심 있는 주제의 키워드 1개를 입력합니다. AI가 자동으로 9개 도메인 중 하나로 분류합니다.',
     },
     {
       '@type': 'HowToStep',

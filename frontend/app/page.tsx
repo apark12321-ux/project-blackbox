@@ -99,15 +99,10 @@ const DEMO_HOOKS: Record<string, { domain: string; hook: string; trigger: string
     hook: '오늘 밤 편히 잠드시기 전에 들려드릴 이야기. 마음이 따뜻해질 거예요.',
     trigger: '수면 라디오형',
   },
-  외부수익: {
-    domain: '수익화',
-    hook: '구독자 4천명 채널이 250만 채널보다 더 법니다. 6개월에 2,500만원, 비결 정리해드릴게요.',
-    trigger: '외부 수익 패러다임',
-  },
-  쿠팡파트너스: {
-    domain: '수익화',
-    hook: '쿠팡 파트너스, 24시간 쿠키 + 6.7% 수수료. 구독자 0명부터 바로 시작 가능합니다.',
-    trigger: '제휴 마케팅 진입',
+  콘텐츠가치: {
+    domain: '콘텐츠 가치',
+    hook: '내가 잘하는 것을 영상으로 풀어내면 다양한 길이 열립니다. 진심을 담아 만드는 콘텐츠 이야기를 전해드릴게요.',
+    trigger: '콘텐츠의 다양한 가치',
   },
 };
 
@@ -120,8 +115,7 @@ function getKeywordPreview(keyword: string) {
   if (DEMO_HOOKS[k]) return DEMO_HOOKS[k];
   
   // 부분 매칭 - family 우선 + 5가지 톤 변형 자동 분기
-  if (/외부 수익|외부수익|쇼핑.쇼츠|제휴|애드센스 X|조회수 수익 X/.test(k)) return DEMO_HOOKS['외부수익'];
-  if (/쿠팡|파트너스|제휴 마케팅/.test(k)) return DEMO_HOOKS['쿠팡파트너스'];
+  if (/콘텐츠.가치|영상.가치|진심.콘텐츠/.test(k)) return DEMO_HOOKS['콘텐츠가치'];
   if (/황혼|노후 사랑|인생 2막|인생.{0,2}반전|시니어 로맨스/.test(k)) return DEMO_HOOKS['황혼사랑'];
   if (/수면|잠.{0,2}자|잠들기|밤에 듣는|베개|잘자/.test(k)) return DEMO_HOOKS['수면사연'];
   if (/시어머니|며느리|사위|장인|장모|시댁|친정|가족.*사연|시집|이혼|명절|제사|시동생|동서|올케|고부/.test(k)) return DEMO_HOOKS['시어머니'];
@@ -144,7 +138,7 @@ function getKeywordPreview(keyword: string) {
 }
 
 // ============================================================
-// 8개 분야별 트리거 매핑 (AEO 핵심 정보)
+// 9개 분야별 트리거 매핑 (AEO 핵심 정보)
 // ============================================================
 const TRIGGER_MATRIX = [
   { emoji: '🏠', domain: '부동산/재테크', trigger: '수치 + 시간단축', example: '"6개월 만에 8천만원 차익"' },
@@ -195,16 +189,52 @@ const FAQ_LIST = [
 // ============================================================
 const DEFINITION = {
   what: 'AlgoMaker는 키워드 하나로 영상 콘텐츠 자료(제목, 태그, 대본, 썸네일, SNS 메타데이터)를 자동 생성하는 무료 AI 도구입니다.',
-  feature: '8개 도메인을 자동 인식하고 분야별로 다른 떡상 트리거를 매칭합니다. 부동산은 수치 중심, 영어는 경험담 중심, 다이어트는 비포애프터 중심으로 작동합니다.',
+  feature: '9개 도메인을 자동 인식하고 분야별로 다른 떡상 트리거를 매칭합니다. 부동산은 수치 중심, 영어는 경험담 중심, 다이어트는 비포애프터 중심으로 작동합니다.',
   how: '키워드 하나만 입력하면 AI가 영상 제목 3개, 태그 13개, 대본 7단계 시퀀스, 썸네일 콘셉트, 4개 SNS 메타데이터를 자동 생성합니다.',
   why: '회원가입, 결제, 신용카드 등록이 일절 필요 없으며 광고 시청만으로 무제한 사용 가능합니다.',
 };
+
+// ============================================================
+// Hero 헤드라인 4가지 (4초마다 롤링)
+// ============================================================
+const HERO_HEADLINES = [
+  {
+    title: '진심이 담긴 영상이',
+    accent: '사람의 마음을 움직입니다',
+    sub: '한 편의 영상에 진심을 담아드릴게요. 키워드 하나면 충분합니다.',
+  },
+  {
+    title: '키워드만 입력하면',
+    accent: 'AI가 모두 대신해드립니다',
+    sub: '회원가입도, 결제도 필요 없습니다. 1분이면 영상 자료가 완성돼요.',
+  },
+  {
+    title: '디지털이 어려우신 분도',
+    accent: '단 두 줄로 영상 끝',
+    sub: '50대, 60대, 70대 시니어층도 부담 없이 시작할 수 있어요.',
+  },
+  {
+    title: '같은 키워드, 매번 다른 이야기',
+    accent: '100가지 결과가 만들어집니다',
+    sub: '100명이 같은 키워드를 입력해도 100가지 다른 시나리오가 나와요.',
+  },
+];
 
 export default function HomePage() {
   const router = useRouter();
   const [demoKeyword, setDemoKeyword] = useState('');
   const [demoResult, setDemoResult] = useState<ReturnType<typeof getKeywordPreview>>(null);
   const demoTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  // 헤드라인 롤링 (4초마다)
+  const [heroIdx, setHeroIdx] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setHeroIdx((i) => (i + 1) % HERO_HEADLINES.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
+  const currentHero = HERO_HEADLINES[heroIdx];
 
   // 라이브 데모: 키워드 입력 시 실시간 미리보기
   useEffect(() => {
@@ -305,6 +335,54 @@ export default function HomePage() {
           max-width: 640px;
         }
         @media (max-width: 600px) { .heroSub { font-size: 15px; } }
+
+        /* ============================================ */
+        /* Hero 롤링 - 페이드 + 슬라이드 업 */
+        /* ============================================ */
+        .heroRolling {
+          animation: heroFadeSlide 0.7s ease-out;
+          min-height: 165px; /* 텍스트 길이가 다를 때 점프 방지 */
+        }
+        @media (max-width: 600px) {
+          .heroRolling { min-height: 200px; }
+        }
+        @media (max-width: 480px) {
+          .heroRolling { min-height: 230px; }
+        }
+        @keyframes heroFadeSlide {
+          0% {
+            opacity: 0;
+            transform: translateY(14px);
+          }
+          100% {
+            opacity: 1;
+            transform: translateY(0);
+          }
+        }
+
+        /* 인디케이터 점 (어떤 메시지가 표시되는지) */
+        .heroDots {
+          display: flex;
+          justify-content: center;
+          gap: 8px;
+          margin: 0 auto 28px;
+        }
+        .heroDot {
+          width: 8px;
+          height: 8px;
+          border-radius: 50%;
+          background: #fde0c5;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+          transition: all 0.25s;
+        }
+        .heroDot:hover { background: #f4ad8a; }
+        .heroDot.active {
+          background: #c65f3b;
+          width: 24px;
+          border-radius: 100px;
+        }
 
         /* 핵심 통계 (proof density) */
         .heroStats {
@@ -561,7 +639,7 @@ export default function HomePage() {
         .compareCard.before .compareText { color: #888; }
 
         /* ============================================ */
-        /* [4] 8개 분야별 트리거 매트릭스 */
+        /* [4] 9개 분야별 트리거 매트릭스 */
         /* ============================================ */
         .matrixGrid {
           display: grid;
@@ -608,6 +686,174 @@ export default function HomePage() {
           color: #666;
           line-height: 1.55;
           font-style: italic;
+        }
+
+        /* ============================================ */
+        /* [4-2] 외부 수익화 5가지 경로 */
+        /* ============================================ */
+        .revenueSection {
+          background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
+          border-radius: 20px;
+          padding: 40px 32px;
+          margin-top: 40px;
+        }
+        @media (max-width: 600px) { .revenueSection { padding: 28px 18px; } }
+        .revenueBadge {
+          display: inline-block;
+          padding: 6px 14px;
+          background: #c65f3b;
+          color: #fff;
+          border-radius: 100px;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+          margin-bottom: 8px;
+        }
+        .revenueCompare {
+          display: grid;
+          grid-template-columns: 1fr auto 1fr;
+          gap: 16px;
+          align-items: center;
+          margin: 28px 0 32px;
+        }
+        @media (max-width: 720px) {
+          .revenueCompare {
+            grid-template-columns: 1fr;
+            gap: 10px;
+          }
+        }
+        .revenueCompareCard {
+          background: #fff;
+          border-radius: 14px;
+          padding: 20px 22px;
+          box-shadow: 0 2px 12px rgba(0,0,0,0.04);
+        }
+        .revenueCompareCard.old { border: 2px solid #d4d4d8; }
+        .revenueCompareCard.new {
+          border: 2px solid #c65f3b;
+          background: #fff8f3;
+        }
+        .rcLabel {
+          font-size: 11px;
+          font-weight: 800;
+          color: #888;
+          margin-bottom: 6px;
+          letter-spacing: 0.04em;
+        }
+        .revenueCompareCard.new .rcLabel { color: #c65f3b; }
+        .rcTitle {
+          font-size: 14px;
+          font-weight: 700;
+          color: #1a1a1a;
+          margin-bottom: 10px;
+          letter-spacing: -0.02em;
+        }
+        .rcStat {
+          font-size: 15px;
+          font-weight: 600;
+          color: #555;
+          margin-bottom: 10px;
+        }
+        .rcStat strong {
+          font-size: 22px;
+          color: #1a1a1a;
+        }
+        .revenueCompareCard.new .rcStat strong { color: #c65f3b; }
+        .rcDetail {
+          font-size: 12.5px;
+          color: #666;
+          line-height: 1.7;
+        }
+        .rcArrow {
+          font-size: 28px;
+          color: #c65f3b;
+          font-weight: 800;
+          text-align: center;
+        }
+        @media (max-width: 720px) {
+          .rcArrow {
+            transform: rotate(90deg);
+            font-size: 22px;
+          }
+        }
+        .revenueGrid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 12px;
+          margin-bottom: 28px;
+        }
+        @media (max-width: 600px) {
+          .revenueGrid {
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+          }
+        }
+        .revenueCard {
+          background: #fff;
+          border: 1px solid #fef3c7;
+          border-radius: 12px;
+          padding: 18px 16px;
+          position: relative;
+          transition: all 0.2s;
+        }
+        .revenueCard:hover {
+          border-color: #c65f3b;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 20px rgba(198, 95, 59, 0.12);
+        }
+        .revenueCard.featured {
+          border: 2px solid #c65f3b;
+          background: #fff8f3;
+        }
+        .rcCardBadge {
+          position: absolute;
+          top: -10px;
+          right: 12px;
+          padding: 3px 10px;
+          background: #c65f3b;
+          color: #fff;
+          border-radius: 100px;
+          font-size: 10px;
+          font-weight: 800;
+        }
+        .rcEmoji {
+          font-size: 28px;
+          margin-bottom: 8px;
+        }
+        .rcCardTitle {
+          font-size: 14px;
+          font-weight: 800;
+          color: #1a1a1a;
+          margin-bottom: 4px;
+          letter-spacing: -0.02em;
+        }
+        .rcCardSub {
+          font-size: 11.5px;
+          color: #c65f3b;
+          font-weight: 700;
+          margin-bottom: 8px;
+        }
+        .rcCardDetail {
+          font-size: 11.5px;
+          color: #666;
+          line-height: 1.6;
+        }
+        .revenueCTA { text-align: center; }
+        .revenueCTABtn {
+          display: inline-block;
+          padding: 14px 28px;
+          background: #1a1a1a;
+          color: #fff;
+          border-radius: 100px;
+          font-size: 14px;
+          font-weight: 800;
+          text-decoration: none;
+          transition: all 0.2s;
+        }
+        .revenueCTABtn:hover {
+          background: #c65f3b;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(198, 95, 59, 0.25);
         }
 
         /* ============================================ */
@@ -752,7 +998,7 @@ export default function HomePage() {
 
       <div className="page">
         {/* ============================================ */}
-        {/* [1] HERO */}
+        {/* [1] HERO - 롤링 헤드라인 4가지 (4초마다) */}
         {/* ============================================ */}
         <section className="hero">
           <div className="heroBadge">
@@ -760,28 +1006,41 @@ export default function HomePage() {
             <span>완전 무료 · 회원가입 불필요 · 광고 보고 무제한 사용</span>
           </div>
 
-          <h1 className="heroTitle">
-            키워드 하나로<br />
-            <span className="accent">떡상 시나리오</span>가 만들어집니다
-          </h1>
+          <div className="heroRolling" key={heroIdx}>
+            <h1 className="heroTitle">
+              {currentHero.title}<br />
+              <span className="accent">{currentHero.accent}</span>
+            </h1>
 
-          <p className="heroSub">
-            AI가 분야별로 다른 트리거를 자동 매칭합니다.<br />
-            부동산은 수치 중심, 영어는 경험담 중심, 다이어트는 비포애프터 중심으로.
-          </p>
+            <p className="heroSub">
+              {currentHero.sub}
+            </p>
+          </div>
+
+          {/* 롤링 인디케이터 (몇 번째 메시지인지) */}
+          <div className="heroDots">
+            {HERO_HEADLINES.map((_, i) => (
+              <button
+                key={i}
+                className={`heroDot ${i === heroIdx ? 'active' : ''}`}
+                onClick={() => setHeroIdx(i)}
+                aria-label={`헤드라인 ${i + 1}로 이동`}
+              />
+            ))}
+          </div>
 
           <div className="heroStats">
             <div className="heroStat">
-              <div className="heroStatNum">100명 = 100가지</div>
+              <div className="heroStatNum">9개 분야</div>
+              <div className="heroStatLabel">자동 트리거 매칭</div>
+            </div>
+            <div className="heroStat">
+              <div className="heroStatNum">5가지 톤</div>
               <div className="heroStatLabel">매번 다른 결과</div>
             </div>
             <div className="heroStat">
-              <div className="heroStatNum">8개 분야</div>
-              <div className="heroStatLabel">자동 인식 + 트리거 매칭</div>
-            </div>
-            <div className="heroStat">
-              <div className="heroStatNum">무제한 무료</div>
-              <div className="heroStatLabel">결제 / 신용카드 X</div>
+              <div className="heroStatNum">17편 가이드</div>
+              <div className="heroStatLabel">실전 노하우 정리</div>
             </div>
           </div>
         </section>
@@ -866,12 +1125,12 @@ export default function HomePage() {
         </section>
 
         {/* ============================================ */}
-        {/* [4] 8개 분야 트리거 매트릭스 (AEO 핵심) */}
+        {/* [4] 9개 분야 트리거 매트릭스 (AEO 핵심) */}
         {/* ============================================ */}
         <section className="section">
           <div className="sectionHeader">
             <h2 className="sectionTitle">분야별 다른 떡상 트리거</h2>
-            <p className="sectionSub">AI가 키워드를 분석해 8개 도메인 중 하나로 자동 매칭합니다</p>
+            <p className="sectionSub">AI가 키워드를 분석해 9개 도메인 중 하나로 자동 매칭합니다</p>
           </div>
           <div className="matrixGrid">
             {TRIGGER_MATRIX.map((item, i) => (
@@ -884,6 +1143,59 @@ export default function HomePage() {
                 </div>
               </div>
             ))}
+          </div>
+        </section>
+
+        {/* ============================================ */}
+        {/* [4-2] 영상 콘텐츠 다양한 활용법 */}
+        {/* ============================================ */}
+        <section className="section revenueSection">
+          <div className="sectionHeader">
+            <span className="revenueBadge">💡 영상 콘텐츠의 다양한 가치</span>
+            <h2 className="sectionTitle">영상 한 편에 담을 수 있는 5가지 가치</h2>
+            <p className="sectionSub">
+              내가 잘하는 것을 영상으로 풀어내면 다양한 길이 열립니다
+            </p>
+          </div>
+
+          <div className="revenueGrid">
+            <div className="revenueCard">
+              <div className="rcEmoji">📚</div>
+              <div className="rcCardTitle">지식 공유</div>
+              <div className="rcCardSub">내 경험이 누군가에겐 절실한 정보</div>
+              <div className="rcCardDetail">평범하다고 느끼는 일상 노하우도, 시작하는 사람에게는 큰 도움이 됩니다.</div>
+            </div>
+            <div className="revenueCard">
+              <div className="rcEmoji">💝</div>
+              <div className="rcCardTitle">진심 담은 사연</div>
+              <div className="rcCardSub">공감과 위로의 콘텐츠</div>
+              <div className="rcCardDetail">가족, 일상, 인생 이야기. 비슷한 고민을 가진 사람들과 마음을 나눕니다.</div>
+            </div>
+            <div className="revenueCard featured">
+              <div className="rcCardBadge">★ 인기</div>
+              <div className="rcEmoji">🎯</div>
+              <div className="rcCardTitle">분야 전문성</div>
+              <div className="rcCardSub">한 우물 깊게 파기</div>
+              <div className="rcCardDetail">부동산, 재테크, 건강, 요리 등 한 분야를 꾸준히 다루면 신뢰가 쌓입니다.</div>
+            </div>
+            <div className="revenueCard">
+              <div className="rcEmoji">🎨</div>
+              <div className="rcCardTitle">취미와 일상</div>
+              <div className="rcCardSub">즐거움을 함께 나누는 콘텐츠</div>
+              <div className="rcCardDetail">여행, 요리, 손글씨 등 즐기는 일을 영상으로 풀어보세요.</div>
+            </div>
+            <div className="revenueCard">
+              <div className="rcEmoji">🌱</div>
+              <div className="rcCardTitle">시니어 라이프</div>
+              <div className="rcCardSub">50대~70대의 따뜻한 시선</div>
+              <div className="rcCardDetail">은퇴 이후의 삶, 자녀와의 이야기, 인생 2막 — 다른 세대가 듣고 싶은 이야기.</div>
+            </div>
+          </div>
+
+          <div className="revenueCTA">
+            <Link href="/blog" className="revenueCTABtn">
+              📖 17편의 실전 가이드 보러가기 →
+            </Link>
           </div>
         </section>
 
