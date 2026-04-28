@@ -99,6 +99,16 @@ const DEMO_HOOKS: Record<string, { domain: string; hook: string; trigger: string
     hook: '오늘 밤 편히 잠드시기 전에 들려드릴 이야기. 마음이 따뜻해질 거예요.',
     trigger: '수면 라디오형',
   },
+  외부수익: {
+    domain: '수익화',
+    hook: '구독자 4천명 채널이 250만 채널보다 더 법니다. 6개월에 2,500만원, 비결 정리해드릴게요.',
+    trigger: '외부 수익 패러다임',
+  },
+  쿠팡파트너스: {
+    domain: '수익화',
+    hook: '쿠팡 파트너스, 24시간 쿠키 + 6.7% 수수료. 구독자 0명부터 바로 시작 가능합니다.',
+    trigger: '제휴 마케팅 진입',
+  },
 };
 
 // 키워드 → 도메인 매핑 (간단 버전)
@@ -110,6 +120,8 @@ function getKeywordPreview(keyword: string) {
   if (DEMO_HOOKS[k]) return DEMO_HOOKS[k];
   
   // 부분 매칭 - family 우선 + 5가지 톤 변형 자동 분기
+  if (/외부 수익|외부수익|쇼핑.쇼츠|제휴|애드센스 X|조회수 수익 X/.test(k)) return DEMO_HOOKS['외부수익'];
+  if (/쿠팡|파트너스|제휴 마케팅/.test(k)) return DEMO_HOOKS['쿠팡파트너스'];
   if (/황혼|노후 사랑|인생 2막|인생.{0,2}반전|시니어 로맨스/.test(k)) return DEMO_HOOKS['황혼사랑'];
   if (/수면|잠.{0,2}자|잠들기|밤에 듣는|베개|잘자/.test(k)) return DEMO_HOOKS['수면사연'];
   if (/시어머니|며느리|사위|장인|장모|시댁|친정|가족.*사연|시집|이혼|명절|제사|시동생|동서|올케|고부/.test(k)) return DEMO_HOOKS['시어머니'];

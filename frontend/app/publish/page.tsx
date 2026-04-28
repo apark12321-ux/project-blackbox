@@ -13,7 +13,7 @@
  * STEP 5 - SNS 업로드 (4개 플랫폼)
  */
 
-import { useState, useEffect, useMemo, useRef } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { V11Shell } from '../_shared/V11Shell';
@@ -40,7 +40,7 @@ const STEPS: { id: StepId; emoji: string; label: string; sub: string; color: str
   { id: 'sns', emoji: '📲', label: 'STEP 5', sub: 'SNS 업로드', color: '#185FA5', bg: '#E6F1FB' },
 ];
 
-export default function PublishPage() {
+function PublishPageInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const keyword = searchParams.get('keyword') || '';
@@ -1464,6 +1464,14 @@ export default function PublishPage() {
   );
 }
 
+export default function PublishPage() {
+  return (
+    <Suspense fallback={<div />}>
+      <PublishPageInner />
+    </Suspense>
+  );
+}
+
 // ============================================================
 // 영상 제작 프롬프트 카드 (별도 컴포넌트)
 // ============================================================
@@ -1531,7 +1539,7 @@ function PromptCard({
           </div>
           <div className="promptItem">
             <div className="promptItemHead">
-              <span className="promptLang en">🇺🇸 EN · 영상 (Runway/Sora/Pika)</span>
+              <span className="promptLang en">🇺🇸 EN · 영상 (Runway/Sora/Google Flow/VEO/Pika)</span>
               <button
                 className={`promptCopyBtn ${copied === `vde-${idx}` ? 'copied' : ''}`}
                 onClick={() => onCopy(seq.videoPromptEn, `vde-${idx}`)}

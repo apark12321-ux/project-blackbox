@@ -102,6 +102,16 @@ const ARTICLES: Article[] = [
     featured: true,
   },
   {
+    slug: 'external-revenue-strategy',
+    category: '수익화',
+    categoryEmoji: '💰',
+    title: '조회수 0원에서 2,500만원으로 - 외부 수익화 5가지 경로',
+    subtitle: '구독자 4,000명 채널이 250만 채널보다 더 버는 이유',
+    readTime: '12분',
+    publishDate: '2026.04.28',
+    featured: true,
+  },
+  {
     slug: 'monetization-tips',
     category: '수익화',
     categoryEmoji: '💰',

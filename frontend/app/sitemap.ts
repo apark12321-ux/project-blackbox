@@ -20,6 +20,7 @@ const KNOWHOW_SLUGS = [
   'channel-branding',
   'community-engagement',
   'family-story-shorts',
+  'external-revenue-strategy',
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
