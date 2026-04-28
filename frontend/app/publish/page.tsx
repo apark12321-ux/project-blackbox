@@ -1,132 +1,137 @@
 'use client';
 /**
- * /publish - SNS 메타데이터 결과 페이지 (최종판)
- * 
- * 박예준 대표 핵심 요구사항:
- * 1. 각 SNS 실제 업로드 화면과 동일한 UI
- * 2. 알고리즘 반영된 진짜 고퀄리티 콘텐츠
- * 3. 영상 제작 프롬프트 (한글 + 영문)
- * 4. 광고 게이트 (Rewarded Ad - AdSense Offerwall)
- * 5. 떡상 시나리오 - 매번 다른 결과 (다양성 + 진심)
+ * AlgoMaker 결과 페이지 v5.0
+ *
+ * 박예준 대표 비전:
+ * "SNS 초보자가 사이트에 딱 왔을 때 뭔가 필이 팍 꽂혀야 한다"
+ *
+ * 새 스토리보드 (5단계):
+ * STEP 1 - 제목 선택 (3개 중 1개)
+ * STEP 2 - 떡상 시나리오 7단계 (메인 콘텐츠) ← 핵심
+ * STEP 3 - 영상 제작 (AI 프롬프트)
+ * STEP 4 - 메타데이터 (설명·태그·썸네일)
+ * STEP 5 - SNS 업로드 (4개 플랫폼)
  */
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, useRef } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { V11Shell, getProject } from '../_shared/V11Shell';
-import { getCategoryById, getScenarioById, getTrendingKeywords } from '../_shared/platforms';
+import { V11Shell } from '../_shared/V11Shell';
+import { CATEGORIES, SCENARIOS } from '../_shared/platforms';
 import {
   generateTitles,
   generateDescription,
   generateTags,
   generateVideoSequences,
   generateThumbnailConcepts,
-  getYouTubeCategory,
+  generateShortsScript,
   bumpSeed,
 } from '../_shared/contentEngine';
 import AdSlot from '../_shared/AdSlot';
-import RewardedAd, {
-  isFreeAvailable,
-  getRemainingFree,
-  incrementUsage,
-  addBonusCredit,
-  FREE_LIMIT,
-} from '../_shared/RewardedAd';
+import RewardedAd from '../_shared/RewardedAd';
 
-type TabType = 'youtube-long' | 'youtube-shorts' | 'tiktok' | 'instagram-reels' | 'video-prompts';
+type StepId = 'title' | 'script' | 'video' | 'meta' | 'sns';
+
+const STEPS: { id: StepId; emoji: string; label: string; sub: string; color: string; bg: string }[] = [
+  { id: 'title', emoji: '✏️', label: 'STEP 1', sub: '제목 선택', color: '#534AB7', bg: '#EEEDFE' },
+  { id: 'script', emoji: '🎬', label: 'STEP 2', sub: '대본 7단계', color: '#993C1D', bg: '#FAECE7' },
+  { id: 'video', emoji: '🎨', label: 'STEP 3', sub: '영상 제작', color: '#0F6E56', bg: '#E1F5EE' },
+  { id: 'meta', emoji: '🏷️', label: 'STEP 4', sub: '메타데이터', color: '#854F0B', bg: '#FAEEDA' },
+  { id: 'sns', emoji: '📲', label: 'STEP 5', sub: 'SNS 업로드', color: '#185FA5', bg: '#E6F1FB' },
+];
 
 export default function PublishPage() {
-  const [category, setCategory] = useState('realestate');
-  const [keyword, setKeyword] = useState('2026년 부동산 전망');
-  const [scenarioId, setScenarioId] = useState('curiosity');
-  const [activeTab, setActiveTab] = useState<TabType>('youtube-long');
-  const [copied, setCopied] = useState('');
-  const [selectedTitleIdx, setSelectedTitleIdx] = useState(0);
-  const [selectedThumbIdx, setSelectedThumbIdx] = useState(0);
-  
-  // 떡상 시나리오 - "다시 생성" 트리거
-  const [regenerationKey, setRegenerationKey] = useState(0);
-  
-  // 광고 게이트 관련 상태
-  const [showAd, setShowAd] = useState(false);
-  const [accessGranted, setAccessGranted] = useState(false);
-  const [remaining, setRemaining] = useState(0);
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const keyword = searchParams.get('keyword') || '';
+  const categoryId = searchParams.get('category') || 'realestate';
+  const scenarioId = searchParams.get('scenario') || 'curiosity';
 
+  const cat = CATEGORIES.find(c => c.id === categoryId) || CATEGORIES[0];
+  const scenario = SCENARIOS.find(s => s.id === scenarioId);
+
+  // 단계별 펼치기/접기
+  const [openSteps, setOpenSteps] = useState<Record<StepId, boolean>>({
+    title: true,
+    script: true,
+    video: false,
+    meta: false,
+    sns: false,
+  });
+  const [selectedTitleIdx, setSelectedTitleIdx] = useState(0);
+  const [snsTab, setSnsTab] = useState<'youtube' | 'shorts' | 'tiktok' | 'reels'>('youtube');
+  const [copied, setCopied] = useState('');
+  const [regenerateKey, setRegenerateKey] = useState(0);
+  const [showRewarded, setShowRewarded] = useState(false);
+  const [usedCount, setUsedCount] = useState(0);
+
+  // 무료 횟수 (5회까지 무료)
   useEffect(() => {
-    const project = getProject();
-    if (project.category) setCategory(project.category);
-    if (project.keyword) setKeyword(project.keyword);
-    if (project.scenarioStyleId) setScenarioId(project.scenarioStyleId);
-    
-    // 사용 횟수 확인
-    const free = getRemainingFree();
-    setRemaining(free);
-    
-    if (free > 0) {
-      // 무료 사용 가능 → 진입 시 카운트 1회 증가
-      incrementUsage();
-      setRemaining(getRemainingFree());
-      setAccessGranted(true);
-    } else {
-      // 무료 사용 종료 → 광고 시청 필요
-      setShowAd(true);
+    if (typeof window !== 'undefined') {
+      const used = parseInt(localStorage.getItem('algomaker_use_count') || '0');
+      setUsedCount(used);
+      if (used === 0) {
+        localStorage.setItem('algomaker_use_count', '1');
+        setUsedCount(1);
+      }
     }
   }, []);
 
-  // 광고 시청 완료 시 호출
-  const handleAdComplete = () => {
-    addBonusCredit(); // 1회 추가 사용권 부여
-    setAccessGranted(true);
-    setRemaining(getRemainingFree());
-  };
+  const remainingFree = Math.max(0, 5 - usedCount);
 
-  // 광고 닫기 (보지 않고 나가기)
-  const handleAdClose = () => {
-    setShowAd(false);
-    if (!accessGranted) {
-      // 광고 안 보고 나가면 홈으로
-      if (typeof window !== 'undefined') {
-        window.location.href = '/';
-      }
-    }
-  };
-
-  const cat = getCategoryById(category);
-  const scenario = getScenarioById(scenarioId);
-  if (!cat) return null;
-
-  // 떡상 시나리오 엔진 호출 - regenerationKey 변경 시 새 결과 생성
+  // 콘텐츠 생성
   const titles = useMemo(
     () => generateTitles(keyword, scenarioId, cat.name),
-    [keyword, scenarioId, cat.name, regenerationKey]
+    [keyword, scenarioId, cat.name, regenerateKey]
   );
   const description = useMemo(
     () => generateDescription(keyword, cat.name, scenarioId),
-    [keyword, cat.name, scenarioId, regenerationKey]
+    [keyword, cat.name, scenarioId, regenerateKey]
   );
   const tags = useMemo(
     () => generateTags(keyword, cat.name),
-    [keyword, cat.name, regenerationKey]
+    [keyword, cat.name, regenerateKey]
   );
   const sequences = useMemo(
     () => generateVideoSequences(keyword, scenarioId),
-    [keyword, scenarioId, regenerationKey]
+    [keyword, scenarioId, regenerateKey]
   );
   const thumbnails = useMemo(
     () => generateThumbnailConcepts(keyword, cat.name),
-    [keyword, cat.name, regenerationKey]
+    [keyword, cat.name, regenerateKey]
   );
-  const youtubeCategory = getYouTubeCategory(category);
+  const shortsScript = useMemo(
+    () => generateShortsScript(keyword, scenarioId),
+    [keyword, scenarioId, regenerateKey]
+  );
 
-  // "다시 생성" 핸들러 - 시드 변경 + 리렌더 트리거
-  const handleRegenerate = () => {
-    bumpSeed();
-    setRegenerationKey((k) => k + 1);
-    setSelectedTitleIdx(0);
-    setSelectedThumbIdx(0);
-  };
+  // 해시태그 자동 변환 (띄어쓰기 제거 + #)
+  const toHashtag = (text: string) => '#' + text.replace(/[\s·,.\-]/g, '').replace(/[^가-힣a-zA-Z0-9]/g, '');
+  const hashtagsBase = tags.slice(0, 8).map(t => toHashtag(t.tag)).join(' ');
+  const shortsHashtags = `#Shorts ${hashtagsBase} #쇼츠 ${toHashtag(cat.name)}`;
+  const tiktokHashtags = `#fyp #foryou ${hashtagsBase} #추천 #바이럴`;
+  const instaHashtags = `${hashtagsBase} #인스타그램 #릴스 ${toHashtag(cat.name)} #일상`;
 
   const selectedTitle = titles[selectedTitleIdx]?.title || '';
-  const selectedThumb = thumbnails[selectedThumbIdx];
+
+  // 다시 생성 (무료 5회 + 광고 시청 필요)
+  const handleRegenerate = () => {
+    if (remainingFree > 0) {
+      const newCount = usedCount + 1;
+      localStorage.setItem('algomaker_use_count', String(newCount));
+      setUsedCount(newCount);
+      bumpSeed();
+      setRegenerateKey(k => k + 1);
+    } else {
+      setShowRewarded(true);
+    }
+  };
+
+  const handleRewardedComplete = () => {
+    setShowRewarded(false);
+    bumpSeed();
+    setRegenerateKey(k => k + 1);
+  };
 
   const copy = (text: string, key: string) => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
@@ -137,829 +142,1407 @@ export default function PublishPage() {
     }
   };
 
-  const hashtagsBase = tags.slice(0, 8).map(t => `#${t.tag}`).join(' ');
-  const shortsHashtags = `#Shorts ${hashtagsBase} #쇼츠 #${cat.name.replace(/[·]/g, '')}`;
-  const tiktokHashtags = `#fyp #foryou ${hashtagsBase} #추천 #바이럴`;
-  const instaHashtags = `${hashtagsBase} #인스타그램 #릴스 #${cat.name.replace(/[·]/g, '')} #일상`;
+  const toggleStep = (id: StepId) => {
+    setOpenSteps(s => ({ ...s, [id]: !s[id] }));
+  };
 
-  const shortsCaption = `${selectedTitle.substring(0, 50)}...\n\n자세한 내용은 본 채널 풀버전 영상에서 확인하세요!`;
-  const tiktokCaption = `💡 ${keyword} 진짜 핵심만!\n${selectedTitle}\n\n${tiktokHashtags}`;
-  const reelsCaption = `📊 ${keyword} 핵심 정리\n\n${selectedTitle}\n\n💬 댓글로 여러분 생각 공유해주세요!\n\n${instaHashtags}`;
+  const expandAll = () => {
+    setOpenSteps({ title: true, script: true, video: true, meta: true, sns: true });
+  };
+
+  const collapseAll = () => {
+    setOpenSteps({ title: false, script: false, video: false, meta: false, sns: false });
+  };
+
+  if (!keyword) {
+    if (typeof window !== 'undefined') {
+      router.push('/create');
+    }
+    return null;
+  }
 
   return (
     <V11Shell currentStep={4}>
-      {/* 광고 모달 - accessGranted 안 된 상태에서만 활성화 */}
-      <RewardedAd
-        open={showAd && !accessGranted}
-        rewardLabel="결과 페이지 1회 이용"
-        onComplete={handleAdComplete}
-        onClose={handleAdClose}
-      />
-      
       <style jsx>{`
-        .page { max-width: 1400px; margin: 0 auto; padding: 32px 20px 60px; }
-        .breadcrumb { display: flex; gap: 8px; font-size: 13px; color: #888; margin-bottom: 20px; }
-        .breadcrumb a:hover { color: #c65f3b; }
-        .breadcrumb .sep { color: #ccc; }
-        .header {
-          background: linear-gradient(135deg, #fdf1e7 0%, #fff8f0 100%);
-          border-radius: 16px; padding: 28px 32px; margin-bottom: 24px;
-          display: flex; gap: 24px; align-items: center; flex-wrap: wrap;
+        .page { max-width: 920px; margin: 0 auto; padding: 32px 24px 60px; }
+        @media (max-width: 600px) { .page { padding: 20px 16px 40px; } }
+
+        .breadcrumb {
+          display: flex; align-items: center; gap: 6px; font-size: 12px;
+          color: #888; margin-bottom: 16px;
         }
-        @media (max-width: 720px) { .header { padding: 20px; } }
-        .doneBadge {
-          display: inline-flex; align-items: center; gap: 6px;
-          padding: 6px 14px; background: #2e7d32; color: #fff;
-          border-radius: 100px; font-size: 12px; font-weight: 700;
+        .breadcrumb a { color: #888; text-decoration: none; }
+        .breadcrumb a:hover { color: #c65f3b; }
+
+        /* 헤더 */
+        .header {
+          background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
+          border: 1.5px solid #fbbf24;
+          border-radius: 16px;
+          padding: 22px 24px;
+          margin-bottom: 24px;
+        }
+        @media (max-width: 600px) { .header { padding: 18px 16px; } }
+
+        .headerBadge {
+          display: inline-block;
+          padding: 4px 12px;
+          background: #fef3c7;
+          color: #92400e;
+          border-radius: 100px;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.04em;
           margin-bottom: 8px;
         }
-        .title {
-          font-size: 24px; font-weight: 800; color: #1a1a1a;
-          letter-spacing: -0.025em; margin: 0 0 4px;
-        }
-        .sub { font-size: 14px; color: #555; }
-        .usageInfo {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          margin-top: 10px;
-          padding: 6px 12px;
-          background: rgba(198, 95, 59, 0.08);
-          border: 1px solid rgba(198, 95, 59, 0.2);
-          border-radius: 100px;
-          font-size: 12px;
-          color: #555;
-          font-weight: 500;
-        }
-        .usageInfo strong {
-          color: #c65f3b;
+        .headerTitle {
+          font-size: 22px;
           font-weight: 800;
+          color: #1a1a1a;
+          margin: 0 0 6px;
+          letter-spacing: -0.025em;
+          line-height: 1.3;
         }
-        .summaryChips { display: flex; gap: 8px; flex-wrap: wrap; margin-left: auto; }
-        .chip {
-          padding: 8px 14px; background: #fff; border: 1px solid #e5e5e5;
-          border-radius: 100px; font-size: 12.5px; color: #555; font-weight: 600;
-          display: inline-flex; align-items: center; gap: 6px;
+        @media (max-width: 600px) { .headerTitle { font-size: 18px; } }
+        .headerSub {
+          font-size: 13.5px;
+          color: #78350f;
+          line-height: 1.6;
+          margin: 0 0 14px;
         }
-        .chip strong { color: #1a1a1a; }
+        .headerMeta {
+          display: flex; gap: 8px; flex-wrap: wrap;
+          font-size: 12px;
+        }
+        .metaChip {
+          padding: 5px 12px;
+          background: rgba(255,255,255,0.7);
+          border-radius: 100px;
+          color: #92400e;
+          font-weight: 700;
+        }
 
-        /* 떡상 시나리오 다시 생성 바 */
-        .regenerateBar {
-          display: flex;
-          align-items: center;
-          justify-content: space-between;
-          gap: 16px;
-          padding: 14px 20px;
-          margin-bottom: 20px;
-          background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-          border: 1.5px solid #fbbf24;
+        /* 무료 횟수 알림 */
+        .quotaBar {
+          display: flex; align-items: center; justify-content: space-between;
+          background: #fff;
+          border: 1px solid #e5e5e5;
           border-radius: 12px;
-          flex-wrap: wrap;
+          padding: 12px 18px;
+          margin-bottom: 14px;
+          font-size: 13px;
         }
         @media (max-width: 600px) {
-          .regenerateBar { padding: 12px 14px; }
+          .quotaBar { flex-direction: column; gap: 10px; align-items: flex-start; padding: 14px 16px; }
         }
-        .regenerateInfo {
-          flex: 1;
-          min-width: 0;
-          display: flex;
-          flex-direction: column;
+        .quotaText { color: #444; line-height: 1.5; }
+        .quotaCount { color: #c65f3b; font-weight: 800; }
+        .regenBtn {
+          padding: 9px 18px;
+          background: #c65f3b;
+          color: #fff;
+          border: none;
+          border-radius: 100px;
+          font-size: 13px;
+          font-weight: 700;
+          cursor: pointer;
+          font-family: inherit;
+          white-space: nowrap;
+          transition: all 0.15s;
+        }
+        .regenBtn:hover { background: #b04e2d; transform: translateY(-1px); }
+
+        /* 단계 토글 (확장/축소) */
+        .toggleAll {
+          display: flex; gap: 8px; margin-bottom: 16px;
+          font-size: 12px;
+        }
+        .toggleBtn {
+          padding: 5px 11px;
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 100px;
+          color: #666;
+          font-weight: 600;
+          cursor: pointer;
+          font-family: inherit;
+          transition: all 0.15s;
+        }
+        .toggleBtn:hover { border-color: #c65f3b; color: #c65f3b; }
+
+        /* 단계 카드 */
+        .step {
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 14px;
+          margin-bottom: 14px;
+          overflow: hidden;
+          transition: border-color 0.2s;
+        }
+        .step.active { border-color: #c65f3b; }
+
+        .stepHead {
+          display: flex; align-items: center; gap: 14px;
+          padding: 18px 22px;
+          cursor: pointer;
+          user-select: none;
+          transition: background 0.15s;
+        }
+        @media (max-width: 600px) { .stepHead { padding: 14px 16px; gap: 10px; } }
+        .stepHead:hover { background: #fafafa; }
+        
+        .stepEmoji {
+          width: 44px; height: 44px;
+          border-radius: 12px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 22px;
+          flex-shrink: 0;
+        }
+        @media (max-width: 600px) {
+          .stepEmoji { width: 36px; height: 36px; font-size: 18px; border-radius: 10px; }
+        }
+
+        .stepInfo { flex: 1; min-width: 0; }
+        .stepLabel {
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.06em;
+          margin-bottom: 2px;
+        }
+        .stepTitle {
+          font-size: 16px;
+          font-weight: 800;
+          color: #1a1a1a;
+          letter-spacing: -0.02em;
+          line-height: 1.3;
+        }
+        @media (max-width: 600px) { .stepTitle { font-size: 14.5px; } }
+
+        .stepArrow {
+          font-size: 12px;
+          color: #888;
+          transition: transform 0.2s;
+          margin-left: 8px;
+          flex-shrink: 0;
+        }
+        .stepArrow.open { transform: rotate(180deg); }
+
+        .stepBody {
+          padding: 0 22px 22px;
+          border-top: 1px solid #f0f0f0;
+        }
+        @media (max-width: 600px) { .stepBody { padding: 0 16px 18px; } }
+
+        /* ============================================ */
+        /* STEP 1 - 제목 선택 */
+        /* ============================================ */
+        .titleHelp {
+          background: #fff8f3;
+          border-left: 3px solid #c65f3b;
+          padding: 12px 16px;
+          border-radius: 0 8px 8px 0;
+          font-size: 13px;
+          color: #555;
+          line-height: 1.6;
+          margin: 16px 0 18px;
+        }
+        .titleList { display: flex; flex-direction: column; gap: 10px; }
+        .titleCard {
+          background: #fafafa;
+          border: 2px solid transparent;
+          border-radius: 12px;
+          padding: 16px 18px;
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+        .titleCard:hover { background: #fff8f3; }
+        .titleCard.selected {
+          background: #fff8f3;
+          border-color: #c65f3b;
+          box-shadow: 0 4px 12px rgba(198, 95, 59, 0.1);
+        }
+        .titleCardHead {
+          display: flex; gap: 8px; align-items: center;
+          margin-bottom: 8px;
+        }
+        .titlePattern {
+          padding: 3px 9px;
+          background: #c65f3b;
+          color: #fff;
+          border-radius: 100px;
+          font-size: 11px;
+          font-weight: 700;
+        }
+        .titleCtr {
+          padding: 3px 9px;
+          background: #fef3c7;
+          color: #92400e;
+          border-radius: 100px;
+          font-size: 11px;
+          font-weight: 700;
+        }
+        .titleSelected {
+          padding: 3px 9px;
+          background: #c65f3b;
+          color: #fff;
+          border-radius: 100px;
+          font-size: 11px;
+          font-weight: 700;
+          margin-left: auto;
+        }
+        .titleText {
+          font-size: 16px;
+          font-weight: 700;
+          color: #1a1a1a;
+          line-height: 1.5;
+          margin: 0 0 8px;
+          letter-spacing: -0.02em;
+        }
+        @media (max-width: 600px) { .titleText { font-size: 14.5px; } }
+        .titleReason {
+          font-size: 12.5px;
+          color: #777;
+          line-height: 1.6;
+          margin: 0;
+        }
+
+        /* ============================================ */
+        /* STEP 2 - 시나리오 7단계 (메인!) */
+        /* ============================================ */
+        .scriptIntro {
+          background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+          border-radius: 12px;
+          padding: 16px 20px;
+          margin: 16px 0 18px;
+        }
+        .scriptIntroLabel {
+          font-size: 11px;
+          font-weight: 800;
+          color: #92400e;
+          letter-spacing: 0.05em;
+          margin-bottom: 6px;
+        }
+        .scriptIntroText {
+          font-size: 13.5px;
+          color: #78350f;
+          line-height: 1.7;
+        }
+
+        .seqList { display: flex; flex-direction: column; gap: 12px; }
+        .seqCard {
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 12px;
+          overflow: hidden;
+          transition: all 0.2s;
+        }
+        .seqCard:hover { border-color: #c65f3b; }
+
+        .seqHead {
+          display: flex; align-items: center; gap: 12px;
+          padding: 14px 18px;
+          background: #fafafa;
+          border-bottom: 1px solid #f0f0f0;
+        }
+        .seqNum {
+          width: 32px; height: 32px;
+          background: #c65f3b;
+          color: #fff;
+          border-radius: 8px;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 14px;
+          font-weight: 800;
+          flex-shrink: 0;
+        }
+        .seqHeadInfo { flex: 1; min-width: 0; }
+        .seqStepTitle {
+          font-size: 14px;
+          font-weight: 800;
+          color: #1a1a1a;
+          margin-bottom: 2px;
+          letter-spacing: -0.02em;
+        }
+        .seqDuration {
+          font-size: 11.5px;
+          color: #888;
+          font-weight: 600;
+        }
+        .seqPurpose {
+          padding: 12px 18px;
+          background: #fffbf8;
+          font-size: 13px;
+          color: #555;
+          line-height: 1.6;
+          border-bottom: 1px solid #f5f5f5;
+        }
+        .seqPurpose strong { color: #c65f3b; }
+        .seqScriptBox {
+          padding: 16px 18px;
+          font-size: 14.5px;
+          color: #1a1a1a;
+          line-height: 1.85;
+          font-weight: 500;
+          letter-spacing: -0.01em;
+        }
+        @media (max-width: 600px) { .seqScriptBox { font-size: 13.5px; padding: 14px 16px; } }
+
+        .seqActions {
+          display: flex; gap: 8px;
+          padding: 0 18px 14px;
+          flex-wrap: wrap;
+        }
+        @media (max-width: 600px) { .seqActions { padding: 0 16px 12px; } }
+
+        .seqActionBtn {
+          padding: 7px 14px;
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 100px;
+          font-size: 12px;
+          font-weight: 700;
+          color: #666;
+          cursor: pointer;
+          font-family: inherit;
+          transition: all 0.15s;
+        }
+        .seqActionBtn:hover { border-color: #c65f3b; color: #c65f3b; }
+        .seqActionBtn.copied {
+          background: #c65f3b;
+          color: #fff;
+          border-color: #c65f3b;
+        }
+
+        .seqTip {
+          padding: 10px 18px;
+          background: #fffbf3;
+          border-top: 1px solid #fef3c7;
+          font-size: 12px;
+          color: #92400e;
+          line-height: 1.55;
+        }
+
+        /* 1분 쇼츠 박스 */
+        .shortsBox {
+          background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+          border: 1.5px solid #a855f7;
+          border-radius: 14px;
+          padding: 18px 20px;
+          margin-top: 18px;
+        }
+        .shortsBoxHead {
+          display: flex; align-items: center; gap: 8px;
+          margin-bottom: 12px;
+        }
+        .shortsBoxTitle {
+          font-size: 14px;
+          font-weight: 800;
+          color: #581c87;
+        }
+        .shortsBoxSub {
+          font-size: 11.5px;
+          color: #7c3aed;
+          background: rgba(255,255,255,0.6);
+          padding: 2px 8px;
+          border-radius: 100px;
+          font-weight: 700;
+          margin-left: auto;
+        }
+        .shortsScript {
+          background: #fff;
+          border-radius: 8px;
+          padding: 14px 16px;
+          font-size: 13px;
+          color: #1a1a1a;
+          line-height: 1.85;
+          white-space: pre-line;
+        }
+        @media (max-width: 600px) { .shortsScript { font-size: 12.5px; padding: 12px 14px; } }
+
+        /* ============================================ */
+        /* STEP 3 - 영상 제작 */
+        /* ============================================ */
+        .videoIntro {
+          background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+          border-radius: 12px;
+          padding: 16px 20px;
+          margin: 16px 0 18px;
+        }
+        .videoIntroLabel {
+          font-size: 11px;
+          font-weight: 800;
+          color: #065f46;
+          letter-spacing: 0.05em;
+          margin-bottom: 6px;
+        }
+        .videoIntroText {
+          font-size: 13px;
+          color: #064e3b;
+          line-height: 1.7;
+          margin-bottom: 10px;
+        }
+        .videoIntroLink {
+          display: inline-flex;
+          align-items: center;
           gap: 4px;
+          padding: 7px 14px;
+          background: #10b981;
+          color: #fff;
+          border-radius: 100px;
+          font-size: 12.5px;
+          font-weight: 700;
+          text-decoration: none;
+          transition: all 0.15s;
         }
-        .regenerateBadge {
-          display: inline-block;
-          padding: 3px 10px;
+        .videoIntroLink:hover {
+          background: #059669;
+          transform: translateY(-1px);
+        }
+
+        .promptList { display: flex; flex-direction: column; gap: 8px; }
+        .promptCard {
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 10px;
+          overflow: hidden;
+        }
+        .promptCardHead {
+          display: flex; align-items: center; gap: 10px;
+          padding: 11px 16px;
+          background: #fafafa;
+          font-size: 12.5px;
+          font-weight: 700;
+          color: #444;
+          cursor: pointer;
+        }
+        .promptCardHead:hover { background: #f5f5f5; }
+        .promptCardSeq {
+          padding: 2px 8px;
           background: #c65f3b;
           color: #fff;
           border-radius: 100px;
           font-size: 10.5px;
           font-weight: 800;
-          letter-spacing: 0.04em;
-          width: fit-content;
         }
-        .regenerateDesc {
-          font-size: 12.5px;
+        .promptCardArrow {
+          margin-left: auto;
+          font-size: 11px;
+          color: #888;
+          transition: transform 0.2s;
+        }
+        .promptCardArrow.open { transform: rotate(180deg); }
+        .promptCardBody {
+          padding: 14px 16px;
+          background: #fffefb;
+          border-top: 1px solid #f0f0f0;
+        }
+        .promptItem { margin-bottom: 12px; }
+        .promptItem:last-child { margin-bottom: 0; }
+        .promptItemHead {
+          display: flex; align-items: center; gap: 8px;
+          margin-bottom: 6px;
+        }
+        .promptLang {
+          padding: 2px 8px;
+          background: #f5f5f5;
           color: #555;
-          line-height: 1.55;
-        }
-        @media (max-width: 600px) {
-          .regenerateDesc { font-size: 12px; }
-        }
-        .regenerateBtn {
-          padding: 10px 18px;
-          background: #fff;
-          color: #c65f3b;
-          border: 1.5px solid #c65f3b;
           border-radius: 100px;
-          font-size: 13px;
-          font-weight: 800;
+          font-size: 10.5px;
+          font-weight: 700;
+        }
+        .promptLang.kr { background: #dbeafe; color: #1e40af; }
+        .promptLang.en { background: #fef3c7; color: #92400e; }
+        .promptText {
+          background: #fff;
+          border: 1px solid #f0f0f0;
+          border-radius: 8px;
+          padding: 10px 12px;
+          font-size: 12.5px;
+          color: #444;
+          line-height: 1.6;
+          font-family: 'SF Mono', Monaco, monospace;
+        }
+        .promptCopyBtn {
+          margin-left: auto;
+          padding: 4px 10px;
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 100px;
+          font-size: 11px;
+          font-weight: 700;
+          color: #666;
           cursor: pointer;
           font-family: inherit;
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
           transition: all 0.15s;
-          flex-shrink: 0;
-          min-height: 40px;
         }
-        .regenerateBtn:hover {
-          background: #c65f3b;
-          color: #fff;
-          transform: translateY(-1px);
+        .promptCopyBtn:hover { border-color: #c65f3b; color: #c65f3b; }
+        .promptCopyBtn.copied { background: #c65f3b; color: #fff; border-color: #c65f3b; }
+
+        /* ============================================ */
+        /* STEP 4 - 메타데이터 */
+        /* ============================================ */
+        .metaSection {
+          margin-top: 16px;
+          padding: 16px 18px;
+          background: #fafafa;
+          border-radius: 12px;
         }
-        .regenerateBtn:active {
-          transform: translateY(0);
+        .metaSection:first-child { margin-top: 18px; }
+        .metaLabelRow {
+          display: flex; align-items: center; gap: 8px;
+          margin-bottom: 8px;
         }
-        .regenerateIcon {
+        .metaLabel {
+          font-size: 13.5px;
+          font-weight: 800;
+          color: #1a1a1a;
+          letter-spacing: -0.02em;
+        }
+        .metaHelper {
+          font-size: 12px;
+          color: #888;
+          line-height: 1.55;
+          margin-bottom: 12px;
+        }
+        .metaContent {
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 8px;
+          padding: 12px 14px;
+          font-size: 13px;
+          color: #444;
+          line-height: 1.7;
+          white-space: pre-wrap;
+          word-break: break-all;
+        }
+        .copyBtnSm {
+          margin-left: auto;
+          padding: 5px 12px;
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 100px;
+          font-size: 11.5px;
+          font-weight: 700;
+          color: #666;
+          cursor: pointer;
+          font-family: inherit;
+          transition: all 0.15s;
+        }
+        .copyBtnSm:hover { border-color: #c65f3b; color: #c65f3b; }
+        .copyBtnSm.copied { background: #c65f3b; color: #fff; border-color: #c65f3b; }
+
+        .tagGrid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
+          gap: 8px;
+        }
+        .tagItem {
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 8px;
+          padding: 9px 12px;
+          font-size: 12.5px;
+        }
+        .tagItemName {
+          font-weight: 700;
+          color: #1a1a1a;
+          margin-bottom: 4px;
+        }
+        .tagItemMeta {
+          display: flex; gap: 6px;
+          font-size: 11px;
+          color: #888;
+        }
+        .tagItemMeta .vol { color: #c65f3b; font-weight: 700; }
+        .tagItemMeta .comp.low { color: #10b981; font-weight: 700; }
+        .tagItemMeta .comp.medium { color: #f59e0b; font-weight: 700; }
+        .tagItemMeta .comp.high { color: #ef4444; font-weight: 700; }
+
+        .thumbGrid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+          gap: 12px;
+        }
+        .thumbCard {
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 10px;
+          padding: 14px 16px;
+        }
+        .thumbType {
+          font-size: 13px;
+          font-weight: 800;
+          color: #c65f3b;
+          margin-bottom: 8px;
+        }
+        .thumbDetail {
+          font-size: 11.5px;
+          color: #555;
+          line-height: 1.6;
+          margin-bottom: 4px;
+        }
+        .thumbDetail strong { color: #1a1a1a; }
+        .thumbCtr {
+          margin-top: 8px;
+          padding: 4px 10px;
+          background: #fff8f3;
+          border-radius: 100px;
+          font-size: 11px;
+          font-weight: 700;
+          color: #c65f3b;
           display: inline-block;
-          transition: transform 0.4s;
-        }
-        .regenerateBtn:hover .regenerateIcon {
-          transform: rotate(180deg);
         }
 
-        .grid { display: grid; grid-template-columns: 1fr 320px; gap: 24px; align-items: flex-start; }
-        @media (max-width: 1024px) { .grid { grid-template-columns: 1fr; } .sidebar { display: none; } }
-        .platformTabs {
-          display: flex; gap: 6px; margin-bottom: 20px; flex-wrap: wrap;
-          background: #fff; padding: 8px; border: 1px solid #e5e5e5; border-radius: 12px;
+        /* ============================================ */
+        /* STEP 5 - SNS 업로드 */
+        /* ============================================ */
+        .snsTabs {
+          display: flex;
+          gap: 6px;
+          margin: 18px 0 16px;
+          flex-wrap: wrap;
         }
-        .tab {
-          padding: 10px 16px; background: transparent; border: none; border-radius: 8px;
-          font-size: 13.5px; color: #666; font-weight: 600; cursor: pointer;
-          font-family: inherit; display: inline-flex; align-items: center; gap: 6px;
-          transition: all 0.15s; white-space: nowrap;
+        .snsTab {
+          padding: 9px 16px;
+          background: #fff;
+          border: 1.5px solid #e5e5e5;
+          border-radius: 100px;
+          font-size: 12.5px;
+          font-weight: 700;
+          color: #666;
+          cursor: pointer;
+          font-family: inherit;
+          transition: all 0.15s;
         }
-        .tab:hover { background: #fafafa; color: #1a1a1a; }
-        .tab.active { background: #c65f3b; color: #fff; font-weight: 700; }
-        .tabEmoji { font-size: 16px; }
-        .uploadScreen { background: #fff; border: 1px solid #e5e5e5; border-radius: 16px; overflow: hidden; margin-bottom: 16px; }
-        .platformHeader { padding: 18px 24px; border-bottom: 1px solid #f0f0f0; display: flex; align-items: center; gap: 12px; }
-        .platformHeader.youtube { background: #fff; }
-        .platformHeader.shorts { background: #fff; }
-        .platformHeader.tiktok { background: #000; color: #fff; }
-        .platformHeader.reels {
-          background: linear-gradient(135deg, #f09433 0%, #e6683c 25%, #dc2743 50%, #cc2366 75%, #bc1888 100%);
+        .snsTab:hover { border-color: #c65f3b; color: #c65f3b; }
+        .snsTab.active {
+          background: #c65f3b;
           color: #fff;
+          border-color: #c65f3b;
         }
-        .platformLogo { font-size: 22px; }
-        .platformInfo { flex: 1; }
-        .platformName { font-size: 16px; font-weight: 800; color: inherit; margin: 0; }
-        .platformSpecs { font-size: 11.5px; opacity: 0.7; margin-top: 2px; }
-        .platformBadge { padding: 4px 10px; background: rgba(255,255,255,0.15); border-radius: 100px; font-size: 10.5px; font-weight: 700; }
-        .platformHeader.youtube .platformBadge,
-        .platformHeader.shorts .platformBadge { background: #fdf1e7; color: #c65f3b; }
-        .uploadBody { padding: 24px; }
-        .formField { margin-bottom: 24px; }
-        .formField:last-child { margin-bottom: 0; }
-        .fieldLabelRow { display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; }
-        .fieldLabel { font-size: 14px; font-weight: 700; color: #1a1a1a; display: flex; align-items: center; gap: 8px; }
-        .fieldRequired { color: #d63b3b; font-size: 13px; }
-        .fieldHelper { font-size: 11.5px; color: #888; margin-top: 4px; line-height: 1.5; margin-bottom: 10px; }
-        .charLimit { font-size: 11px; color: #888; font-weight: 500; }
-        .copyBtn {
-          padding: 6px 14px; background: #fafafa; border: 1px solid #e5e5e5;
-          border-radius: 8px; font-size: 11.5px; color: #555; cursor: pointer;
-          font-family: inherit; font-weight: 600; transition: all 0.15s;
-          display: inline-flex; align-items: center; gap: 4px;
+
+        .snsBox {
+          background: #fafafa;
+          border-radius: 12px;
+          padding: 18px 20px;
         }
-        .copyBtn:hover { background: #c65f3b; color: #fff; border-color: #c65f3b; }
-        .copyBtn.copied { background: #2e7d32; color: #fff; border-color: #2e7d32; }
-        .uploadInput {
-          width: 100%; padding: 14px 16px; border: 1px solid #d0d0d0;
-          border-radius: 8px; background: #fafafa; font-size: 14px; color: #1a1a1a;
-          font-family: inherit; line-height: 1.6; box-sizing: border-box;
-          white-space: pre-wrap; word-break: break-word; min-height: 50px;
+        .snsHead {
+          display: flex; align-items: center; gap: 10px;
+          margin-bottom: 14px;
         }
-        .uploadInput.large { min-height: 200px; }
-        .titleOptions { display: flex; flex-direction: column; gap: 10px; }
-        .titleOption {
-          padding: 16px 18px; background: #fafafa; border: 2px solid #e5e5e5;
-          border-radius: 10px; cursor: pointer; transition: all 0.15s;
-          font-family: inherit; text-align: left; width: 100%;
+        .snsName {
+          font-size: 15px;
+          font-weight: 800;
+          color: #1a1a1a;
         }
-        .titleOption:hover { border-color: #c65f3b; background: #fff8f3; }
-        .titleOption.selected { border-color: #c65f3b; background: #fdf1e7; }
-        .titleOptionTop { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 10px; flex-wrap: wrap; }
-        .titleOptionLabel { font-size: 11px; font-weight: 800; color: #c65f3b; padding: 3px 8px; background: #fff; border-radius: 4px; }
-        .titleOptionCTR { font-size: 11px; color: #2e7d32; font-weight: 700; padding: 3px 8px; background: #e8f5e9; border-radius: 4px; }
-        .titleOptionText { font-size: 15px; font-weight: 700; color: #1a1a1a; line-height: 1.5; margin-bottom: 8px; }
-        .titleOptionReason { font-size: 11.5px; color: #666; line-height: 1.55; padding-top: 8px; border-top: 1px dashed #e0e0e0; }
-        .tagAnalytics { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 8px; }
-        .tagItem { padding: 8px 12px; background: #fafafa; border: 1px solid #e5e5e5; border-radius: 8px; font-size: 12px; }
-        .tagItemName { font-weight: 700; color: #1a1a1a; margin-bottom: 4px; }
-        .tagItemMeta { font-size: 10.5px; color: #666; display: flex; gap: 8px; }
-        .tagVolume.high { color: #2e7d32; font-weight: 700; }
-        .tagVolume.medium { color: #d4a545; font-weight: 600; }
-        .tagComp.low { color: #2e7d32; }
-        .tagComp.medium { color: #888; }
-        .thumbCards { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
-        .thumbCard {
-          background: #fff; border: 2px solid #e5e5e5; border-radius: 12px;
-          padding: 18px; cursor: pointer; transition: all 0.15s;
+        .snsSpec {
+          font-size: 11.5px;
+          color: #888;
+          font-weight: 600;
         }
-        .thumbCard:hover { border-color: #c65f3b; }
-        .thumbCard.selected { border-color: #c65f3b; background: #fdf1e7; }
-        .thumbCardHead { font-size: 14px; font-weight: 800; color: #c65f3b; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .thumbCardCTR { font-size: 10.5px; color: #2e7d32; padding: 3px 8px; background: #e8f5e9; border-radius: 4px; font-weight: 700; }
-        .thumbCardItem { font-size: 12px; color: #555; line-height: 1.6; margin-bottom: 4px; }
-        .thumbCardItem strong { color: #1a1a1a; }
-        .sequenceCard { background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 0; margin-bottom: 14px; overflow: hidden; }
-        .seqHead { padding: 16px 20px; background: linear-gradient(135deg, #fdf1e7, #fff8f0); border-bottom: 1px solid #e5e5e5; display: flex; align-items: center; gap: 12px; }
-        .seqNumber { width: 32px; height: 32px; background: #c65f3b; color: #fff; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 800; flex-shrink: 0; }
-        .seqInfo { flex: 1; min-width: 0; }
-        .seqTitle { font-size: 14px; font-weight: 800; color: #1a1a1a; margin: 0 0 2px; }
-        .seqDuration { font-size: 11px; color: #888; font-weight: 600; }
-        .seqPurpose { font-size: 11.5px; color: #666; padding: 10px 20px; background: #fafafa; border-bottom: 1px solid #f0f0f0; }
-        .seqPurpose strong { color: #c65f3b; }
-        .seqBody { padding: 16px 20px; }
-        .seqSection { margin-bottom: 14px; }
-        .seqSection:last-child { margin-bottom: 0; }
-        .seqSectionLabel { font-size: 11.5px; font-weight: 800; color: #888; letter-spacing: 0.05em; margin-bottom: 6px; display: flex; align-items: center; gap: 6px; }
-        .seqScript { font-size: 13px; color: #1a1a1a; line-height: 1.7; padding: 12px 14px; background: #fafafa; border-radius: 8px; border-left: 3px solid #c65f3b; }
-        .seqPrompt { padding: 12px 14px; background: #1a1a1a; color: #f0f0f0; border-radius: 8px; font-family: 'SF Mono', Monaco, monospace; font-size: 11.5px; line-height: 1.6; word-break: break-word; }
-        .seqPrompt.kr { background: #2c3e50; }
-        .seqPromptHead { display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; }
-        .seqPromptLang { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; letter-spacing: 0.08em; }
-        .seqPromptLang.kr { background: #c65f3b; color: #fff; }
-        .seqPromptLang.en { background: #4a90d9; color: #fff; }
-        .seqTip { font-size: 11.5px; color: #666; padding: 10px 14px; background: #fff8f0; border: 1px solid #fde0c5; border-radius: 8px; line-height: 1.5; }
-        .sidebar { position: sticky; top: 20px; background: #fff; border: 1px solid #e5e5e5; border-radius: 12px; padding: 20px; }
-        .sidebarTitle { font-size: 14px; font-weight: 800; color: #1a1a1a; margin: 0 0 14px; padding-bottom: 12px; border-bottom: 1px solid #f0f0f0; }
-        .sidebarSection { margin-bottom: 18px; padding-bottom: 18px; border-bottom: 1px dashed #f0f0f0; }
-        .sidebarSection:last-child { border-bottom: none; }
-        .sidebarLabel { font-size: 11px; font-weight: 700; color: #888; letter-spacing: 0.05em; margin-bottom: 8px; }
-        .sidebarText { font-size: 12px; color: #1a1a1a; line-height: 1.6; }
-        .sidebarText strong { color: #c65f3b; }
-        .sidebarStat { font-size: 16px; font-weight: 800; color: #c65f3b; }
-        .sidebarStatLabel { font-size: 11px; color: #666; margin-top: 2px; }
-        .actions { display: flex; gap: 10px; margin-top: 24px; flex-wrap: wrap; }
-        .actionBtn { padding: 13px 22px; border-radius: 10px; font-size: 13.5px; font-weight: 700; cursor: pointer; font-family: inherit; text-decoration: none; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s; }
-        .actionBtn.primary { background: #c65f3b; color: #fff; border: 1px solid #c65f3b; }
-        .actionBtn.primary:hover { background: #a64a2a; }
-        .actionBtn.secondary { background: #fff; color: #555; border: 1px solid #e5e5e5; }
-        .actionBtn.secondary:hover { background: #fafafa; }
-        .adArea { margin: 32px 0; }
-        .promptIntro { background: linear-gradient(135deg, #1a1a1a 0%, #2c3e50 100%); color: #fff; padding: 24px; border-radius: 14px; margin-bottom: 20px; }
-        .promptIntroTitle { font-size: 18px; font-weight: 800; margin: 0 0 8px; }
-        .promptIntroSub { font-size: 13px; opacity: 0.85; line-height: 1.6; margin-bottom: 16px; }
-        .promptIntroTools { display: flex; gap: 8px; flex-wrap: wrap; }
-        .promptToolChip { padding: 6px 12px; background: rgba(255,255,255,0.15); border-radius: 100px; font-size: 11.5px; font-weight: 600; }
+        .snsField { margin-bottom: 14px; }
+        .snsField:last-child { margin-bottom: 0; }
+        .snsFieldLabel {
+          display: flex; align-items: center; gap: 6px;
+          font-size: 12.5px;
+          font-weight: 800;
+          color: #1a1a1a;
+          margin-bottom: 6px;
+        }
+        .snsFieldHelper {
+          font-size: 11.5px;
+          color: #888;
+          margin-bottom: 8px;
+          line-height: 1.5;
+        }
+        .snsFieldContent {
+          background: #fff;
+          border: 1px solid #e5e5e5;
+          border-radius: 8px;
+          padding: 11px 14px;
+          font-size: 12.5px;
+          color: #444;
+          line-height: 1.7;
+          word-break: break-all;
+        }
+
+        /* 광고 영역 */
+        .adArea { margin: 24px 0; }
+        
+        /* 완료 안내 */
+        .doneBox {
+          background: linear-gradient(135deg, #c65f3b 0%, #ea7755 100%);
+          color: #fff;
+          border-radius: 16px;
+          padding: 28px 24px;
+          text-align: center;
+          margin-top: 28px;
+        }
+        .doneTitle {
+          font-size: 20px;
+          font-weight: 800;
+          margin-bottom: 8px;
+          letter-spacing: -0.025em;
+        }
+        @media (max-width: 600px) { .doneTitle { font-size: 17px; } }
+        .doneSub {
+          font-size: 13.5px;
+          color: #ffe0d0;
+          line-height: 1.6;
+          margin-bottom: 18px;
+        }
+        .doneActions {
+          display: flex; gap: 10px;
+          justify-content: center;
+          flex-wrap: wrap;
+        }
+        .doneBtn {
+          display: inline-block;
+          padding: 11px 22px;
+          background: #fff;
+          color: #c65f3b;
+          border-radius: 100px;
+          font-size: 13.5px;
+          font-weight: 800;
+          text-decoration: none;
+          transition: all 0.15s;
+        }
+        .doneBtn:hover { transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.15); }
+        .doneBtn.outline {
+          background: transparent;
+          color: #fff;
+          border: 2px solid #fff;
+        }
+        .doneBtn.outline:hover { background: #fff; color: #c65f3b; }
+
+        /* 한도 모달 */
+        .modal {
+          position: fixed;
+          inset: 0;
+          background: rgba(0,0,0,0.5);
+          display: flex; align-items: center; justify-content: center;
+          z-index: 1000;
+          padding: 20px;
+        }
+        .modalCard {
+          background: #fff;
+          border-radius: 16px;
+          padding: 28px;
+          max-width: 400px;
+          text-align: center;
+        }
       `}</style>
 
       <div className="page">
         <nav className="breadcrumb">
           <Link href="/">홈</Link>
-          <span className="sep">/</span>
+          <span>/</span>
           <Link href="/create">분야</Link>
-          <span className="sep">/</span>
-          <Link href="/keyword">키워드</Link>
-          <span className="sep">/</span>
-          <span>완성</span>
+          <span>/</span>
+          <Link href={`/keyword?category=${categoryId}`}>키워드</Link>
+          <span>/</span>
+          <span style={{ color: '#c65f3b', fontWeight: 700 }}>완성</span>
         </nav>
 
-        <div className="header">
-          <div>
-            <span className="doneBadge">✓ AI 추천 완료</span>
-            <h1 className="title">📝 SNS 업로드 자료</h1>
-            <p className="sub">아래 내용을 그대로 복사해서 각 SNS에 붙여넣기만 하시면 됩니다</p>
-            <div className="usageInfo">
-              {remaining > 0 ? (
-                <>🎁 무료 이용권 <strong>{remaining}회</strong> 남았어요 (최초 {FREE_LIMIT}회 무료)</>
-              ) : (
-                <>✨ 광고 1회 시청 = 1회 추가 이용 가능</>
-              )}
-            </div>
+        {/* HEADER - 결과 안내 */}
+        <header className="header">
+          <span className="headerBadge">✨ AI 추천 완료</span>
+          <h1 className="headerTitle">
+            "{keyword}" 영상 자료가 준비됐습니다
+          </h1>
+          <p className="headerSub">
+            아래 5단계 순서대로 따라가시면 됩니다. 각 단계 클릭하면 펼쳐집니다.
+          </p>
+          <div className="headerMeta">
+            <span className="metaChip">🎯 {cat.name}</span>
+            <span className="metaChip">📂 {scenario?.name || '시나리오'}</span>
+            <span className="metaChip">⚡ {sequences.length}단계 시나리오</span>
           </div>
-          <div className="summaryChips">
-            <span className="chip">{cat.emoji} <strong>{cat.name}</strong></span>
-            <span className="chip">🎯 <strong>{keyword}</strong></span>
-            {scenario && <span className="chip">{scenario.emoji} <strong>{scenario.name}</strong></span>}
-          </div>
-        </div>
+        </header>
 
-        {/* 떡상 시나리오 - 다시 생성 영역 */}
-        <div className="regenerateBar">
-          <div className="regenerateInfo">
-            <span className="regenerateBadge">✨ 떡상 시나리오 엔진</span>
-            <span className="regenerateDesc">
-              마음에 안 들면 다시 만들어보세요. 매번 다른 진심 담은 시나리오가 나옵니다.
+        {/* QUOTA BAR */}
+        <div className="quotaBar">
+          <div className="quotaText">
+            🎁 마음에 안 들면 다시 만들어 보세요. 매번 다른 시나리오가 나와요.<br />
+            <span style={{ fontSize: '12px', color: '#888' }}>
+              무료 이용권 <span className="quotaCount">{remainingFree}회</span> 남음 (이후엔 광고 시청)
             </span>
           </div>
-          <button className="regenerateBtn" onClick={handleRegenerate}>
-            <span className="regenerateIcon">🔄</span>
-            <span>다시 생성</span>
+          <button className="regenBtn" onClick={handleRegenerate}>
+            🔄 다시 생성
           </button>
         </div>
 
-        <div className="platformTabs">
-          <button className={`tab ${activeTab === 'youtube-long' ? 'active' : ''}`} onClick={() => setActiveTab('youtube-long')}>
-            <span className="tabEmoji">📺</span><span>유튜브 (긴 영상)</span>
-          </button>
-          <button className={`tab ${activeTab === 'youtube-shorts' ? 'active' : ''}`} onClick={() => setActiveTab('youtube-shorts')}>
-            <span className="tabEmoji">📱</span><span>유튜브 쇼츠</span>
-          </button>
-          <button className={`tab ${activeTab === 'tiktok' ? 'active' : ''}`} onClick={() => setActiveTab('tiktok')}>
-            <span className="tabEmoji">🎵</span><span>틱톡</span>
-          </button>
-          <button className={`tab ${activeTab === 'instagram-reels' ? 'active' : ''}`} onClick={() => setActiveTab('instagram-reels')}>
-            <span className="tabEmoji">📸</span><span>인스타 릴스</span>
-          </button>
-          <button className={`tab ${activeTab === 'video-prompts' ? 'active' : ''}`} onClick={() => setActiveTab('video-prompts')}>
-            <span className="tabEmoji">🎬</span><span>영상 제작 프롬프트</span>
-          </button>
+        {/* 펼치기/접기 토글 */}
+        <div className="toggleAll">
+          <button className="toggleBtn" onClick={expandAll}>📂 전체 펼치기</button>
+          <button className="toggleBtn" onClick={collapseAll}>📁 전체 접기</button>
         </div>
 
-        <div className="grid">
-          <main>
-            {activeTab === 'youtube-long' && (
-              <div className="uploadScreen">
-                <div className="platformHeader youtube">
-                  <span className="platformLogo">📺</span>
-                  <div className="platformInfo">
-                    <h3 className="platformName">유튜브 (긴 영상) 업로드 자료</h3>
-                    <div className="platformSpecs">8분 이상 · 가로 16:9 · 광고 수익 가능</div>
-                  </div>
-                  <span className="platformBadge">긴 영상</span>
-                </div>
-                <div className="uploadBody">
-                  <div className="formField">
-                    <div className="fieldLabelRow">
-                      <div className="fieldLabel">제목 <span className="fieldRequired">(필수)</span></div>
-                      <span className="charLimit">최대 100자</span>
-                    </div>
-                    <div className="fieldHelper">💡 알고리즘 분석 기반 클릭률(CTR) 높은 제목 3가지. 클릭해서 선택하세요.</div>
-                    <div className="titleOptions">
-                      {titles.map((t, i) => (
-                        <button key={i} className={`titleOption ${selectedTitleIdx === i ? 'selected' : ''}`} onClick={() => setSelectedTitleIdx(i)}>
-                          <div className="titleOptionTop">
-                            <span className="titleOptionLabel">{t.pattern}</span>
-                            <span className="titleOptionCTR">예상 CTR {t.ctr_estimate}</span>
-                          </div>
-                          <div className="titleOptionText">{t.title}</div>
-                          <div className="titleOptionReason">💭 <strong>알고리즘 분석:</strong> {t.reasoning}</div>
-                        </button>
-                      ))}
-                    </div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
-                      <button className={`copyBtn ${copied === 'yt-title' ? 'copied' : ''}`} onClick={() => copy(selectedTitle, 'yt-title')}>
-                        {copied === 'yt-title' ? '✓ 복사됨' : '📋 선택한 제목 복사'}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="formField">
-                    <div className="fieldLabelRow">
-                      <div className="fieldLabel">설명 <span className="fieldRequired">(필수)</span></div>
-                      <button className={`copyBtn ${copied === 'yt-desc' ? 'copied' : ''}`} onClick={() => copy(description, 'yt-desc')}>
-                        {copied === 'yt-desc' ? '✓ 복사됨' : '📋 복사'}
-                      </button>
-                    </div>
-                    <div className="fieldHelper">💡 SEO 최적화 + 챕터(목차) 포함. 첫 100자가 검색 미리보기에 노출됩니다.</div>
-                    <div className="uploadInput large">{description}</div>
-                  </div>
-
-                  <div className="adArea">
-                    <AdSlot slot="publish-mid" variant="horizontal" />
-                  </div>
-
-                  <div className="formField">
-                    <div className="fieldLabelRow">
-                      <div className="fieldLabel">썸네일 <span className="fieldRequired">(필수)</span></div>
-                      <span className="charLimit">1280×720 / 16:9</span>
-                    </div>
-                    <div className="fieldHelper">💡 알고리즘 검증된 3가지 콘셉트. 클릭해서 영상 프롬프트 확인.</div>
-                    <div style={{ background: '#fef3c7', border: '1px solid #f59e0b', borderRadius: 8, padding: '10px 14px', marginBottom: 12, fontSize: 12, color: '#92400e', lineHeight: 1.6 }}>
-                      ⚠️ <strong>썸네일 한글 텍스트는 ChatGPT(GPT Image) 또는 Gemini 추천</strong>: Pollinations(현재 도구)는 한글이 깨질 수 있어요. 
-                      한글 텍스트가 정확한 썸네일을 원하시면 <a href="https://chatgpt.com" target="_blank" rel="noopener noreferrer" style={{ color: '#c65f3b', fontWeight: 700 }}>ChatGPT</a> 또는 <a href="https://gemini.google.com" target="_blank" rel="noopener noreferrer" style={{ color: '#c65f3b', fontWeight: 700 }}>Gemini</a>를 사용하세요.
-                    </div>
-                    <div className="thumbCards">
-                      {thumbnails.map((th, i) => (
-                        <div key={i} className={`thumbCard ${selectedThumbIdx === i ? 'selected' : ''}`} onClick={() => setSelectedThumbIdx(i)}>
-                          <div className="thumbCardHead">
-                            <span>{th.type}</span>
-                            <span className="thumbCardCTR">{th.ctr_estimate}</span>
-                          </div>
-                          <div className="thumbCardItem"><strong>배경:</strong> {th.background}</div>
-                          <div className="thumbCardItem"><strong>메인 텍스트:</strong> {th.mainText}</div>
-                          <div className="thumbCardItem"><strong>보조 텍스트:</strong> {th.subText}</div>
-                          <div className="thumbCardItem"><strong>표정:</strong> {th.expression}</div>
-                          <div className="thumbCardItem"><strong>색상:</strong> {th.colors}</div>
-                        </div>
-                      ))}
-                    </div>
-                    {selectedThumb && (
-                      <div style={{ marginTop: 14 }}>
-                        <div className="seqSection">
-                          <div className="seqSectionLabel">🇰🇷 한글 프롬프트 (Midjourney, DALL-E 3 등)</div>
-                          <div className="seqPrompt kr">
-                            <div className="seqPromptHead">
-                              <span className="seqPromptLang kr">KR</span>
-                              <button className={`copyBtn ${copied === `thumb-kr-${selectedThumbIdx}` ? 'copied' : ''}`} onClick={() => copy(selectedThumb.imagePromptKr, `thumb-kr-${selectedThumbIdx}`)}>
-                                {copied === `thumb-kr-${selectedThumbIdx}` ? '✓' : '복사'}
-                              </button>
-                            </div>
-                            {selectedThumb.imagePromptKr}
-                          </div>
-                        </div>
-                        <div className="seqSection">
-                          <div className="seqSectionLabel">🇺🇸 영문 프롬프트 (Stable Diffusion, Midjourney)</div>
-                          <div className="seqPrompt">
-                            <div className="seqPromptHead">
-                              <span className="seqPromptLang en">EN</span>
-                              <div style={{ display: 'flex', gap: 6 }}>
-                                <Link
-                                  href={`/imagegen?prompt=${encodeURIComponent(selectedThumb.imagePromptEn)}&ar=16:9`}
-                                  className="copyBtn"
-                                  style={{ background: '#c65f3b', color: '#fff', borderColor: '#c65f3b' }}
-                                >
-                                  🎨 썸네일 만들기
-                                </Link>
-                                <button className={`copyBtn ${copied === `thumb-en-${selectedThumbIdx}` ? 'copied' : ''}`} onClick={() => copy(selectedThumb.imagePromptEn, `thumb-en-${selectedThumbIdx}`)}>
-                                  {copied === `thumb-en-${selectedThumbIdx}` ? '✓' : '복사'}
-                                </button>
-                              </div>
-                            </div>
-                            {selectedThumb.imagePromptEn}
-                          </div>
-                        </div>
-                      </div>
-                    )}
-                  </div>
-
-                  <div className="formField">
-                    <div className="fieldLabelRow"><div className="fieldLabel">카테고리</div></div>
-                    <div className="fieldHelper">💡 YouTube 카테고리는 알고리즘 추천에 영향을 줍니다.</div>
-                    <div className="uploadInput">📁 {youtubeCategory}</div>
-                  </div>
-
-                  <div className="formField">
-                    <div className="fieldLabelRow">
-                      <div className="fieldLabel">태그</div>
-                      <button className={`copyBtn ${copied === 'yt-tags' ? 'copied' : ''}`} onClick={() => copy(tags.map(t => t.tag).join(', '), 'yt-tags')}>
-                        {copied === 'yt-tags' ? '✓ 복사됨' : '📋 모두 복사'}
-                      </button>
-                    </div>
-                    <div className="fieldHelper">💡 검색량과 경쟁률 분석한 추천 태그입니다.</div>
-                    <div className="tagAnalytics">
-                      {tags.map((t, i) => (
-                        <div key={i} className="tagItem">
-                          <div className="tagItemName">{t.tag}</div>
-                          <div className="tagItemMeta">
-                            <span className={`tagVolume ${t.volume === '높음' || t.volume === '매우높음' ? 'high' : 'medium'}`}>📊 {t.volume}</span>
-                            <span className={`tagComp ${t.competition === '낮음' ? 'low' : 'medium'}`}>🎯 {t.competition}</span>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
+        {/* ============================================ */}
+        {/* STEP 1 - 제목 선택 */}
+        {/* ============================================ */}
+        <div className={`step ${openSteps.title ? 'active' : ''}`}>
+          <div className="stepHead" onClick={() => toggleStep('title')}>
+            <div className="stepEmoji" style={{ background: STEPS[0].bg, color: STEPS[0].color }}>
+              {STEPS[0].emoji}
+            </div>
+            <div className="stepInfo">
+              <div className="stepLabel" style={{ color: STEPS[0].color }}>{STEPS[0].label}</div>
+              <div className="stepTitle">제목 선택 — 마음에 드는 제목 1개를 골라주세요</div>
+            </div>
+            <div className={`stepArrow ${openSteps.title ? 'open' : ''}`}>▼</div>
+          </div>
+          {openSteps.title && (
+            <div className="stepBody">
+              <div className="titleHelp">
+                💡 알고리즘 분석으로 클릭률(CTR) 예측한 제목 3개입니다. 클릭하면 선택돼요.
               </div>
-            )}
-
-            {activeTab === 'youtube-shorts' && (
-              <div className="uploadScreen">
-                <div className="platformHeader shorts">
-                  <span className="platformLogo">📱</span>
-                  <div className="platformInfo">
-                    <h3 className="platformName">유튜브 쇼츠 업로드 자료</h3>
-                    <div className="platformSpecs">60초 이하 · 세로 9:16 · 빠른 구독 증가</div>
-                  </div>
-                  <span className="platformBadge">쇼츠</span>
-                </div>
-                <div className="uploadBody">
-                  <div className="formField">
-                    <div className="fieldLabelRow">
-                      <div className="fieldLabel">쇼츠 제목</div>
-                      <span className="charLimit">최대 100자</span>
-                    </div>
-                    <div className="fieldHelper">💡 짧고 강렬하게. 첫 단어에 핵심 키워드 배치.</div>
-                    <div className="uploadInput">{`${keyword} 1분 정리 #Shorts`}</div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
-                      <button className={`copyBtn ${copied === 's-title' ? 'copied' : ''}`} onClick={() => copy(`${keyword} 1분 정리 #Shorts`, 's-title')}>
-                        {copied === 's-title' ? '✓ 복사됨' : '📋 복사'}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="formField">
-                    <div className="fieldLabelRow">
-                      <div className="fieldLabel">캡션</div>
-                      <button className={`copyBtn ${copied === 's-cap' ? 'copied' : ''}`} onClick={() => copy(shortsCaption, 's-cap')}>
-                        {copied === 's-cap' ? '✓ 복사됨' : '📋 복사'}
-                      </button>
-                    </div>
-                    <div className="uploadInput large">{shortsCaption}</div>
-                  </div>
-
-                  <div className="formField">
-                    <div className="fieldLabelRow">
-                      <div className="fieldLabel">해시태그</div>
-                      <button className={`copyBtn ${copied === 's-tags' ? 'copied' : ''}`} onClick={() => copy(shortsHashtags, 's-tags')}>
-                        {copied === 's-tags' ? '✓ 복사됨' : '📋 복사'}
-                      </button>
-                    </div>
-                    <div className="fieldHelper">💡 #Shorts 필수 + 트렌드 해시태그 조합</div>
-                    <div className="uploadInput">{shortsHashtags}</div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'tiktok' && (
-              <div className="uploadScreen">
-                <div className="platformHeader tiktok">
-                  <span className="platformLogo">🎵</span>
-                  <div className="platformInfo">
-                    <h3 className="platformName">틱톡 업로드 자료</h3>
-                    <div className="platformSpecs">15~60초 · 세로 9:16 · 바이럴 확산력 최강</div>
-                  </div>
-                  <span className="platformBadge">틱톡</span>
-                </div>
-                <div className="uploadBody">
-                  <div className="formField">
-                    <div className="fieldLabelRow">
-                      <div className="fieldLabel">캡션 (Caption)</div>
-                      <span className="charLimit">최대 2,200자</span>
-                    </div>
-                    <div className="fieldHelper">💡 첫 100자가 핵심. 호기심 유발 + 해시태그.</div>
-                    <div className="uploadInput large">{tiktokCaption}</div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
-                      <button className={`copyBtn ${copied === 'tt-cap' ? 'copied' : ''}`} onClick={() => copy(tiktokCaption, 'tt-cap')}>
-                        {copied === 'tt-cap' ? '✓ 복사됨' : '📋 복사'}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="formField">
-                    <div className="fieldLabelRow">
-                      <div className="fieldLabel">해시태그</div>
-                      <button className={`copyBtn ${copied === 'tt-tags' ? 'copied' : ''}`} onClick={() => copy(tiktokHashtags, 'tt-tags')}>
-                        {copied === 'tt-tags' ? '✓ 복사됨' : '📋 복사'}
-                      </button>
-                    </div>
-                    <div className="fieldHelper">💡 #fyp #foryou는 추천 알고리즘 필수.</div>
-                    <div className="uploadInput">{tiktokHashtags}</div>
-                  </div>
-
-                  <div className="formField">
-                    <div className="fieldLabel" style={{ marginBottom: 8 }}>📌 TikTok 알고리즘 팁</div>
-                    <div className="seqTip">
-                      ⏰ <strong>업로드 골든 타임:</strong> 평일 오후 6시~9시, 주말 오전 9시~12시<br />
-                      🎵 <strong>음악 선택:</strong> 트렌드 사운드 사용 시 노출 5배 증가<br />
-                      📊 <strong>첫 3초:</strong> 시청자 이탈 80%가 첫 3초에 발생. 강한 후크 필수<br />
-                      💬 <strong>댓글 유도:</strong> 영상 끝에 질문 던지면 알고리즘 점수 상승
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'instagram-reels' && (
-              <div className="uploadScreen">
-                <div className="platformHeader reels">
-                  <span className="platformLogo">📸</span>
-                  <div className="platformInfo">
-                    <h3 className="platformName">인스타 릴스 업로드 자료</h3>
-                    <div className="platformSpecs">90초 이하 · 세로 9:16 · 브랜드 친화적</div>
-                  </div>
-                  <span className="platformBadge">릴스</span>
-                </div>
-                <div className="uploadBody">
-                  <div className="formField">
-                    <div className="fieldLabelRow">
-                      <div className="fieldLabel">캡션 (Caption)</div>
-                      <span className="charLimit">최대 2,200자</span>
-                    </div>
-                    <div className="fieldHelper">💡 인스타 톤은 부드럽게. 이모지 적절히.</div>
-                    <div className="uploadInput large">{reelsCaption}</div>
-                    <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: 10 }}>
-                      <button className={`copyBtn ${copied === 'r-cap' ? 'copied' : ''}`} onClick={() => copy(reelsCaption, 'r-cap')}>
-                        {copied === 'r-cap' ? '✓ 복사됨' : '📋 복사'}
-                      </button>
-                    </div>
-                  </div>
-
-                  <div className="formField">
-                    <div className="fieldLabelRow">
-                      <div className="fieldLabel">해시태그</div>
-                      <button className={`copyBtn ${copied === 'r-tags' ? 'copied' : ''}`} onClick={() => copy(instaHashtags, 'r-tags')}>
-                        {copied === 'r-tags' ? '✓ 복사됨' : '📋 복사'}
-                      </button>
-                    </div>
-                    <div className="fieldHelper">💡 인스타 해시태그는 최대 30개. 인기·중간·롱테일 조합.</div>
-                    <div className="uploadInput">{instaHashtags}</div>
-                  </div>
-
-                  <div className="formField">
-                    <div className="fieldLabel" style={{ marginBottom: 8 }}>📌 Reels 알고리즘 팁</div>
-                    <div className="seqTip">
-                      💼 <strong>장점:</strong> 브랜드 신뢰도 높음, 광고 단가 좋음<br />
-                      ⏰ <strong>업로드 시간:</strong> 평일 오전 11시~오후 1시 최적<br />
-                      🎬 <strong>커버 이미지:</strong> 피드에 보이는 첫 화면 매우 중요<br />
-                      🔗 <strong>프로필 링크:</strong> "프로필 링크에서 자세히" 멘트로 외부 유입
-                    </div>
-                  </div>
-                </div>
-              </div>
-            )}
-
-            {activeTab === 'video-prompts' && (
-              <>
-                <div className="promptIntro">
-                  <h3 className="promptIntroTitle">🎬 영상 제작 프롬프트 모음</h3>
-                  <p className="promptIntroSub">
-                    선택하신 시나리오 ({scenario?.name})에 맞춰 영상 시퀀스 6개 자동 생성.<br />
-                    각 시퀀스마다 대본, 한글/영문 이미지·영상 프롬프트 포함.
-                  </p>
-                  <div className="promptIntroTools">
-                    <span className="promptToolChip">Midjourney</span>
-                    <span className="promptToolChip">Stable Diffusion</span>
-                    <span className="promptToolChip">DALL-E 3</span>
-                    <span className="promptToolChip">Runway</span>
-                    <span className="promptToolChip">Pika</span>
-                    <span className="promptToolChip">Sora</span>
-                    <span className="promptToolChip">Kling AI</span>
-                  </div>
-                </div>
-
-                {/* 일관된 스타일 가이드 카드 */}
-                <div style={{
-                  background: 'linear-gradient(135deg, #fef3c7 0%, #fef9e7 100%)',
-                  border: '2px solid #f59e0b',
-                  borderRadius: 14,
-                  padding: 20,
-                  marginBottom: 20,
-                }}>
-                  <div style={{ display: 'flex', alignItems: 'center', gap: 8, marginBottom: 10 }}>
-                    <span style={{ fontSize: 24 }}>💡</span>
-                    <span style={{ fontSize: 15, fontWeight: 800, color: '#92400e' }}>
-                      한 사람이 그린 듯한 일관된 영상 만드는 비결
-                    </span>
-                  </div>
-                  <p style={{ fontSize: 13, color: '#555', lineHeight: 1.7, margin: '0 0 14px' }}>
-                    AI 영상이 일관성이 없는 이유는 매번 새로 그리기 때문입니다.<br />
-                    <strong style={{ color: '#92400e' }}>NotebookLM(무료) + Pinterest(무료)</strong> 조합으로 60장 이미지를 일관된 스타일로 만들 수 있어요.<br />
-                    조회수 20만 채널들이 사용하는 무료 워크플로우입니다!
-                  </p>
-                  <Link
-                    href="/workflow"
-                    style={{
-                      display: 'inline-flex',
-                      alignItems: 'center',
-                      gap: 6,
-                      padding: '10px 18px',
-                      background: '#f59e0b',
-                      color: '#fff',
-                      borderRadius: 100,
-                      fontSize: 13,
-                      fontWeight: 700,
-                      textDecoration: 'none',
-                    }}
+              <div className="titleList">
+                {titles.map((t, i) => (
+                  <div
+                    key={i}
+                    className={`titleCard ${selectedTitleIdx === i ? 'selected' : ''}`}
+                    onClick={() => setSelectedTitleIdx(i)}
                   >
-                    📚 5단계 무료 가이드 보기 →
-                  </Link>
-                </div>
+                    <div className="titleCardHead">
+                      <span className="titlePattern">{t.pattern}</span>
+                      <span className="titleCtr">📊 CTR {t.ctr_estimate}</span>
+                      {selectedTitleIdx === i && <span className="titleSelected">✓ 선택됨</span>}
+                    </div>
+                    <h3 className="titleText">{t.title}</h3>
+                    <p className="titleReason">💬 {t.reasoning}</p>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginTop: 14, display: 'flex', gap: 8, flexWrap: 'wrap' }}>
+                <button
+                  className={`copyBtnSm ${copied === 'title' ? 'copied' : ''}`}
+                  onClick={() => copy(selectedTitle, 'title')}
+                  style={{ marginLeft: 0 }}
+                >
+                  {copied === 'title' ? '✓ 복사됨' : '📋 선택한 제목 복사'}
+                </button>
+              </div>
+            </div>
+          )}
+        </div>
 
+        {/* ============================================ */}
+        {/* STEP 2 - 시나리오 7단계 (메인!) */}
+        {/* ============================================ */}
+        <div className={`step ${openSteps.script ? 'active' : ''}`}>
+          <div className="stepHead" onClick={() => toggleStep('script')}>
+            <div className="stepEmoji" style={{ background: STEPS[1].bg, color: STEPS[1].color }}>
+              {STEPS[1].emoji}
+            </div>
+            <div className="stepInfo">
+              <div className="stepLabel" style={{ color: STEPS[1].color }}>{STEPS[1].label} · 메인 콘텐츠</div>
+              <div className="stepTitle">떡상 시나리오 {sequences.length}단계 — 영상 대본 흐름</div>
+            </div>
+            <div className={`stepArrow ${openSteps.script ? 'open' : ''}`}>▼</div>
+          </div>
+          {openSteps.script && (
+            <div className="stepBody">
+              <div className="scriptIntro">
+                <div className="scriptIntroLabel">🔥 떡상의 핵심</div>
+                <div className="scriptIntroText">
+                  단순한 대본이 아닙니다. 시청자가 끝까지 보게 만드는 7단계 구조예요.<br />
+                  <strong>훅(0~15초)</strong>이 영상의 운명을 결정합니다. 이대로 영상을 만들어보세요.
+                </div>
+              </div>
+
+              <div className="seqList">
                 {sequences.map((seq, idx) => (
-                  <div key={seq.number} className="sequenceCard">
+                  <div key={seq.number} className="seqCard">
                     <div className="seqHead">
-                      <div className="seqNumber">{seq.number}</div>
-                      <div className="seqInfo">
-                        <h4 className="seqTitle">{seq.title}</h4>
+                      <div className="seqNum">{seq.number}</div>
+                      <div className="seqHeadInfo">
+                        <div className="seqStepTitle">{seq.title}</div>
                         <div className="seqDuration">⏱️ {seq.duration}</div>
                       </div>
                     </div>
-                    <div className="seqPurpose"><strong>📌 목적:</strong> {seq.purpose}</div>
-                    <div className="seqBody">
-                      <div className="seqSection">
-                        <div className="seqSectionLabel">📝 추천 대본</div>
-                        <div className="seqScript">{seq.script}</div>
-                      </div>
-                      <div className="seqSection">
-                        <div className="seqSectionLabel">🇰🇷 이미지 프롬프트 (한글)</div>
-                        <div className="seqPrompt kr">
-                          <div className="seqPromptHead">
-                            <span className="seqPromptLang kr">KR · IMAGE</span>
-                            <button className={`copyBtn ${copied === `img-kr-${idx}` ? 'copied' : ''}`} onClick={() => copy(seq.imagePromptKr, `img-kr-${idx}`)}>
-                              {copied === `img-kr-${idx}` ? '✓ 복사' : '복사'}
-                            </button>
-                          </div>
-                          {seq.imagePromptKr}
-                        </div>
-                      </div>
-                      <div className="seqSection">
-                        <div className="seqSectionLabel">🇺🇸 이미지 프롬프트 (영문 - Midjourney/SD)</div>
-                        <div className="seqPrompt">
-                          <div className="seqPromptHead">
-                            <span className="seqPromptLang en">EN · IMAGE</span>
-                            <div style={{ display: 'flex', gap: 6 }}>
-                              <Link
-                                href={`/imagegen?prompt=${encodeURIComponent(seq.imagePromptEn)}&ar=16:9`}
-                                className="copyBtn"
-                                style={{ background: '#c65f3b', color: '#fff', borderColor: '#c65f3b' }}
-                              >
-                                🎨 이미지 생성
-                              </Link>
-                              <button className={`copyBtn ${copied === `img-en-${idx}` ? 'copied' : ''}`} onClick={() => copy(seq.imagePromptEn, `img-en-${idx}`)}>
-                                {copied === `img-en-${idx}` ? '✓ 복사' : '복사'}
-                              </button>
-                            </div>
-                          </div>
-                          {seq.imagePromptEn}
-                        </div>
-                      </div>
-                      <div className="seqSection">
-                        <div className="seqSectionLabel">🇰🇷 영상 프롬프트 (한글)</div>
-                        <div className="seqPrompt kr">
-                          <div className="seqPromptHead">
-                            <span className="seqPromptLang kr">KR · VIDEO</span>
-                            <button className={`copyBtn ${copied === `vid-kr-${idx}` ? 'copied' : ''}`} onClick={() => copy(seq.videoPromptKr, `vid-kr-${idx}`)}>
-                              {copied === `vid-kr-${idx}` ? '✓ 복사' : '복사'}
-                            </button>
-                          </div>
-                          {seq.videoPromptKr}
-                        </div>
-                      </div>
-                      <div className="seqSection">
-                        <div className="seqSectionLabel">🇺🇸 영상 프롬프트 (영문 - Runway/Pika/Sora)</div>
-                        <div className="seqPrompt">
-                          <div className="seqPromptHead">
-                            <span className="seqPromptLang en">EN · VIDEO</span>
-                            <button className={`copyBtn ${copied === `vid-en-${idx}` ? 'copied' : ''}`} onClick={() => copy(seq.videoPromptEn, `vid-en-${idx}`)}>
-                              {copied === `vid-en-${idx}` ? '✓ 복사' : '복사'}
-                            </button>
-                          </div>
-                          {seq.videoPromptEn}
-                        </div>
-                      </div>
-                      <div className="seqTip">{seq.tip}</div>
+                    <div className="seqPurpose">
+                      <strong>📌 목적:</strong> {seq.purpose}
                     </div>
+                    <div className="seqScriptBox">{seq.script}</div>
+                    <div className="seqActions">
+                      <button
+                        className={`seqActionBtn ${copied === `seq-${idx}` ? 'copied' : ''}`}
+                        onClick={() => copy(seq.script, `seq-${idx}`)}
+                      >
+                        {copied === `seq-${idx}` ? '✓ 복사됨' : '📋 대본 복사'}
+                      </button>
+                    </div>
+                    <div className="seqTip">{seq.tip}</div>
                   </div>
                 ))}
-              </>
-            )}
+              </div>
 
-            <div className="actions">
-              <Link href="/done" className="actionBtn primary">✅ 모두 완료했어요</Link>
-              <Link href="/create" className="actionBtn secondary">🔄 다른 영상 만들기</Link>
-            </div>
+              {/* 1분 쇼츠 박스 */}
+              <div className="shortsBox">
+                <div className="shortsBoxHead">
+                  <span style={{ fontSize: '20px' }}>⚡</span>
+                  <span className="shortsBoxTitle">1분 쇼츠 버전</span>
+                  <span className="shortsBoxSub">{shortsScript.totalDuration}</span>
+                </div>
+                <div className="shortsScript">{shortsScript.fullScript}</div>
+                <div style={{ marginTop: 12, display: 'flex', justifyContent: 'flex-end' }}>
+                  <button
+                    className={`copyBtnSm ${copied === 'shorts' ? 'copied' : ''}`}
+                    onClick={() => copy(shortsScript.fullScript, 'shorts')}
+                  >
+                    {copied === 'shorts' ? '✓ 복사됨' : '📋 쇼츠 대본 복사'}
+                  </button>
+                </div>
+              </div>
 
-            <div className="adArea">
-              <AdSlot slot="publish-bottom" variant="horizontal" />
+              <button
+                className={`copyBtnSm ${copied === 'all-script' ? 'copied' : ''}`}
+                onClick={() => copy(sequences.map(s => `[${s.number}. ${s.title} - ${s.duration}]\n${s.script}`).join('\n\n'), 'all-script')}
+                style={{ marginTop: 16, marginLeft: 0, padding: '10px 18px', fontSize: '13px' }}
+              >
+                {copied === 'all-script' ? '✓ 전체 대본 복사됨' : '📋 전체 7단계 대본 한 번에 복사'}
+              </button>
             </div>
-          </main>
+          )}
+        </div>
 
-          <aside className="sidebar">
-            <h3 className="sidebarTitle">📊 알고리즘 분석</h3>
-            <div className="sidebarSection">
-              <div className="sidebarLabel">예상 클릭률 (CTR)</div>
-              <div className="sidebarStat">{titles[selectedTitleIdx]?.ctr_estimate || '7~10%'}</div>
-              <div className="sidebarStatLabel">선택한 제목 기준</div>
+        <div className="adArea">
+          <AdSlot slot="publish-mid" variant="horizontal" />
+        </div>
+
+        {/* ============================================ */}
+        {/* STEP 3 - 영상 제작 (AI 프롬프트) */}
+        {/* ============================================ */}
+        <div className={`step ${openSteps.video ? 'active' : ''}`}>
+          <div className="stepHead" onClick={() => toggleStep('video')}>
+            <div className="stepEmoji" style={{ background: STEPS[2].bg, color: STEPS[2].color }}>
+              {STEPS[2].emoji}
             </div>
-            <div className="sidebarSection">
-              <div className="sidebarLabel">분야 입문 난이도</div>
-              <div className="sidebarStat">
-                {cat.competition === '낮음' ? '🟢 쉬움' : cat.competition === '높음' ? '🔴 어려움' : '🟡 보통'}
+            <div className="stepInfo">
+              <div className="stepLabel" style={{ color: STEPS[2].color }}>{STEPS[2].label}</div>
+              <div className="stepTitle">영상 제작 — AI 도구용 프롬프트 (단계별)</div>
+            </div>
+            <div className={`stepArrow ${openSteps.video ? 'open' : ''}`}>▼</div>
+          </div>
+          {openSteps.video && (
+            <div className="stepBody">
+              <div className="videoIntro">
+                <div className="videoIntroLabel">🎨 일관된 영상 만드는 비결</div>
+                <div className="videoIntroText">
+                  AI 영상이 어색한 이유는 매 시퀀스마다 새로 그리기 때문입니다.<br />
+                  <strong>NotebookLM(무료) + Pinterest(무료)</strong> 조합으로 60장 일관된 이미지를 만들 수 있어요.
+                </div>
+                <Link href="/workflow" className="videoIntroLink">
+                  📚 일관된 영상 만들기 가이드 →
+                </Link>
               </div>
-              <div className="sidebarStatLabel">{cat.name} · 경쟁 정도</div>
-            </div>
-            <div className="sidebarSection">
-              <div className="sidebarLabel">추천 키워드</div>
-              <div className="sidebarStat">{getTrendingKeywords(cat.id).length}개</div>
-              <div className="sidebarStatLabel">{cat.name} 인기 키워드</div>
-            </div>
-            <div className="sidebarSection">
-              <div className="sidebarLabel">📌 업로드 체크리스트</div>
-              <div className="sidebarText">
-                ✅ 제목 선택<br />
-                ✅ 설명문 복사<br />
-                ✅ 태그 입력<br />
-                ✅ 카테고리 설정<br />
-                ✅ 썸네일 생성<br />
-                ✅ 영상 시퀀스 확인
-              </div>
-            </div>
-            <div className="sidebarSection">
-              <div className="sidebarLabel">💡 알고리즘 핵심 팁</div>
-              <div className="sidebarText">
-                <strong>1. 첫 30초:</strong><br />시청 유지율 최우선<br /><br />
-                <strong>2. 시청 지속:</strong><br />각 1분마다 새 정보·반전<br /><br />
-                <strong>3. 마무리:</strong><br />다음 영상 예고 → 체류 시간 ↑
-              </div>
-            </div>
-            <div className="sidebarSection">
-              <div className="sidebarLabel">🎯 업로드 골든 타임</div>
-              <div className="sidebarText">
-                YouTube: 평일 19:00~21:00<br />
-                Shorts: 오전 8~10시 / 19~21시<br />
-                TikTok: 평일 18~21시<br />
-                Reels: 평일 11~13시
+
+              <div className="promptList">
+                {sequences.map((seq, idx) => (
+                  <PromptCard
+                    key={seq.number}
+                    seq={seq}
+                    idx={idx}
+                    copied={copied}
+                    onCopy={copy}
+                  />
+                ))}
               </div>
             </div>
-          </aside>
+          )}
+        </div>
+
+        {/* ============================================ */}
+        {/* STEP 4 - 메타데이터 */}
+        {/* ============================================ */}
+        <div className={`step ${openSteps.meta ? 'active' : ''}`}>
+          <div className="stepHead" onClick={() => toggleStep('meta')}>
+            <div className="stepEmoji" style={{ background: STEPS[3].bg, color: STEPS[3].color }}>
+              {STEPS[3].emoji}
+            </div>
+            <div className="stepInfo">
+              <div className="stepLabel" style={{ color: STEPS[3].color }}>{STEPS[3].label}</div>
+              <div className="stepTitle">메타데이터 — 설명·태그·썸네일</div>
+            </div>
+            <div className={`stepArrow ${openSteps.meta ? 'open' : ''}`}>▼</div>
+          </div>
+          {openSteps.meta && (
+            <div className="stepBody">
+              {/* 설명 */}
+              <div className="metaSection">
+                <div className="metaLabelRow">
+                  <span className="metaLabel">📝 영상 설명</span>
+                  <button
+                    className={`copyBtnSm ${copied === 'desc' ? 'copied' : ''}`}
+                    onClick={() => copy(description, 'desc')}
+                  >
+                    {copied === 'desc' ? '✓ 복사됨' : '📋 복사'}
+                  </button>
+                </div>
+                <div className="metaHelper">SEO 최적화 + 챕터(목차) 포함. 첫 100자가 검색 미리보기에 노출됩니다.</div>
+                <div className="metaContent">{description}</div>
+              </div>
+
+              {/* 태그 (YouTube) */}
+              <div className="metaSection">
+                <div className="metaLabelRow">
+                  <span className="metaLabel">🏷️ 태그 (YouTube 태그 필드용)</span>
+                  <button
+                    className={`copyBtnSm ${copied === 'tags' ? 'copied' : ''}`}
+                    onClick={() => copy(tags.map(t => t.tag).join(', '), 'tags')}
+                  >
+                    {copied === 'tags' ? '✓ 복사됨' : '📋 모두 복사'}
+                  </button>
+                </div>
+                <div className="metaHelper">
+                  YouTube 업로드 화면 "태그" 필드에 그대로 붙여넣으세요. <strong>띄어쓰기 그대로</strong> (해시태그 X, # 기호 X).
+                </div>
+                <div className="tagGrid">
+                  {tags.map((t, i) => (
+                    <div key={i} className="tagItem">
+                      <div className="tagItemName">{t.tag}</div>
+                      <div className="tagItemMeta">
+                        <span className="vol">📊 {t.volume}</span>
+                        <span className={`comp ${t.competition === '낮음' ? 'low' : t.competition === '높음' ? 'high' : 'medium'}`}>
+                          🎯 {t.competition}
+                        </span>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* 썸네일 */}
+              <div className="metaSection">
+                <div className="metaLabelRow">
+                  <span className="metaLabel">🖼️ 썸네일 콘셉트 3가지</span>
+                </div>
+                <div className="metaHelper">
+                  알고리즘 검증된 3가지 콘셉트. 클릭해서 영상 프롬프트로 만들어 사용하세요.
+                </div>
+                <div className="thumbGrid">
+                  {thumbnails.map((t, i) => (
+                    <div key={i} className="thumbCard">
+                      <div className="thumbType">{t.type}</div>
+                      <div className="thumbDetail"><strong>배경:</strong> {t.background}</div>
+                      <div className="thumbDetail"><strong>메인 텍스트:</strong> {t.mainText}</div>
+                      <div className="thumbDetail"><strong>표정:</strong> {t.expression}</div>
+                      <div className="thumbDetail"><strong>색상:</strong> {t.colors}</div>
+                      <div className="thumbCtr">{t.ctr_estimate}</div>
+                      <div style={{ marginTop: 10, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+                        <button
+                          className={`copyBtnSm ${copied === `thumb-${i}` ? 'copied' : ''}`}
+                          onClick={() => copy(t.imagePromptKr, `thumb-${i}`)}
+                          style={{ marginLeft: 0, fontSize: '11px' }}
+                        >
+                          {copied === `thumb-${i}` ? '✓ 복사' : '🇰🇷 한글 프롬프트'}
+                        </button>
+                        <Link
+                          href={`/imagegen?prompt=${encodeURIComponent(t.imagePromptEn)}&ar=16:9`}
+                          style={{
+                            padding: '5px 12px',
+                            background: '#c65f3b',
+                            color: '#fff',
+                            borderRadius: 100,
+                            fontSize: '11px',
+                            fontWeight: 700,
+                            textDecoration: 'none',
+                          }}
+                        >
+                          🎨 영상 프롬프트로
+                        </Link>
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* ============================================ */}
+        {/* STEP 5 - SNS 업로드 */}
+        {/* ============================================ */}
+        <div className={`step ${openSteps.sns ? 'active' : ''}`}>
+          <div className="stepHead" onClick={() => toggleStep('sns')}>
+            <div className="stepEmoji" style={{ background: STEPS[4].bg, color: STEPS[4].color }}>
+              {STEPS[4].emoji}
+            </div>
+            <div className="stepInfo">
+              <div className="stepLabel" style={{ color: STEPS[4].color }}>{STEPS[4].label}</div>
+              <div className="stepTitle">SNS 업로드 — 4개 플랫폼별 자료</div>
+            </div>
+            <div className={`stepArrow ${openSteps.sns ? 'open' : ''}`}>▼</div>
+          </div>
+          {openSteps.sns && (
+            <div className="stepBody">
+              <div className="snsTabs">
+                <button
+                  className={`snsTab ${snsTab === 'youtube' ? 'active' : ''}`}
+                  onClick={() => setSnsTab('youtube')}
+                >
+                  📹 YouTube (긴 영상)
+                </button>
+                <button
+                  className={`snsTab ${snsTab === 'shorts' ? 'active' : ''}`}
+                  onClick={() => setSnsTab('shorts')}
+                >
+                  📱 YouTube 쇼츠
+                </button>
+                <button
+                  className={`snsTab ${snsTab === 'tiktok' ? 'active' : ''}`}
+                  onClick={() => setSnsTab('tiktok')}
+                >
+                  🎵 틱톡
+                </button>
+                <button
+                  className={`snsTab ${snsTab === 'reels' ? 'active' : ''}`}
+                  onClick={() => setSnsTab('reels')}
+                >
+                  📷 인스타 릴스
+                </button>
+              </div>
+
+              {snsTab === 'youtube' && (
+                <div className="snsBox">
+                  <div className="snsHead">
+                    <span style={{ fontSize: '24px' }}>📹</span>
+                    <div>
+                      <div className="snsName">YouTube 긴 영상</div>
+                      <div className="snsSpec">8분 이상 · 가로 16:9 · 광고 수익 가능</div>
+                    </div>
+                  </div>
+                  <div className="snsField">
+                    <div className="snsFieldLabel">📌 제목</div>
+                    <div className="snsFieldHelper">최대 100자. STEP 1에서 선택한 제목입니다.</div>
+                    <div className="snsFieldContent">{selectedTitle}</div>
+                  </div>
+                  <div className="snsField">
+                    <div className="snsFieldLabel">📝 카테고리</div>
+                    <div className="snsFieldHelper">YouTube 카테고리 필드 추천값.</div>
+                    <div className="snsFieldContent">📂 뉴스/정치 또는 교육</div>
+                  </div>
+                  <div style={{ padding: '14px 16px', background: '#fff8f3', borderRadius: 10, fontSize: '12.5px', color: '#666', lineHeight: 1.6 }}>
+                    💡 설명·태그·썸네일은 <strong>STEP 4</strong>에서 복사하세요.
+                  </div>
+                </div>
+              )}
+
+              {snsTab === 'shorts' && (
+                <div className="snsBox">
+                  <div className="snsHead">
+                    <span style={{ fontSize: '24px' }}>📱</span>
+                    <div>
+                      <div className="snsName">YouTube 쇼츠</div>
+                      <div className="snsSpec">60초 이내 · 세로 9:16 · 빠른 확산</div>
+                    </div>
+                  </div>
+                  <div className="snsField">
+                    <div className="snsFieldLabel">
+                      📌 제목 + #Shorts
+                      <button
+                        className={`copyBtnSm ${copied === 'shorts-title' ? 'copied' : ''}`}
+                        onClick={() => copy(`${selectedTitle.substring(0, 80)} #Shorts`, 'shorts-title')}
+                      >
+                        {copied === 'shorts-title' ? '✓ 복사' : '📋 복사'}
+                      </button>
+                    </div>
+                    <div className="snsFieldHelper">최대 100자. #Shorts 필수.</div>
+                    <div className="snsFieldContent">{selectedTitle.substring(0, 80)} #Shorts</div>
+                  </div>
+                  <div className="snsField">
+                    <div className="snsFieldLabel">
+                      🏷️ 해시태그 (붙여쓰기 + #)
+                      <button
+                        className={`copyBtnSm ${copied === 'shorts-tags' ? 'copied' : ''}`}
+                        onClick={() => copy(shortsHashtags, 'shorts-tags')}
+                      >
+                        {copied === 'shorts-tags' ? '✓ 복사' : '📋 복사'}
+                      </button>
+                    </div>
+                    <div className="snsFieldHelper">SNS 해시태그는 띄어쓰기 X, # 기호 O.</div>
+                    <div className="snsFieldContent">{shortsHashtags}</div>
+                  </div>
+                  <div className="snsField">
+                    <div className="snsFieldLabel">
+                      📝 쇼츠 대본 (1분)
+                      <button
+                        className={`copyBtnSm ${copied === 'shorts-full' ? 'copied' : ''}`}
+                        onClick={() => copy(shortsScript.fullScript, 'shorts-full')}
+                      >
+                        {copied === 'shorts-full' ? '✓ 복사' : '📋 복사'}
+                      </button>
+                    </div>
+                    <div className="snsFieldContent" style={{ whiteSpace: 'pre-line' }}>{shortsScript.fullScript}</div>
+                  </div>
+                </div>
+              )}
+
+              {snsTab === 'tiktok' && (
+                <div className="snsBox">
+                  <div className="snsHead">
+                    <span style={{ fontSize: '24px' }}>🎵</span>
+                    <div>
+                      <div className="snsName">틱톡</div>
+                      <div className="snsSpec">15~60초 · 세로 9:16 · 바이럴 강함</div>
+                    </div>
+                  </div>
+                  <div className="snsField">
+                    <div className="snsFieldLabel">
+                      📌 캡션 + 해시태그
+                      <button
+                        className={`copyBtnSm ${copied === 'tt-cap' ? 'copied' : ''}`}
+                        onClick={() => copy(`💡 ${keyword} 진짜 핵심만!\n${selectedTitle}\n\n${tiktokHashtags}`, 'tt-cap')}
+                      >
+                        {copied === 'tt-cap' ? '✓ 복사' : '📋 복사'}
+                      </button>
+                    </div>
+                    <div className="snsFieldHelper">캡션은 짧게. 해시태그가 핵심.</div>
+                    <div className="snsFieldContent" style={{ whiteSpace: 'pre-line' }}>
+                      {`💡 ${keyword} 진짜 핵심만!\n${selectedTitle}\n\n${tiktokHashtags}`}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {snsTab === 'reels' && (
+                <div className="snsBox">
+                  <div className="snsHead">
+                    <span style={{ fontSize: '24px' }}>📷</span>
+                    <div>
+                      <div className="snsName">인스타그램 릴스</div>
+                      <div className="snsSpec">15~90초 · 세로 9:16 · 일상 톤</div>
+                    </div>
+                  </div>
+                  <div className="snsField">
+                    <div className="snsFieldLabel">
+                      📌 캡션 + 해시태그
+                      <button
+                        className={`copyBtnSm ${copied === 'rs-cap' ? 'copied' : ''}`}
+                        onClick={() => copy(`📊 ${keyword} 핵심 정리\n\n${selectedTitle}\n\n💬 댓글로 여러분 생각 공유해주세요!\n\n${instaHashtags}`, 'rs-cap')}
+                      >
+                        {copied === 'rs-cap' ? '✓ 복사' : '📋 복사'}
+                      </button>
+                    </div>
+                    <div className="snsFieldHelper">최대 30개 해시태그. 인기·중간·롱테일 조합.</div>
+                    <div className="snsFieldContent" style={{ whiteSpace: 'pre-line' }}>
+                      {`📊 ${keyword} 핵심 정리\n\n${selectedTitle}\n\n💬 댓글로 여러분 생각 공유해주세요!\n\n${instaHashtags}`}
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+
+        {/* DONE BOX */}
+        <div className="doneBox">
+          <div className="doneTitle">🎉 모두 완료했어요!</div>
+          <div className="doneSub">
+            영상 제작 후 다른 키워드로도 만들어보세요.<br />
+            매번 다른 결과가 나옵니다.
+          </div>
+          <div className="doneActions">
+            <Link href="/create" className="doneBtn">
+              🎬 다른 영상 만들기
+            </Link>
+            <Link href="/blog" className="doneBtn outline">
+              📚 노하우 보기
+            </Link>
+          </div>
         </div>
       </div>
+
+      <RewardedAd
+        open={showRewarded}
+        rewardLabel="1회 추가 생성"
+        onComplete={handleRewardedComplete}
+        onClose={() => setShowRewarded(false)}
+      />
     </V11Shell>
+  );
+}
+
+// ============================================================
+// 영상 제작 프롬프트 카드 (별도 컴포넌트)
+// ============================================================
+type SeqType = ReturnType<typeof generateVideoSequences>[0];
+
+function PromptCard({
+  seq,
+  idx,
+  copied,
+  onCopy,
+}: {
+  seq: SeqType;
+  idx: number;
+  copied: string;
+  onCopy: (text: string, key: string) => void;
+}) {
+  const [open, setOpen] = useState(idx === 0);
+  return (
+    <div className="promptCard">
+      <div className="promptCardHead" onClick={() => setOpen(o => !o)}>
+        <span className="promptCardSeq">{seq.number}</span>
+        <span>{seq.title}</span>
+        <span style={{ fontSize: '11px', color: '#888', fontWeight: 600 }}>
+          ⏱️ {seq.duration}
+        </span>
+        <span className={`promptCardArrow ${open ? 'open' : ''}`}>▼</span>
+      </div>
+      {open && (
+        <div className="promptCardBody">
+          <div className="promptItem">
+            <div className="promptItemHead">
+              <span className="promptLang kr">🇰🇷 KR · 이미지</span>
+              <button
+                className={`promptCopyBtn ${copied === `imk-${idx}` ? 'copied' : ''}`}
+                onClick={() => onCopy(seq.imagePromptKr, `imk-${idx}`)}
+              >
+                {copied === `imk-${idx}` ? '✓' : '복사'}
+              </button>
+            </div>
+            <div className="promptText">{seq.imagePromptKr}</div>
+          </div>
+          <div className="promptItem">
+            <div className="promptItemHead">
+              <span className="promptLang en">🇺🇸 EN · 이미지 (Midjourney/DALL-E)</span>
+              <button
+                className={`promptCopyBtn ${copied === `ime-${idx}` ? 'copied' : ''}`}
+                onClick={() => onCopy(seq.imagePromptEn, `ime-${idx}`)}
+              >
+                {copied === `ime-${idx}` ? '✓' : '복사'}
+              </button>
+            </div>
+            <div className="promptText">{seq.imagePromptEn}</div>
+          </div>
+          <div className="promptItem">
+            <div className="promptItemHead">
+              <span className="promptLang kr">🇰🇷 KR · 영상</span>
+              <button
+                className={`promptCopyBtn ${copied === `vdk-${idx}` ? 'copied' : ''}`}
+                onClick={() => onCopy(seq.videoPromptKr, `vdk-${idx}`)}
+              >
+                {copied === `vdk-${idx}` ? '✓' : '복사'}
+              </button>
+            </div>
+            <div className="promptText">{seq.videoPromptKr}</div>
+          </div>
+          <div className="promptItem">
+            <div className="promptItemHead">
+              <span className="promptLang en">🇺🇸 EN · 영상 (Runway/Sora/Pika)</span>
+              <button
+                className={`promptCopyBtn ${copied === `vde-${idx}` ? 'copied' : ''}`}
+                onClick={() => onCopy(seq.videoPromptEn, `vde-${idx}`)}
+              >
+                {copied === `vde-${idx}` ? '✓' : '복사'}
+              </button>
+            </div>
+            <div className="promptText">{seq.videoPromptEn}</div>
+          </div>
+        </div>
+      )}
+    </div>
   );
 }
