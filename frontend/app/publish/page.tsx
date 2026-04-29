@@ -1,16 +1,24 @@
 'use client';
 /**
- * AlgoMaker 결과 페이지 v5.0
+ * AlgoMaker 결과 페이지 v6.5.0
  *
  * 박예준 대표 비전:
  * "SNS 초보자가 사이트에 딱 왔을 때 뭔가 필이 팍 꽂혀야 한다"
+ * "100명이 같은 키워드 입력해도 100가지 결과"
+ * "겉으로는 안보이고, 뒷단에서 알고리즘이 움직여야 함"
  *
- * 새 스토리보드 (5단계):
- * STEP 1 - 제목 선택 (3개 중 1개)
- * STEP 2 - 떡상 시나리오 7단계 (메인 콘텐츠) ← 핵심
- * STEP 3 - 영상 제작 (AI 프롬프트)
- * STEP 4 - 메타데이터 (설명·태그·썸네일)
- * STEP 5 - SNS 업로드 (4개 플랫폼)
+ * v6.5.0 추가 (2026.04.30):
+ * - 📖 작가급 스토리 모드 (넷플릭스 다큐 + 떡상 유튜버 융합)
+ * - 📱 SNS 4종 실제 UI 재현 (YouTube/Shorts/Instagram/TikTok)
+ * - 🎨 Midjourney v7 / Sora 2 / VEO 3 전문가급 프롬프트
+ *
+ * 스토리보드 (6단계):
+ * STEP 1 - 비슷한 떡상 영상 사례
+ * STEP 2 - 제목 선택 (3개 중 1개)
+ * STEP 3 - 떡상 시나리오 (기본 ↔ 작가급 모드 전환 가능) ← v6.5.0
+ * STEP 4 - 영상 제작 AI 프롬프트 (기본 ↔ 전문가급 모드) ← v6.5.0
+ * STEP 5 - 메타데이터 (설명·태그·썸네일)
+ * STEP 6 - SNS 업로드 (4개 플랫폼 실제 UI 재현) ← v6.5.0
  */
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
@@ -30,6 +38,14 @@ import {
 } from '../_shared/contentEngine';
 import AdSlot from '../_shared/AdSlot';
 import RewardedAd from '../_shared/RewardedAd';
+
+// ============================================================
+// v6.5.0 추가 모듈 (작가급 시나리오 + SNS 4종 + 전문가 프롬프트)
+// ============================================================
+import { generateV650Data, type V650DataPackage } from '../_shared/v650Adapter';
+import { CinematicScenarioDisplay } from '../_shared/CinematicScenarioDisplay_v6_5_0';
+import { CinematicPromptDisplay } from '../_shared/CinematicPromptDisplay_v6_5_0';
+import { SNSUploadPanel } from '../_shared/SNSUploadPanel_v6_5_0';
 
 type StepId = 'cases' | 'title' | 'script' | 'video' | 'meta' | 'sns';
 
@@ -67,6 +83,13 @@ function PublishPageInner() {
   const [regenerateKey, setRegenerateKey] = useState(0);
   const [showRewarded, setShowRewarded] = useState(false);
   const [usedCount, setUsedCount] = useState(0);
+  
+  // ============================================================
+  // v6.5.0: 작가급 모드 토글 (기본 OFF, 토글 ON 시 v6.5.0 발동)
+  // ============================================================
+  const [cinematicMode, setCinematicMode] = useState(false);    // STEP 3 작가급 모드
+  const [proPromptMode, setProPromptMode] = useState(false);    // STEP 4 전문가 프롬프트 모드
+  const [proSnsMode, setProSnsMode] = useState(true);           // STEP 6 SNS 실제 UI 모드 (기본 ON)
 
   // 무료 횟수 (5회까지 무료)
   useEffect(() => {
@@ -122,6 +145,20 @@ function PublishPageInner() {
   const instaHashtags = `${hashtagsBase} #인스타그램 #릴스 ${toHashtag(cat.name)} #일상`;
 
   const selectedTitle = titles[selectedTitleIdx]?.title || '';
+
+  // ============================================================
+  // v6.5.0: 통합 데이터 패키지 생성
+  // (선택된 제목 + 키워드 기반으로 작가급 시나리오 + SNS 4종 + 전문가 프롬프트)
+  // ============================================================
+  const v650Data: V650DataPackage | null = useMemo(() => {
+    if (!keyword || !selectedTitle) return null;
+    try {
+      return generateV650Data(keyword, selectedTitle, cat.name);
+    } catch (e) {
+      console.error('[v6.5.0] 데이터 생성 실패:', e);
+      return null;
+    }
+  }, [keyword, selectedTitle, cat.name, regenerateKey]);
 
   // 다시 생성 (무료 5회 + 광고 시청 필요)
   const handleRegenerate = () => {
@@ -1337,6 +1374,69 @@ function PublishPageInner() {
                 </div>
               </div>
 
+              {/* ============================================ */}
+              {/* v6.5.0: 작가급 스토리 모드 토글 */}
+              {/* ============================================ */}
+              {v650Data && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: '14px 18px',
+                  background: cinematicMode 
+                    ? 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' 
+                    : '#fafafa',
+                  border: `1.5px solid ${cinematicMode ? '#fbbf24' : '#e5e5e5'}`,
+                  borderRadius: 12,
+                  marginBottom: 16,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  flexWrap: 'wrap',
+                }}
+                onClick={() => setCinematicMode(m => !m)}
+                >
+                  <div style={{
+                    width: 44,
+                    height: 24,
+                    background: cinematicMode ? '#c65f3b' : '#d1d5db',
+                    borderRadius: 100,
+                    position: 'relative',
+                    transition: 'background 0.2s',
+                    flexShrink: 0,
+                  }}>
+                    <div style={{
+                      width: 20,
+                      height: 20,
+                      background: '#fff',
+                      borderRadius: '50%',
+                      position: 'absolute',
+                      top: 2,
+                      left: cinematicMode ? 22 : 2,
+                      transition: 'left 0.2s',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                    }} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13.5, fontWeight: 800, color: '#1a1a1a', marginBottom: 2 }}>
+                      📖 작가급 스토리 모드 {cinematicMode ? '(켜짐)' : '(꺼짐)'}
+                    </div>
+                    <div style={{ fontSize: 11.5, color: '#666', lineHeight: 1.5 }}>
+                      {cinematicMode 
+                        ? '✨ 넷플릭스 다큐 작가 + 떡상 유튜버 융합 시나리오로 보고 있어요.' 
+                        : '클릭하면 단락마다 연결된 작가급 시나리오로 바뀝니다.'}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ============================================ */}
+              {/* v6.5.0 작가급 모드 ON: CinematicScenarioDisplay */}
+              {/* ============================================ */}
+              {cinematicMode && v650Data ? (
+                <CinematicScenarioDisplay scenario={v650Data.scenario} />
+              ) : (
+              /* 기본 모드 OFF: 기존 7단계 시퀀스 표시 */
+              <>
               <div className="seqList">
                 {sequences.map((seq, idx) => (
                   <div key={seq.number} className="seqCard">
@@ -1390,6 +1490,8 @@ function PublishPageInner() {
               >
                 {copied === 'all-script' ? '✓ 전체 대본 복사됨' : '📋 전체 7단계 대본 한 번에 복사'}
               </button>
+              </>
+              )}
             </div>
           )}
         </div>
@@ -1425,17 +1527,80 @@ function PublishPageInner() {
                 </Link>
               </div>
 
-              <div className="promptList">
-                {sequences.map((seq, idx) => (
-                  <PromptCard
-                    key={seq.number}
-                    seq={seq}
-                    idx={idx}
-                    copied={copied}
-                    onCopy={copy}
-                  />
-                ))}
-              </div>
+              {/* ============================================ */}
+              {/* v6.5.0: 전문가 프롬프트 모드 토글 */}
+              {/* ============================================ */}
+              {v650Data && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: '14px 18px',
+                  background: proPromptMode 
+                    ? 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)' 
+                    : '#fafafa',
+                  border: `1.5px solid ${proPromptMode ? '#10b981' : '#e5e5e5'}`,
+                  borderRadius: 12,
+                  marginBottom: 16,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  flexWrap: 'wrap',
+                }}
+                onClick={() => setProPromptMode(m => !m)}
+                >
+                  <div style={{
+                    width: 44,
+                    height: 24,
+                    background: proPromptMode ? '#10b981' : '#d1d5db',
+                    borderRadius: 100,
+                    position: 'relative',
+                    transition: 'background 0.2s',
+                    flexShrink: 0,
+                  }}>
+                    <div style={{
+                      width: 20,
+                      height: 20,
+                      background: '#fff',
+                      borderRadius: '50%',
+                      position: 'absolute',
+                      top: 2,
+                      left: proPromptMode ? 22 : 2,
+                      transition: 'left 0.2s',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                    }} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13.5, fontWeight: 800, color: '#1a1a1a', marginBottom: 2 }}>
+                      🎬 전문가급 프롬프트 모드 {proPromptMode ? '(켜짐)' : '(꺼짐)'}
+                    </div>
+                    <div style={{ fontSize: 11.5, color: '#666', lineHeight: 1.5 }}>
+                      {proPromptMode 
+                        ? '✨ Midjourney v7 + Sora 2 + VEO 3 카메라/렌즈/조명/색감까지 전문가급으로 보고 있어요.' 
+                        : '클릭하면 카메라·렌즈·조명·색감·LUT까지 전문가급 프롬프트로 바뀝니다.'}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ============================================ */}
+              {/* v6.5.0 전문가 모드 ON: CinematicPromptDisplay */}
+              {/* ============================================ */}
+              {proPromptMode && v650Data ? (
+                <CinematicPromptDisplay prompts={v650Data.prompts} />
+              ) : (
+                /* 기본 모드 OFF: 기존 단계별 프롬프트 카드 */
+                <div className="promptList">
+                  {sequences.map((seq, idx) => (
+                    <PromptCard
+                      key={seq.number}
+                      seq={seq}
+                      idx={idx}
+                      copied={copied}
+                      onCopy={copy}
+                    />
+                  ))}
+                </div>
+              )}
             </div>
           )}
         </div>
@@ -1564,6 +1729,69 @@ function PublishPageInner() {
           </div>
           {openSteps.sns && (
             <div className="stepBody">
+              {/* ============================================ */}
+              {/* v6.5.0: SNS 실제 UI 모드 토글 (기본 ON) */}
+              {/* ============================================ */}
+              {v650Data && (
+                <div style={{
+                  display: 'flex',
+                  alignItems: 'center',
+                  gap: 12,
+                  padding: '14px 18px',
+                  background: proSnsMode 
+                    ? 'linear-gradient(135deg, #fbeaf0 0%, #fce4ec 100%)' 
+                    : '#fafafa',
+                  border: `1.5px solid ${proSnsMode ? '#D4537E' : '#e5e5e5'}`,
+                  borderRadius: 12,
+                  marginBottom: 16,
+                  cursor: 'pointer',
+                  transition: 'all 0.2s',
+                  flexWrap: 'wrap',
+                }}
+                onClick={() => setProSnsMode(m => !m)}
+                >
+                  <div style={{
+                    width: 44,
+                    height: 24,
+                    background: proSnsMode ? '#D4537E' : '#d1d5db',
+                    borderRadius: 100,
+                    position: 'relative',
+                    transition: 'background 0.2s',
+                    flexShrink: 0,
+                  }}>
+                    <div style={{
+                      width: 20,
+                      height: 20,
+                      background: '#fff',
+                      borderRadius: '50%',
+                      position: 'absolute',
+                      top: 2,
+                      left: proSnsMode ? 22 : 2,
+                      transition: 'left 0.2s',
+                      boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
+                    }} />
+                  </div>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div style={{ fontSize: 13.5, fontWeight: 800, color: '#1a1a1a', marginBottom: 2 }}>
+                      📱 SNS 실제 화면 모드 {proSnsMode ? '(켜짐)' : '(꺼짐)'}
+                    </div>
+                    <div style={{ fontSize: 11.5, color: '#666', lineHeight: 1.5 }}>
+                      {proSnsMode 
+                        ? '✨ YouTube Studio · 인스타 릴스 · 틱톡 실제 업로드 화면 그대로 보고 있어요.' 
+                        : '클릭하면 각 SNS 실제 업로드 화면과 똑같은 형태로 바뀝니다.'}
+                    </div>
+                  </div>
+                </div>
+              )}
+
+              {/* ============================================ */}
+              {/* v6.5.0 실제 UI 모드 ON: SNSUploadPanel */}
+              {/* ============================================ */}
+              {proSnsMode && v650Data ? (
+                <SNSUploadPanel formats={v650Data.sns} />
+              ) : (
+              /* 기본 모드 OFF: 기존 4탭 SNS 박스 */
+              <>
               <div className="snsTabs">
                 <button
                   className={`snsTab ${snsTab === 'youtube' ? 'active' : ''}`}
@@ -1718,6 +1946,8 @@ function PublishPageInner() {
                     </div>
                   </div>
                 </div>
+              )}
+              </>
               )}
             </div>
           )}
