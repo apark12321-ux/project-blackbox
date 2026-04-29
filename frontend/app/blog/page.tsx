@@ -1,4 +1,6 @@
 'use client';
+import { useState, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { V11Shell } from '../_shared/V11Shell';
 import AdSlot from '../_shared/AdSlot';
@@ -12,11 +14,13 @@ interface Article {
   readTime: string;
   publishDate: string;
   featured?: boolean;
+  group?: 'viral' | 'phone' | 'ai' | 'senior' | 'general';
 }
 
 const ARTICLES: Article[] = [
   {
     slug: 'youtube-algorithm',
+    group: 'general',
     category: '알고리즘',
     categoryEmoji: '🤖',
     title: '유튜브 알고리즘이 영상을 추천하는 5가지 진짜 기준',
@@ -27,6 +31,7 @@ const ARTICLES: Article[] = [
   },
   {
     slug: 'ctr-title-secrets',
+    group: 'general',
     category: '제목 노하우',
     categoryEmoji: '✏️',
     title: '클릭률(CTR) 8% 이상 만드는 제목 작성법 18가지',
@@ -37,6 +42,7 @@ const ARTICLES: Article[] = [
   },
   {
     slug: 'thumbnail-design',
+    group: 'general',
     category: '썸네일',
     categoryEmoji: '🖼️',
     title: '조회수 10배 차이 만드는 썸네일 디자인 7가지 법칙',
@@ -46,6 +52,7 @@ const ARTICLES: Article[] = [
   },
   {
     slug: 'viewer-retention',
+    group: 'general',
     category: '시청 유지율',
     categoryEmoji: '📊',
     title: '시청 유지율 50% 넘기는 영상 구조 7단계',
@@ -56,6 +63,7 @@ const ARTICLES: Article[] = [
   },
   {
     slug: 'first-30-seconds-hook',
+    group: 'general',
     category: '시청 유지율',
     categoryEmoji: '⏱️',
     title: '첫 30초가 90%를 결정한다 - 후크(Hook) 작성법',
@@ -65,6 +73,7 @@ const ARTICLES: Article[] = [
   },
   {
     slug: 'seo-tags',
+    group: 'general',
     category: 'SEO',
     categoryEmoji: '🏷️',
     title: '유튜브 SEO 태그 최적화 - 검색 노출 3배 늘리는 법',
@@ -74,6 +83,7 @@ const ARTICLES: Article[] = [
   },
   {
     slug: 'shorts-vs-longform',
+    group: 'general',
     category: '쇼츠/롱폼',
     categoryEmoji: '📱',
     title: '쇼츠 vs 긴 영상, 어디에 집중해야 할까?',
@@ -83,6 +93,7 @@ const ARTICLES: Article[] = [
   },
   {
     slug: 'middle-aged-channel-tips',
+    group: 'senior',
     category: '시니어층',
     categoryEmoji: '👔',
     title: '시니어층(40대~70대)가 유튜브 시작할 때 꼭 알아야 할 7가지',
@@ -93,6 +104,7 @@ const ARTICLES: Article[] = [
   },
   {
     slug: 'family-story-shorts',
+    group: 'senior',
     category: '사연/감동',
     categoryEmoji: '💝',
     title: '가족 사연 쇼츠로 시작하기 - 가장 쉬운 영상 수익화 모델',
@@ -103,6 +115,7 @@ const ARTICLES: Article[] = [
   },
   {
     slug: 'content-value-paths',
+    group: 'general',
     category: '콘텐츠 가치',
     categoryEmoji: '💡',
     title: '영상 콘텐츠로 가치를 만드는 5가지 길',
@@ -113,6 +126,7 @@ const ARTICLES: Article[] = [
   },
   {
     slug: 'monetization-tips',
+    group: 'general',
     category: '수익화',
     categoryEmoji: '💰',
     title: '구독자 1,000명 안 되어도 가능한 수익화 5가지',
@@ -122,6 +136,7 @@ const ARTICLES: Article[] = [
   },
   {
     slug: 'trending-keywords-research',
+    group: 'viral',
     category: '키워드',
     categoryEmoji: '🔍',
     title: '트렌드 키워드 발굴하는 무료 도구 7가지',
@@ -131,6 +146,7 @@ const ARTICLES: Article[] = [
   },
   {
     slug: 'storytelling-structure',
+    group: 'general',
     category: '스토리텔링',
     categoryEmoji: '📖',
     title: '10만 조회수 영상의 스토리텔링 구조 분석',
@@ -140,6 +156,7 @@ const ARTICLES: Article[] = [
   },
   {
     slug: 'bgm-copyright-free',
+    group: 'general',
     category: 'BGM',
     categoryEmoji: '🎵',
     title: '저작권 걱정 없는 무료 BGM 사이트 10개 정리',
@@ -149,6 +166,7 @@ const ARTICLES: Article[] = [
   },
   {
     slug: 'upload-time-optimization',
+    group: 'general',
     category: '업로드',
     categoryEmoji: '⏰',
     title: '유튜브 업로드 최적 시간 - 데이터로 검증된 황금 시간',
@@ -158,6 +176,7 @@ const ARTICLES: Article[] = [
   },
   {
     slug: 'channel-branding',
+    group: 'general',
     category: '브랜딩',
     categoryEmoji: '🎨',
     title: '기억에 남는 채널 브랜딩 만드는 7가지 요소',
@@ -167,6 +186,7 @@ const ARTICLES: Article[] = [
   },
   {
     slug: 'community-engagement',
+    group: 'general',
     category: '커뮤니티',
     categoryEmoji: '💬',
     title: '댓글, 좋아요, 구독 자연스럽게 늘리는 6가지 방법',
@@ -174,11 +194,124 @@ const ARTICLES: Article[] = [
     readTime: '9분',
     publishDate: '2026.04.25',
   },
+  // ============= Phase 3 - 떡상 분석 (3편) =============
+  {
+    slug: 'viral-patterns-9-domains',
+    group: 'viral',
+    category: '떡상 분석',
+    categoryEmoji: '🔥',
+    title: '9개 분야 떡상 영상 패턴 모음 - 27가지 검증된 공식',
+    subtitle: '부동산부터 가족 사연까지, 실제로 잘된 영상의 공통 패턴 정리',
+    readTime: '15분',
+    publishDate: '2026.04.28',
+    featured: true,
+  },
+  {
+    slug: 'viral-patterns-senior',
+    group: 'viral',
+    category: '떡상 분석',
+    categoryEmoji: '🌳',
+    title: '시니어층이 사랑하는 떡상 영상 패턴 5가지',
+    subtitle: '50대~70대 시청자가 끝까지 보는 영상의 공통점',
+    readTime: '10분',
+    publishDate: '2026.04.28',
+    featured: true,
+  },
+  {
+    slug: 'viral-patterns-family-story',
+    group: 'viral',
+    category: '떡상 분석',
+    categoryEmoji: '💝',
+    title: '가족 사연 채널의 떡상 패턴 - 8가지 검증된 공식',
+    subtitle: '진심 담은 사연이 떡상하는 이유와 만드는 법',
+    readTime: '12분',
+    publishDate: '2026.04.28',
+  },
+  // ============= Phase 3 - 핸드폰 가이드 (3편) =============
+  {
+    slug: 'phone-video-basics',
+    group: 'phone',
+    category: '핸드폰 가이드',
+    categoryEmoji: '📱',
+    title: '핸드폰만으로 영상 만들기 입문 - 시니어층용 step-by-step',
+    subtitle: '카메라 없이도 OK, 무료 앱만으로 영상 완성하는 법',
+    readTime: '12분',
+    publishDate: '2026.04.28',
+    featured: true,
+  },
+  {
+    slug: 'phone-app-capcut-vlo',
+    group: 'phone',
+    category: '핸드폰 가이드',
+    categoryEmoji: '✂️',
+    title: '캡캠(CapCut)·블로(VLLO) 시니어층 사용법 비교',
+    subtitle: '두 앱의 장단점과 본인에게 맞는 앱 고르는 기준',
+    readTime: '10분',
+    publishDate: '2026.04.28',
+  },
+  {
+    slug: 'phone-free-editing-apps',
+    group: 'phone',
+    category: '핸드폰 가이드',
+    categoryEmoji: '🆓',
+    title: '시니어층 무료 영상 편집 앱 5가지 비교',
+    subtitle: '돈 안 내고 충분히 만드는 영상, 본인에게 맞는 앱 고르기',
+    readTime: '11분',
+    publishDate: '2026.04.28',
+  },
+  // ============= Phase 3 - AI 도구 (2편) =============
+  {
+    slug: 'ai-tools-for-seniors',
+    group: 'ai',
+    category: 'AI 도구',
+    categoryEmoji: '🤖',
+    title: '시니어층이 영상 만들 때 쓸 만한 무료 AI 도구 5가지',
+    subtitle: 'ChatGPT부터 미드저니까지, 진짜 도움되는 도구만 정리',
+    readTime: '13분',
+    publishDate: '2026.04.28',
+    featured: true,
+  },
+  {
+    slug: 'chatgpt-for-seniors',
+    group: 'ai',
+    category: 'AI 도구',
+    categoryEmoji: '💬',
+    title: 'ChatGPT 시니어층 활용법 - 영상 대본 만들기',
+    subtitle: '복잡한 명령 없이 간단하게 대본 받는 5가지 질문 패턴',
+    readTime: '9분',
+    publishDate: '2026.04.28',
+  },
 ];
 
-export default function BlogPage() {
-  const featuredArticles = ARTICLES.filter((a) => a.featured);
-  const regularArticles = ARTICLES.filter((a) => !a.featured);
+function BlogPageInner() {
+  const searchParams = useSearchParams();
+  const [activeGroup, setActiveGroup] = useState<string>('all');
+
+  useEffect(() => {
+    const cat = searchParams.get('cat');
+    if (cat && ['viral', 'phone', 'ai', 'senior'].includes(cat)) {
+      setActiveGroup(cat);
+    } else {
+      setActiveGroup('all');
+    }
+  }, [searchParams]);
+
+  const filteredArticles = activeGroup === 'all'
+    ? ARTICLES
+    : ARTICLES.filter((a) => a.group === activeGroup);
+
+  const featuredArticles = filteredArticles.filter((a) => a.featured);
+  const regularArticles = filteredArticles.filter((a) => !a.featured);
+
+  const groupLabels: Record<string, { label: string; emoji: string; desc: string }> = {
+    all: { label: '전체 가이드', emoji: '📚', desc: '시니어층 영상 만들기에 필요한 모든 가이드' },
+    viral: { label: '떡상 분석', emoji: '🔥', desc: '실제 떡상한 영상의 패턴 분석 — 다른 곳에 없는 데이터' },
+    phone: { label: '핸드폰 가이드', emoji: '📱', desc: '시니어층도 핸드폰 하나로 영상 만드는 step-by-step 가이드' },
+    ai: { label: 'AI 도구', emoji: '🤖', desc: '시니어층이 쓸 만한 무료 AI 도구 활용법' },
+    senior: { label: '시니어 사례', emoji: '🌳', desc: '시니어층 영상 시작 사례와 노하우' },
+  };
+
+  const currentGroup = groupLabels[activeGroup] || groupLabels.all;
 
   return (
     <V11Shell>
@@ -234,6 +367,73 @@ export default function BlogPage() {
         @media (max-width: 600px) { .sub { font-size: 13.5px; } }
 
         /* 추천 콘텐츠 (Featured) */
+        /* 카테고리 탭 (Phase 2) */
+        .categoryTabs {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 10px;
+          margin: 0 0 28px;
+          padding: 16px;
+          background: #fafafa;
+          border-radius: 14px;
+        }
+        @media (max-width: 720px) {
+          .categoryTabs {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 8px;
+            padding: 12px;
+          }
+        }
+        @media (max-width: 480px) {
+          .categoryTabs {
+            grid-template-columns: repeat(2, 1fr);
+          }
+        }
+        .categoryTab {
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+          padding: 14px 8px 12px;
+          background: #fff;
+          border: 1.5px solid #e5e5e5;
+          border-radius: 10px;
+          text-decoration: none;
+          color: #444;
+          transition: all 0.2s;
+          text-align: center;
+        }
+        .categoryTab:hover {
+          border-color: #c65f3b;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(198, 95, 59, 0.1);
+        }
+        .categoryTab.active {
+          border-color: #c65f3b;
+          background: #fff8f3;
+          color: #c65f3b;
+        }
+        .categoryTabEmoji {
+          font-size: 22px;
+        }
+        .categoryTabLabel {
+          font-size: 13px;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+        }
+        .categoryTabCount {
+          font-size: 11px;
+          color: #888;
+          font-weight: 600;
+          padding: 1px 7px;
+          background: #f5f5f5;
+          border-radius: 100px;
+        }
+        .categoryTab.active .categoryTabCount {
+          background: #c65f3b;
+          color: #fff;
+        }
+
         .featuredSection {
           margin-bottom: 40px;
         }
@@ -417,13 +617,30 @@ export default function BlogPage() {
         </nav>
 
         <header className="header">
-          <span className="pageBadge">📚 영상 제작 노하우</span>
-          <h1 className="title">조회수 10배 늘리는<br />검증된 노하우 모음</h1>
+          <span className="pageBadge">{currentGroup.emoji} {currentGroup.label}</span>
+          <h1 className="title">시니어층을 위한<br />{currentGroup.label}</h1>
           <p className="sub">
-            알고리즘, 제목 작성법, 썸네일, 시청 유지율 등<br />
-            영상 콘텐츠 입문자가 꼭 알아야 할 핵심 노하우 {ARTICLES.length}편
+            {currentGroup.desc}<br />
+            현재 {filteredArticles.length}편 · 매주 새 가이드 추가
           </p>
         </header>
+
+        {/* 카테고리 탭 */}
+        <div className="categoryTabs">
+          {Object.entries(groupLabels).map(([key, info]) => (
+            <Link
+              key={key}
+              href={key === 'all' ? '/blog' : `/blog?cat=${key}`}
+              className={`categoryTab ${activeGroup === key ? 'active' : ''}`}
+            >
+              <span className="categoryTabEmoji">{info.emoji}</span>
+              <span className="categoryTabLabel">{info.label}</span>
+              <span className="categoryTabCount">
+                {key === 'all' ? ARTICLES.length : ARTICLES.filter(a => a.group === key).length}
+              </span>
+            </Link>
+          ))}
+        </div>
 
         {/* 추천 콘텐츠 */}
         <section className="featuredSection">
@@ -488,5 +705,13 @@ export default function BlogPage() {
         </div>
       </div>
     </V11Shell>
+  );
+}
+
+export default function BlogPage() {
+  return (
+    <Suspense fallback={<div style={{ padding: '40px', textAlign: 'center' }}>가이드 불러오는 중...</div>}>
+      <BlogPageInner />
+    </Suspense>
   );
 }

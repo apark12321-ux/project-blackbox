@@ -594,55 +594,6 @@ function PublishPageInner() {
         }
         @media (max-width: 600px) { .seqScriptBox { font-size: 13.5px; padding: 14px 16px; } }
 
-        /* ============================================ */
-        /* AI 이미지 미리보기 (Phase 1 - Pollinations) */
-        /* ============================================ */
-        .seqImagePreview {
-          padding: 12px 18px;
-          background: #fafbff;
-          border-top: 1px solid #f0f0f0;
-        }
-        @media (max-width: 600px) { .seqImagePreview { padding: 10px 16px; } }
-        .seqImageLabel {
-          font-size: 11.5px;
-          font-weight: 800;
-          color: #6366f1;
-          letter-spacing: 0.04em;
-          margin-bottom: 8px;
-        }
-        .seqImageWrap {
-          position: relative;
-          width: 100%;
-          aspect-ratio: 16 / 9;
-          background: linear-gradient(135deg, #f3f4f6 0%, #e5e7eb 100%);
-          border-radius: 10px;
-          overflow: hidden;
-          margin-bottom: 8px;
-        }
-        .seqImage {
-          width: 100%;
-          height: 100%;
-          object-fit: cover;
-          display: block;
-        }
-        .seqImageFallback {
-          position: absolute;
-          inset: 0;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          justify-content: center;
-          gap: 8px;
-          color: #6b7280;
-          font-size: 13px;
-        }
-        .seqImageFallback span:first-child { font-size: 32px; }
-        .seqImageNote {
-          font-size: 11px;
-          color: #888;
-          line-height: 1.5;
-        }
-
         .seqActions {
           display: flex; gap: 8px;
           padding: 0 18px 14px;
@@ -1269,34 +1220,6 @@ function PublishPageInner() {
                       <strong>📌 목적:</strong> {seq.purpose}
                     </div>
                     <div className="seqScriptBox">{seq.script}</div>
-
-                    {/* Phase 1 - AI 이미지 미리보기 (Pollinations 무료 API) */}
-                    <div className="seqImagePreview">
-                      <div className="seqImageLabel">🎨 이 장면 AI 이미지 미리보기</div>
-                      <div className="seqImageWrap">
-                        <img
-                          src={`https://image.pollinations.ai/prompt/${encodeURIComponent(seq.imagePromptEn)}?width=720&height=405&nologo=true&seed=${(idx + 1) * 100}`}
-                          alt={`시퀀스 ${seq.number} 미리보기`}
-                          className="seqImage"
-                          loading="lazy"
-                          onError={(e) => {
-                            (e.target as HTMLImageElement).style.display = 'none';
-                            const wrap = (e.target as HTMLImageElement).parentElement;
-                            if (wrap) {
-                              const fallback = wrap.querySelector('.seqImageFallback') as HTMLElement;
-                              if (fallback) fallback.style.display = 'flex';
-                            }
-                          }}
-                        />
-                        <div className="seqImageFallback" style={{ display: 'none' }}>
-                          <span>🎨</span>
-                          <span>이미지 생성 중... 잠시 후 새로고침해주세요</span>
-                        </div>
-                      </div>
-                      <div className="seqImageNote">
-                        💡 무료 AI 이미지 미리보기 (Pollinations.ai 제공) · 실제 사용시 Midjourney·DALL-E로 고품질 생성 가능
-                      </div>
-                    </div>
 
                     <div className="seqActions">
                       <button

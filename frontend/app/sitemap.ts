@@ -21,6 +21,15 @@ const KNOWHOW_SLUGS = [
   'community-engagement',
   'family-story-shorts',
   'content-value-paths',
+  // v6.2.0 Phase 3 - 새 콘텐츠 8편
+  'viral-patterns-9-domains',
+  'viral-patterns-senior',
+  'viral-patterns-family-story',
+  'phone-video-basics',
+  'phone-app-capcut-vlo',
+  'phone-free-editing-apps',
+  'ai-tools-for-seniors',
+  'chatgpt-for-seniors',
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {

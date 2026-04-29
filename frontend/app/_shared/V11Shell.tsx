@@ -134,20 +134,17 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
     return () => clearInterval(t);
   }, []);
 
-  // 박 대표님 페이지 21개 + 이미지 생성기 + 워크플로우 = 23개
+  // 시니어 영상 멘토링 채널 컨셉 (v6.2.0)
   const mainMenu = [
     { icon: '🏠', label: '홈', path: '/', key: 'home' },
-    { icon: '✨', label: '영상 만들기', path: '/create', key: 'create' },
-    { icon: '🎨', label: 'AI 이미지 생성', path: '/imagegen', key: 'imagegen' },
-    { icon: '🎬', label: '일관된 영상 가이드', path: '/workflow', key: 'workflow' },
-    { icon: '🎬', label: '내 영상', path: '/assets', key: 'assets' },
-    { icon: '📊', label: '분석', path: '/analytics', key: 'analytics' },
-    { icon: '📰', label: '트렌드 뉴스', path: '/news', key: 'news' },
-    { icon: '📝', label: '노하우', path: '/blog', key: 'blog' },
+    { icon: '🔥', label: '떡상 분석', path: '/blog?cat=viral', key: 'viral' },
+    { icon: '📱', label: '핸드폰 가이드', path: '/blog?cat=phone', key: 'phone' },
+    { icon: '🤖', label: 'AI 도구', path: '/blog?cat=ai', key: 'ai' },
+    { icon: '✏️', label: '자료 만들기', path: '/create', key: 'create' },
   ];
 
   const subMenu = [
-    { icon: '💎', label: '요금제', path: '/plan', key: 'plan' },
+    { icon: '📝', label: '전체 가이드', path: '/blog', key: 'blog' },
     { icon: 'ℹ️', label: '서비스 소개', path: '/about', key: 'about' },
     { icon: '✉️', label: '문의하기', path: '/contact', key: 'contact' },
   ];
@@ -402,20 +399,20 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
                 </div>
               </div>
               <div className="footerCol">
-                <h4>서비스</h4>
+                <h4>가이드</h4>
                 <ul>
-                  <li><Link href="/" className="fLink">홈</Link></li>
-                  <li><Link href="/create" className="fLink">영상 만들기</Link></li>
-                  <li><Link href="/blog" className="fLink">노하우</Link></li>
-                  <li><Link href="/news" className="fLink">트렌드 뉴스</Link></li>
+                  <li><Link href="/blog?cat=viral" className="fLink">🔥 떡상 분석</Link></li>
+                  <li><Link href="/blog?cat=phone" className="fLink">📱 핸드폰 가이드</Link></li>
+                  <li><Link href="/blog?cat=ai" className="fLink">🤖 AI 도구</Link></li>
+                  <li><Link href="/blog" className="fLink">📝 전체 가이드</Link></li>
                 </ul>
               </div>
               <div className="footerCol">
-                <h4>회사</h4>
+                <h4>도구·회사</h4>
                 <ul>
+                  <li><Link href="/create" className="fLink">✏️ 자료 만들기</Link></li>
                   <li><Link href="/about" className="fLink">서비스 소개</Link></li>
                   <li><Link href="/contact" className="fLink">문의하기</Link></li>
-                  <li><Link href="/plan" className="fLink">요금제</Link></li>
                 </ul>
               </div>
               <div className="footerCol">
