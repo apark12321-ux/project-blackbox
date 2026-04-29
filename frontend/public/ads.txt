@@ -1,10 +1,1 @@
-# AdSense 인증 파일 (필수)
-# 박 대표님 AdSense Publisher ID로 교체 필요
-# 형식: google.com, pub-XXXXXXXXXXXXXXXX, DIRECT, f08c47fec0942fa0
-# 
-# 박 대표님 AdSense 승인 후:
-# 1. AdSense 대시보드 → 사이트 → Publisher ID 확인
-# 2. 아래 줄을 본인 Publisher ID로 교체
-# 3. ads.txt 가 https://nutube.kr/ads.txt 에서 정상 응답되는지 확인
-
-google.com, pub-0000000000000000, DIRECT, f08c47fec0942fa0
+google.com, pub-5397558684148753, DIRECT, f08c47fec0942fa0
