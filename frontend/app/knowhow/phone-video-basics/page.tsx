@@ -146,7 +146,7 @@ export default function Page() {
           <div className="stepBox">
             <div className="stepTitle">📝 추천 앱 2가지</div>
             <p style={{margin: '6px 0 0', fontSize: '13.5px', color: '#555'}}>
-              <strong>캡캠(CapCut)</strong> - 가장 인기. 무료. 한국어 지원. 사용자 많아서 도움 받기 쉬움.<br />
+              <strong>캡캠(CapCut)</strong> - 가장 인기. 기본 기능 무료 (워터마크/일부 효과는 유료). 한국어 지원. 사용자 많아서 도움 받기 쉬움.<br />
               <strong>블로(VLLO)</strong> - 한국 회사. 더 직관적. 시니어층에게 친숙한 인터페이스.
             </p>
           </div>

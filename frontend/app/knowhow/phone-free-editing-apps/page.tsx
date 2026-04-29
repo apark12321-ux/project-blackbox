@@ -109,7 +109,7 @@ export default function Page() {
         <article className="content">
           <div className="highlight">
             <div style={{fontSize: '11px', fontWeight: 800, color: '#92400e', marginBottom: '8px', letterSpacing: '0.05em'}}>💡 한 줄 요약</div>
-            <div>유료 결제 안 해도 됩니다. <strong>무료 앱만으로도 시니어층 영상 만들기 충분</strong>해요. 5개 앱 비교해서 본인에게 맞는 거 고르세요.</div>
+            <div>5개 앱 모두 <strong>무료 버전이 있습니다</strong>. 시니어층 영상 만들기에는 무료 버전 기능만으로 충분해요. 각 앱마다 유료 Pro 옵션이 있지만, 처음 시작하실 때는 무료 버전부터 사용해보세요.</div>
           </div>
 
           <h2>1. 캡캠(CapCut)</h2>
@@ -117,7 +117,7 @@ export default function Page() {
             <div className="stepTitle">⭐ 가장 추천</div>
             <ul>
               <li>장점: 무료 기능 풍부, 사용자 매우 많음, 강의 풍부</li>
-              <li>단점: 메뉴 복잡, 영어 일부 섞임</li>
+              <li>단점: 메뉴 복잡, 영어 일부 섞임, 일부 효과/템플릿은 Pro($9.99~$19.99/월) 필요</li>
               <li>추천: 영상 깊이 배우고 싶은 분</li>
               <li>난이도: 중간</li>
             </ul>

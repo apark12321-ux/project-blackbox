@@ -109,7 +109,7 @@ export default function Page() {
         <article className="content">
           <div className="highlight">
             <div style={{fontSize: '11px', fontWeight: 800, color: '#92400e', marginBottom: '8px', letterSpacing: '0.05em'}}>💡 한 줄 요약</div>
-            <div>두 앱 모두 <strong>무료에 한국어 지원</strong>입니다. 캡캠은 사용자 많아서 도움받기 쉽고, 블로는 한국 회사라 직관적이에요.</div>
+            <div>두 앱 모두 <strong>무료 버전 + 한국어 지원</strong>입니다. 캡캠은 사용자 많아서 도움받기 쉽고, 블로는 한국 회사라 직관적이에요. 둘 다 유료 Pro 옵션이 있지만, 무료 버전만으로도 시니어층 영상 만들기 충분합니다.</div>
           </div>
 
           <h2>두 앱 한눈에 비교</h2>
@@ -117,7 +117,7 @@ export default function Page() {
             <div className="stepTitle">캡캠(CapCut)</div>
             <ul>
               <li>장점: 사용자 매우 많음, 유튜브 강의 풍부, 무료 기능 풍부</li>
-              <li>단점: 영어 표현이 일부 섞여있음, 메뉴가 복잡</li>
+              <li>단점: 영어 표현이 일부 섞여있음, 메뉴가 복잡, 4K·일부 AI 기능은 Pro($9.99~$19.99/월) 필요</li>
               <li>추천: 영상 만들기 익히고 싶은 분</li>
             </ul>
           </div>
@@ -169,7 +169,7 @@ export default function Page() {
 
           <h2>마치며</h2>
           <p>
-            두 앱 모두 무료입니다. 한 번씩 사용해보시고 본인에게 맞는 앱을 고르시면 돼요.
+            두 앱 모두 무료 버전이 있습니다. 한 번씩 사용해보시고 본인에게 맞는 앱을 고르시면 돼요. 두 앱 모두 유료 Pro 옵션(월 정기결제)이 있지만, 시니어층 영상 만들기에는 무료 버전만으로 충분합니다.
             중요한 건 <strong>한 앱을 정해서 꾸준히 쓰는 것</strong>입니다. 자꾸 바꾸면 익숙해지지 않아요.
           </p>
         </article>

@@ -148,12 +148,12 @@ const STEPS: Step[] = [
     tools: [
       { name: 'Grok (X)', url: 'https://x.com/i/grok', price: '무료 / 유료', emoji: '🦾' },
       { name: 'Filmora', url: 'https://filmora.wondershare.com', price: '무료 체험', emoji: '🎞️' },
-      { name: 'CapCut', url: 'https://www.capcut.com', price: '완전 무료', emoji: '✂️' },
+      { name: 'CapCut', url: 'https://www.capcut.com', price: '기본 무료 (Pro 유료)', emoji: '✂️' },
       { name: 'YouTube 오디오 라이브러리', url: 'https://studio.youtube.com', price: '무료', emoji: '🎵' },
     ],
     details: [
       '60장 이미지 다운로드 완료',
-      '영상 편집기 선택 (CapCut 추천 - 완전 무료)',
+      '영상 편집기 선택 (CapCut 무료 버전 또는 다빈치 리졸브 무료 버전)',
       '60장을 1초당 1장씩 배치 (총 1분 영상)',
       '잔잔한 BGM 추가 (YouTube 오디오 라이브러리에서 무료 다운로드)',
       '시작/끝 페이드 인/아웃 효과',
@@ -162,7 +162,7 @@ const STEPS: Step[] = [
     ],
     tips: [
       '🎵 BGM 장르 추천: 잔잔한 피아노, 클래식, 앰비언트',
-      '🎬 CapCut PC/모바일 모두 완전 무료',
+      '🎬 CapCut PC/모바일 무료 버전 사용 가능 (워터마크 일부 + 1080p 제한)',
       '💡 대사 없는 영상이 시청 유지율 ↑ (의외!)',
       '🔑 영상 길이 1분~3분이 알고리즘 최적',
     ],
@@ -173,31 +173,31 @@ const TOOL_COMPARISON = [
   {
     category: '레퍼런스',
     tools: [
-      { name: 'Pinterest', free: '✅ 완전 무료', desc: '이미지 검색' },
+      { name: 'Pinterest', free: '✅ 무료', desc: '이미지 검색 (광고 노출 있음)' },
     ],
   },
   {
     category: 'AI 분석',
     tools: [
       { name: 'ChatGPT 무료', free: '✅ 무료', desc: '시대 설정 시트 생성 (월 한도 있음)' },
-      { name: 'Google Gemini', free: '✅ 완전 무료', desc: '시대 설정 시트 생성 (한글 우수)' },
-      { name: 'NotebookLM', free: '✅ 완전 무료', desc: '소스 기반 일관성 (핵심)' },
+      { name: 'Google Gemini', free: '✅ 무료 버전', desc: '한글 우수 (Advanced 유료 옵션)' },
+      { name: 'NotebookLM', free: '✅ 무료', desc: '소스 기반 일관성 (한도 있음)' },
     ],
   },
   {
     category: '이미지 생성',
     tools: [
-      { name: 'NotebookLM 슬라이드', free: '✅ 완전 무료', desc: '소스 기반 이미지 (강력)' },
-      { name: 'Pollinations (AlgoMaker)', free: '✅ 완전 무료', desc: '영문 프롬프트 무제한' },
+      { name: 'NotebookLM 슬라이드', free: '✅ 무료', desc: '소스 기반 이미지 (강력, 한도 있음)' },
+      { name: 'Pollinations.ai', free: '✅ 무료 무제한', desc: '오픈소스 무료 API' },
       { name: 'Bing Image Creator', free: '✅ 무료', desc: 'DALL-E 3 사용 (일 15회)' },
     ],
   },
   {
     category: '영상 편집',
     tools: [
-      { name: 'CapCut', free: '✅ 완전 무료', desc: 'PC/모바일 모두 무료' },
+      { name: 'CapCut', free: '✅ 기본 무료', desc: 'Free 버전 충분 (Pro $9.99~$19.99/월)' },
       { name: 'Filmora', free: '⚠️ 체험판', desc: '무료 워터마크 있음' },
-      { name: 'DaVinci Resolve', free: '✅ 완전 무료', desc: '전문가용도 가능' },
+      { name: 'DaVinci Resolve', free: '✅ 무료 (Studio 별도)', desc: '무료 버전도 전문가급 (Studio 일회성 $295)' },
     ],
   },
   {
