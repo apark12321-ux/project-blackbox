@@ -1,13 +1,20 @@
 'use client';
 /**
- * AlgoMaker 결과 페이지 v6.5.0
+ * AlgoMaker 결과 페이지 v6.5.1
  *
  * 박예준 대표 비전:
  * "SNS 초보자가 사이트에 딱 왔을 때 뭔가 필이 팍 꽂혀야 한다"
  * "100명이 같은 키워드 입력해도 100가지 결과"
  * "겉으로는 안보이고, 뒷단에서 알고리즘이 움직여야 함"
+ * "AlgoMaker 자체 = 완전 무료"
  *
- * v6.5.0 추가 (2026.04.30):
+ * v6.5.1 변경사항 (2026.04.30):
+ * - ❌ 5회 무료 제한 제거 (완전 무료 비전 부합)
+ * - ❌ RewardedAd 모달 제거 (시니어 사용성 개선)
+ * - ✅ "다시 생성" 무제한 사용
+ * - ✅ AdSlot 광고는 그대로 → AdSense 노출 빈도 ↑ → 수익 ↑
+ *
+ * v6.5.0 변경사항 유지:
  * - 📖 작가급 스토리 모드 (넷플릭스 다큐 + 떡상 유튜버 융합)
  * - 📱 SNS 4종 실제 UI 재현 (YouTube/Shorts/Instagram/TikTok)
  * - 🎨 Midjourney v7 / Sora 2 / VEO 3 전문가급 프롬프트
@@ -15,10 +22,10 @@
  * 스토리보드 (6단계):
  * STEP 1 - 비슷한 떡상 영상 사례
  * STEP 2 - 제목 선택 (3개 중 1개)
- * STEP 3 - 떡상 시나리오 (기본 ↔ 작가급 모드 전환 가능) ← v6.5.0
- * STEP 4 - 영상 제작 AI 프롬프트 (기본 ↔ 전문가급 모드) ← v6.5.0
+ * STEP 3 - 떡상 시나리오 (기본 ↔ 작가급 모드 전환 가능)
+ * STEP 4 - 영상 제작 AI 프롬프트 (기본 ↔ 전문가급 모드)
  * STEP 5 - 메타데이터 (설명·태그·썸네일)
- * STEP 6 - SNS 업로드 (4개 플랫폼 실제 UI 재현) ← v6.5.0
+ * STEP 6 - SNS 업로드 (4개 플랫폼 실제 UI 재현)
  */
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
@@ -37,7 +44,6 @@ import {
   bumpSeed,
 } from '../_shared/contentEngine';
 import AdSlot from '../_shared/AdSlot';
-import RewardedAd from '../_shared/RewardedAd';
 
 // ============================================================
 // v6.5.0 추가 모듈 (작가급 시나리오 + SNS 4종 + 전문가 프롬프트)
@@ -81,8 +87,6 @@ function PublishPageInner() {
   const [snsTab, setSnsTab] = useState<'youtube' | 'shorts' | 'tiktok' | 'reels'>('youtube');
   const [copied, setCopied] = useState('');
   const [regenerateKey, setRegenerateKey] = useState(0);
-  const [showRewarded, setShowRewarded] = useState(false);
-  const [usedCount, setUsedCount] = useState(0);
   
   // ============================================================
   // v6.5.0: 작가급 모드 토글 (기본 OFF, 토글 ON 시 v6.5.0 발동)
@@ -91,19 +95,12 @@ function PublishPageInner() {
   const [proPromptMode, setProPromptMode] = useState(false);    // STEP 4 전문가 프롬프트 모드
   const [proSnsMode, setProSnsMode] = useState(true);           // STEP 6 SNS 실제 UI 모드 (기본 ON)
 
-  // 무료 횟수 (5회까지 무료)
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const used = parseInt(localStorage.getItem('algomaker_use_count') || '0');
-      setUsedCount(used);
-      if (used === 0) {
-        localStorage.setItem('algomaker_use_count', '1');
-        setUsedCount(1);
-      }
-    }
-  }, []);
-
-  const remainingFree = Math.max(0, 5 - usedCount);
+  // ============================================================
+  // v6.5.1: 무료 횟수 제한 제거 (완전 무료 비전 부합)
+  // 박 대표님 결정: AdSense 광고 최적화로 진행
+  // → 5회 제한 + RewardedAd 모달 제거
+  // → 무제한 사용 가능 → 페이지 더 자주 새로고침 → AdSlot 광고 노출 ↑
+  // ============================================================
 
   // 콘텐츠 생성
   const titles = useMemo(
@@ -160,21 +157,11 @@ function PublishPageInner() {
     }
   }, [keyword, selectedTitle, cat.name, regenerateKey]);
 
-  // 다시 생성 (무료 5회 + 광고 시청 필요)
+  // ============================================================
+  // v6.5.1: 다시 생성 (무제한, 광고 모달 없음)
+  // 박 대표님 결정: AdSense 광고 최적화 → 페이지 새로고침 빈도 ↑ → 노출 ↑
+  // ============================================================
   const handleRegenerate = () => {
-    if (remainingFree > 0) {
-      const newCount = usedCount + 1;
-      localStorage.setItem('algomaker_use_count', String(newCount));
-      setUsedCount(newCount);
-      bumpSeed();
-      setRegenerateKey(k => k + 1);
-    } else {
-      setShowRewarded(true);
-    }
-  };
-
-  const handleRewardedComplete = () => {
-    setShowRewarded(false);
     bumpSeed();
     setRegenerateKey(k => k + 1);
   };
@@ -1235,12 +1222,12 @@ function PublishPageInner() {
           </div>
         </header>
 
-        {/* QUOTA BAR */}
+        {/* QUOTA BAR - v6.5.1: 무제한 사용 안내로 변경 */}
         <div className="quotaBar">
           <div className="quotaText">
-            🎁 마음에 안 들면 다시 만들어 보세요. 매번 다른 시나리오가 나와요.<br />
+            🎁 마음에 안 들면 몇 번이고 다시 만들어 보세요. 매번 다른 시나리오가 나와요.<br />
             <span style={{ fontSize: '12px', color: '#888' }}>
-              무료 이용권 <span className="quotaCount">{remainingFree}회</span> 남음 (이후엔 광고 시청)
+              <span className="quotaCount">완전 무료</span> · 회원가입 없이 무제한 사용 가능 ✨
             </span>
           </div>
           <button className="regenBtn" onClick={handleRegenerate}>
@@ -1970,13 +1957,6 @@ function PublishPageInner() {
           </div>
         </div>
       </div>
-
-      <RewardedAd
-        open={showRewarded}
-        rewardLabel="1회 추가 생성"
-        onComplete={handleRewardedComplete}
-        onClose={() => setShowRewarded(false)}
-      />
     </V11Shell>
   );
 }
