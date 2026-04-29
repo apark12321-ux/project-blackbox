@@ -158,6 +158,33 @@ function CreatePageInner() {
         }
         .ctaBtn:disabled { background: #ccc; cursor: not-allowed; }
         .adArea { margin: 32px 0; }
+
+        /* 🎯 시니어 모바일 최적화 */
+        @media (max-width: 600px) {
+          .page { padding: 18px 14px 50px !important; }
+          .pageTitle { font-size: 22px !important; line-height: 1.4 !important; }
+          .pageSub { font-size: 14.5px !important; line-height: 1.7 !important; }
+          .stepBadge { font-size: 12px !important; }
+          
+          .catGrid { 
+            grid-template-columns: 1fr 1fr !important;
+            gap: 10px !important;
+          }
+          .catCard {
+            padding: 18px 14px !important;
+            min-height: 110px;
+          }
+          .catCardEmoji { font-size: 32px !important; }
+          .catCardName { font-size: 14px !important; line-height: 1.4 !important; }
+          .catCardDesc { font-size: 12px !important; line-height: 1.55 !important; }
+          
+          .ctaBtn {
+            font-size: 16px !important;
+            padding: 16px 28px !important;
+            min-height: 52px;
+            width: 100%;
+          }
+        }
       `}</style>
 
       <div className="page">

@@ -493,6 +493,242 @@ export default function HomePage() {
           transform: translateY(-2px);
           box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
         }
+
+        /* ============================================ */
+        /* 데이터 신뢰도 (CENTS - E + N 강화) */
+        /* ============================================ */
+        .trustSection {
+          background: linear-gradient(135deg, #fdf1e7 0%, #fff8f3 100%);
+          border-radius: 16px;
+          padding: 28px 24px 22px;
+          margin: 28px 0 32px;
+          text-align: center;
+        }
+        .trustGrid {
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 16px;
+          margin-bottom: 14px;
+        }
+        @media (max-width: 720px) {
+          .trustGrid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
+        }
+        .trustCard {
+          background: #fff;
+          border-radius: 12px;
+          padding: 18px 12px 14px;
+          border: 1.5px solid #fdebd9;
+        }
+        .trustNum {
+          font-size: 32px;
+          font-weight: 800;
+          color: #c65f3b;
+          line-height: 1;
+          margin-bottom: 6px;
+          letter-spacing: -0.03em;
+        }
+        @media (max-width: 600px) {
+          .trustNum { font-size: 28px !important; }
+        }
+        .trustUnit {
+          font-size: 16px;
+          font-weight: 700;
+          margin-left: 2px;
+        }
+        .trustLabel {
+          font-size: 13px;
+          font-weight: 700;
+          color: #1a1a1a;
+          margin-bottom: 4px;
+          letter-spacing: -0.01em;
+        }
+        .trustDesc {
+          font-size: 11px;
+          color: #888;
+          line-height: 1.5;
+        }
+        .trustNote {
+          font-size: 13px;
+          color: #92400e;
+          font-weight: 600;
+          margin: 12px 0 0;
+        }
+        @media (max-width: 600px) {
+          .trustSection { padding: 22px 16px 18px !important; margin: 22px 0 28px !important; }
+          .trustLabel { font-size: 13.5px !important; }
+          .trustDesc { font-size: 11.5px !important; }
+          .trustNote { font-size: 13px !important; line-height: 1.65 !important; }
+        }
+
+        /* ============================================ */
+        /* 오늘의 핵심 (CENTS - N 즉시 가치) */
+        /* ============================================ */
+        .todaySection {
+          background: linear-gradient(180deg, #fffbf5 0%, #fff 100%);
+          border: 1px solid #fdebd9;
+          border-radius: 16px;
+          padding: 32px 28px;
+          margin: 28px 0 32px;
+        }
+        @media (max-width: 600px) {
+          .todaySection { padding: 26px 20px !important; }
+        }
+        .todayHead {
+          text-align: center;
+          margin-bottom: 22px;
+        }
+        .todayBadge {
+          display: inline-block;
+          padding: 6px 14px;
+          background: #c65f3b;
+          color: #fff;
+          border-radius: 100px;
+          font-size: 11px;
+          font-weight: 800;
+          letter-spacing: 0.04em;
+          margin-bottom: 10px;
+        }
+        .todayTitle {
+          font-size: 22px;
+          font-weight: 800;
+          color: #1a1a1a;
+          letter-spacing: -0.025em;
+          margin: 0;
+        }
+        @media (max-width: 600px) {
+          .todayTitle { font-size: 20px !important; }
+        }
+        .todayCard {
+          background: #fff;
+          border: 2px solid #fdebd9;
+          border-radius: 14px;
+          padding: 28px;
+          text-align: center;
+        }
+        @media (max-width: 600px) {
+          .todayCard { padding: 22px 18px !important; }
+        }
+        .todayQuote {
+          font-size: 22px;
+          font-weight: 800;
+          color: #1a1a1a;
+          line-height: 1.5;
+          letter-spacing: -0.02em;
+          margin-bottom: 14px;
+        }
+        @media (max-width: 600px) {
+          .todayQuote { font-size: 19px !important; line-height: 1.45 !important; }
+        }
+        .todayQuoteAccent {
+          color: #c65f3b;
+        }
+        .todayBody {
+          font-size: 15px;
+          color: #555;
+          line-height: 1.75;
+          margin: 0 0 22px;
+          max-width: 580px;
+          margin-left: auto;
+          margin-right: auto;
+          margin-bottom: 22px;
+        }
+        @media (max-width: 600px) {
+          .todayBody { font-size: 14.5px !important; line-height: 1.75 !important; }
+        }
+        .todayBody strong {
+          color: #c65f3b;
+          font-weight: 800;
+        }
+        .todayCTA {
+          display: inline-block;
+          padding: 14px 28px;
+          background: #c65f3b;
+          color: #fff;
+          font-size: 15px;
+          font-weight: 800;
+          border-radius: 100px;
+          text-decoration: none;
+          transition: all 0.2s;
+          min-height: 50px;
+          line-height: 1.4;
+        }
+        .todayCTA:hover {
+          background: #d97155;
+          transform: translateY(-2px);
+          box-shadow: 0 6px 16px rgba(198, 95, 59, 0.3);
+        }
+        @media (max-width: 600px) {
+          .todayCTA { 
+            font-size: 15px !important; 
+            padding: 14px 26px !important;
+            min-height: 50px !important;
+          }
+        }
+
+        /* ============================================ */
+        /* 🎯 시니어 모바일 최적화 (v6.3.0) */
+        /* ============================================ */
+        @media (max-width: 600px) {
+          /* 폰트 키우기 - 시니어 시력 고려 */
+          .heroTitle { font-size: 26px !important; line-height: 1.35 !important; }
+          .heroSub { font-size: 16px !important; line-height: 1.7 !important; }
+          .heroCTA { 
+            font-size: 16px !important; 
+            padding: 16px 28px !important; 
+            min-height: 52px;
+          }
+          .sectionTitle { font-size: 19px !important; }
+          .sectionDesc { font-size: 15px !important; line-height: 1.7 !important; }
+          .guideCardTitle { font-size: 16px !important; line-height: 1.45 !important; }
+          .guideCardSub { font-size: 14px !important; line-height: 1.6 !important; }
+          .guideCardCat { font-size: 12px !important; }
+          
+          /* 터치 영역 확대 */
+          .guideCard {
+            padding: 18px 18px 16px !important;
+            min-height: 140px;
+          }
+          .catCard {
+            padding: 18px 14px !important;
+            min-height: 100px;
+          }
+          .catEmoji { font-size: 32px !important; }
+          .catName { font-size: 14.5px !important; }
+          .catDesc { font-size: 12.5px !important; line-height: 1.55 !important; }
+          
+          /* CTA 버튼 시니어 친화 */
+          .ctaBtn {
+            font-size: 17px !important;
+            padding: 18px 32px !important;
+            min-height: 56px;
+            min-width: 200px;
+          }
+          .ctaTitle { font-size: 22px !important; }
+          .ctaSub { font-size: 15px !important; line-height: 1.7 !important; }
+          
+          /* FAQ 카드 가독성 */
+          .faqQ { font-size: 15px !important; line-height: 1.6 !important; }
+          .faqA { font-size: 14.5px !important; line-height: 1.75 !important; }
+          
+          /* 보조 도구 안내 */
+          .toolBox {
+            padding: 22px 18px !important;
+            flex-direction: column;
+            gap: 14px;
+          }
+          .toolTitle { font-size: 17px !important; }
+          .toolDesc { font-size: 14.5px !important; line-height: 1.7 !important; }
+          .toolBtn {
+            font-size: 16px !important;
+            padding: 14px 24px !important;
+            min-height: 48px;
+            width: 100%;
+          }
+          
+          /* 페이지 여백 줄이기 (모바일 화면 활용) */
+          .page { padding: 18px 14px 60px !important; }
+          .hero { padding: 32px 18px 28px !important; }
+        }
       `}</style>
 
       <div className="page">
@@ -513,6 +749,37 @@ export default function HomePage() {
           <Link href="/blog" className="heroCTA">
             📚 가이드 둘러보기 →
           </Link>
+        </section>
+
+        {/* ============================================ */}
+        {/* [데이터 신뢰도 - CENTS의 E(진입) + N(욕구) 강화] */}
+        {/* ============================================ */}
+        <section className="trustSection">
+          <div className="trustGrid">
+            <div className="trustCard">
+              <div className="trustNum">27<span className="trustUnit">개</span></div>
+              <div className="trustLabel">떡상 영상 패턴</div>
+              <div className="trustDesc">실제 분석한 사례 데이터</div>
+            </div>
+            <div className="trustCard">
+              <div className="trustNum">26<span className="trustUnit">편</span></div>
+              <div className="trustLabel">시니어 영상 가이드</div>
+              <div className="trustDesc">매주 새 가이드 추가</div>
+            </div>
+            <div className="trustCard">
+              <div className="trustNum">9<span className="trustUnit">개</span></div>
+              <div className="trustLabel">분야별 자동 매칭</div>
+              <div className="trustDesc">AI 기반 자동 분석</div>
+            </div>
+            <div className="trustCard">
+              <div className="trustNum">100<span className="trustUnit">%</span></div>
+              <div className="trustLabel">완전 무료</div>
+              <div className="trustDesc">회원가입 없이 사용</div>
+            </div>
+          </div>
+          <p className="trustNote">
+            ✓ 다른 곳에서 볼 수 없는 시니어 영상 패턴 데이터를 무료로 공개합니다
+          </p>
         </section>
 
         {/* 추천 가이드 */}
@@ -546,6 +813,29 @@ export default function HomePage() {
         <div style={{ margin: '24px 0' }}>
           <AdSlot slot="home-mid" variant="horizontal" />
         </div>
+
+        {/* ============================================ */}
+        {/* [오늘 배울 1가지] CENTS - N(욕구) 즉시 가치 */}
+        {/* ============================================ */}
+        <section className="todaySection">
+          <div className="todayHead">
+            <span className="todayBadge">📌 오늘의 핵심</span>
+            <h2 className="todayTitle">처음 시작하는 분께 가장 중요한 1가지</h2>
+          </div>
+          <div className="todayCard">
+            <div className="todayQuote">
+              "영상 만들기에서 가장 중요한 건<br />
+              <span className="todayQuoteAccent">"꾸준함"</span>입니다"
+            </div>
+            <p className="todayBody">
+              일주일에 한 편이면 충분합니다. 1년에 50편이면 본인만의 색깔이 만들어집니다.
+              빠른 떡상 욕심보다 <strong>매주 진심 담은 한 편</strong>이 더 강력합니다.
+            </p>
+            <Link href="/knowhow/middle-aged-channel-tips" className="todayCTA">
+              👴 시니어 영상 시작 7가지 가이드 →
+            </Link>
+          </div>
+        </section>
 
         {/* 분야별 탐색 */}
         <section className="section">

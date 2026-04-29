@@ -1038,6 +1038,137 @@ function PublishPageInner() {
           max-width: 400px;
           text-align: center;
         }
+
+        /* ============================================ */
+        /* 🎯 시니어 모바일 최적화 (v6.3.0) */
+        /* ============================================ */
+        @media (max-width: 600px) {
+          /* 페이지 여백 */
+          .page { padding: 18px 12px 50px !important; }
+
+          /* 헤더 영역 */
+          .pageHeader { padding: 22px 16px !important; }
+          .pageTitle { font-size: 20px !important; line-height: 1.4 !important; }
+          .pageSub { font-size: 14px !important; line-height: 1.6 !important; }
+
+          /* STEP 카드 - 시니어 시력 고려 */
+          .stepHead {
+            padding: 16px 14px !important;
+            gap: 10px !important;
+            min-height: 64px;
+          }
+          .stepEmoji {
+            width: 40px !important;
+            height: 40px !important;
+            font-size: 20px !important;
+          }
+          .stepLabel { font-size: 11px !important; }
+          .stepTitle { 
+            font-size: 14.5px !important; 
+            line-height: 1.5 !important;
+          }
+          .stepArrow { font-size: 14px !important; }
+
+          /* STEP 본문 */
+          .stepBody { padding: 14px 14px 16px !important; }
+
+          /* 시퀀스 카드 (STEP 3) */
+          .seqCard { 
+            padding: 0 !important; 
+            margin-bottom: 12px !important;
+          }
+          .seqHead { padding: 14px 16px 10px !important; }
+          .seqNum {
+            width: 32px !important;
+            height: 32px !important;
+            font-size: 14px !important;
+          }
+          .seqStepTitle { font-size: 14.5px !important; }
+          .seqDuration { font-size: 11.5px !important; }
+          .seqPurpose { 
+            padding: 10px 16px !important; 
+            font-size: 13px !important;
+            line-height: 1.65 !important;
+          }
+          .seqScriptBox {
+            font-size: 13.5px !important;
+            padding: 12px 14px !important;
+            line-height: 1.7 !important;
+          }
+          .seqActions { padding: 0 14px 10px !important; }
+          .seqActionBtn {
+            font-size: 12.5px !important;
+            padding: 10px 14px !important;
+            min-height: 40px;
+          }
+          .seqTip {
+            padding: 10px 14px !important;
+            font-size: 12px !important;
+            line-height: 1.65 !important;
+          }
+
+          /* 떡상 사례 카드 (STEP 1) */
+          .caseCard { padding: 14px 14px !important; }
+          .caseCardEmoji { font-size: 20px !important; }
+          .caseCardPattern { font-size: 13.5px !important; }
+          .caseCardLength { font-size: 11px !important; }
+          .caseCardLabel { font-size: 10px !important; }
+          .caseCardHookText { 
+            font-size: 13px !important; 
+            line-height: 1.55 !important;
+          }
+          .caseCardWhy p { 
+            font-size: 12.5px !important; 
+            line-height: 1.7 !important;
+          }
+          .caseCardKey { 
+            font-size: 12px !important; 
+            line-height: 1.6 !important;
+          }
+          .casesIntro {
+            font-size: 12.5px !important;
+            padding: 10px 14px !important;
+            line-height: 1.7 !important;
+          }
+
+          /* 제목 카드 (STEP 2) */
+          .titleCard { padding: 14px 16px !important; }
+          .titleCardText { 
+            font-size: 14.5px !important; 
+            line-height: 1.5 !important;
+          }
+          .titleHelp { 
+            font-size: 13px !important; 
+            padding: 10px 14px !important;
+          }
+
+          /* SNS 탭 (STEP 6) */
+          .snsTabs {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+          }
+          .snsTab { 
+            font-size: 12.5px !important; 
+            padding: 10px 14px !important;
+            min-width: 80px;
+            white-space: nowrap;
+          }
+          .snsBox { padding: 14px !important; }
+
+          /* 펼치기/접기 버튼 */
+          .toggleBtn { 
+            font-size: 12.5px !important; 
+            padding: 8px 14px !important;
+            min-height: 36px;
+          }
+
+          /* 무료 횟수 안내 */
+          .quotaBar { 
+            padding: 12px 14px !important; 
+            font-size: 13px !important;
+          }
+          .quotaCount { font-size: 14px !important; }
+        }
       `}</style>
 
       <div className="page">

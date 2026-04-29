@@ -61,6 +61,27 @@ export default function Page() {
           margin-bottom: 6px; transition: all 0.15s;
         }
         .relatedLink:hover { border-color: #c65f3b; background: #fff8f3; }
+
+
+        /* 🎯 시니어 모바일 최적화 */
+        @media (max-width: 600px) {
+          .page { padding: 22px 14px 50px !important; }
+          .title { font-size: 22px !important; line-height: 1.4 !important; }
+          .sub { font-size: 14.5px !important; line-height: 1.7 !important; }
+          .pageBadge { font-size: 12px !important; padding: 6px 14px !important; }
+          .content { padding: 18px 16px !important; line-height: 1.85 !important; }
+          .content h2 { font-size: 18px !important; line-height: 1.4 !important; margin: 24px 0 12px !important; }
+          .content h3 { font-size: 16px !important; }
+          .content p { font-size: 15px !important; line-height: 1.85 !important; margin: 0 0 14px !important; }
+          .content ul { padding-left: 20px !important; }
+          .content li { font-size: 14.5px !important; line-height: 1.8 !important; }
+          .relatedLink { 
+            font-size: 13.5px !important; 
+            padding: 12px 14px !important; 
+            min-height: 44px;
+          }
+          .relatedTitle { font-size: 14px !important; }
+        }
       `}</style>
 
       <div className="page">
@@ -124,6 +145,37 @@ export default function Page() {
           </Link>
           <Link href="/create" className="relatedLink">
             ✨ AI로 영상 자료 만들기 →
+          </Link>
+        </div>
+      </div>
+      <div style={{ maxWidth: '920px', margin: '0 auto', padding: '0 24px 40px' }}>
+        <div style={{ 
+          marginTop: '24px', 
+          padding: '20px', 
+          background: 'linear-gradient(135deg, #fdf1e7 0%, #fff8f3 100%)',
+          borderRadius: '14px',
+          border: '1.5px solid #fdebd9',
+          textAlign: 'center'
+        }}>
+          <div style={{ fontSize: '13px', color: '#92400e', fontWeight: 700, marginBottom: '8px', letterSpacing: '0.04em' }}>
+            📌 더 많은 가이드
+          </div>
+          <div style={{ fontSize: '15px', color: '#1a1a1a', fontWeight: 700, marginBottom: '14px', letterSpacing: '-0.02em' }}>
+            시니어층 영상 만들기 26편 가이드 모음
+          </div>
+          <Link href="/blog" style={{
+            display: 'inline-block',
+            padding: '12px 24px',
+            background: '#c65f3b',
+            color: '#fff',
+            borderRadius: '100px',
+            textDecoration: 'none',
+            fontSize: '14px',
+            fontWeight: 800,
+            minHeight: '44px',
+            lineHeight: '1.4'
+          }}>
+            📚 전체 가이드 보러가기 →
           </Link>
         </div>
       </div>

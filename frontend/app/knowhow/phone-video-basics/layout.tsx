@@ -47,12 +47,41 @@ const articleSchema = {
   inLanguage: 'ko-KR',
 };
 
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: '홈',
+      item: 'https://nutube.kr',
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: '가이드',
+      item: 'https://nutube.kr/blog',
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: '핸드폰만으로 영상 만들기 입문 - 시니어층용 step-by-step',
+      item: 'https://nutube.kr/knowhow/phone-video-basics',
+    },
+  ],
+};
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       {children}
     </>

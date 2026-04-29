@@ -184,20 +184,21 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
         }
         .menuSection { margin-bottom: 24px; }
         .menuLabel {
-          font-size: 10px; font-weight: 700; color: #999;
+          font-size: 10.5px; font-weight: 700; color: #999;
           padding: 0 8px 8px; letter-spacing: 0.08em;
         }
         .menuItem {
-          display: flex; align-items: center; gap: 10px;
-          padding: 9px 10px; border-radius: 8px; cursor: pointer;
-          transition: all 0.15s; margin-bottom: 2px;
-          font-size: 13.5px; color: #555; font-weight: 500;
+          display: flex; align-items: center; gap: 11px;
+          padding: 12px 12px; border-radius: 10px; cursor: pointer;
+          transition: all 0.15s; margin-bottom: 3px;
+          font-size: 14.5px; color: #444; font-weight: 600;
+          min-height: 44px;
         }
         .menuItem:hover { background: #fafafa; color: #1a1a1a; }
         .menuItem.active {
           background: #fdf1e7; color: #c65f3b; font-weight: 700;
         }
-        .menuIcon { font-size: 16px; }
+        .menuIcon { font-size: 18px; }
         
         /* 알림 카드 */
         .noticeCard {
@@ -209,7 +210,7 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
           display: flex; align-items: flex-start; gap: 8px;
         }
         .noticeText {
-          font-size: 11.5px; color: #555; line-height: 1.5;
+          font-size: 12px; color: #555; line-height: 1.55;
           flex: 1;
         }
         .noticeTag {
@@ -238,7 +239,9 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
         }
         .menuToggle {
           background: none; border: none; cursor: pointer;
-          padding: 6px; font-size: 18px; color: #555;
+          padding: 10px; font-size: 24px; color: #555;
+          min-width: 44px; min-height: 44px;
+          display: flex; align-items: center; justify-content: center;
         }
         
         /* 콘텐츠 */
@@ -287,10 +290,11 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
         /* 모바일 */
         @media (max-width: 768px) {
           .sidebar {
-            position: fixed; left: -260px;
+            position: fixed; left: -280px;
             top: 0; bottom: 0; height: 100vh;
             transition: left 0.25s; z-index: 1000;
             box-shadow: 0 0 24px rgba(0,0,0,0.1);
+            width: 280px;
           }
           .sidebar.open { left: 0; }
           .mobileHeader { display: flex; }
@@ -298,6 +302,14 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
             grid-template-columns: 1fr 1fr;
             gap: 24px;
           }
+          /* 모바일 사이드바 메뉴 더 크게 */
+          .menuItem {
+            font-size: 15.5px !important;
+            padding: 14px 14px !important;
+            min-height: 50px;
+          }
+          .menuIcon { font-size: 20px !important; }
+          .menuLabel { font-size: 11.5px !important; }
         }
         @media (max-width: 480px) {
           .footerInner { grid-template-columns: 1fr; }

@@ -133,6 +133,30 @@ export default function ConfigurePage() {
         .ctaBtn:disabled { background: #ccc; cursor: not-allowed; }
 
         .adArea { margin: 32px 0; }
+
+        /* 🎯 시니어 모바일 최적화 */
+        @media (max-width: 600px) {
+          .page { padding: 18px 14px 50px !important; }
+          .pageTitle { font-size: 22px !important; line-height: 1.4 !important; }
+          .pageSub { font-size: 14.5px !important; line-height: 1.7 !important; }
+          .stepBadge { font-size: 12px !important; }
+          
+          /* 시나리오 카드 */
+          .scenCard {
+            padding: 18px 16px !important;
+            min-height: 110px;
+          }
+          .scenEmoji { font-size: 28px !important; }
+          .scenName { font-size: 15px !important; line-height: 1.4 !important; }
+          .scenDesc { font-size: 13px !important; line-height: 1.65 !important; }
+          
+          .ctaBtn {
+            font-size: 16px !important;
+            padding: 16px 28px !important;
+            min-height: 52px;
+            width: 100%;
+          }
+        }
       `}</style>
 
       <div className="page">

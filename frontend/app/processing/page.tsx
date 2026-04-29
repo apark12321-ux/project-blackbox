@@ -53,7 +53,16 @@ export default function ProcessingPage() {
 
       if (elapsed >= totalDuration) {
         clearInterval(interval);
-        setTimeout(() => router.push('/publish'), 500);
+        // ⚠️ 핵심 버그 수정 - publish는 URL 파라미터로 데이터 받음
+        // localStorage의 project 데이터를 URL 파라미터로 전달
+        setTimeout(() => {
+          const project = getProject();
+          const params = new URLSearchParams();
+          if (project.keyword) params.set('keyword', project.keyword);
+          if (project.category) params.set('category', project.category);
+          if (project.scenarioStyleId) params.set('scenario', project.scenarioStyleId);
+          router.push(`/publish?${params.toString()}`);
+        }, 500);
       }
     }, tickInterval);
 

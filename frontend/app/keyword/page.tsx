@@ -159,6 +159,37 @@ export default function KeywordPage() {
         .ctaBtn:disabled { background: #ccc; cursor: not-allowed; }
 
         .adArea { margin: 32px 0; }
+
+        /* 🎯 시니어 모바일 최적화 */
+        @media (max-width: 600px) {
+          .page { padding: 18px 14px 50px !important; }
+          .pageTitle { font-size: 22px !important; line-height: 1.4 !important; }
+          .pageSub { font-size: 14.5px !important; line-height: 1.7 !important; }
+          .stepBadge { font-size: 12px !important; }
+          
+          /* 키워드 입력 큰 글씨 */
+          .keywordInput {
+            font-size: 18px !important;
+            padding: 16px 18px !important;
+            min-height: 60px;
+          }
+          .keywordHelp { font-size: 13.5px !important; line-height: 1.65 !important; }
+          
+          /* 트렌드 키워드 칩 */
+          .trendChip {
+            padding: 10px 16px !important;
+            font-size: 13.5px !important;
+            min-height: 42px;
+          }
+          .trendTitle { font-size: 14px !important; }
+          
+          .ctaBtn {
+            font-size: 16px !important;
+            padding: 16px 28px !important;
+            min-height: 52px;
+            width: 100%;
+          }
+        }
       `}</style>
 
       <div className="page">

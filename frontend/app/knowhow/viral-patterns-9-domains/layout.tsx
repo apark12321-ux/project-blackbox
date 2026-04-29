@@ -47,12 +47,41 @@ const articleSchema = {
   inLanguage: 'ko-KR',
 };
 
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: '홈',
+      item: 'https://nutube.kr',
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: '가이드',
+      item: 'https://nutube.kr/blog',
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: '9개 분야 떡상 영상 패턴 모음 - 27가지 검증된 공식',
+      item: 'https://nutube.kr/knowhow/viral-patterns-9-domains',
+    },
+  ],
+};
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       {children}
     </>

@@ -607,6 +607,77 @@ function BlogPageInner() {
           background: #d97155;
           transform: translateY(-2px);
         }
+
+        /* ============================================ */
+        /* 🎯 시니어 모바일 최적화 (v6.3.0) */
+        /* ============================================ */
+        @media (max-width: 600px) {
+          /* 헤더 폰트 키우기 */
+          .title { font-size: 22px !important; line-height: 1.4 !important; }
+          .sub { font-size: 14.5px !important; line-height: 1.7 !important; }
+          .pageBadge { font-size: 12px !important; padding: 6px 14px !important; }
+
+          /* 카테고리 탭 - 모바일 가로 스크롤 */
+          .categoryTabs {
+            grid-template-columns: repeat(5, minmax(85px, 1fr)) !important;
+            overflow-x: auto;
+            padding: 12px 8px !important;
+            scroll-snap-type: x mandatory;
+            -webkit-overflow-scrolling: touch;
+          }
+          .categoryTab {
+            scroll-snap-align: start;
+            padding: 12px 6px 10px !important;
+            min-width: 85px;
+          }
+          .categoryTabEmoji { font-size: 24px !important; }
+          .categoryTabLabel { font-size: 12px !important; }
+          .categoryTabCount { font-size: 10.5px !important; padding: 1px 6px !important; }
+
+          /* 추천 카드 시니어 친화 */
+          .featuredCard {
+            padding: 18px 18px !important;
+            min-height: 130px;
+          }
+          .featuredCardTitle { 
+            font-size: 17px !important; 
+            line-height: 1.4 !important;
+            margin-bottom: 10px !important;
+          }
+          .featuredCardSub { 
+            font-size: 14.5px !important; 
+            line-height: 1.65 !important;
+          }
+          .featuredCardMeta { font-size: 12px !important; }
+
+          /* 일반 글 카드 */
+          .articleCard {
+            padding: 16px 16px !important;
+            min-height: 110px;
+          }
+          .articleCardTitle { 
+            font-size: 16px !important; 
+            line-height: 1.45 !important;
+          }
+          .articleCardSub { 
+            font-size: 13.5px !important; 
+            line-height: 1.65 !important;
+          }
+
+          /* 섹션 제목 */
+          .sectionTitle { font-size: 18px !important; }
+
+          /* CTA 버튼 시니어 친화 */
+          .ctaBtn {
+            font-size: 16px !important;
+            padding: 16px 28px !important;
+            min-height: 52px;
+            min-width: 220px;
+          }
+
+          /* 페이지 여백 */
+          .page { padding: 22px 14px 50px !important; }
+        }
       `}</style>
 
       <div className="page">

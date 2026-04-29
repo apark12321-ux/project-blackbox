@@ -47,12 +47,41 @@ const articleSchema = {
   inLanguage: 'ko-KR',
 };
 
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: '홈',
+      item: 'https://nutube.kr',
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: '가이드',
+      item: 'https://nutube.kr/blog',
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: '시니어층이 영상 만들 때 쓸 만한 무료 AI 도구 5가지',
+      item: 'https://nutube.kr/knowhow/ai-tools-for-seniors',
+    },
+  ],
+};
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       {children}
     </>

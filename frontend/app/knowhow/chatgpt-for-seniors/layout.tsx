@@ -47,12 +47,41 @@ const articleSchema = {
   inLanguage: 'ko-KR',
 };
 
+const breadcrumbSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'BreadcrumbList',
+  itemListElement: [
+    {
+      '@type': 'ListItem',
+      position: 1,
+      name: '홈',
+      item: 'https://nutube.kr',
+    },
+    {
+      '@type': 'ListItem',
+      position: 2,
+      name: '가이드',
+      item: 'https://nutube.kr/blog',
+    },
+    {
+      '@type': 'ListItem',
+      position: 3,
+      name: 'ChatGPT 시니어층 활용법 - 영상 대본 만들기',
+      item: 'https://nutube.kr/knowhow/chatgpt-for-seniors',
+    },
+  ],
+};
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
     <>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbSchema) }}
       />
       {children}
     </>
