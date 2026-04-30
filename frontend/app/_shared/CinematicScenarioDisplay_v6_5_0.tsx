@@ -41,7 +41,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
         }
 
         .docKicker {
-          font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 10.5px;
           font-weight: 600;
           letter-spacing: 0.18em;
@@ -54,7 +54,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
         }
 
         .docTitle {
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 24px;
           font-weight: 700;
           color: #0a0a0a;
@@ -102,7 +102,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
         }
 
         .specLabel {
-          font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 9.5px;
           font-weight: 600;
           letter-spacing: 0.15em;
@@ -112,7 +112,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
         }
 
         .specValue {
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 16px;
           font-weight: 700;
           color: #0a0a0a;
@@ -136,7 +136,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
         }
 
         .sectionNum {
-          font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 12px;
           font-weight: 600;
           color: #0a0a0a;
@@ -161,7 +161,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
         }
 
         .sectionLabel {
-          font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 10px;
           font-weight: 700;
           letter-spacing: 0.18em;
@@ -181,7 +181,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
         /* LOGLINE */
         /* ============================================ */
         .loglineText {
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 18px;
           font-weight: 600;
           color: #0a0a0a;
@@ -200,7 +200,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
         /* EMOTIONAL ARC */
         /* ============================================ */
         .arcText {
-          font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 13.5px;
           color: #404040;
           line-height: 1.8;
@@ -219,7 +219,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
           border: 1px solid #0a0a0a;
           padding: 12px 16px;
           width: 100%;
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 11px;
           font-weight: 600;
           letter-spacing: 0.12em;
@@ -251,7 +251,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
         }
 
         .algoText {
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 14px;
           color: #0a0a0a;
           line-height: 1.75;
@@ -272,7 +272,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
           margin-bottom: 14px;
         }
         .retentionNum {
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 36px;
           font-weight: 700;
           color: #0a0a0a;
@@ -283,14 +283,14 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
           .retentionNum { font-size: 30px; }
         }
         .retentionUnit {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 13px;
           font-weight: 600;
           color: #737373;
           letter-spacing: 0.05em;
         }
         .retentionThreshold {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 10.5px;
           color: #c2410c;
           letter-spacing: 0.08em;
@@ -328,7 +328,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
           top: 12px;
           left: 50%;
           transform: translateX(-50%);
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 8.5px;
           color: #c2410c;
           letter-spacing: 0.1em;
@@ -337,7 +337,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
         }
 
         .retentionNote {
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 12.5px;
           color: #525252;
           line-height: 1.7;
@@ -390,7 +390,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
         }
 
         .beatNum {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 11.5px;
           font-weight: 700;
           color: #c2410c;
@@ -406,7 +406,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
         }
 
         .beatTitle {
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 16px;
           font-weight: 700;
           color: #0a0a0a;
@@ -419,7 +419,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
         }
 
         .beatPurpose {
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 13px;
           color: #525252;
           line-height: 1.55;
@@ -432,7 +432,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
         }
 
         .beatTime {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 10.5px;
           color: #737373;
           letter-spacing: 0.05em;
@@ -472,7 +472,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
         }
 
         .beatSectionLabel {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 9.5px;
           font-weight: 700;
           letter-spacing: 0.18em;
@@ -485,7 +485,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
         .beatSection.bridge .beatSectionLabel { color: #c2410c; }
 
         .beatSectionContent {
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 14px;
           color: #0a0a0a;
           line-height: 1.75;
@@ -522,7 +522,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
           background: #0a0a0a;
           color: #fafafa;
           padding: 20px 22px;
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 14px;
           line-height: 1.85;
           white-space: pre-line;
@@ -541,7 +541,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
           border: 1px solid #0a0a0a;
           color: #0a0a0a;
           padding: 7px 14px;
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 10.5px;
           font-weight: 600;
           letter-spacing: 0.12em;
@@ -575,7 +575,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
 
         /* Bridge note */
         .bridgeNote {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 9.5px;
           color: #737373;
           letter-spacing: 0.08em;

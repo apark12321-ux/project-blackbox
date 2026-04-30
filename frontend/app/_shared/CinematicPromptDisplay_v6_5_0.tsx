@@ -39,7 +39,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
         }
 
         .docKicker {
-          font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 10.5px;
           font-weight: 600;
           letter-spacing: 0.18em;
@@ -50,7 +50,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
         @media (max-width: 600px) { .docKicker { font-size: 10px; } }
 
         .docTitle {
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 24px;
           font-weight: 700;
           color: #0a0a0a;
@@ -74,7 +74,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
         }
 
         .rationaleNum {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 12px;
           font-weight: 600;
           color: #0a0a0a;
@@ -92,7 +92,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
         }
 
         .rationaleLabel {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 10px;
           font-weight: 700;
           letter-spacing: 0.18em;
@@ -109,7 +109,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
         }
 
         .rationaleContent {
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 14px;
           color: #0a0a0a;
           line-height: 1.85;
@@ -136,7 +136,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
           padding: 24px 0 0;
         }
         .tabSectionLabel {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 10px;
           font-weight: 700;
           letter-spacing: 0.18em;
@@ -166,7 +166,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
           background: transparent;
           border: none;
           border-right: 1px solid #e5e5e5;
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 10.5px;
           font-weight: 600;
           letter-spacing: 0.12em;
@@ -233,7 +233,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
         }
 
         .fullPromptLabel {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 10px;
           font-weight: 700;
           letter-spacing: 0.15em;
@@ -245,7 +245,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
           background: #0a0a0a;
           color: #fafafa;
           padding: 16px 20px 20px;
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 12.5px;
           line-height: 1.85;
           white-space: pre-wrap;
@@ -261,7 +261,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
         /* SPECS TABLE (Cinematography Sheet 스타일) */
         /* ============================================ */
         .specsTitle {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 10px;
           font-weight: 700;
           letter-spacing: 0.18em;
@@ -297,7 +297,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
         }
 
         .specKey {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 10.5px;
           font-weight: 600;
           color: #737373;
@@ -310,7 +310,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
         }
 
         .specVal {
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 14px;
           color: #0a0a0a;
           line-height: 1.55;
@@ -322,7 +322,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
         }
 
         .specVal.mono {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 12.5px;
           font-weight: 500;
           color: #c2410c;
@@ -355,7 +355,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
         }
 
         .metaLabel {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 9.5px;
           font-weight: 700;
           letter-spacing: 0.18em;
@@ -366,7 +366,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
         .metaBlock.warning .metaLabel { color: #c2410c; }
 
         .metaContent {
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 13px;
           color: #0a0a0a;
           line-height: 1.7;
@@ -377,7 +377,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
         }
 
         .metaContent.mono {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 11.5px;
           color: #525252;
         }
@@ -391,14 +391,14 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
         }
         .metaInline:last-child { border-bottom: none; }
         .metaInlineKey {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 10.5px;
           color: #737373;
           letter-spacing: 0.08em;
           text-transform: uppercase;
         }
         .metaInlineVal {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 12px;
           color: #0a0a0a;
           font-weight: 600;
@@ -429,7 +429,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
         }
 
         .sequenceNum {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 11.5px;
           font-weight: 700;
           color: #c2410c;
@@ -441,7 +441,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
         }
 
         .sequenceDesc {
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 14px;
           color: #0a0a0a;
           line-height: 1.55;
@@ -453,7 +453,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
         }
 
         .sequenceDuration {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 10.5px;
           color: #737373;
           letter-spacing: 0.08em;
@@ -471,7 +471,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
           padding: 14px 16px;
           background: #fffbeb;
           border-left: 2px solid #c2410c;
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 13px;
           color: #78350f;
           line-height: 1.7;
@@ -495,7 +495,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
           border: 1px solid #fafafa;
           color: #fafafa;
           padding: 5px 12px;
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           font-size: 10px;
           font-weight: 600;
           letter-spacing: 0.12em;
