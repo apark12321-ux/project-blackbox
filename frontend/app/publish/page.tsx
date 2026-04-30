@@ -2138,6 +2138,7 @@ function PublishPageInner() {
                         </div>
                       </div>
                     ))}
+                  </div>
                 </div>
               </div>
             </div>
