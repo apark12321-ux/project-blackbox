@@ -1,10 +1,11 @@
 // ============================================================
-// AlgoMaker v8.3 - Cinematic Prompt Display
-// v8.2 피드백 반영:
-// - 가독성 향상 (폰트 크기/굵기 일관성)
-// - 카드별 명확한 구분
-// - 정렬 통일
-// - 부적절한 멘트 제거
+// AlgoMaker v8.4 - Cinematic Prompt Display
+// Studio Treatment Style:
+// - Cinematography Brief 컨셉
+// - 모노크롬 (블랙·화이트·앰버)
+// - 세리프 + 모노 혼합 타이포그래피
+// - 영문 캡션 라벨
+// - 이모지 0
 // ============================================================
 
 import React, { useState } from 'react';
@@ -18,444 +19,553 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
   const [activeTab, setActiveTab] = useState<'midjourney' | 'sora' | 'veo' | 'flow' | 'notebookLM'>('midjourney');
 
   return (
-    <div className="promptWrap">
+    <div className="briefDoc">
       <style jsx>{`
-        .promptWrap {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
+        .briefDoc {
+          background: #ffffff;
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+          color: #0a0a0a;
         }
 
         /* ============================================ */
-        /* 추천 이유 카드 */
+        /* HEADER */
         /* ============================================ */
-        .rationaleCard {
-          background: linear-gradient(135deg, #f5f3ff 0%, #ede9fe 100%);
-          border: 1.5px solid #c4b5fd;
-          border-radius: 14px;
-          padding: 18px 20px;
+        .docHeader {
+          padding: 28px 0 24px;
+          border-bottom: 2px solid #0a0a0a;
         }
         @media (max-width: 600px) {
-          .rationaleCard { padding: 16px; border-radius: 12px; }
+          .docHeader { padding: 22px 0 18px; }
         }
-        .rationaleHead {
+
+        .docKicker {
+          font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
+          font-size: 10.5px;
+          font-weight: 600;
+          letter-spacing: 0.18em;
+          color: #c2410c;
+          margin-bottom: 8px;
+          text-transform: uppercase;
+        }
+        @media (max-width: 600px) { .docKicker { font-size: 10px; } }
+
+        .docTitle {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 24px;
+          font-weight: 700;
+          color: #0a0a0a;
+          letter-spacing: -0.025em;
+          line-height: 1.3;
+          margin: 0;
+        }
+        @media (max-width: 600px) { .docTitle { font-size: 20px; } }
+
+        /* ============================================ */
+        /* RATIONALE BLOCK */
+        /* ============================================ */
+        .rationaleBlock {
+          padding: 24px 0;
+          border-bottom: 1px solid #e5e5e5;
           display: flex;
-          align-items: center;
-          gap: 8px;
-          margin-bottom: 12px;
-          padding-bottom: 10px;
-          border-bottom: 1px dashed rgba(124, 58, 237, 0.25);
+          gap: 24px;
         }
-        .rationaleIcon {
-          font-size: 18px;
+        @media (max-width: 600px) {
+          .rationaleBlock { padding: 20px 0; gap: 0; flex-direction: column; }
+        }
+
+        .rationaleNum {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 12px;
+          font-weight: 600;
+          color: #0a0a0a;
           flex-shrink: 0;
+          width: 36px;
+          padding-top: 4px;
         }
+        @media (max-width: 600px) {
+          .rationaleNum { display: inline-block; width: auto; margin-bottom: 8px; }
+        }
+
+        .rationaleMain {
+          flex: 1;
+          min-width: 0;
+        }
+
         .rationaleLabel {
-          font-size: 12.5px;
-          font-weight: 800;
-          color: #5b21b6;
-          letter-spacing: -0.015em;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          color: #c2410c;
+          text-transform: uppercase;
+          margin-bottom: 8px;
         }
+
+        .rationaleDivider {
+          width: 28px;
+          height: 1px;
+          background: #0a0a0a;
+          margin-bottom: 14px;
+        }
+
         .rationaleContent {
-          font-size: 13px;
-          color: #4c1d95;
-          line-height: 1.75;
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 14px;
+          color: #0a0a0a;
+          line-height: 1.85;
           white-space: pre-line;
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .rationaleContent { font-size: 12.5px; line-height: 1.7; }
+          .rationaleContent { font-size: 13px; line-height: 1.75; }
         }
-        /* 마크다운 스타일 ** ** 처리 */
+
         .rationaleContent :global(strong) {
-          color: #6d28d9;
           font-weight: 800;
+          color: #0a0a0a;
+          text-decoration: underline;
+          text-decoration-color: #c2410c;
+          text-decoration-thickness: 2px;
+          text-underline-offset: 4px;
         }
 
         /* ============================================ */
-        /* 탭 영역 */
+        /* TAB ROW */
         /* ============================================ */
-        .tabWrap {
-          background: #fff;
-          border: 1px solid #e5e7eb;
-          border-radius: 14px;
-          overflow: hidden;
+        .tabSection {
+          padding: 24px 0 0;
         }
-        @media (max-width: 600px) {
-          .tabWrap { border-radius: 12px; }
+        .tabSectionLabel {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          color: #c2410c;
+          text-transform: uppercase;
+          margin-bottom: 8px;
         }
+        .tabSectionDivider {
+          width: 28px;
+          height: 1px;
+          background: #0a0a0a;
+          margin-bottom: 16px;
+        }
+
         .tabRow {
           display: flex;
           gap: 0;
-          background: #fafafa;
-          border-bottom: 1px solid #e5e7eb;
+          border-top: 1px solid #0a0a0a;
+          border-bottom: 1px solid #0a0a0a;
           overflow-x: auto;
           -webkit-overflow-scrolling: touch;
         }
         .tabBtn {
           flex: 1;
-          min-width: 78px;
-          padding: 12px 8px;
+          min-width: 100px;
+          padding: 14px 10px;
           background: transparent;
           border: none;
-          border-bottom: 3px solid transparent;
-          font-family: inherit;
+          border-right: 1px solid #e5e5e5;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10.5px;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          color: #737373;
           cursor: pointer;
           transition: all 0.15s;
+          text-transform: uppercase;
           text-align: center;
+          line-height: 1.4;
+        }
+        .tabBtn:last-child {
+          border-right: none;
         }
         .tabBtn:hover {
-          background: rgba(0, 0, 0, 0.03);
+          background: #fafafa;
+          color: #0a0a0a;
         }
         .tabBtn.active {
-          background: #fff;
-          border-bottom-color: #c65f3b;
-        }
-        .tabIcon {
-          font-size: 20px;
-          margin-bottom: 4px;
-          display: block;
+          background: #0a0a0a;
+          color: #ffffff;
         }
         @media (max-width: 600px) {
-          .tabIcon { font-size: 18px; }
+          .tabBtn { 
+            font-size: 9.5px; 
+            padding: 12px 6px;
+            min-width: 80px;
+            letter-spacing: 0.08em;
+          }
         }
-        .tabName {
-          font-size: 12px;
-          font-weight: 800;
-          color: #6b7280;
-          letter-spacing: -0.01em;
-          line-height: 1.3;
-        }
-        .tabBtn.active .tabName {
-          color: #c65f3b;
-        }
+
         .tabSubtitle {
-          font-size: 10.5px;
-          color: #9ca3af;
-          margin-top: 2px;
-          line-height: 1.3;
+          display: block;
+          font-size: 9px;
+          font-weight: 500;
+          margin-top: 3px;
+          letter-spacing: 0.1em;
+          opacity: 0.7;
         }
         @media (max-width: 600px) {
-          .tabName { font-size: 11px; }
-          .tabSubtitle { font-size: 9.5px; }
+          .tabSubtitle { font-size: 8.5px; }
         }
+
         .tabBody {
-          padding: 20px;
+          padding: 24px 0 8px;
         }
         @media (max-width: 600px) {
-          .tabBody { padding: 16px; }
+          .tabBody { padding: 20px 0 8px; }
         }
 
         /* ============================================ */
-        /* 풀 프롬프트 박스 */
+        /* FULL PROMPT (다크 박스) */
         /* ============================================ */
-        .fullPromptCard {
-          background: #1a1a1a;
-          border-radius: 12px;
-          padding: 16px 18px;
-          margin-bottom: 16px;
-        }
-        @media (max-width: 600px) {
-          .fullPromptCard { padding: 14px; border-radius: 10px; }
-        }
         .fullPromptHead {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          margin-bottom: 12px;
-          padding-bottom: 10px;
-          border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+          padding: 12px 16px;
+          background: #0a0a0a;
+          color: #fafafa;
+          border-bottom: 1px solid #262626;
         }
+        @media (max-width: 600px) {
+          .fullPromptHead { padding: 10px 14px; }
+        }
+
         .fullPromptLabel {
-          font-size: 11px;
-          font-weight: 800;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.15em;
           color: #fbbf24;
-          letter-spacing: 0.05em;
           text-transform: uppercase;
         }
-        .fullPromptText {
+
+        .fullPromptBody {
+          background: #0a0a0a;
+          color: #fafafa;
+          padding: 16px 20px 20px;
+          font-family: 'JetBrains Mono', monospace;
           font-size: 12.5px;
-          color: #f5f5f5;
-          line-height: 1.75;
-          font-family: 'SF Mono', 'Consolas', Monaco, monospace;
+          line-height: 1.85;
           white-space: pre-wrap;
           word-break: break-word;
-          max-height: 240px;
+          max-height: 280px;
           overflow-y: auto;
         }
         @media (max-width: 600px) {
-          .fullPromptText { font-size: 11.5px; line-height: 1.7; max-height: 200px; }
+          .fullPromptBody { padding: 14px 16px 16px; font-size: 11.5px; line-height: 1.75; max-height: 220px; }
         }
 
         /* ============================================ */
-        /* 스펙 그리드 (디테일 카드들) */
+        /* SPECS TABLE (Cinematography Sheet 스타일) */
         /* ============================================ */
         .specsTitle {
-          font-size: 13px;
-          font-weight: 800;
-          color: #1a1a1a;
-          margin-bottom: 10px;
-          letter-spacing: -0.015em;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          color: #c2410c;
+          text-transform: uppercase;
+          margin: 24px 0 8px;
         }
-        @media (max-width: 600px) {
-          .specsTitle { font-size: 12.5px; }
+
+        .specsDivider {
+          width: 28px;
+          height: 1px;
+          background: #0a0a0a;
+          margin-bottom: 16px;
         }
-        .specsGrid {
+
+        .specsTable {
+          border-top: 1px solid #0a0a0a;
+        }
+
+        .specRow {
           display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 8px;
+          grid-template-columns: 140px 1fr;
+          gap: 24px;
+          padding: 14px 0;
+          border-bottom: 1px solid #e5e5e5;
         }
         @media (max-width: 600px) {
-          .specsGrid { grid-template-columns: 1fr; gap: 6px; }
+          .specRow { 
+            grid-template-columns: 100px 1fr; 
+            gap: 14px;
+            padding: 12px 0;
+          }
         }
-        .specCard {
-          background: #fafafa;
-          border: 1px solid #e5e7eb;
-          border-radius: 10px;
-          padding: 12px 14px;
-        }
-        @media (max-width: 600px) {
-          .specCard { padding: 10px 12px; border-radius: 8px; }
-        }
-        .specLabel {
+
+        .specKey {
+          font-family: 'JetBrains Mono', monospace;
           font-size: 10.5px;
-          font-weight: 800;
-          color: #6b7280;
-          letter-spacing: 0.04em;
-          margin-bottom: 5px;
-          display: flex;
-          align-items: center;
-          gap: 4px;
+          font-weight: 600;
+          color: #737373;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          padding-top: 2px;
         }
         @media (max-width: 600px) {
-          .specLabel { font-size: 10px; }
+          .specKey { font-size: 9.5px; letter-spacing: 0.08em; }
         }
-        .specValue {
-          font-size: 12.5px;
-          color: #1a1a1a;
+
+        .specVal {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 14px;
+          color: #0a0a0a;
           line-height: 1.55;
           font-weight: 600;
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .specValue { font-size: 12px; line-height: 1.5; }
+          .specVal { font-size: 13px; }
         }
-        .specValue.mono {
-          font-family: 'SF Mono', 'Consolas', Monaco, monospace;
-          font-size: 11.5px;
-          color: #c65f3b;
+
+        .specVal.mono {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 12.5px;
+          font-weight: 500;
+          color: #c2410c;
+        }
+        @media (max-width: 600px) {
+          .specVal.mono { font-size: 11.5px; }
         }
 
         /* ============================================ */
-        /* 추가 영역 (파라미터/시드/네거티브) */
+        /* META BLOCKS (시드, 네거티브, 사운드, 출력) */
         /* ============================================ */
-        .extraCard {
-          margin-top: 12px;
-          background: #fffbeb;
-          border: 1px solid #fde68a;
-          border-radius: 10px;
-          padding: 12px 14px;
+        .metaBlock {
+          margin-top: 18px;
+          padding: 16px 18px;
+          background: #fafafa;
+          border-left: 2px solid #0a0a0a;
         }
         @media (max-width: 600px) {
-          .extraCard { padding: 10px 12px; }
+          .metaBlock { padding: 14px 16px; }
         }
-        .extraRow {
+
+        .metaBlock.warning {
+          border-left-color: #c2410c;
+          background: #fff7ed;
+        }
+
+        .metaBlock.tech {
+          border-left-color: #0a0a0a;
+          background: #f5f5f5;
+        }
+
+        .metaLabel {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 9.5px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          color: #525252;
+          text-transform: uppercase;
+          margin-bottom: 8px;
+        }
+        .metaBlock.warning .metaLabel { color: #c2410c; }
+
+        .metaContent {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 13px;
+          color: #0a0a0a;
+          line-height: 1.7;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .metaContent { font-size: 12.5px; }
+        }
+
+        .metaContent.mono {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11.5px;
+          color: #525252;
+        }
+
+        .metaInline {
           display: flex;
           justify-content: space-between;
-          align-items: center;
-          font-size: 12px;
-          margin-bottom: 6px;
+          align-items: baseline;
+          padding: 6px 0;
+          border-bottom: 1px dashed #d4d4d4;
         }
-        .extraRow:last-child { margin-bottom: 0; }
-        .extraLabel {
-          font-weight: 700;
-          color: #78350f;
-          font-size: 11px;
-        }
-        .extraVal {
-          font-family: 'SF Mono', monospace;
-          font-size: 11.5px;
-          color: #92400e;
-        }
-        .negativeBox {
-          margin-top: 10px;
-          padding: 10px;
-          background: #fef2f2;
-          border-radius: 8px;
-          font-size: 11px;
-          color: #991b1b;
-          line-height: 1.6;
-          word-break: keep-all;
-        }
-        .negativeBox strong {
-          font-weight: 800;
+        .metaInline:last-child { border-bottom: none; }
+        .metaInlineKey {
+          font-family: 'JetBrains Mono', monospace;
           font-size: 10.5px;
-          letter-spacing: 0.04em;
+          color: #737373;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
+        .metaInlineVal {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 12px;
+          color: #0a0a0a;
+          font-weight: 600;
         }
 
         /* ============================================ */
-        /* Flow 시퀀스 */
+        /* FLOW SEQUENCE */
         /* ============================================ */
-        .flowList {
+        .sequenceList {
           display: flex;
           flex-direction: column;
-          gap: 8px;
         }
-        .flowItem {
-          display: flex;
-          align-items: flex-start;
-          gap: 12px;
-          background: #f0f9ff;
-          border: 1px solid #bae6fd;
-          border-radius: 10px;
-          padding: 12px 14px;
-        }
-        @media (max-width: 600px) {
-          .flowItem { padding: 10px 12px; gap: 10px; }
-        }
-        .flowNum {
-          width: 28px;
-          height: 28px;
-          background: #0284c7;
-          color: #fff;
-          border-radius: 50%;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 12.5px;
-          font-weight: 800;
-          flex-shrink: 0;
-          margin-top: 1px;
+
+        .sequenceRow {
+          display: grid;
+          grid-template-columns: 60px 1fr 80px;
+          gap: 20px;
+          padding: 16px 0;
+          border-bottom: 1px solid #e5e5e5;
+          align-items: start;
         }
         @media (max-width: 600px) {
-          .flowNum { width: 24px; height: 24px; font-size: 11.5px; }
+          .sequenceRow { 
+            grid-template-columns: 44px 1fr 60px; 
+            gap: 12px;
+            padding: 14px 0;
+          }
         }
-        .flowContent {
-          flex: 1;
-          min-width: 0;
+
+        .sequenceNum {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11.5px;
+          font-weight: 700;
+          color: #c2410c;
+          letter-spacing: 0.1em;
+          padding-top: 2px;
         }
-        .flowDesc {
-          font-size: 12.5px;
-          color: #075985;
+        @media (max-width: 600px) {
+          .sequenceNum { font-size: 10.5px; }
+        }
+
+        .sequenceDesc {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 14px;
+          color: #0a0a0a;
           line-height: 1.55;
           font-weight: 600;
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .flowDesc { font-size: 12px; }
+          .sequenceDesc { font-size: 13px; }
         }
-        .flowTime {
+
+        .sequenceDuration {
+          font-family: 'JetBrains Mono', monospace;
           font-size: 10.5px;
-          color: #0284c7;
-          font-family: 'SF Mono', monospace;
-          margin-top: 3px;
+          color: #737373;
+          letter-spacing: 0.08em;
+          text-align: right;
+          padding-top: 4px;
+        }
+        @media (max-width: 600px) {
+          .sequenceDuration { font-size: 9.5px; }
         }
 
         /* ============================================ */
-        /* 복사 버튼 */
+        /* NOTEBOOK GUIDE */
+        /* ============================================ */
+        .notebookGuide {
+          padding: 14px 16px;
+          background: #fffbeb;
+          border-left: 2px solid #c2410c;
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 13px;
+          color: #78350f;
+          line-height: 1.7;
+          margin-bottom: 16px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .notebookGuide { font-size: 12.5px; padding: 12px 14px; }
+        }
+
+        .notebookGuide :global(strong) {
+          font-weight: 800;
+          color: #c2410c;
+        }
+
+        /* ============================================ */
+        /* COPY BUTTON */
         /* ============================================ */
         .copyBtn {
-          padding: 6px 14px;
-          background: rgba(255, 255, 255, 0.1);
-          border: 1px solid rgba(255, 255, 255, 0.2);
-          border-radius: 100px;
-          font-size: 11.5px;
-          font-weight: 700;
-          color: #fff;
+          background: transparent;
+          border: 1px solid #fafafa;
+          color: #fafafa;
+          padding: 5px 12px;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
           cursor: pointer;
-          font-family: inherit;
           transition: all 0.15s;
         }
         .copyBtn:hover {
-          background: rgba(255, 255, 255, 0.2);
-          border-color: rgba(255, 255, 255, 0.4);
+          background: #fafafa;
+          color: #0a0a0a;
         }
         .copyBtn.copied {
-          background: #16a34a;
-          border-color: #16a34a;
+          background: #c2410c;
+          border-color: #c2410c;
+          color: #ffffff;
         }
         @media (max-width: 600px) {
-          .copyBtn { font-size: 11px; padding: 5px 12px; }
-        }
-
-        /* ============================================ */
-        /* NotebookLM 안내 */
-        /* ============================================ */
-        .notebookGuide {
-          background: linear-gradient(135deg, #fffbeb 0%, #fef3c7 100%);
-          border: 1px solid #fde68a;
-          border-radius: 10px;
-          padding: 12px 14px;
-          margin-bottom: 12px;
-          font-size: 12px;
-          color: #78350f;
-          line-height: 1.6;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) {
-          .notebookGuide { font-size: 11.5px; }
+          .copyBtn { font-size: 9.5px; padding: 5px 10px; }
         }
       `}</style>
 
-      {/* ============================================ */}
-      {/* 추천 이유 카드 */}
-      {/* ============================================ */}
-      <div className="rationaleCard">
-        <div className="rationaleHead">
-          <span className="rationaleIcon">🎨</span>
-          <span className="rationaleLabel">왜 이 조합을 추천하는지</span>
-        </div>
-        <div
-          className="rationaleContent"
-          dangerouslySetInnerHTML={{
-            __html: prompts.rationale.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'),
-          }}
-        />
+      {/* DOC HEADER */}
+      <div className="docHeader">
+        <div className="docKicker">▍ Cinematography Brief</div>
+        <h2 className="docTitle">AI Production Spec — Multi Engine</h2>
       </div>
 
-      {/* ============================================ */}
-      {/* 탭 영역 */}
-      {/* ============================================ */}
-      <div className="tabWrap">
-        <div className="tabRow">
-          <TabBtn 
-            active={activeTab === 'midjourney'} 
-            onClick={() => setActiveTab('midjourney')}
-            icon="🎨"
-            name="Midjourney v7"
-            subtitle="썸네일/스틸"
-          />
-          <TabBtn 
-            active={activeTab === 'sora'} 
-            onClick={() => setActiveTab('sora')}
-            icon="🎬"
-            name="Sora 2"
-            subtitle="동영상"
-          />
-          <TabBtn 
-            active={activeTab === 'veo'} 
-            onClick={() => setActiveTab('veo')}
-            icon="✨"
-            name="VEO 3"
-            subtitle="구글 동영상"
-          />
-          <TabBtn 
-            active={activeTab === 'flow'} 
-            onClick={() => setActiveTab('flow')}
-            icon="🌊"
-            name="Flow"
-            subtitle="씬 시퀀스"
-          />
-          <TabBtn 
-            active={activeTab === 'notebookLM'} 
-            onClick={() => setActiveTab('notebookLM')}
-            icon="📓"
-            name="NotebookLM"
-            subtitle="분석"
+      {/* 01 RATIONALE */}
+      <div className="rationaleBlock">
+        <div className="rationaleNum">01</div>
+        <div className="rationaleMain">
+          <div className="rationaleLabel">Style Rationale</div>
+          <div className="rationaleDivider" />
+          <div
+            className="rationaleContent"
+            dangerouslySetInnerHTML={{
+              __html: prompts.rationale.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'),
+            }}
           />
         </div>
+      </div>
+
+      {/* 02 ENGINE TABS */}
+      <div className="tabSection">
+        <div className="tabSectionLabel">Engine Selection</div>
+        <div className="tabSectionDivider" />
         
+        <div className="tabRow">
+          <button type="button" className={`tabBtn ${activeTab === 'midjourney' ? 'active' : ''}`} onClick={() => setActiveTab('midjourney')}>
+            Midjourney v7
+            <span className="tabSubtitle">Stills</span>
+          </button>
+          <button type="button" className={`tabBtn ${activeTab === 'sora' ? 'active' : ''}`} onClick={() => setActiveTab('sora')}>
+            Sora 2
+            <span className="tabSubtitle">Video</span>
+          </button>
+          <button type="button" className={`tabBtn ${activeTab === 'veo' ? 'active' : ''}`} onClick={() => setActiveTab('veo')}>
+            VEO 3
+            <span className="tabSubtitle">Google</span>
+          </button>
+          <button type="button" className={`tabBtn ${activeTab === 'flow' ? 'active' : ''}`} onClick={() => setActiveTab('flow')}>
+            Flow
+            <span className="tabSubtitle">Sequence</span>
+          </button>
+          <button type="button" className={`tabBtn ${activeTab === 'notebookLM' ? 'active' : ''}`} onClick={() => setActiveTab('notebookLM')}>
+            NotebookLM
+            <span className="tabSubtitle">Analysis</span>
+          </button>
+        </div>
+
         <div className="tabBody">
           {activeTab === 'midjourney' && <MidjourneyPanel data={prompts.midjourney} />}
           {activeTab === 'sora' && <SoraPanel data={prompts.sora} />}
@@ -469,57 +579,36 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
 }
 
 // ============================================================
-// 탭 버튼
-// ============================================================
-function TabBtn({ active, onClick, icon, name, subtitle }: {
-  active: boolean;
-  onClick: () => void;
-  icon: string;
-  name: string;
-  subtitle: string;
-}) {
-  return (
-    <button
-      type="button"
-      className={`tabBtn ${active ? 'active' : ''}`}
-      onClick={onClick}
-    >
-      <span className="tabIcon">{icon}</span>
-      <div className="tabName">{name}</div>
-      <div className="tabSubtitle">{subtitle}</div>
-    </button>
-  );
-}
-
-// ============================================================
 // Midjourney 패널
 // ============================================================
 function MidjourneyPanel({ data }: { data: any }) {
   return (
     <>
-      <FullPromptBox label="🎨 MIDJOURNEY v7 풀 프롬프트" content={data.fullPrompt} />
+      <FullPromptBox label="Midjourney v7 — Full Prompt" content={data.fullPrompt} />
       
-      <div className="specsTitle">📋 프롬프트 구성 요소</div>
-      <div className="specsGrid">
-        <SpecCard icon="🎯" label="피사체" value={data.subject} />
-        <SpecCard icon="📐" label="구도" value={data.composition} />
-        <SpecCard icon="💡" label="조명" value={data.lighting} />
-        <SpecCard icon="🎨" label="색감" value={data.colorPalette} />
-        <SpecCard icon="📷" label="카메라/렌즈" value={data.cameraSpec} />
-        <SpecCard icon="🌫️" label="분위기" value={data.mood} />
-        <SpecCard icon="📚" label="스타일 레퍼런스" value={data.styleReference} />
-        <SpecCard icon="⚙️" label="파라미터" value={data.parameters} mono />
+      <div className="specsTitle">Composition Spec</div>
+      <div className="specsDivider" />
+      <div className="specsTable">
+        <SpecRow keyName="Subject" value={data.subject} />
+        <SpecRow keyName="Composition" value={data.composition} />
+        <SpecRow keyName="Lighting" value={data.lighting} />
+        <SpecRow keyName="Color" value={data.colorPalette} />
+        <SpecRow keyName="Camera/Lens" value={data.cameraSpec} />
+        <SpecRow keyName="Mood" value={data.mood} />
+        <SpecRow keyName="Style Ref" value={data.styleReference} />
+        <SpecRow keyName="Parameters" value={data.parameters} mono />
       </div>
-      
-      <div className="extraCard">
-        <div className="extraRow">
-          <span className="extraLabel">시드 (Seed)</span>
-          <span className="extraVal">{data.seed}</span>
+
+      <div className="metaBlock tech">
+        <div className="metaInline">
+          <span className="metaInlineKey">Seed</span>
+          <span className="metaInlineVal">{data.seed}</span>
         </div>
-        <div className="negativeBox">
-          <strong>NEGATIVE PROMPT</strong><br />
-          {data.negativePrompt}
-        </div>
+      </div>
+
+      <div className="metaBlock warning">
+        <div className="metaLabel">Negative Prompt</div>
+        <div className="metaContent mono">{data.negativePrompt}</div>
       </div>
     </>
   );
@@ -531,27 +620,24 @@ function MidjourneyPanel({ data }: { data: any }) {
 function SoraPanel({ data }: { data: any }) {
   return (
     <>
-      <FullPromptBox label="🎬 SORA 2 풀 프롬프트" content={data.fullPrompt} />
-      
-      <div className="specsTitle">📋 영상 디렉션</div>
-      <div className="specsGrid">
-        <SpecCard icon="🎬" label="샷 타입" value={data.shotType} />
-        <SpecCard icon="🎯" label="피사체" value={data.subject} />
-        <SpecCard icon="🎭" label="액션" value={data.action} />
-        <SpecCard icon="📹" label="카메라 무브" value={data.cameraMovement} />
-        <SpecCard icon="🔍" label="렌즈 스펙" value={data.lensSpec} />
-        <SpecCard icon="💡" label="조명" value={data.lighting} />
-        <SpecCard icon="🎨" label="컬러 그레이딩" value={data.colorGrading} />
-        <SpecCard icon="⏱️" label="페이싱" value={data.pacing} />
+      <FullPromptBox label="Sora 2 — Full Prompt" content={data.fullPrompt} />
+
+      <div className="specsTitle">Direction Spec</div>
+      <div className="specsDivider" />
+      <div className="specsTable">
+        <SpecRow keyName="Shot Type" value={data.shotType} />
+        <SpecRow keyName="Subject" value={data.subject} />
+        <SpecRow keyName="Action" value={data.action} />
+        <SpecRow keyName="Camera Move" value={data.cameraMovement} />
+        <SpecRow keyName="Lens" value={data.lensSpec} />
+        <SpecRow keyName="Lighting" value={data.lighting} />
+        <SpecRow keyName="Color Grade" value={data.colorGrading} />
+        <SpecRow keyName="Pacing" value={data.pacing} />
       </div>
 
-      <div className="extraCard" style={{ background: '#eff6ff', borderColor: '#bfdbfe' }}>
-        <div className="extraRow">
-          <span className="extraLabel" style={{ color: '#1e40af' }}>🔊 사운드 디렉션</span>
-        </div>
-        <div style={{ fontSize: 12, color: '#1e3a8a', lineHeight: 1.6, marginTop: 4, wordBreak: 'keep-all' }}>
-          {data.audioDirection}
-        </div>
+      <div className="metaBlock">
+        <div className="metaLabel">Audio Direction</div>
+        <div className="metaContent">{data.audioDirection}</div>
       </div>
     </>
   );
@@ -563,31 +649,30 @@ function SoraPanel({ data }: { data: any }) {
 function VeoPanel({ data }: { data: any }) {
   return (
     <>
-      <FullPromptBox label="✨ GOOGLE VEO 3 풀 프롬프트" content={data.fullPrompt} />
+      <FullPromptBox label="Google VEO 3 — Full Prompt" content={data.fullPrompt} />
       
-      <div className="specsTitle">📋 영상 사양</div>
-      <div className="specsGrid">
-        <SpecCard icon="🎬" label="씬 묘사" value={data.scene} />
-        <SpecCard icon="🎨" label="비주얼 스타일" value={data.visualStyle} />
-        <SpecCard icon="📹" label="카메라 디렉션" value={data.cameraDirection} />
-        <SpecCard icon="🌊" label="모션 레벨" value={data.motionLevel} />
+      <div className="specsTitle">Scene Spec</div>
+      <div className="specsDivider" />
+      <div className="specsTable">
+        <SpecRow keyName="Scene" value={data.scene} />
+        <SpecRow keyName="Visual Style" value={data.visualStyle} />
+        <SpecRow keyName="Camera" value={data.cameraDirection} />
+        <SpecRow keyName="Motion" value={data.motionLevel} />
       </div>
 
-      <div className="extraCard" style={{ background: '#f0fdf4', borderColor: '#86efac' }}>
-        <div className="extraRow">
-          <span className="extraLabel" style={{ color: '#15803d' }}>📐 출력 사양</span>
+      <div className="metaBlock tech">
+        <div className="metaLabel">Output Specifications</div>
+        <div className="metaInline">
+          <span className="metaInlineKey">Duration</span>
+          <span className="metaInlineVal">{data.duration}</span>
         </div>
-        <div className="extraRow">
-          <span style={{ color: '#166534', fontSize: 11.5 }}>길이</span>
-          <span className="extraVal" style={{ color: '#15803d' }}>{data.duration}</span>
+        <div className="metaInline">
+          <span className="metaInlineKey">Resolution</span>
+          <span className="metaInlineVal">{data.resolution}</span>
         </div>
-        <div className="extraRow">
-          <span style={{ color: '#166534', fontSize: 11.5 }}>해상도</span>
-          <span className="extraVal" style={{ color: '#15803d' }}>{data.resolution}</span>
-        </div>
-        <div className="extraRow">
-          <span style={{ color: '#166534', fontSize: 11.5 }}>비율</span>
-          <span className="extraVal" style={{ color: '#15803d' }}>{data.aspectRatio}</span>
+        <div className="metaInline">
+          <span className="metaInlineKey">Aspect Ratio</span>
+          <span className="metaInlineVal">{data.aspectRatio}</span>
         </div>
       </div>
     </>
@@ -600,25 +685,23 @@ function VeoPanel({ data }: { data: any }) {
 function FlowPanel({ data }: { data: any }) {
   return (
     <>
-      <div className="specsTitle">🌊 5씬 시퀀스 구성</div>
-      <div className="flowList">
+      <div className="specsTitle">5 Scene Sequence</div>
+      <div className="specsDivider" />
+      <div className="sequenceList">
         {data.sceneSequence.map((scene: any, i: number) => (
-          <div key={i} className="flowItem">
-            <div className="flowNum">{scene.scene}</div>
-            <div className="flowContent">
-              <div className="flowDesc">{scene.description}</div>
-              <div className="flowTime">⏱ {scene.duration}</div>
-            </div>
+          <div key={i} className="sequenceRow">
+            <div className="sequenceNum">SC.{String(scene.scene).padStart(2, '0')}</div>
+            <div className="sequenceDesc">{scene.description}</div>
+            <div className="sequenceDuration">{scene.duration}</div>
           </div>
         ))}
       </div>
 
-      <div style={{ marginTop: 16 }}>
-        <div className="specsTitle">📋 시퀀스 디렉션</div>
-        <div className="specsGrid">
-          <SpecCard icon="🔄" label="전환 스타일" value={data.transitionStyle} />
-          <SpecCard icon="🎭" label="전체 톤" value={data.overallTone} />
-        </div>
+      <div className="specsTitle" style={{ marginTop: 28 }}>Sequence Direction</div>
+      <div className="specsDivider" />
+      <div className="specsTable">
+        <SpecRow keyName="Transition" value={data.transitionStyle} />
+        <SpecRow keyName="Overall Tone" value={data.overallTone} />
       </div>
     </>
   );
@@ -631,15 +714,32 @@ function NotebookPanel({ data }: { data: string }) {
   return (
     <>
       <div className="notebookGuide">
-        💡 <strong>사용법:</strong> NotebookLM에 영상 키워드와 함께 이 프롬프트를 붙여넣으면, 떡상 패턴 분석과 차별화 전략을 자동으로 정리해줍니다.
+        <strong>Usage:</strong> Paste this prompt into NotebookLM along with your video keyword.
+        It will return a structured analysis of trending patterns and differentiation strategies.
       </div>
-      <FullPromptBox label="📓 NOTEBOOKLM 분석 프롬프트" content={data} />
+      <FullPromptBox label="NotebookLM — Analysis Prompt" content={data} />
     </>
   );
 }
 
 // ============================================================
-// 풀 프롬프트 박스 (다크 카드 + 복사 버튼)
+// Spec Row (라벨 / 값 한 줄)
+// ============================================================
+function SpecRow({ keyName, value, mono }: {
+  keyName: string;
+  value: string;
+  mono?: boolean;
+}) {
+  return (
+    <div className="specRow">
+      <div className="specKey">{keyName}</div>
+      <div className={`specVal ${mono ? 'mono' : ''}`}>{value}</div>
+    </div>
+  );
+}
+
+// ============================================================
+// 풀 프롬프트 박스 (다크 테마)
 // ============================================================
 function FullPromptBox({ label, content }: { label: string; content: string }) {
   const [copied, setCopied] = useState(false);
@@ -654,38 +754,18 @@ function FullPromptBox({ label, content }: { label: string; content: string }) {
   };
 
   return (
-    <div className="fullPromptCard">
+    <div>
       <div className="fullPromptHead">
-        <span className="fullPromptLabel">{label}</span>
+        <span className="fullPromptLabel">▍ {label}</span>
         <button
           type="button"
           onClick={handleCopy}
           className={`copyBtn ${copied ? 'copied' : ''}`}
         >
-          {copied ? '✓ 복사됨' : '📋 복사'}
+          {copied ? '✓ COPIED' : 'COPY'}
         </button>
       </div>
-      <pre className="fullPromptText">{content}</pre>
-    </div>
-  );
-}
-
-// ============================================================
-// 스펙 카드 (라벨 + 값)
-// ============================================================
-function SpecCard({ icon, label, value, mono }: {
-  icon: string;
-  label: string;
-  value: string;
-  mono?: boolean;
-}) {
-  return (
-    <div className="specCard">
-      <div className="specLabel">
-        <span>{icon}</span>
-        <span>{label}</span>
-      </div>
-      <div className={`specValue ${mono ? 'mono' : ''}`}>{value}</div>
+      <pre className="fullPromptBody">{content}</pre>
     </div>
   );
 }
