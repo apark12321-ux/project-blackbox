@@ -80,7 +80,7 @@ export default function Page() {
             영업일 기준 1~3일 내에 답변드립니다.
           </p>
           <p>
-            <strong>이메일:</strong> contact@nutube.kr<br />
+            <strong>이메일:</strong> apark12321@gmail.com<br />
             <strong>운영시간:</strong> 평일 09:00 ~ 18:00 (주말·공휴일 제외)
           </p>
 
