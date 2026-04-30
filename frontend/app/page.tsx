@@ -17,7 +17,7 @@
  * - ✅ AEO/GEO 최적화 그대로 유지
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import Link from 'next/link';
 import { V11Shell } from './_shared/V11Shell';
 import AdSlot from './_shared/AdSlot';
@@ -175,27 +175,9 @@ const RETENTION_CURVE_POINTS = [
 
 export default function HomePage() {
   // ============================================================
-  // v8.0 NEW: 키워드 입력 + 카운터 애니메이션
+  // v8.6: 키워드 입력 (가짜 카운터 제거됨)
   // ============================================================
   const [keyword, setKeyword] = useState('');
-  const [counter, setCounter] = useState(0);
-  const counterTarget = 13847;
-  const counterRef = useRef<HTMLDivElement>(null);
-
-  // 카운터 애니메이션 (페이지 진입 후 한 번)
-  useEffect(() => {
-    let start = 0;
-    const duration = 2000;
-    const startTime = Date.now();
-    const animate = () => {
-      const elapsed = Date.now() - startTime;
-      const progress = Math.min(elapsed / duration, 1);
-      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
-      setCounter(Math.floor(counterTarget * eased));
-      if (progress < 1) requestAnimationFrame(animate);
-    };
-    requestAnimationFrame(animate);
-  }, []);
 
   const handleStart = (initialKeyword?: string) => {
     const k = initialKeyword || keyword;
@@ -335,33 +317,6 @@ export default function HomePage() {
           margin: 0 0 26px;
         }
         @media (max-width: 600px) { .heroV8Sub { font-size: 13.5px; margin-bottom: 22px; } }
-
-        /* 카운터 */
-        .counterArea {
-          margin-bottom: 24px;
-        }
-        .counterLabel {
-          font-size: 11.5px;
-          color: rgba(255, 255, 255, 0.65);
-          letter-spacing: 0.06em;
-          text-transform: uppercase;
-          margin-bottom: 4px;
-          font-weight: 700;
-        }
-        .counterNumber {
-          font-size: 42px;
-          font-weight: 900;
-          color: #fff;
-          letter-spacing: -0.04em;
-          font-feature-settings: 'tnum';
-          font-variant-numeric: tabular-nums;
-        }
-        @media (max-width: 600px) { .counterNumber { font-size: 32px; } }
-        .counterText {
-          font-size: 13px;
-          color: rgba(255, 255, 255, 0.75);
-          margin-top: 2px;
-        }
 
         /* 키워드 입력창 */
         .keywordInputWrap {
@@ -958,12 +913,6 @@ export default function HomePage() {
               같은 키워드를 입력해도, 100명에게 100가지 다른 결과.<br />
               유튜브·쇼츠·인스타·틱톡 자료까지 60초 안에 완성됩니다.
             </p>
-
-            <div className="counterArea" ref={counterRef}>
-              <div className="counterLabel">지금까지 만들어진 시나리오</div>
-              <div className="counterNumber">{counter.toLocaleString()}<span style={{ fontSize: '0.5em', marginLeft: 4 }}>개</span></div>
-              <div className="counterText">시청 유지율 평균 55% 이상 · 떡상 임계점 돌파 구조</div>
-            </div>
 
             <form
               onSubmit={(e) => { e.preventDefault(); handleStart(); }}
