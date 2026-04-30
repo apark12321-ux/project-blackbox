@@ -1,32 +1,32 @@
 'use client';
 /**
- * AlgoMaker 메인 페이지 v9.0 (B안 - Synergy Timeline)
+ * AlgoMaker 메인 페이지 v9.1 - Guide Channel
  *
- * 박예준 대표 비전:
- * "유입 키워드 (SNS 최적화·알고리즘·수익화) 로 들어온 사람이
- *  메인을 보자마자 정체성을 알 수 있도록"
- * "텍스트는 적게, 시각화는 강하게"
+ * 박예준 대표 비전 (인수인계 v6.4.1 명시):
+ * "50대~70대 시니어층을 위한 영상 제작 도움말 채널"
+ * "가이드 글이 메인 콘텐츠"
+ * "AlgoMaker 자체 = 완전 무료"
  *
- * v9.0 컨셉:
- *  - 키워드 → 분석 → 시나리오 → SNS → 완성 5단계 타임라인
- *  - 각 단계가 시각적으로 연결되는 흐름 애니메이션
- *  - Studio Treatment 톤 유지 (블랙·화이트·앰버)
- *  - 가짜 데이터 0
+ * v9.1 결정 (2026.04.30):
+ *  - ❌ 메인에서 키워드 입력 박스 완전 제거 (AdSense 정책 + 체류시간 ↑)
+ *  - ✅ 17편 가이드 + 9개 카테고리 + FAQ가 메인 콘텐츠
+ *  - ✅ 키워드 도구는 각 가이드 본문의 "직접 만들어보기" 버튼으로만 접근
+ *  - ✅ 헤더 사이드바의 "AI 도구" 메뉴 유지
+ *  - ✅ Studio Treatment 톤 유지 (블랙·화이트·앰버)
  *
  * 박 대표님 자산 100% 보존:
  *  - FEATURED_GUIDES 6편
- *  - CATEGORY_NAV 9개 카테고리
+ *  - CATEGORY_NAV 9개
  *  - FAQ_LIST 6개
- *  - AEO/GEO JSON-LD SEO
+ *  - AEO/GEO JSON-LD
  */
 
-import { useState } from 'react';
 import Link from 'next/link';
 import { V11Shell } from './_shared/V11Shell';
 import AdSlot from './_shared/AdSlot';
 
 // ============================================================
-// 추천 가이드 6편 (박 대표님 자산 보존)
+// 추천 가이드 6편
 // ============================================================
 const FEATURED_GUIDES = [
   {
@@ -76,9 +76,6 @@ const FEATURED_GUIDES = [
   },
 ];
 
-// ============================================================
-// 분야별 탐색 (박 대표님 자산 보존)
-// ============================================================
 const CATEGORY_NAV = [
   { id: 'senior', name: '시니어 라이프', desc: '50대~70대 인생 이야기' },
   { id: 'family', name: '가족 사연', desc: '진심 담은 일상 이야기' },
@@ -91,9 +88,6 @@ const CATEGORY_NAV = [
   { id: 'language', name: '외국어', desc: '영어, 일본어 학습 후기' },
 ];
 
-// ============================================================
-// FAQ - AEO/GEO 최적화 (박 대표님 자산 보존)
-// ============================================================
 const FAQ_LIST = [
   {
     q: 'AlgoMaker가 어떤 사이트인가요?',
@@ -105,15 +99,15 @@ const FAQ_LIST = [
   },
   {
     q: '얼마나 다양한 가이드가 있나요?',
-    a: '현재 17편 이상의 가이드 글이 있으며, 매주 새로운 가이드가 추가됩니다.',
+    a: '현재 17편 이상의 가이드 글이 있으며, 매주 새로운 가이드가 추가됩니다. 영상 시작 가이드, 제목 작성법, 썸네일 디자인, 스토리텔링, 시청 유지율, 수익화, BGM, 채널 브랜딩 등 영상 만들기에 필요한 모든 주제를 다룹니다.',
   },
   {
-    q: '키워드 입력 도구는 어떻게 사용하나요?',
-    a: '관심 있는 키워드 한 단어를 입력하시면, AI가 분야를 자동 감지해 영상 제목, 대본 흐름, 태그, SNS 메타데이터 등을 자동으로 만들어드립니다.',
+    q: '어떤 분야 콘텐츠가 인기인가요?',
+    a: '시니어 라이프, 재테크/노후, 가족 사연, 건강/운동, 요리, 여행, AI 디지털, 외국어 등 9개 분야를 다룹니다. 시니어 분들이 가장 많이 시작하시는 분야부터 정리했습니다.',
   },
   {
     q: '완전 무료인가요?',
-    a: '네, 회원가입도 결제도 없이 모든 기능을 무료로 사용하실 수 있습니다. 사이트는 광고 수익(Google AdSense)으로 운영됩니다.',
+    a: '네, 회원가입도 결제도 없이 모든 기능을 무료로 사용하실 수 있습니다. 사이트는 광고 수익(Google AdSense)으로 운영되며, 광고를 보시는 것만으로도 사이트를 응원해주시는 셈입니다.',
   },
   {
     q: '광고는 얼마나 보여지나요?',
@@ -144,56 +138,7 @@ const howToSchema = {
   ],
 };
 
-// ============================================================
-// 시너지 타임라인 5단계 데이터
-// ============================================================
-const TIMELINE_STEPS = [
-  {
-    num: '01',
-    title: '키워드 입력',
-    sub: 'KEYWORD',
-    desc: '관심 있는 단어 하나만 입력합니다',
-    detail: '"부동산", "건강", "여행" — 한 단어면 충분합니다.',
-  },
-  {
-    num: '02',
-    title: '알고리즘 분석',
-    sub: 'ALGORITHM',
-    desc: '도메인 자동 감지 · 떡상 패턴 매칭',
-    detail: '12개 카테고리에서 시청자가 반응하는 후킹 구조를 자동 탐색합니다.',
-  },
-  {
-    num: '03',
-    title: '시나리오 생성',
-    sub: 'SCENARIO',
-    desc: '100가지 다른 시나리오 · 6단계 비트',
-    detail: '같은 키워드도 매번 다른 결과. 작가급 스토리텔링 + 떡상 패턴 융합.',
-  },
-  {
-    num: '04',
-    title: 'SNS 4종 변환',
-    sub: 'DISTRIBUTION',
-    desc: 'YouTube · Shorts · Instagram · TikTok',
-    detail: '플랫폼별 메타데이터·태그·썸네일까지 모두 자동 생성.',
-  },
-  {
-    num: '05',
-    title: '업로드 완성',
-    sub: 'PUBLISH',
-    desc: '복사 붙여넣기로 즉시 게시',
-    detail: '각 SNS 실제 업로드 화면 그대로. 회원가입 X · 결제 X.',
-  },
-];
-
 export default function HomePage() {
-  const [keyword, setKeyword] = useState('');
-
-  const handleStart = (initialKeyword?: string) => {
-    const k = initialKeyword || keyword;
-    if (!k.trim()) return;
-    window.location.href = `/create?keyword=${encodeURIComponent(k.trim())}`;
-  };
-
   return (
     <V11Shell>
       <script
@@ -205,13 +150,13 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
       />
 
-      {/* AEO/GEO 숨김 영역 (박 대표님 자산 보존) */}
+      {/* AEO/GEO 숨김 영역 */}
       <div style={{ position: 'absolute', left: '-9999px', overflow: 'hidden' }} aria-hidden="false">
-        <h1>AlgoMaker - 시니어 영상 제작 도움말 + AI 떡상 시나리오 생성기</h1>
+        <h1>AlgoMaker - 시니어 영상 제작 도움말 채널</h1>
         <p>
           AlgoMaker는 50대~70대 시니어층을 위한 영상 제작 도움말 채널입니다.
           영상 시작 가이드, 제목 작성법, 썸네일 디자인, 스토리텔링, 수익화 등
-          17편 이상의 무료 가이드와 키워드 자동 자료 생성 도구를 제공합니다.
+          17편 이상의 무료 가이드를 제공합니다.
         </p>
       </div>
 
@@ -224,7 +169,7 @@ export default function HomePage() {
         }
 
         /* ============================================ */
-        /* HERO — Studio Treatment 헤더 */
+        /* HERO — 가이드 채널 정체성 */
         /* ============================================ */
         .hero {
           padding: 56px 24px 40px;
@@ -253,8 +198,8 @@ export default function HomePage() {
           color: #0a0a0a;
           letter-spacing: -0.03em;
           line-height: 1.25;
-          margin: 0 0 14px;
-          max-width: 760px;
+          margin: 0 0 16px;
+          max-width: 780px;
         }
         @media (max-width: 600px) { .heroTitle { font-size: 26px; } }
 
@@ -267,107 +212,62 @@ export default function HomePage() {
           font-family: 'Noto Serif KR', 'Pretendard', serif;
           font-size: 16px;
           color: #525252;
-          line-height: 1.7;
+          line-height: 1.75;
           font-weight: 500;
-          max-width: 640px;
+          max-width: 720px;
           margin: 0 0 24px;
           word-break: keep-all;
         }
         @media (max-width: 600px) { .heroSub { font-size: 14px; } }
 
-        /* 핵심 키워드 라벨 */
-        .heroChips {
+        /* 헤더 핵심 정보 (메타 라인) */
+        .heroMeta {
           display: flex;
           flex-wrap: wrap;
-          gap: 8px;
-          margin-bottom: 24px;
-        }
-        .heroChip {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.12em;
-          color: #0a0a0a;
-          padding: 5px 12px;
-          background: transparent;
-          border: 1px solid #0a0a0a;
-          text-transform: uppercase;
+          gap: 24px;
+          padding-top: 20px;
+          border-top: 1px solid #e5e5e5;
         }
         @media (max-width: 600px) {
-          .heroChip { font-size: 10px; padding: 4px 10px; letter-spacing: 0.08em; }
+          .heroMeta { gap: 16px; padding-top: 16px; }
         }
-
-        /* 키워드 입력 */
-        .heroInput {
+        .heroMetaItem {
           display: flex;
-          gap: 0;
-          max-width: 580px;
-          border: 2px solid #0a0a0a;
+          flex-direction: column;
+          gap: 4px;
         }
-        @media (max-width: 600px) {
-          .heroInput { flex-direction: column; }
-        }
-        .keywordInput {
-          flex: 1;
-          border: none;
-          outline: none;
-          padding: 16px 20px;
-          font-size: 15px;
-          color: #0a0a0a;
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
-          background: transparent;
-          font-weight: 500;
-        }
-        @media (max-width: 600px) {
-          .keywordInput {
-            padding: 14px 16px;
-            border-bottom: 1px solid #0a0a0a;
-            text-align: center;
-          }
-        }
-        .keywordInput::placeholder {
-          color: #a3a3a3;
-        }
-        .keywordBtn {
-          padding: 16px 24px;
-          background: #0a0a0a;
-          color: #ffffff;
-          border: none;
+        .heroMetaLabel {
           font-family: 'JetBrains Mono', monospace;
-          font-size: 12px;
+          font-size: 9.5px;
           font-weight: 700;
-          letter-spacing: 0.15em;
-          cursor: pointer;
-          white-space: nowrap;
-          transition: background 0.2s;
+          letter-spacing: 0.18em;
+          color: #737373;
           text-transform: uppercase;
         }
-        .keywordBtn:hover {
-          background: #c2410c;
+        .heroMetaValue {
+          font-family: 'Noto Serif KR', serif;
+          font-size: 15px;
+          font-weight: 700;
+          color: #0a0a0a;
+          letter-spacing: -0.015em;
         }
         @media (max-width: 600px) {
-          .keywordBtn { padding: 14px 20px; font-size: 11px; }
+          .heroMetaValue { font-size: 13.5px; }
+          .heroMetaLabel { font-size: 9px; }
         }
 
         /* ============================================ */
-        /* TIMELINE — 시너지 5단계 (B안 핵심) */
+        /* 추천 시작 — 입문자용 가이드 (강조) */
         /* ============================================ */
-        .timelineSection {
-          padding: 48px 24px 32px;
+        .startSection {
+          padding: 48px 24px;
           background: #fafafa;
           border-bottom: 1px solid #e5e5e5;
         }
         @media (max-width: 600px) {
-          .timelineSection { padding: 36px 20px 24px; }
+          .startSection { padding: 36px 20px; }
         }
-
-        .timelineHead {
-          margin-bottom: 32px;
-        }
-        @media (max-width: 600px) {
-          .timelineHead { margin-bottom: 24px; }
-        }
-        .timelineKicker {
+        .startKicker {
           font-family: 'JetBrains Mono', monospace;
           font-size: 10.5px;
           font-weight: 600;
@@ -376,168 +276,105 @@ export default function HomePage() {
           margin-bottom: 10px;
           text-transform: uppercase;
         }
-        .timelineTitle {
+        .startTitle {
           font-family: 'Noto Serif KR', serif;
           font-size: 24px;
           font-weight: 700;
           color: #0a0a0a;
           letter-spacing: -0.025em;
           line-height: 1.3;
-          margin: 0 0 6px;
+          margin: 0 0 8px;
         }
-        @media (max-width: 600px) { .timelineTitle { font-size: 19px; } }
-        .timelineTitleSub {
+        @media (max-width: 600px) { .startTitle { font-size: 19px; } }
+        .startSub {
           font-family: 'Noto Serif KR', serif;
           font-size: 14px;
           color: #525252;
-          line-height: 1.6;
+          line-height: 1.7;
+          margin: 0 0 24px;
           word-break: keep-all;
         }
-        @media (max-width: 600px) { .timelineTitleSub { font-size: 13px; } }
+        @media (max-width: 600px) { .startSub { font-size: 13px; } }
 
-        /* PC 가로 타임라인 */
-        .timelineFlow {
-          display: grid;
-          grid-template-columns: repeat(5, 1fr);
-          position: relative;
-          gap: 0;
-        }
-        @media (max-width: 800px) {
-          .timelineFlow {
-            grid-template-columns: 1fr;
-            gap: 0;
-          }
-        }
-
-        .timelineNode {
-          position: relative;
-          padding: 0 12px;
-        }
-        @media (max-width: 800px) {
-          .timelineNode { 
-            padding: 18px 0 18px 56px; 
-          }
-        }
-
-        /* 연결선 (PC 가로) */
-        .timelineNode::before {
-          content: '';
-          position: absolute;
-          top: 12px;
-          left: 0;
-          right: 0;
-          height: 1px;
-          background: #d4d4d4;
-        }
-        .timelineNode:first-child::before {
-          left: 50%;
-        }
-        .timelineNode:last-child::before {
-          right: 50%;
-        }
-        @media (max-width: 800px) {
-          .timelineNode::before {
-            top: 24px;
-            left: 11px;
-            right: auto;
-            width: 1px;
-            height: calc(100% + 0px);
-            bottom: -36px;
-          }
-          .timelineNode:first-child::before { left: 11px; top: 24px; }
-          .timelineNode:last-child::before { display: none; }
-        }
-
-        /* 노드 점 */
-        .timelineDot {
-          position: absolute;
-          top: 6px;
-          left: 50%;
-          transform: translateX(-50%);
-          width: 14px;
-          height: 14px;
+        .startCard {
+          display: block;
           background: #ffffff;
           border: 2px solid #0a0a0a;
-          border-radius: 50%;
-          z-index: 2;
-        }
-        @media (max-width: 800px) {
-          .timelineDot {
-            top: 18px;
-            left: 5px;
-            transform: none;
-          }
-        }
-        .timelineNode.active .timelineDot {
-          background: #c2410c;
-          border-color: #c2410c;
-        }
-
-        .timelineCard {
-          margin-top: 36px;
-          padding: 18px 16px;
-          background: #ffffff;
-          border: 1px solid #e5e5e5;
+          padding: 24px 28px;
+          text-decoration: none;
+          color: inherit;
           transition: all 0.2s;
         }
-        @media (max-width: 800px) {
-          .timelineCard {
-            margin-top: 0;
-            padding: 14px 16px;
-          }
+        .startCard:hover {
+          background: #0a0a0a;
+          color: #ffffff;
         }
-        .timelineCard:hover {
-          border-color: #0a0a0a;
+        @media (max-width: 600px) {
+          .startCard { padding: 20px 22px; }
         }
-
-        .timelineNum {
+        .startCardKicker {
           font-family: 'JetBrains Mono', monospace;
-          font-size: 22px;
+          font-size: 10px;
           font-weight: 700;
+          letter-spacing: 0.15em;
           color: #c2410c;
-          letter-spacing: -0.02em;
-          line-height: 1;
-          margin-bottom: 6px;
-        }
-        @media (max-width: 600px) { .timelineNum { font-size: 18px; } }
-
-        .timelineSub {
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 9.5px;
-          font-weight: 700;
-          letter-spacing: 0.18em;
-          color: #737373;
+          margin-bottom: 10px;
           text-transform: uppercase;
-          margin-bottom: 8px;
         }
-        .timelineCardTitle {
+        .startCard:hover .startCardKicker {
+          color: #fbbf24;
+        }
+        .startCardTitle {
           font-family: 'Noto Serif KR', serif;
-          font-size: 14px;
+          font-size: 19px;
+          font-weight: 700;
+          letter-spacing: -0.02em;
+          line-height: 1.4;
+          margin: 0 0 8px;
+        }
+        @media (max-width: 600px) { .startCardTitle { font-size: 16px; } }
+        .startCardDesc {
+          font-family: 'Noto Serif KR', serif;
+          font-size: 13.5px;
+          color: #525252;
+          line-height: 1.7;
+          margin: 0 0 14px;
+          word-break: keep-all;
+        }
+        .startCard:hover .startCardDesc {
+          color: rgba(255, 255, 255, 0.8);
+        }
+        @media (max-width: 600px) { .startCardDesc { font-size: 12.5px; } }
+        .startCardFoot {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-top: 12px;
+          border-top: 1px dashed #d4d4d4;
+        }
+        .startCard:hover .startCardFoot {
+          border-top-color: rgba(255, 255, 255, 0.3);
+        }
+        .startCardTime {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10.5px;
+          color: #737373;
+          letter-spacing: 0.06em;
+        }
+        .startCard:hover .startCardTime {
+          color: rgba(255, 255, 255, 0.7);
+        }
+        .startCardArrow {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11px;
           font-weight: 700;
           color: #0a0a0a;
-          letter-spacing: -0.015em;
-          line-height: 1.4;
-          margin-bottom: 6px;
+          letter-spacing: 0.15em;
+          text-transform: uppercase;
         }
-        @media (max-width: 600px) { .timelineCardTitle { font-size: 13.5px; } }
-        .timelineCardDesc {
-          font-family: 'Noto Serif KR', serif;
-          font-size: 12.5px;
-          color: #525252;
-          line-height: 1.55;
-          margin-bottom: 8px;
-          word-break: keep-all;
+        .startCard:hover .startCardArrow {
+          color: #fbbf24;
         }
-        @media (max-width: 600px) { .timelineCardDesc { font-size: 12px; } }
-        .timelineCardDetail {
-          font-family: 'Noto Serif KR', serif;
-          font-size: 11.5px;
-          color: #737373;
-          line-height: 1.5;
-          font-style: italic;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) { .timelineCardDetail { font-size: 11px; } }
 
         /* ============================================ */
         /* 공통 섹션 */
@@ -573,7 +410,7 @@ export default function HomePage() {
           font-family: 'Noto Serif KR', serif;
           font-size: 13.5px;
           color: #525252;
-          line-height: 1.6;
+          line-height: 1.65;
           margin: 0;
           word-break: keep-all;
         }
@@ -604,7 +441,6 @@ export default function HomePage() {
         @media (max-width: 600px) {
           .guideCard { border-right: none; }
         }
-
         .guideCardKicker {
           font-family: 'JetBrains Mono', monospace;
           font-size: 9.5px;
@@ -717,128 +553,115 @@ export default function HomePage() {
         }
         @media (max-width: 600px) { .faqA { font-size: 12.5px; } }
 
-        /* 최종 CTA */
-        .ctaBlock {
-          padding: 48px 24px;
-          background: #0a0a0a;
-          color: #ffffff;
-          text-align: center;
+        /* 보조 도구 안내 (작게) */
+        .toolBlock {
+          padding: 32px 24px;
+          background: #fafafa;
+          border-bottom: 1px solid #e5e5e5;
         }
-        @media (max-width: 600px) { .ctaBlock { padding: 36px 20px; } }
-        .ctaKicker {
+        @media (max-width: 600px) { .toolBlock { padding: 28px 20px; } }
+        .toolKicker {
           font-family: 'JetBrains Mono', monospace;
-          font-size: 10.5px;
+          font-size: 10px;
           font-weight: 600;
           letter-spacing: 0.18em;
-          color: #fbbf24;
-          margin-bottom: 12px;
+          color: #737373;
+          margin-bottom: 8px;
           text-transform: uppercase;
         }
-        .ctaTitle {
+        .toolTitle {
           font-family: 'Noto Serif KR', serif;
-          font-size: 24px;
+          font-size: 16px;
           font-weight: 700;
-          letter-spacing: -0.025em;
-          line-height: 1.3;
+          color: #0a0a0a;
+          letter-spacing: -0.02em;
+          line-height: 1.4;
           margin: 0 0 8px;
         }
-        @media (max-width: 600px) { .ctaTitle { font-size: 19px; } }
-        .ctaSub {
+        @media (max-width: 600px) { .toolTitle { font-size: 14.5px; } }
+        .toolDesc {
           font-family: 'Noto Serif KR', serif;
-          font-size: 13.5px;
-          color: rgba(255, 255, 255, 0.7);
-          line-height: 1.7;
-          margin: 0 0 24px;
+          font-size: 13px;
+          color: #525252;
+          line-height: 1.65;
+          margin: 0 0 14px;
           word-break: keep-all;
         }
-        @media (max-width: 600px) { .ctaSub { font-size: 12.5px; } }
-        .ctaBtn {
-          display: inline-block;
-          padding: 14px 32px;
-          background: transparent;
-          border: 2px solid #ffffff;
-          color: #ffffff;
-          font-family: 'JetBrains Mono', monospace;
-          font-size: 12.5px;
-          font-weight: 700;
-          letter-spacing: 0.15em;
-          text-decoration: none;
-          text-transform: uppercase;
-          transition: all 0.2s;
+        @media (max-width: 600px) { .toolDesc { font-size: 12px; } }
+        .toolNote {
+          font-family: 'Noto Serif KR', serif;
+          font-size: 12px;
+          color: #737373;
+          line-height: 1.65;
+          font-style: italic;
+          word-break: keep-all;
         }
-        .ctaBtn:hover {
-          background: #ffffff;
-          color: #0a0a0a;
-        }
-        @media (max-width: 600px) { .ctaBtn { padding: 12px 24px; font-size: 11.5px; } }
+        @media (max-width: 600px) { .toolNote { font-size: 11.5px; } }
 
         /* 광고 영역 */
-        .adArea { padding: 0 24px; margin: 24px 0; }
-        @media (max-width: 600px) { .adArea { padding: 0 20px; margin: 20px 0; } }
+        .adArea { padding: 24px; }
+        @media (max-width: 600px) { .adArea { padding: 20px; } }
       `}</style>
 
       <div className="page">
-        {/* HERO */}
+        {/* HERO — 가이드 채널 정체성 */}
         <section className="hero">
-          <div className="heroKicker">▍ AlgoMaker · Algorithm-Backed Video Tool</div>
+          <div className="heroKicker">▍ AlgoMaker · Senior Video Guide Channel</div>
           <h1 className="heroTitle">
-            키워드 한 단어로<br />
-            영상 한 편을 <span className="heroTitleAccent">완성</span>합니다
+            50대도 시작하는 영상 만들기,<br />
+            <span className="heroTitleAccent">처음부터 끝까지</span> 도와드립니다
           </h1>
           <p className="heroSub">
-            SNS 알고리즘이 좋아하는 시나리오 구조부터,
-            YouTube · Shorts · Instagram · TikTok 4종 메타데이터까지.
-            한 번의 입력으로 60초 안에 모두 받아보세요.
+            디지털 도구가 익숙하지 않으셔도 괜찮습니다.
+            영상 시작 가이드 · 제목 작성법 · 썸네일 디자인 · 스토리텔링 ·
+            수익화까지, 시니어 분들이 보기 쉽게 정리한 17편 이상의 가이드를
+            완전 무료로 보실 수 있습니다.
           </p>
 
-          <div className="heroChips">
-            <span className="heroChip">SNS 최적화</span>
-            <span className="heroChip">알고리즘</span>
-            <span className="heroChip">수익화</span>
-            <span className="heroChip">완전 무료</span>
+          <div className="heroMeta">
+            <div className="heroMetaItem">
+              <div className="heroMetaLabel">Guides</div>
+              <div className="heroMetaValue">17편</div>
+            </div>
+            <div className="heroMetaItem">
+              <div className="heroMetaLabel">Categories</div>
+              <div className="heroMetaValue">9개 분야</div>
+            </div>
+            <div className="heroMetaItem">
+              <div className="heroMetaLabel">Updates</div>
+              <div className="heroMetaValue">매주 새 가이드</div>
+            </div>
+            <div className="heroMetaItem">
+              <div className="heroMetaLabel">Pricing</div>
+              <div className="heroMetaValue">완전 무료</div>
+            </div>
           </div>
-
-          <form
-            onSubmit={(e) => { e.preventDefault(); handleStart(); }}
-            className="heroInput"
-          >
-            <input
-              type="text"
-              className="keywordInput"
-              placeholder="키워드 한 단어 — 부동산, 건강, 여행..."
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-            />
-            <button type="submit" className="keywordBtn">
-              시작 →
-            </button>
-          </form>
         </section>
 
-        {/* TIMELINE — 시너지 5단계 */}
-        <section className="timelineSection">
-          <div className="timelineHead">
-            <div className="timelineKicker">▍ How It Works</div>
-            <h2 className="timelineTitle">5단계 자동화 흐름</h2>
-            <p className="timelineTitleSub">
-              키워드 입력부터 SNS 업로드까지 — 박 대표님이 직접 영상 자료를 만들 필요 없습니다.
-            </p>
-          </div>
+        {/* 추천 시작 — 입문자용 큰 카드 */}
+        <section className="startSection">
+          <div className="startKicker">▍ Recommended Start</div>
+          <h2 className="startTitle">처음 시작하시는 분께 추천</h2>
+          <p className="startSub">
+            영상 만들기가 처음이신 분들이 가장 먼저 읽어보시면 좋은 가이드입니다.
+            10분이면 어떻게 시작해야 할지 명확해집니다.
+          </p>
 
-          <div className="timelineFlow">
-            {TIMELINE_STEPS.map((step, i) => (
-              <div key={i} className={`timelineNode ${i === 0 ? 'active' : ''}`}>
-                <div className="timelineDot" />
-                <div className="timelineCard">
-                  <div className="timelineNum">{step.num}</div>
-                  <div className="timelineSub">{step.sub}</div>
-                  <div className="timelineCardTitle">{step.title}</div>
-                  <div className="timelineCardDesc">{step.desc}</div>
-                  <div className="timelineCardDetail">{step.detail}</div>
-                </div>
-              </div>
-            ))}
-          </div>
+          <Link href="/knowhow/middle-aged-channel-tips" className="startCard">
+            <div className="startCardKicker">시니어 입문 · 입문자 추천</div>
+            <h3 className="startCardTitle">
+              시니어층(40대~70대)가 유튜브 시작할 때 꼭 알아야 할 7가지
+            </h3>
+            <p className="startCardDesc">
+              퇴직 후 영상 시작하시는 분들을 위한 현실적 가이드.
+              주제 선택부터 카메라 · 편집 도구 · 채널 운영까지
+              시니어 시각으로 풀어낸 종합 안내서.
+            </p>
+            <div className="startCardFoot">
+              <span className="startCardTime">⏱ 10분 · Reading Time</span>
+              <span className="startCardArrow">READ NOW →</span>
+            </div>
+          </Link>
         </section>
 
         {/* 광고 영역 */}
@@ -852,7 +675,7 @@ export default function HomePage() {
             <div className="sectionKicker">▍ Featured Guides</div>
             <h2 className="sectionTitle">시니어 분들께 추천하는 가이드</h2>
             <p className="sectionDesc">
-              영상 시작이 처음이신 분들이 가장 먼저 읽어보시면 좋은 가이드 6편.
+              영상 만들기에서 가장 자주 묻는 주제를 정리한 가이드 6편.
             </p>
           </div>
           <div className="guideGrid">
@@ -877,6 +700,7 @@ export default function HomePage() {
             <h2 className="sectionTitle">분야별 가이드 탐색</h2>
             <p className="sectionDesc">
               관심 있는 분야의 가이드를 모아서 보실 수 있어요.
+              시니어 분들이 많이 찾는 분야부터 정리했습니다.
             </p>
           </div>
           <div className="catGrid">
@@ -892,7 +716,7 @@ export default function HomePage() {
         {/* FAQ */}
         <section className="section">
           <div className="sectionHead">
-            <div className="sectionKicker">▍ FAQ</div>
+            <div className="sectionKicker">▍ Frequently Asked Questions</div>
             <h2 className="sectionTitle">자주 묻는 질문</h2>
           </div>
           <div className="faqList">
@@ -905,17 +729,21 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* FINAL CTA */}
-        <section className="ctaBlock">
-          <div className="ctaKicker">▍ Get Started</div>
-          <h2 className="ctaTitle">키워드 한 단어로 시작해보세요</h2>
-          <p className="ctaSub">
-            완전 무료 · 회원가입 없음 · 무제한 사용<br />
-            60초 안에 떡상 시나리오를 받아보실 수 있습니다.
+        {/* 보조 도구 안내 (하단에 작게) */}
+        <section className="toolBlock">
+          <div className="toolKicker">▍ Additional Tool</div>
+          <h2 className="toolTitle">키워드 입력으로 영상 자료 자동 만들기</h2>
+          <p className="toolDesc">
+            가이드를 다 읽으신 후, 직접 영상을 만들어보고 싶으실 때
+            각 가이드 본문 안에 있는 <strong>"직접 만들어보기"</strong> 버튼을 눌러보세요.
+            관심 키워드 한 단어로 영상 제목 · 대본 · 썸네일 · SNS 메타데이터까지
+            자동으로 만들어드립니다.
           </p>
-          <Link href="/create" className="ctaBtn">
-            START NOW →
-          </Link>
+          <p className="toolNote">
+            보조 도구이므로 가이드를 먼저 읽어보시는 것을 추천드립니다.
+            가이드를 통해 어떤 영상을 만들지 방향이 잡힌 후 도구를 사용하시면
+            훨씬 더 만족스러운 결과를 얻으실 수 있습니다.
+          </p>
         </section>
       </div>
     </V11Shell>
