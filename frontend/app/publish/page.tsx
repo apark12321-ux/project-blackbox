@@ -242,13 +242,15 @@ function diversifyTags(
 
 type StepId = 'cases' | 'title' | 'script' | 'video' | 'meta' | 'sns';
 
-const STEPS: { id: StepId; emoji: string; label: string; sub: string; color: string; bg: string }[] = [
-  { id: 'cases', emoji: '📺', label: 'STEP 1', sub: '비슷한 떡상 사례', color: '#185FA5', bg: '#E6F1FB' },
-  { id: 'title', emoji: '✏️', label: 'STEP 2', sub: '제목 선택', color: '#534AB7', bg: '#EEEDFE' },
-  { id: 'script', emoji: '🎬', label: 'STEP 3', sub: '대본 7단계', color: '#993C1D', bg: '#FAECE7' },
-  { id: 'video', emoji: '🎨', label: 'STEP 4', sub: '영상 제작', color: '#0F6E56', bg: '#E1F5EE' },
-  { id: 'meta', emoji: '🏷️', label: 'STEP 5', sub: '메타데이터', color: '#854F0B', bg: '#FAEEDA' },
-  { id: 'sns', emoji: '📲', label: 'STEP 6', sub: 'SNS 업로드', color: '#D4537E', bg: '#FBEAF0' },
+// v8.5: Studio Treatment 통일 - 모노크롬 + 앰버 1색
+// 모든 STEP이 같은 디자인 언어 사용
+const STEPS: { id: StepId; num: string; label: string; sub: string }[] = [
+  { id: 'cases',  num: '01', label: 'REFERENCE',     sub: '비슷한 떡상 사례' },
+  { id: 'title',  num: '02', label: 'TITLE',         sub: '제목 선택' },
+  { id: 'script', num: '03', label: 'TREATMENT',     sub: '시나리오' },
+  { id: 'video',  num: '04', label: 'CINEMATOGRAPHY', sub: '영상 제작' },
+  { id: 'meta',   num: '05', label: 'METADATA',      sub: '메타데이터' },
+  { id: 'sns',    num: '06', label: 'DISTRIBUTION',  sub: 'SNS 업로드' },
 ];
 
 function PublishPageInner() {
@@ -405,7 +407,7 @@ function PublishPageInner() {
 
         /* 헤더 */
         .header {
-          background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
+          background: #fffbeb;
           border: 1.5px solid #fbbf24;
           border-radius: 16px;
           padding: 22px 24px;
@@ -499,68 +501,127 @@ function PublishPageInner() {
         }
         .toggleBtn:hover { border-color: #c65f3b; color: #c65f3b; }
 
-        /* 단계 카드 */
+        /* ============================================ */
+        /* STEP 카드 - v8.5 Studio Treatment 통일 */
+        /* ============================================ */
         .step {
-          background: #fff;
-          border: 1px solid #e5e5e5;
-          border-radius: 14px;
+          background: #ffffff;
+          border: 1px solid #0a0a0a;
+          border-radius: 0;
           margin-bottom: 14px;
           overflow: hidden;
-          transition: border-color 0.2s;
+          transition: all 0.2s;
         }
-        .step.active { border-color: #c65f3b; }
+        .step.active { 
+          border-color: #c2410c;
+          box-shadow: 0 0 0 1px #c2410c;
+        }
 
         .stepHead {
-          display: flex; align-items: center; gap: 14px;
+          display: grid;
+          grid-template-columns: 56px 1fr auto;
+          gap: 18px;
           padding: 18px 22px;
           cursor: pointer;
           user-select: none;
           transition: background 0.15s;
+          align-items: center;
+          background: #fafafa;
+          border-bottom: 1px solid transparent;
         }
-        @media (max-width: 600px) { .stepHead { padding: 14px 16px; gap: 10px; } }
-        .stepHead:hover { background: #fafafa; }
-        
-        .stepEmoji {
-          width: 44px; height: 44px;
-          border-radius: 12px;
-          display: flex; align-items: center; justify-content: center;
-          font-size: 22px;
-          flex-shrink: 0;
+        @media (max-width: 600px) { 
+          .stepHead { 
+            padding: 14px 16px; 
+            gap: 12px;
+            grid-template-columns: 40px 1fr auto;
+          } 
         }
-        @media (max-width: 600px) {
-          .stepEmoji { width: 36px; height: 36px; font-size: 18px; border-radius: 10px; }
+        .stepHead:hover { 
+          background: #f5f5f5; 
+        }
+        .step.active .stepHead {
+          background: #0a0a0a;
+          border-bottom: 1px solid #0a0a0a;
         }
 
-        .stepInfo { flex: 1; min-width: 0; }
-        .stepLabel {
-          font-size: 11px;
-          font-weight: 800;
-          letter-spacing: 0.06em;
-          margin-bottom: 2px;
+        .stepNumBadge {
+          font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
+          font-size: 18px;
+          font-weight: 700;
+          color: #0a0a0a;
+          letter-spacing: -0.02em;
+          line-height: 1;
+          padding: 4px 0;
+          border-bottom: 2px solid #c2410c;
+          display: inline-block;
+          width: 100%;
+          text-align: center;
         }
+        @media (max-width: 600px) {
+          .stepNumBadge { font-size: 15px; padding: 3px 0; }
+        }
+        .step.active .stepNumBadge {
+          color: #ffffff;
+          border-bottom-color: #fbbf24;
+        }
+
+        .stepInfo { 
+          min-width: 0; 
+        }
+        .stepLabel {
+          font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          color: #c2410c;
+          margin-bottom: 4px;
+          text-transform: uppercase;
+        }
+        @media (max-width: 600px) {
+          .stepLabel { font-size: 9.5px; letter-spacing: 0.12em; }
+        }
+        .step.active .stepLabel {
+          color: #fbbf24;
+        }
+
         .stepTitle {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
           font-size: 16px;
-          font-weight: 800;
-          color: #1a1a1a;
+          font-weight: 700;
+          color: #0a0a0a;
           letter-spacing: -0.02em;
           line-height: 1.3;
         }
-        @media (max-width: 600px) { .stepTitle { font-size: 14.5px; } }
+        @media (max-width: 600px) { 
+          .stepTitle { font-size: 14px; } 
+        }
+        .step.active .stepTitle {
+          color: #ffffff;
+        }
 
         .stepArrow {
-          font-size: 12px;
-          color: #888;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 14px;
+          color: #525252;
           transition: transform 0.2s;
-          margin-left: 8px;
           flex-shrink: 0;
+          font-weight: 700;
         }
-        .stepArrow.open { transform: rotate(180deg); }
+        .stepArrow.open { 
+          transform: rotate(180deg);
+          color: #fbbf24;
+        }
+        .step.active .stepArrow {
+          color: #fbbf24;
+        }
 
         .stepBody {
-          padding: 0 22px 22px;
-          border-top: 1px solid #f0f0f0;
+          padding: 24px 22px;
+          background: #ffffff;
         }
-        @media (max-width: 600px) { .stepBody { padding: 0 16px 18px; } }
+        @media (max-width: 600px) { 
+          .stepBody { padding: 20px 16px; } 
+        }
 
         /* ============================================ */
         /* STEP 1 - 제목 선택 */
@@ -569,7 +630,7 @@ function PublishPageInner() {
         /* STEP 1 - 비슷한 떡상 영상 사례 (Phase 1) */
         /* ============================================ */
         .casesIntro {
-          background: linear-gradient(135deg, #e6f1fb 0%, #d3e7f8 100%);
+          background: #fafafa;
           border-left: 3px solid #185FA5;
           padding: 12px 16px;
           border-radius: 0 8px 8px 0;
@@ -738,7 +799,7 @@ function PublishPageInner() {
         /* STEP 2 - 시나리오 7단계 (메인!) */
         /* ============================================ */
         .scriptIntro {
-          background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%);
+          background: #fffbeb;
           border-radius: 12px;
           padding: 16px 20px;
           margin: 16px 0 18px;
@@ -851,7 +912,7 @@ function PublishPageInner() {
 
         /* 1분 쇼츠 박스 */
         .shortsBox {
-          background: linear-gradient(135deg, #f3e8ff 0%, #e9d5ff 100%);
+          background: #fafafa;
           border: 1.5px solid #a855f7;
           border-radius: 14px;
           padding: 18px 20px;
@@ -890,7 +951,7 @@ function PublishPageInner() {
         /* STEP 3 - 영상 제작 */
         /* ============================================ */
         .videoIntro {
-          background: linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%);
+          background: #fafafa;
           border-radius: 12px;
           padding: 16px 20px;
           margin: 16px 0 18px;
@@ -1193,7 +1254,7 @@ function PublishPageInner() {
         
         /* 완료 안내 */
         .doneBox {
-          background: linear-gradient(135deg, #c65f3b 0%, #ea7755 100%);
+          background: #0a0a0a;
           color: #fff;
           border-radius: 16px;
           padding: 28px 24px;
@@ -1272,14 +1333,12 @@ function PublishPageInner() {
             gap: 10px !important;
             min-height: 64px;
           }
-          .stepEmoji {
-            width: 40px !important;
-            height: 40px !important;
-            font-size: 20px !important;
+          .stepNumBadge {
+            font-size: 14px !important;
           }
-          .stepLabel { font-size: 11px !important; }
+          .stepLabel { font-size: 9.5px !important; }
           .stepTitle { 
-            font-size: 14.5px !important; 
+            font-size: 13.5px !important; 
             line-height: 1.5 !important;
           }
           .stepArrow { font-size: 14px !important; }
@@ -1437,11 +1496,9 @@ function PublishPageInner() {
         {/* ============================================ */}
         <div className={`step ${openSteps.cases ? 'active' : ''}`}>
           <div className="stepHead" onClick={() => toggleStep('cases')}>
-            <div className="stepEmoji" style={{ background: STEPS[0].bg, color: STEPS[0].color }}>
-              {STEPS[0].emoji}
-            </div>
+            <div className="stepNumBadge">{STEPS[0].num}</div>
             <div className="stepInfo">
-              <div className="stepLabel" style={{ color: STEPS[0].color }}>{STEPS[0].label}</div>
+              <div className="stepLabel">{STEPS[0].label}</div>
               <div className="stepTitle">비슷한 떡상 영상 사례 — 어떤 패턴으로 잘 됐을까</div>
             </div>
             <div className={`stepArrow ${openSteps.cases ? 'open' : ''}`}>▼</div>
@@ -1484,11 +1541,9 @@ function PublishPageInner() {
         {/* ============================================ */}
         <div className={`step ${openSteps.title ? 'active' : ''}`}>
           <div className="stepHead" onClick={() => toggleStep('title')}>
-            <div className="stepEmoji" style={{ background: STEPS[1].bg, color: STEPS[1].color }}>
-              {STEPS[1].emoji}
-            </div>
+            <div className="stepNumBadge">{STEPS[1].num}</div>
             <div className="stepInfo">
-              <div className="stepLabel" style={{ color: STEPS[1].color }}>{STEPS[1].label}</div>
+              <div className="stepLabel">{STEPS[1].label}</div>
               <div className="stepTitle">제목 선택 — 마음에 드는 제목 1개를 골라주세요</div>
             </div>
             <div className={`stepArrow ${openSteps.title ? 'open' : ''}`}>▼</div>
@@ -1533,11 +1588,9 @@ function PublishPageInner() {
         {/* ============================================ */}
         <div className={`step ${openSteps.script ? 'active' : ''}`}>
           <div className="stepHead" onClick={() => toggleStep('script')}>
-            <div className="stepEmoji" style={{ background: STEPS[2].bg, color: STEPS[2].color }}>
-              {STEPS[2].emoji}
-            </div>
+            <div className="stepNumBadge">{STEPS[2].num}</div>
             <div className="stepInfo">
-              <div className="stepLabel" style={{ color: STEPS[2].color }}>{STEPS[2].label} · 메인 콘텐츠</div>
+              <div className="stepLabel">{STEPS[2].label} · 메인 콘텐츠</div>
               <div className="stepTitle">떡상 시나리오 {sequences.length}단계 — 영상 대본 흐름</div>
             </div>
             <div className={`stepArrow ${openSteps.script ? 'open' : ''}`}>▼</div>
@@ -1553,20 +1606,17 @@ function PublishPageInner() {
               </div>
 
               {/* ============================================ */}
-              {/* v6.5.0: 작가급 스토리 모드 토글 */}
+              {/* v6.5.0: 작가급 스토리 모드 토글 (v8.5 Studio Treatment) */}
               {/* ============================================ */}
               {v650Data && (
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 12,
+                  gap: 14,
                   padding: '14px 18px',
-                  background: cinematicMode 
-                    ? 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)' 
-                    : '#fafafa',
-                  border: `1.5px solid ${cinematicMode ? '#fbbf24' : '#e5e5e5'}`,
-                  borderRadius: 12,
-                  marginBottom: 16,
+                  background: cinematicMode ? '#0a0a0a' : '#fafafa',
+                  border: `1px solid ${cinematicMode ? '#0a0a0a' : '#e5e5e5'}`,
+                  marginBottom: 20,
                   cursor: 'pointer',
                   transition: 'all 0.2s',
                   flexWrap: 'wrap',
@@ -1574,34 +1624,46 @@ function PublishPageInner() {
                 onClick={() => setCinematicMode(m => !m)}
                 >
                   <div style={{
-                    width: 44,
-                    height: 24,
-                    background: cinematicMode ? '#c65f3b' : '#d1d5db',
-                    borderRadius: 100,
+                    width: 38,
+                    height: 22,
+                    background: cinematicMode ? '#c2410c' : '#d4d4d4',
                     position: 'relative',
                     transition: 'background 0.2s',
                     flexShrink: 0,
                   }}>
                     <div style={{
-                      width: 20,
-                      height: 20,
-                      background: '#fff',
-                      borderRadius: '50%',
+                      width: 18,
+                      height: 18,
+                      background: '#ffffff',
                       position: 'absolute',
                       top: 2,
-                      left: cinematicMode ? 22 : 2,
+                      left: cinematicMode ? 18 : 2,
                       transition: 'left 0.2s',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
                     }} />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13.5, fontWeight: 800, color: '#1a1a1a', marginBottom: 2 }}>
-                      📖 작가급 스토리 모드 {cinematicMode ? '(켜짐)' : '(꺼짐)'}
+                    <div style={{ 
+                      fontFamily: "'JetBrains Mono', monospace", 
+                      fontSize: 10, 
+                      fontWeight: 700, 
+                      letterSpacing: '0.18em', 
+                      color: cinematicMode ? '#fbbf24' : '#c2410c',
+                      textTransform: 'uppercase',
+                      marginBottom: 4 
+                    }}>
+                      Treatment Mode {cinematicMode ? '· ON' : '· OFF'}
                     </div>
-                    <div style={{ fontSize: 11.5, color: '#666', lineHeight: 1.5 }}>
+                    <div style={{ 
+                      fontFamily: "'Noto Serif KR', 'Pretendard', serif",
+                      fontSize: 13.5, 
+                      fontWeight: 600, 
+                      color: cinematicMode ? '#ffffff' : '#0a0a0a',
+                      lineHeight: 1.5,
+                      letterSpacing: '-0.015em',
+                    }}>
                       {cinematicMode 
-                        ? '✨ 작가급 스토리텔링 + 떡상 패턴 융합 시나리오로 보고 있어요.' 
-                        : '클릭하면 단락마다 연결된 작가급 시나리오로 바뀝니다.'}
+                        ? '작가급 스토리텔링 + 떡상 패턴 융합' 
+                        : '단순 시퀀스 → 클릭하여 작가급 시나리오 활성화'}
                     </div>
                   </div>
                 </div>
@@ -1683,11 +1745,9 @@ function PublishPageInner() {
         {/* ============================================ */}
         <div className={`step ${openSteps.video ? 'active' : ''}`}>
           <div className="stepHead" onClick={() => toggleStep('video')}>
-            <div className="stepEmoji" style={{ background: STEPS[3].bg, color: STEPS[3].color }}>
-              {STEPS[3].emoji}
-            </div>
+            <div className="stepNumBadge">{STEPS[3].num}</div>
             <div className="stepInfo">
-              <div className="stepLabel" style={{ color: STEPS[3].color }}>{STEPS[3].label}</div>
+              <div className="stepLabel">{STEPS[3].label}</div>
               <div className="stepTitle">영상 제작 — AI 도구용 프롬프트 (단계별)</div>
             </div>
             <div className={`stepArrow ${openSteps.video ? 'open' : ''}`}>▼</div>
@@ -1712,14 +1772,11 @@ function PublishPageInner() {
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 12,
+                  gap: 14,
                   padding: '14px 18px',
-                  background: proPromptMode 
-                    ? 'linear-gradient(135deg, #ecfdf5 0%, #d1fae5 100%)' 
-                    : '#fafafa',
-                  border: `1.5px solid ${proPromptMode ? '#10b981' : '#e5e5e5'}`,
-                  borderRadius: 12,
-                  marginBottom: 16,
+                  background: proPromptMode ? '#0a0a0a' : '#fafafa',
+                  border: `1px solid ${proPromptMode ? '#0a0a0a' : '#e5e5e5'}`,
+                  marginBottom: 20,
                   cursor: 'pointer',
                   transition: 'all 0.2s',
                   flexWrap: 'wrap',
@@ -1727,34 +1784,46 @@ function PublishPageInner() {
                 onClick={() => setProPromptMode(m => !m)}
                 >
                   <div style={{
-                    width: 44,
-                    height: 24,
-                    background: proPromptMode ? '#10b981' : '#d1d5db',
-                    borderRadius: 100,
+                    width: 38,
+                    height: 22,
+                    background: proPromptMode ? '#c2410c' : '#d4d4d4',
                     position: 'relative',
                     transition: 'background 0.2s',
                     flexShrink: 0,
                   }}>
                     <div style={{
-                      width: 20,
-                      height: 20,
-                      background: '#fff',
-                      borderRadius: '50%',
+                      width: 18,
+                      height: 18,
+                      background: '#ffffff',
                       position: 'absolute',
                       top: 2,
-                      left: proPromptMode ? 22 : 2,
+                      left: proPromptMode ? 18 : 2,
                       transition: 'left 0.2s',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
                     }} />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13.5, fontWeight: 800, color: '#1a1a1a', marginBottom: 2 }}>
-                      🎬 전문가급 프롬프트 모드 {proPromptMode ? '(켜짐)' : '(꺼짐)'}
+                    <div style={{ 
+                      fontFamily: "'JetBrains Mono', monospace", 
+                      fontSize: 10, 
+                      fontWeight: 700, 
+                      letterSpacing: '0.18em', 
+                      color: proPromptMode ? '#fbbf24' : '#c2410c',
+                      textTransform: 'uppercase',
+                      marginBottom: 4 
+                    }}>
+                      Cinematography Mode {proPromptMode ? '· ON' : '· OFF'}
                     </div>
-                    <div style={{ fontSize: 11.5, color: '#666', lineHeight: 1.5 }}>
+                    <div style={{ 
+                      fontFamily: "'Noto Serif KR', 'Pretendard', serif",
+                      fontSize: 13.5, 
+                      fontWeight: 600, 
+                      color: proPromptMode ? '#ffffff' : '#0a0a0a',
+                      lineHeight: 1.5,
+                      letterSpacing: '-0.015em',
+                    }}>
                       {proPromptMode 
-                        ? '✨ Midjourney v7 + Sora 2 + VEO 3 카메라/렌즈/조명/색감까지 전문가급으로 보고 있어요.' 
-                        : '클릭하면 카메라·렌즈·조명·색감·LUT까지 전문가급 프롬프트로 바뀝니다.'}
+                        ? 'Midjourney v7 + Sora 2 + VEO 3 — 카메라·조명·색감 사양' 
+                        : '단순 프롬프트 → 클릭하여 전문가급 활성화'}
                     </div>
                   </div>
                 </div>
@@ -1788,11 +1857,9 @@ function PublishPageInner() {
         {/* ============================================ */}
         <div className={`step ${openSteps.meta ? 'active' : ''}`}>
           <div className="stepHead" onClick={() => toggleStep('meta')}>
-            <div className="stepEmoji" style={{ background: STEPS[4].bg, color: STEPS[4].color }}>
-              {STEPS[4].emoji}
-            </div>
+            <div className="stepNumBadge">{STEPS[4].num}</div>
             <div className="stepInfo">
-              <div className="stepLabel" style={{ color: STEPS[4].color }}>{STEPS[4].label}</div>
+              <div className="stepLabel">{STEPS[4].label}</div>
               <div className="stepTitle">메타데이터 — 설명·태그·썸네일</div>
             </div>
             <div className={`stepArrow ${openSteps.meta ? 'open' : ''}`}>▼</div>
@@ -1890,11 +1957,9 @@ function PublishPageInner() {
         {/* ============================================ */}
         <div className={`step ${openSteps.sns ? 'active' : ''}`}>
           <div className="stepHead" onClick={() => toggleStep('sns')}>
-            <div className="stepEmoji" style={{ background: STEPS[5].bg, color: STEPS[5].color }}>
-              {STEPS[5].emoji}
-            </div>
+            <div className="stepNumBadge">{STEPS[5].num}</div>
             <div className="stepInfo">
-              <div className="stepLabel" style={{ color: STEPS[5].color }}>{STEPS[5].label}</div>
+              <div className="stepLabel">{STEPS[5].label}</div>
               <div className="stepTitle">SNS 업로드 — 4개 플랫폼별 자료</div>
             </div>
             <div className={`stepArrow ${openSteps.sns ? 'open' : ''}`}>▼</div>
@@ -1908,14 +1973,11 @@ function PublishPageInner() {
                 <div style={{
                   display: 'flex',
                   alignItems: 'center',
-                  gap: 12,
+                  gap: 14,
                   padding: '14px 18px',
-                  background: proSnsMode 
-                    ? 'linear-gradient(135deg, #fbeaf0 0%, #fce4ec 100%)' 
-                    : '#fafafa',
-                  border: `1.5px solid ${proSnsMode ? '#D4537E' : '#e5e5e5'}`,
-                  borderRadius: 12,
-                  marginBottom: 16,
+                  background: proSnsMode ? '#0a0a0a' : '#fafafa',
+                  border: `1px solid ${proSnsMode ? '#0a0a0a' : '#e5e5e5'}`,
+                  marginBottom: 20,
                   cursor: 'pointer',
                   transition: 'all 0.2s',
                   flexWrap: 'wrap',
@@ -1923,34 +1985,46 @@ function PublishPageInner() {
                 onClick={() => setProSnsMode(m => !m)}
                 >
                   <div style={{
-                    width: 44,
-                    height: 24,
-                    background: proSnsMode ? '#D4537E' : '#d1d5db',
-                    borderRadius: 100,
+                    width: 38,
+                    height: 22,
+                    background: proSnsMode ? '#c2410c' : '#d4d4d4',
                     position: 'relative',
                     transition: 'background 0.2s',
                     flexShrink: 0,
                   }}>
                     <div style={{
-                      width: 20,
-                      height: 20,
-                      background: '#fff',
-                      borderRadius: '50%',
+                      width: 18,
+                      height: 18,
+                      background: '#ffffff',
                       position: 'absolute',
                       top: 2,
-                      left: proSnsMode ? 22 : 2,
+                      left: proSnsMode ? 18 : 2,
                       transition: 'left 0.2s',
-                      boxShadow: '0 1px 3px rgba(0,0,0,0.2)',
                     }} />
                   </div>
                   <div style={{ flex: 1, minWidth: 0 }}>
-                    <div style={{ fontSize: 13.5, fontWeight: 800, color: '#1a1a1a', marginBottom: 2 }}>
-                      📱 SNS 실제 화면 모드 {proSnsMode ? '(켜짐)' : '(꺼짐)'}
+                    <div style={{ 
+                      fontFamily: "'JetBrains Mono', monospace", 
+                      fontSize: 10, 
+                      fontWeight: 700, 
+                      letterSpacing: '0.18em', 
+                      color: proSnsMode ? '#fbbf24' : '#c2410c',
+                      textTransform: 'uppercase',
+                      marginBottom: 4 
+                    }}>
+                      Distribution Mode {proSnsMode ? '· ON' : '· OFF'}
                     </div>
-                    <div style={{ fontSize: 11.5, color: '#666', lineHeight: 1.5 }}>
+                    <div style={{ 
+                      fontFamily: "'Noto Serif KR', 'Pretendard', serif",
+                      fontSize: 13.5, 
+                      fontWeight: 600, 
+                      color: proSnsMode ? '#ffffff' : '#0a0a0a',
+                      lineHeight: 1.5,
+                      letterSpacing: '-0.015em',
+                    }}>
                       {proSnsMode 
-                        ? '✨ YouTube Studio · 인스타 릴스 · 틱톡 실제 업로드 화면 그대로 보고 있어요.' 
-                        : '클릭하면 각 SNS 실제 업로드 화면과 똑같은 형태로 바뀝니다.'}
+                        ? 'YouTube Studio · Instagram Reels · TikTok 실제 업로드 화면' 
+                        : '단순 텍스트 → 클릭하여 실제 SNS UI 활성화'}
                     </div>
                   </div>
                 </div>
