@@ -90,7 +90,7 @@ const VISUAL_STYLES: Record<VisualStyle, VisualStylePack> = {
     lighting: ["available natural light", "single soft key from window", "low-key with practical lights"],
     colorLUT: ["Kodak Portra 400 emulation", "muted desaturated tones", "natural skin tones, slightly warm"],
     mood: ["intimate, observational", "honest, unfiltered", "thoughtful, contemplative"],
-    styleRef: ["Netflix documentary aesthetic", "BBC documentary look", "long-form journalism photography"],
+    styleRef: ["high-end documentary aesthetic", "premium documentary look", "long-form journalism photography"],
     composition: ["rule of thirds, eye level", "medium close-up framing", "environmental portrait"]
   },
   vlog: {
@@ -100,7 +100,7 @@ const VISUAL_STYLES: Record<VisualStyle, VisualStylePack> = {
     lighting: ["bright natural daylight", "ring light for selfie", "golden hour glow"],
     colorLUT: ["bright warm tones", "Instagram-friendly slightly faded", "vibrant but not over-saturated"],
     mood: ["upbeat, friendly", "casual, relatable", "energetic"],
-    styleRef: ["modern lifestyle vlog", "Casey Neistat influence", "clean YouTube aesthetic 2026"],
+    styleRef: ["modern lifestyle vlog", "popular creator influence", "clean video aesthetic 2026"],
     composition: ["close-up to camera", "POV shots", "establishing wide for context"]
   },
   tutorial: {
@@ -110,7 +110,7 @@ const VISUAL_STYLES: Record<VisualStyle, VisualStylePack> = {
     lighting: ["bright even key light", "softbox from front", "no harsh shadows"],
     colorLUT: ["clean neutral tones", "high contrast for clarity", "white-balanced precisely"],
     mood: ["clear, instructional", "calm, methodical", "approachable"],
-    styleRef: ["high-end tutorial channel", "Apple keynote visuals", "Bon Appétit kitchen"],
+    styleRef: ["high-end tutorial channel", "premium presentation visuals", "professional kitchen documentary"],
     composition: ["centered subject", "clean negative space", "labels and overlays friendly"]
   },
   review: {
@@ -120,7 +120,7 @@ const VISUAL_STYLES: Record<VisualStyle, VisualStylePack> = {
     lighting: ["dual softbox setup", "rim light to separate subject", "controlled studio light"],
     colorLUT: ["neutral commercial tones", "slightly cool for tech feel", "true-to-life color"],
     mood: ["professional, trustworthy", "objective, analytical", "premium feel"],
-    styleRef: ["MKBHD review aesthetic", "Wired magazine product shoot", "high-end e-commerce"],
+    styleRef: ["premium tech review aesthetic", "magazine product shoot", "high-end e-commerce"],
     composition: ["product-centered", "split screen for comparison", "lifestyle context shots"]
   },
   story: {
@@ -130,7 +130,7 @@ const VISUAL_STYLES: Record<VisualStyle, VisualStylePack> = {
     lighting: ["dramatic single source", "low-key cinematic", "practical lights only", "candlelight feel"],
     colorLUT: ["teal and orange cinematic", "desaturated melancholic", "warm nostalgic tones"],
     mood: ["emotional, reflective", "melancholic but hopeful", "quietly powerful"],
-    styleRef: ["Wong Kar-wai cinematography", "A24 indie film tone", "Korean drama emotional scenes"],
+    styleRef: ["arthouse cinematography", "indie film tone", "emotional drama scenes"],
     composition: ["off-center for tension", "negative space heavy", "leading lines to emotion"]
   },
   trend: {
@@ -140,7 +140,7 @@ const VISUAL_STYLES: Record<VisualStyle, VisualStylePack> = {
     lighting: ["high-contrast neon", "vibrant practical lights", "modern studio strobe"],
     colorLUT: ["high-saturation vibrant", "pop culture poster look", "social media optimized"],
     mood: ["energetic, current", "buzzy, hype", "fast-paced"],
-    styleRef: ["TikTok viral aesthetic", "Vox magazine motion graphics", "trending news visual"],
+    styleRef: ["short-form viral aesthetic", "magazine motion graphics", "trending news visual"],
     composition: ["dynamic angles", "kinetic typography overlays", "split-screen comparisons"]
   },
   minimalist: {
@@ -150,7 +150,7 @@ const VISUAL_STYLES: Record<VisualStyle, VisualStylePack> = {
     lighting: ["single source", "natural window light", "soft and even"],
     colorLUT: ["monochromatic", "muted earth tones", "clean white balance"],
     mood: ["calm, focused", "quiet, intentional", "spacious"],
-    styleRef: ["Kinfolk magazine", "Japanese minimalism", "Apple advertising minimalism"],
+    styleRef: ["modern minimalist magazine", "Japanese minimalism aesthetic", "premium minimalism advertising"],
     composition: ["heavy negative space", "single focal point", "clean lines"]
   },
   editorial: {
@@ -158,9 +158,9 @@ const VISUAL_STYLES: Record<VisualStyle, VisualStylePack> = {
     aperture: ["f/2.0", "f/2.8"],
     cameraMove: ["static frames", "deliberate slow moves", "elegant slider"],
     lighting: ["beauty dish key", "rim and fill", "controlled studio"],
-    colorLUT: ["fashion magazine tones", "Vogue-style color", "high-end commercial"],
+    colorLUT: ["fashion magazine tones", "high-fashion color grading", "high-end commercial"],
     mood: ["elegant, refined", "sophisticated", "aspirational"],
-    styleRef: ["Vogue editorial", "Vanity Fair portrait", "high-end commercial spot"],
+    styleRef: ["high-fashion editorial", "premium portrait photography", "high-end commercial spot"],
     composition: ["centered hero shot", "rule of thirds with intention", "fashion-forward angles"]
   }
 };
