@@ -326,26 +326,42 @@ function PublishWorkthrough() {
   }, [keyword, router]);
 
   // ============================================================
-  // 콘텐츠 생성 (박 대표님 contentEngine 그대로 사용)
+  // 콘텐츠 생성 (박 대표님 contentEngine 정확한 시그니처)
   // ============================================================
+  // contentEngine 시그니처:
+  //   generateTitles(keyword, scenarioId, categoryName)
+  //   generateDescription(keyword, categoryName, scenarioId)
+  //   generateTags(keyword, categoryName)
+  //   generateVideoSequences(keyword, scenarioId)
+  //   generateThumbnailConcepts(keyword, categoryName)
+  //   generateShortsScript(keyword, scenarioId)
+  //   getViralCases(categoryId, count?)
+  // categoryId가 곧 scenarioId 역할을 하고, categoryName도 이를 사용
   const data = useMemo(() => {
     if (!keyword.trim()) return null;
-    const titles = generateTitles(keyword, categoryId, seed);
-    const description = generateDescription(keyword, categoryId, seed);
-    
-    // 박 대표님 자산 보존: contentEngine.generateTags 그대로
-    const rawTags = generateTags(keyword, categoryId, seed);
-    
-    // v8.2 다양화 처리: 도메인 감지 + 시드 기반 다양화
-    const domain = detectTagDomain(keyword, categoryId);
-    const tags = diversifyTags(keyword, rawTags, domain, seed);
-    
-    const sequences = generateVideoSequences(keyword, categoryId, seed);
-    const thumbnails = generateThumbnailConcepts(keyword, categoryId, seed);
-    const shortsScript = generateShortsScript(keyword, categoryId, seed);
-    const cases = getViralCases(keyword, categoryId, seed);
+    try {
+      const titles = generateTitles(keyword, categoryId, categoryId);
+      const description = generateDescription(keyword, categoryId, categoryId);
+      
+      // 박 대표님 contentEngine.generateTags(keyword, categoryName) - 2 args
+      const rawTags = generateTags(keyword, categoryId);
+      
+      // v8.2 다양화 처리: 도메인 감지 + 시드 기반 다양화
+      const domain = detectTagDomain(keyword, categoryId);
+      const tags = diversifyTags(keyword, rawTags, domain, seed);
+      
+      const sequences = generateVideoSequences(keyword, categoryId);
+      const thumbnails = generateThumbnailConcepts(keyword, categoryId);
+      const shortsScript = generateShortsScript(keyword, categoryId);
+      
+      // getViralCases(categoryId, count) - 2 args
+      const cases = getViralCases(categoryId, 3);
 
-    return { titles, description, tags, sequences, thumbnails, shortsScript, cases };
+      return { titles, description, tags, sequences, thumbnails, shortsScript, cases };
+    } catch (err) {
+      console.error('[publish] contentEngine error:', err);
+      return null;
+    }
   }, [keyword, categoryId, seed]);
 
   // v6.5.0 작가급 시나리오 + 전문가 프롬프트 + SNS 4종
@@ -366,7 +382,10 @@ function PublishWorkthrough() {
         tags: safeTags,
         sequences: data.sequences,
         thumbnails: data.thumbnails,
-        shortsScript: data.shortsScript,
+        // shortsScript는 ShortsScript 객체이므로 fullScript 문자열로 변환
+        shortsScript: typeof data.shortsScript === 'string' 
+          ? data.shortsScript 
+          : (data.shortsScript?.fullScript || ''),
       });
     } catch (err) {
       console.error('[v650] generateV650Data error:', err);
@@ -408,7 +427,8 @@ function PublishWorkthrough() {
   };
 
   const regenerate = () => {
-    setSeed(bumpSeed(seed));
+    bumpSeed();  // void 반환 - 인자 없음
+    setSeed(Math.floor(Math.random() * 1000000));  // 시드는 별도로 새로 생성
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -1356,7 +1376,7 @@ function PublishWorkthrough() {
 }
 
 // ============================================================
-// STEP 1: 비슷한 사례
+// STEP 1: 비슷한 사례 (ViralCase: pattern, hook, why, example, emoji)
 // ============================================================
 function CasesPanel({ cases }: { cases: any[] }) {
   if (!cases || !Array.isArray(cases) || cases.length === 0) {
@@ -1371,17 +1391,39 @@ function CasesPanel({ cases }: { cases: any[] }) {
     <div className="wt-case-list">
       {cases.map((c: any, i: number) => (
         <div key={i} className="wt-card">
-          <div className="wt-card-label">사례 {i + 1}</div>
-          <h3 className="wt-card-title">"{c?.title || '제목 없음'}"</h3>
-          <div className="wt-card-meta">
-            {c?.views && <span>👁 조회수 {c.views}</span>}
-            {c?.duration && <span> · ⏱ {c.duration}</span>}
-            {c?.engagement && <span> · 💬 {c.engagement}</span>}
+          <div className="wt-card-label">
+            {c?.emoji || '📌'} {c?.pattern || `사례 ${i + 1}`}
           </div>
-          {c?.lesson && (
-            <p className="wt-card-body" style={{ marginTop: 10 }}>
-              💡 {c.lesson}
-            </p>
+          <h3 className="wt-card-title" style={{ marginTop: 8 }}>
+            {c?.hook || ''}
+          </h3>
+          <div className="wt-card-meta">
+            {c?.videoLength && <span>⏱ 영상 길이 {c.videoLength}</span>}
+          </div>
+          {c?.why && (
+            <div style={{ 
+              marginTop: 12, 
+              padding: 12, 
+              background: '#fafafa', 
+              borderLeft: '2px solid #c2410c',
+            }}>
+              <div style={{ fontSize: 11, fontWeight: 700, color: '#c2410c', marginBottom: 4, letterSpacing: '0.1em' }}>
+                떡상 이유
+              </div>
+              <p style={{ fontSize: 14, color: '#0a0a0a', lineHeight: 1.65, margin: 0, wordBreak: 'keep-all' }}>
+                {c.why}
+              </p>
+            </div>
+          )}
+          {c?.example && (
+            <div style={{ marginTop: 10, fontSize: 13, color: '#525252', lineHeight: 1.6 }}>
+              💡 <strong>예시 키워드:</strong> {c.example}
+            </div>
+          )}
+          {c?.keyElement && (
+            <div style={{ marginTop: 6, fontSize: 13, color: '#525252', lineHeight: 1.6 }}>
+              ✨ <strong>핵심 요소:</strong> {c.keyElement}
+            </div>
           )}
         </div>
       ))}
@@ -1417,12 +1459,18 @@ function TitlePanel({
             className={`wt-title-card ${selectedIdx === i ? 'selected' : ''}`}
             onClick={() => onSelect(i)}
           >
-            <div className="wt-title-num">제목 후보 {i + 1}</div>
+            <div className="wt-title-num">
+              제목 후보 {i + 1}{t?.pattern ? ` · ${t.pattern}` : ''}
+            </div>
             <div className="wt-title-text">{titleText}</div>
             <div className="wt-title-meta">
-              {t?.ctr && <span className="wt-title-meta-item">📈 클릭률 {t.ctr}</span>}
-              {t?.length && <span className="wt-title-meta-item">📏 {t.length}자</span>}
+              {t?.ctr_estimate && <span className="wt-title-meta-item">📈 예상 CTR {t.ctr_estimate}</span>}
             </div>
+            {t?.reasoning && (
+              <p style={{ fontSize: 12, color: '#737373', lineHeight: 1.55, margin: '8px 0 0', wordBreak: 'keep-all' }}>
+                {t.reasoning}
+              </p>
+            )}
             <button
               type="button"
               className={`wt-btn wt-btn-sm ${copied === `title-${i}` ? 'copied' : ''}`}
@@ -1480,13 +1528,39 @@ function ScriptPanel({
           {(sequences && Array.isArray(sequences) ? sequences : []).map((seq: any, i: number) => (
             <div key={i} className="wt-beat">
               <div className="wt-beat-head">
-                <div className="wt-beat-num">B0{i + 1}</div>
+                <div className="wt-beat-num">B0{seq?.number || i + 1}</div>
                 <div className="wt-beat-info">
-                  <div className="wt-beat-name">{seq?.title || seq?.name || `단계 ${i + 1}`}</div>
-                  <div className="wt-beat-time">{seq?.timing || seq?.timeRange || `${i * 30}초~${(i + 1) * 30}초`}</div>
+                  <div className="wt-beat-name">{seq?.title || `단계 ${i + 1}`}</div>
+                  <div className="wt-beat-time">{seq?.duration || ''}</div>
                 </div>
               </div>
-              <p className="wt-beat-text">{seq?.content || seq?.description || seq?.text || ''}</p>
+              {seq?.purpose && (
+                <div style={{ 
+                  fontSize: 12, 
+                  color: '#737373', 
+                  fontStyle: 'italic',
+                  marginBottom: 4,
+                  paddingLeft: 0,
+                  wordBreak: 'keep-all',
+                }}>
+                  목적: {seq.purpose}
+                </div>
+              )}
+              <p className="wt-beat-text">{seq?.script || ''}</p>
+              {seq?.tip && (
+                <div style={{ 
+                  marginTop: 8, 
+                  padding: '8px 12px',
+                  background: '#fffbeb',
+                  borderLeft: '2px solid #fbbf24',
+                  fontSize: 12.5,
+                  lineHeight: 1.6,
+                  color: '#78350f',
+                  wordBreak: 'keep-all',
+                }}>
+                  {seq.tip}
+                </div>
+              )}
             </div>
           ))}
         </div>
@@ -1618,6 +1692,12 @@ function MetaPanel({
                 <div>{t?.background || '-'}</div>
                 <div className="wt-thumb-card-key">메인</div>
                 <div>{t?.mainText || '-'}</div>
+                {t?.subText && (
+                  <>
+                    <div className="wt-thumb-card-key">서브</div>
+                    <div>{t.subText}</div>
+                  </>
+                )}
                 <div className="wt-thumb-card-key">표정</div>
                 <div>{t?.expression || '-'}</div>
                 <div className="wt-thumb-card-key">색상</div>
@@ -1684,9 +1764,16 @@ function SnsPanel({
         <SNSUploadPanel formats={v650Data.sns} />
       ) : (
         <div className="wt-card">
-          <div className="wt-card-label">쇼츠/릴스용 대본</div>
+          <div className="wt-card-label">
+            쇼츠/릴스용 대본
+            {shortsScript?.totalDuration && (
+              <span style={{ marginLeft: 8, fontSize: 10, color: '#737373', fontWeight: 500 }}>
+                · {shortsScript.totalDuration}
+              </span>
+            )}
+          </div>
           <p className="wt-card-body" style={{ whiteSpace: 'pre-line' }}>
-            {shortsScript}
+            {shortsScript?.fullScript || shortsScript?.body || ''}
           </p>
         </div>
       )}
