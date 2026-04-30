@@ -285,7 +285,7 @@ export default function Page() {
           <h2>도움이 필요하시면</h2>
           <p>
             서비스 이용 중 궁금한 점이나 개선 제안이 있으시면 언제든{' '}
-            <strong>contact@nutube.kr</strong>로 메일 주세요.
+            <strong>apark12321@gmail.com</strong>로 메일 주세요.
             한 분 한 분의 의견을 직접 읽고 있습니다.
             특히 사용 중 불편함, 한국어가 어색한 부분, 더 필요한 기능이 있다면
             적극 반영하고 있습니다.
