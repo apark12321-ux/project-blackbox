@@ -1,31 +1,30 @@
 'use client';
 /**
- * AlgoMaker 결과 페이지 v6.5.1
+ * AlgoMaker 결과 페이지 v8.2
  *
  * 박예준 대표 비전:
  * "SNS 초보자가 사이트에 딱 왔을 때 뭔가 필이 팍 꽂혀야 한다"
  * "100명이 같은 키워드 입력해도 100가지 결과"
- * "겉으로는 안보이고, 뒷단에서 알고리즘이 움직여야 함"
  * "AlgoMaker 자체 = 완전 무료"
  *
- * v6.5.1 변경사항 (2026.04.30):
- * - ❌ 5회 무료 제한 제거 (완전 무료 비전 부합)
- * - ❌ RewardedAd 모달 제거 (시니어 사용성 개선)
- * - ✅ "다시 생성" 무제한 사용
- * - ✅ AdSlot 광고는 그대로 → AdSense 노출 빈도 ↑ → 수익 ↑
+ * v8.2 변경사항 (2026.04.30):
+ * - 🏷️ 태그 다양화 시스템 (도메인별 연관 키워드 풀)
+ *   → 13개 태그가 모두 다른 의미로 다양해짐
+ *   → "2026 부동산 전망 추천/방법/입문..." 식 중복 제거
+ * - 📊 가짜 검색량/경쟁 강도 라벨 완전 제거 (AdSense 정책 안전)
+ *
+ * v8.1 변경사항 유지:
+ * - "넷플릭스" 등 외부 브랜드명 모두 제거
+ * - "작가급 스토리텔링 + 떡상 패턴 융합"
+ *
+ * v6.5.1 변경사항 유지:
+ * - 5회 무료 제한 + RewardedAd 모달 제거
+ * - 무제한 사용 → AdSense 노출 ↑
  *
  * v6.5.0 변경사항 유지:
- * - 📖 작가급 스토리 모드 (넷플릭스 다큐 + 떡상 유튜버 융합)
- * - 📱 SNS 4종 실제 UI 재현 (YouTube/Shorts/Instagram/TikTok)
- * - 🎨 Midjourney v7 / Sora 2 / VEO 3 전문가급 프롬프트
- *
- * 스토리보드 (6단계):
- * STEP 1 - 비슷한 떡상 영상 사례
- * STEP 2 - 제목 선택 (3개 중 1개)
- * STEP 3 - 떡상 시나리오 (기본 ↔ 작가급 모드 전환 가능)
- * STEP 4 - 영상 제작 AI 프롬프트 (기본 ↔ 전문가급 모드)
- * STEP 5 - 메타데이터 (설명·태그·썸네일)
- * STEP 6 - SNS 업로드 (4개 플랫폼 실제 UI 재현)
+ * - 📖 작가급 스토리 모드 토글 (STEP 3)
+ * - 📱 SNS 4종 실제 UI 모드 (STEP 6, 기본 ON)
+ * - 🎨 전문가급 프롬프트 모드 (STEP 4)
  */
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
@@ -52,6 +51,194 @@ import { generateV650Data, type V650DataPackage } from '../_shared/v650Adapter';
 import { CinematicScenarioDisplay } from '../_shared/CinematicScenarioDisplay_v6_5_0';
 import { CinematicPromptDisplay } from '../_shared/CinematicPromptDisplay_v6_5_0';
 import { SNSUploadPanel } from '../_shared/SNSUploadPanel_v6_5_0';
+
+// ============================================================
+// v8.2: 태그 다양화 시스템
+// 도메인별 연관 키워드 풀 → 시드 기반으로 다양하게 선택
+// "2026년 부동산 전망 추천/방법/입문..." 식 중복 제거
+// ============================================================
+
+type TagDomain = 
+  | 'realestate'     // 부동산/청약
+  | 'economy'        // 경제/재테크
+  | 'health'         // 건강/운동
+  | 'food'           // 요리/맛집
+  | 'travel'         // 여행/취미
+  | 'aitech'         // AI/디지털
+  | 'family'         // 가족/사연
+  | 'language'       // 외국어
+  | 'senior'         // 시니어 라이프
+  | 'review'         // 리뷰/비교
+  | 'tutorial'       // 가이드/방법
+  | 'general';       // 일반
+
+// 도메인별 연관 키워드 풀 (각 20-30개)
+const DOMAIN_KEYWORD_POOL: Record<TagDomain, string[]> = {
+  realestate: [
+    '부동산 시장', '주택 시장', '청약 전략', '부동산 투자',
+    '아파트 매매', '전세 시장', '내집 마련', '주거 트렌드',
+    '재개발', '재건축', '신축 분양', '입지 분석',
+    '매매가', '전세가', '시세 분석', '부동산 정보',
+    '주택 정책', '분양가 상한제', '청약 가점', '주택 자금',
+    '집값', '주택 시세', '부동산 흐름', '투자 정보',
+  ],
+  economy: [
+    '재테크', '자산 관리', '노후 자금', '연금', 
+    '경제 전망', '금리', '환율', '주식 투자',
+    '펀드', 'ETF', '예금 적금', '재무 설계',
+    '은퇴 준비', '경제 흐름', '시장 분석', '돈 관리',
+    '월 100만원', '현금 흐름', '안전 자산', '분산 투자',
+    '재무 점검', '소득 관리', '지출 관리', '노후 대비',
+  ],
+  health: [
+    '건강 관리', '홈트레이닝', '시니어 건강', '식단 관리',
+    '근력 운동', '유산소 운동', '스트레칭', '걷기 운동',
+    '다이어트', '체중 감량', '건강 식단', '영양 관리',
+    '관절 건강', '허리 건강', '면역력', '수면 관리',
+    '5060 건강', '시니어 운동', '집에서 운동', '실내 운동',
+    '건강 정보', '의료 정보', '병원 정보', '건강 검진',
+  ],
+  food: [
+    '집밥', '한식 레시피', '간단 요리', '저녁 메뉴',
+    '아침 메뉴', '도시락', '반찬', '국 요리',
+    '한그릇 요리', '면 요리', '밥 요리', '디저트',
+    '동네 맛집', '가성비 맛집', '맛집 후기', '맛집 추천',
+    '요리 비법', '요리 팁', '주방 살림', '식재료',
+    '제철 음식', '계절 메뉴', '집들이 요리', '명절 요리',
+  ],
+  travel: [
+    '국내 여행', '해외 여행', '가성비 여행', '주말 여행',
+    '당일치기', '1박 2일', '여행 코스', '여행 후기',
+    '제주도', '강원도', '경상도', '전라도',
+    '동남아', '유럽', '일본', '중국',
+    '여행 팁', '여행 준비물', '여행 예산', '패키지 여행',
+    '자유 여행', '시니어 여행', '효도 여행', '가족 여행',
+  ],
+  aitech: [
+    'ChatGPT', 'AI 도구', '디지털 도구', '핸드폰 사용법',
+    '스마트폰', '인공지능', '챗봇', '생성형 AI',
+    'AI 활용법', '시니어 디지털', '디지털 입문', '컴퓨터 기초',
+    '카카오톡', '유튜브', '네이버', '구글',
+    '온라인 쇼핑', '인터넷 뱅킹', '디지털 시대', '4차 산업',
+    'IT 트렌드', '기술 변화', '미래 기술', '신기술',
+  ],
+  family: [
+    '가족 사연', '부부 이야기', '부모 자식', '가족 관계',
+    '시댁 이야기', '친정 이야기', '며느리', '사위',
+    '손주', '자녀 교육', '결혼 이야기', '이혼 사연',
+    '가족 갈등', '화해', '용서', '진심',
+    '일상 이야기', '평범한 하루', '소소한 행복', '가족 모임',
+    '명절 이야기', '추억', '그리움', '사랑',
+  ],
+  language: [
+    '영어 회화', '영어 공부', '시니어 영어', '기초 영어',
+    '일본어', '중국어', '독일어', '프랑스어',
+    '외국어 학습', '회화 연습', '문법', '단어 암기',
+    '발음', '듣기', '읽기', '쓰기',
+    '학습법', '공부 비법', '언어 교환', '독학',
+    '온라인 강의', '학원 후기', '교재 추천', '앱 추천',
+  ],
+  senior: [
+    '5060', '6070', '시니어', '50대 이야기',
+    '60대 일상', '70대 활기', '은퇴 후', '인생 2막',
+    '노후 생활', '시니어 라이프', '액티브 시니어', '실버 세대',
+    '50대 부업', '시니어 직업', '평생 직업', '취미 활동',
+    '시니어 모임', '동호회', '봉사 활동', '여가 생활',
+    '인생 후반', '황혼기', '경험담', '인생 조언',
+  ],
+  review: [
+    '리뷰', '솔직 후기', '비교 분석', '추천',
+    '장단점', '실제 사용', '구매 후기', '체험기',
+    '제품 비교', '서비스 비교', '브랜드 비교', '가성비',
+    '꿀팁', '노하우', '주의사항', '경험 공유',
+  ],
+  tutorial: [
+    '방법', '가이드', '입문', '기초',
+    '시작하기', '단계별', '쉬운', '간단한',
+    '꿀팁', '노하우', '비결', '비법',
+    '실전', '실습', '예제', '예시',
+  ],
+  general: [
+    '정보', '분석', '꿀팁', '노하우',
+    '실전', '경험담', '추천', '인기',
+    '트렌드', '이슈', '화제', '주목',
+  ],
+};
+
+// 도메인 자동 감지 (키워드 + 카테고리 기반)
+function detectTagDomain(keyword: string, categoryId: string): TagDomain {
+  const k = keyword.toLowerCase();
+  
+  // 카테고리 ID 우선 매칭
+  if (categoryId === 'realestate') return 'realestate';
+  if (categoryId === 'economy') return 'economy';
+  if (categoryId === 'health') return 'health';
+  if (categoryId === 'food') return 'food';
+  if (categoryId === 'travel') return 'travel';
+  if (categoryId === 'aitech') return 'aitech';
+  if (categoryId === 'family') return 'family';
+  if (categoryId === 'language') return 'language';
+  if (categoryId === 'senior') return 'senior';
+  
+  // 카테고리 매칭 안 되면 키워드 기반
+  if (/부동산|청약|아파트|주택|전세/i.test(k)) return 'realestate';
+  if (/투자|재테크|연금|돈|자산|경제/i.test(k)) return 'economy';
+  if (/건강|운동|다이어트|식단|병원/i.test(k)) return 'health';
+  if (/요리|레시피|음식|맛집|밥/i.test(k)) return 'food';
+  if (/여행|관광|호텔|항공|리조트/i.test(k)) return 'travel';
+  if (/AI|ChatGPT|핸드폰|스마트폰|디지털/i.test(k)) return 'aitech';
+  if (/가족|부부|부모|자식|결혼|이혼/i.test(k)) return 'family';
+  if (/영어|일본어|중국어|외국어|회화/i.test(k)) return 'language';
+  if (/시니어|5060|6070|50대|60대|70대|은퇴|노후/i.test(k)) return 'senior';
+  if (/리뷰|비교|후기|추천|솔직/i.test(k)) return 'review';
+  if (/방법|how|가이드|배우|시작|입문/i.test(k)) return 'tutorial';
+  
+  return 'general';
+}
+
+// 시드 기반 셔플 (같은 키워드도 매번 다른 결과)
+function seededShuffle<T>(arr: T[], seed: number): T[] {
+  const result = [...arr];
+  let s = seed;
+  for (let i = result.length - 1; i > 0; i--) {
+    s = (s * 9301 + 49297) % 233280;
+    const j = Math.floor((s / 233280) * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+  return result;
+}
+
+// 메인 다양화 함수: 기존 generateTags 결과를 받아서 다양한 태그 13개 생성
+function diversifyTags(
+  originalTags: any[],
+  keyword: string,
+  categoryId: string,
+  seed: number
+): { tag: string }[] {
+  const domain = detectTagDomain(keyword, categoryId);
+  const pool = DOMAIN_KEYWORD_POOL[domain];
+  const generalPool = DOMAIN_KEYWORD_POOL.general;
+  
+  // 메인 키워드는 항상 첫 번째
+  const mainTag = keyword.trim();
+  
+  // 도메인 풀에서 시드 기반으로 11개 선택
+  const shuffledDomain = seededShuffle(pool, seed);
+  const domainTags = shuffledDomain.slice(0, 11);
+  
+  // 일반 풀에서 1개 추가 (다양성 보장)
+  const shuffledGeneral = seededShuffle(generalPool, seed + 1);
+  const generalTag = shuffledGeneral[0];
+  
+  // 13개 조합: 메인 + 도메인 11 + 일반 1
+  const allTags = [mainTag, ...domainTags, generalTag];
+  
+  // 중복 제거 (혹시 모를 케이스)
+  const uniqueTags = Array.from(new Set(allTags)).slice(0, 13);
+  
+  // 기존 generateTags 와 호환되는 형식으로 반환 (volume, competition 필드 제거)
+  return uniqueTags.map(t => ({ tag: t }));
+}
 
 type StepId = 'cases' | 'title' | 'script' | 'video' | 'meta' | 'sns';
 
@@ -112,8 +299,17 @@ function PublishPageInner() {
     [keyword, cat.name, scenarioId, regenerateKey]
   );
   const tags = useMemo(
-    () => generateTags(keyword, cat.name),
-    [keyword, cat.name, regenerateKey]
+    () => {
+      // v8.2: 기존 generateTags 호출 (자산 보존)
+      const originalTags = generateTags(keyword, cat.name);
+      // v8.2: 도메인별 연관 키워드 풀로 다양화 (시드 기반)
+      const seed = Math.abs(
+        keyword.split('').reduce((h, c) => ((h << 5) - h) + c.charCodeAt(0), 0) 
+        + regenerateKey * 7919
+      );
+      return diversifyTags(originalTags, keyword, categoryId, seed);
+    },
+    [keyword, cat.name, categoryId, regenerateKey]
   );
   const sequences = useMemo(
     () => generateVideoSequences(keyword, scenarioId),
@@ -871,23 +1067,18 @@ function PublishPageInner() {
           background: #fff;
           border: 1px solid #e5e5e5;
           border-radius: 8px;
-          padding: 9px 12px;
+          padding: 11px 14px;
           font-size: 12.5px;
+          transition: border-color 0.15s;
+        }
+        .tagItem:hover {
+          border-color: #c65f3b;
         }
         .tagItemName {
           font-weight: 700;
           color: #1a1a1a;
-          margin-bottom: 4px;
+          line-height: 1.4;
         }
-        .tagItemMeta {
-          display: flex; gap: 6px;
-          font-size: 11px;
-          color: #888;
-        }
-        .tagItemMeta .vol { color: #c65f3b; font-weight: 700; }
-        .tagItemMeta .comp.low { color: #10b981; font-weight: 700; }
-        .tagItemMeta .comp.medium { color: #f59e0b; font-weight: 700; }
-        .tagItemMeta .comp.high { color: #ef4444; font-weight: 700; }
 
         .thumbGrid {
           display: grid;
@@ -1409,7 +1600,7 @@ function PublishPageInner() {
                     </div>
                     <div style={{ fontSize: 11.5, color: '#666', lineHeight: 1.5 }}>
                       {cinematicMode 
-                        ? '✨ 넷플릭스 다큐 작가 + 떡상 유튜버 융합 시나리오로 보고 있어요.' 
+                        ? '✨ 작가급 스토리텔링 + 떡상 패턴 융합 시나리오로 보고 있어요.' 
                         : '클릭하면 단락마다 연결된 작가급 시나리오로 바뀝니다.'}
                     </div>
                   </div>
@@ -1641,12 +1832,6 @@ function PublishPageInner() {
                   {tags.map((t, i) => (
                     <div key={i} className="tagItem">
                       <div className="tagItemName">{t.tag}</div>
-                      <div className="tagItemMeta">
-                        <span className="vol">📊 {t.volume}</span>
-                        <span className={`comp ${t.competition === '낮음' ? 'low' : t.competition === '높음' ? 'high' : 'medium'}`}>
-                          🎯 {t.competition}
-                        </span>
-                      </div>
                     </div>
                   ))}
                 </div>

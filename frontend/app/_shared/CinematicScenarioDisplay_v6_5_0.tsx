@@ -1,7 +1,11 @@
 // ============================================================
-// AlgoMaker v6.5.0 - Cinematic Scenario Display
-// 작가급 스토리 흐름을 시각적으로 표현
-// 각 비트의 연결성 + 알고리즘 후킹 장치를 명확히 보여줌
+// AlgoMaker v8.4 - Cinematic Scenario Display
+// Studio Treatment Style:
+// - 모노크롬 (블랙·화이트·앰버 1색)
+// - 세리프 타이포그래피
+// - 세로줄 제철 주석
+// - 영문 캡션 라벨
+// - 이모지 0
 // ============================================================
 
 import React, { useState } from 'react';
@@ -14,121 +18,694 @@ interface ScenarioDisplayProps {
 export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
   const [expandedBeat, setExpandedBeat] = useState<number | null>(1);
   const [showAlgorithm, setShowAlgorithm] = useState(false);
-  
+
   return (
-    <div className="space-y-4">
-      {/* ============== 핵심 메시지 (Logline) ============== */}
-      <div className="bg-gradient-to-r from-amber-50 to-orange-50 border-l-4 border-amber-400 rounded-lg p-4">
-        <div className="flex items-start gap-3">
-          <span className="text-2xl">🎯</span>
-          <div className="flex-1">
-            <div className="text-xs font-bold text-amber-700 mb-1">영상 전체를 관통하는 핵심 1줄</div>
-            <div className="text-base font-bold text-gray-900 leading-relaxed break-keep">
-              {scenario.logline}
+    <div className="treatmentDoc">
+      <style jsx>{`
+        .treatmentDoc {
+          background: #ffffff;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+          color: #0a0a0a;
+        }
+
+        /* ============================================ */
+        /* HEADER (Document Title) */
+        /* ============================================ */
+        .docHeader {
+          padding: 28px 0 24px;
+          border-bottom: 2px solid #0a0a0a;
+          margin-bottom: 0;
+        }
+        @media (max-width: 600px) {
+          .docHeader { padding: 22px 0 18px; }
+        }
+
+        .docKicker {
+          font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
+          font-size: 10.5px;
+          font-weight: 600;
+          letter-spacing: 0.18em;
+          color: #c2410c;
+          margin-bottom: 8px;
+          text-transform: uppercase;
+        }
+        @media (max-width: 600px) {
+          .docKicker { font-size: 10px; }
+        }
+
+        .docTitle {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 24px;
+          font-weight: 700;
+          color: #0a0a0a;
+          letter-spacing: -0.025em;
+          line-height: 1.3;
+          margin: 0;
+        }
+        @media (max-width: 600px) {
+          .docTitle { font-size: 20px; }
+        }
+
+        /* ============================================ */
+        /* SPEC BAR (Runtime / Retention 메타데이터) */
+        /* ============================================ */
+        .specBar {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          padding: 16px 0;
+          border-bottom: 1px solid #e5e5e5;
+        }
+        @media (max-width: 600px) {
+          .specBar { grid-template-columns: 1fr 1fr; gap: 12px; padding: 14px 0; }
+        }
+
+        .specCell {
+          padding: 0 12px;
+          border-right: 1px solid #e5e5e5;
+        }
+        .specCell:last-child {
+          border-right: none;
+        }
+        @media (max-width: 600px) {
+          .specCell {
+            padding: 0 8px;
+            border-right: 1px solid #e5e5e5;
+          }
+          .specCell:nth-child(2) { border-right: none; }
+          .specCell:nth-child(3) { 
+            grid-column: 1 / -1; 
+            border-right: none;
+            border-top: 1px solid #e5e5e5;
+            padding-top: 12px;
+            margin-top: 4px;
+          }
+        }
+
+        .specLabel {
+          font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
+          font-size: 9.5px;
+          font-weight: 600;
+          letter-spacing: 0.15em;
+          color: #737373;
+          text-transform: uppercase;
+          margin-bottom: 4px;
+        }
+
+        .specValue {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 16px;
+          font-weight: 700;
+          color: #0a0a0a;
+          letter-spacing: -0.015em;
+        }
+        @media (max-width: 600px) {
+          .specValue { font-size: 14px; }
+        }
+
+        /* ============================================ */
+        /* SECTION (Numbered) */
+        /* ============================================ */
+        .section {
+          padding: 24px 0;
+          border-bottom: 1px solid #e5e5e5;
+          display: flex;
+          gap: 24px;
+        }
+        @media (max-width: 600px) {
+          .section { padding: 20px 0; gap: 0; flex-direction: column; }
+        }
+
+        .sectionNum {
+          font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
+          font-size: 12px;
+          font-weight: 600;
+          color: #0a0a0a;
+          flex-shrink: 0;
+          padding-top: 4px;
+          width: 36px;
+        }
+        @media (max-width: 600px) {
+          .sectionNum {
+            display: inline-block;
+            margin-bottom: 8px;
+            width: auto;
+          }
+          .sectionNum::after {
+            content: ' ';
+          }
+        }
+
+        .sectionMain {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .sectionLabel {
+          font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          color: #c2410c;
+          text-transform: uppercase;
+          margin-bottom: 8px;
+        }
+
+        .sectionDivider {
+          width: 28px;
+          height: 1px;
+          background: #0a0a0a;
+          margin-bottom: 14px;
+        }
+
+        /* ============================================ */
+        /* LOGLINE */
+        /* ============================================ */
+        .loglineText {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 18px;
+          font-weight: 600;
+          color: #0a0a0a;
+          line-height: 1.65;
+          letter-spacing: -0.02em;
+          padding-left: 14px;
+          border-left: 2px solid #c2410c;
+          margin: 0;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .loglineText { font-size: 15px; padding-left: 12px; }
+        }
+
+        /* ============================================ */
+        /* EMOTIONAL ARC */
+        /* ============================================ */
+        .arcText {
+          font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
+          font-size: 13.5px;
+          color: #404040;
+          line-height: 1.8;
+          letter-spacing: 0.02em;
+          font-weight: 500;
+        }
+        @media (max-width: 600px) {
+          .arcText { font-size: 12px; line-height: 1.75; }
+        }
+
+        /* ============================================ */
+        /* ALGORITHMIC INTENT (collapsible) */
+        /* ============================================ */
+        .algoToggle {
+          background: transparent;
+          border: 1px solid #0a0a0a;
+          padding: 12px 16px;
+          width: 100%;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11px;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          color: #0a0a0a;
+          text-transform: uppercase;
+          cursor: pointer;
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 14px;
+          transition: all 0.15s;
+        }
+        .algoToggle:hover {
+          background: #0a0a0a;
+          color: #ffffff;
+        }
+        .algoToggle.open {
+          background: #0a0a0a;
+          color: #ffffff;
+        }
+
+        .algoBody {
+          background: #fafafa;
+          border-left: 2px solid #c2410c;
+          padding: 16px 18px;
+        }
+        @media (max-width: 600px) {
+          .algoBody { padding: 14px 16px; }
+        }
+
+        .algoText {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 14px;
+          color: #0a0a0a;
+          line-height: 1.75;
+          margin: 0;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .algoText { font-size: 13px; line-height: 1.7; }
+        }
+
+        /* ============================================ */
+        /* RETENTION TARGET (게이지 라인) */
+        /* ============================================ */
+        .retentionRow {
+          display: flex;
+          align-items: baseline;
+          gap: 10px;
+          margin-bottom: 14px;
+        }
+        .retentionNum {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 36px;
+          font-weight: 700;
+          color: #0a0a0a;
+          letter-spacing: -0.04em;
+          line-height: 1;
+        }
+        @media (max-width: 600px) {
+          .retentionNum { font-size: 30px; }
+        }
+        .retentionUnit {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 13px;
+          font-weight: 600;
+          color: #737373;
+          letter-spacing: 0.05em;
+        }
+        .retentionThreshold {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10.5px;
+          color: #c2410c;
+          letter-spacing: 0.08em;
+          margin-left: auto;
+          align-self: center;
+        }
+        @media (max-width: 600px) {
+          .retentionThreshold { font-size: 10px; }
+        }
+
+        .retentionLine {
+          height: 2px;
+          background: #f5f5f5;
+          position: relative;
+          margin-bottom: 10px;
+        }
+        .retentionFill {
+          position: absolute;
+          left: 0;
+          top: 0;
+          height: 100%;
+          background: #0a0a0a;
+          transition: width 0.6s ease-out;
+        }
+        .retentionMarker {
+          position: absolute;
+          top: -4px;
+          width: 1px;
+          height: 10px;
+          background: #c2410c;
+        }
+        .retentionMarker::after {
+          content: 'TIPPING POINT';
+          position: absolute;
+          top: 12px;
+          left: 50%;
+          transform: translateX(-50%);
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 8.5px;
+          color: #c2410c;
+          letter-spacing: 0.1em;
+          white-space: nowrap;
+          font-weight: 600;
+        }
+
+        .retentionNote {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 12.5px;
+          color: #525252;
+          line-height: 1.7;
+          font-style: italic;
+          margin: 18px 0 0;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .retentionNote { font-size: 12px; }
+        }
+
+        /* ============================================ */
+        /* BEATS (Shot Sheet 스타일) */
+        /* ============================================ */
+        .beatsList {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .beat {
+          border-top: 1px solid #e5e5e5;
+        }
+        .beat:first-child {
+          border-top: none;
+        }
+
+        .beatHead {
+          width: 100%;
+          background: transparent;
+          border: none;
+          padding: 16px 0;
+          cursor: pointer;
+          font-family: inherit;
+          text-align: left;
+          display: grid;
+          grid-template-columns: 56px 1fr auto;
+          gap: 16px;
+          align-items: start;
+          transition: background 0.15s;
+        }
+        .beatHead:hover {
+          background: #fafafa;
+        }
+        @media (max-width: 600px) {
+          .beatHead { 
+            padding: 14px 0; 
+            grid-template-columns: 40px 1fr auto;
+            gap: 12px;
+          }
+        }
+
+        .beatNum {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11.5px;
+          font-weight: 700;
+          color: #c2410c;
+          letter-spacing: 0.1em;
+          padding-top: 2px;
+        }
+        @media (max-width: 600px) {
+          .beatNum { font-size: 10.5px; }
+        }
+
+        .beatHeadInfo {
+          min-width: 0;
+        }
+
+        .beatTitle {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 16px;
+          font-weight: 700;
+          color: #0a0a0a;
+          letter-spacing: -0.02em;
+          margin-bottom: 4px;
+          line-height: 1.3;
+        }
+        @media (max-width: 600px) {
+          .beatTitle { font-size: 14.5px; }
+        }
+
+        .beatPurpose {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 13px;
+          color: #525252;
+          line-height: 1.55;
+          font-style: italic;
+          word-break: keep-all;
+          margin: 0;
+        }
+        @media (max-width: 600px) {
+          .beatPurpose { font-size: 12px; }
+        }
+
+        .beatTime {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10.5px;
+          color: #737373;
+          letter-spacing: 0.05em;
+          padding-top: 4px;
+          white-space: nowrap;
+        }
+        @media (max-width: 600px) {
+          .beatTime { font-size: 10px; padding-top: 2px; }
+        }
+
+        .beatBody {
+          padding: 0 0 24px 56px;
+          display: flex;
+          flex-direction: column;
+          gap: 18px;
+        }
+        @media (max-width: 600px) {
+          .beatBody { padding: 0 0 20px 0; gap: 16px; }
+        }
+
+        /* 비트 안의 섹션 (Narration / Visual / Algorithmic / Bridge) */
+        .beatSection {
+          padding-left: 14px;
+          border-left: 2px solid #e5e5e5;
+        }
+        .beatSection.narration {
+          border-left-color: #0a0a0a;
+        }
+        .beatSection.algo {
+          border-left-color: #c2410c;
+        }
+        .beatSection.bridge {
+          border-left-color: #c2410c;
+          background: #fffbeb;
+          padding: 12px 14px;
+          border-left-width: 2px;
+        }
+
+        .beatSectionLabel {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 9.5px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          color: #737373;
+          text-transform: uppercase;
+          margin-bottom: 8px;
+        }
+        .beatSection.narration .beatSectionLabel { color: #0a0a0a; }
+        .beatSection.algo .beatSectionLabel { color: #c2410c; }
+        .beatSection.bridge .beatSectionLabel { color: #c2410c; }
+
+        .beatSectionContent {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 14px;
+          color: #0a0a0a;
+          line-height: 1.75;
+          margin: 0;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .beatSectionContent { font-size: 13px; line-height: 1.7; }
+        }
+
+        .beatSection.narration .beatSectionContent {
+          font-style: italic;
+          font-weight: 500;
+        }
+
+        .beatSection.bridge .beatSectionContent {
+          font-style: italic;
+          color: #78350f;
+          font-size: 13px;
+        }
+        @media (max-width: 600px) {
+          .beatSection.bridge .beatSectionContent { font-size: 12.5px; }
+        }
+
+        /* ============================================ */
+        /* SHORTS BLOCK */
+        /* ============================================ */
+        .shortsBlock {
+          margin-top: 0;
+          padding: 24px 0 8px;
+        }
+
+        .shortsContent {
+          background: #0a0a0a;
+          color: #fafafa;
+          padding: 20px 22px;
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 14px;
+          line-height: 1.85;
+          white-space: pre-line;
+          word-break: keep-all;
+          margin-top: 14px;
+        }
+        @media (max-width: 600px) {
+          .shortsContent { padding: 18px; font-size: 13px; line-height: 1.75; }
+        }
+
+        /* ============================================ */
+        /* COPY BUTTON */
+        /* ============================================ */
+        .copyBtn {
+          background: transparent;
+          border: 1px solid #0a0a0a;
+          color: #0a0a0a;
+          padding: 7px 14px;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10.5px;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          cursor: pointer;
+          margin-top: 12px;
+          transition: all 0.15s;
+        }
+        .copyBtn:hover {
+          background: #0a0a0a;
+          color: #ffffff;
+        }
+        .copyBtn.copied {
+          background: #c2410c;
+          border-color: #c2410c;
+          color: #ffffff;
+        }
+        @media (max-width: 600px) {
+          .copyBtn { font-size: 10px; padding: 6px 12px; }
+        }
+
+        .copyBtnInverse {
+          background: transparent;
+          border: 1px solid #fafafa;
+          color: #fafafa;
+        }
+        .copyBtnInverse:hover {
+          background: #fafafa;
+          color: #0a0a0a;
+        }
+
+        /* Bridge note */
+        .bridgeNote {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 9.5px;
+          color: #737373;
+          letter-spacing: 0.08em;
+          margin-top: 6px;
+          text-transform: uppercase;
+        }
+      `}</style>
+
+      {/* DOCUMENT HEADER */}
+      <div className="docHeader">
+        <div className="docKicker">▍ Cinematic Treatment</div>
+        <h2 className="docTitle">Scenario Breakdown — Algorithm Backed</h2>
+      </div>
+
+      {/* SPEC BAR */}
+      <div className="specBar">
+        <div className="specCell">
+          <div className="specLabel">RUNTIME</div>
+          <div className="specValue">3:30</div>
+        </div>
+        <div className="specCell">
+          <div className="specLabel">RETENTION</div>
+          <div className="specValue">{scenario.estimatedRetention}<span style={{ fontSize: '0.6em', color: '#737373' }}>%</span></div>
+        </div>
+        <div className="specCell">
+          <div className="specLabel">STRUCTURE</div>
+          <div className="specValue">6 Beats</div>
+        </div>
+      </div>
+
+      {/* 01 LOGLINE */}
+      <div className="section">
+        <div className="sectionNum">01</div>
+        <div className="sectionMain">
+          <div className="sectionLabel">Logline</div>
+          <div className="sectionDivider" />
+          <p className="loglineText">{scenario.logline}</p>
+        </div>
+      </div>
+
+      {/* 02 EMOTIONAL ARC */}
+      <div className="section">
+        <div className="sectionNum">02</div>
+        <div className="sectionMain">
+          <div className="sectionLabel">Emotional Arc</div>
+          <div className="sectionDivider" />
+          <div className="arcText">{scenario.emotionalArc}</div>
+        </div>
+      </div>
+
+      {/* 03 ALGORITHMIC INTENT */}
+      <div className="section">
+        <div className="sectionNum">03</div>
+        <div className="sectionMain">
+          <div className="sectionLabel">Algorithmic Intent</div>
+          <div className="sectionDivider" />
+          <button
+            type="button"
+            className={`algoToggle ${showAlgorithm ? 'open' : ''}`}
+            onClick={() => setShowAlgorithm(!showAlgorithm)}
+          >
+            <span>{showAlgorithm ? 'HIDE TECHNICAL NOTES' : 'REVEAL TECHNICAL NOTES'}</span>
+            <span>{showAlgorithm ? '—' : '+'}</span>
+          </button>
+          {showAlgorithm && (
+            <div className="algoBody">
+              <p className="algoText">{scenario.hiddenAlgorithm}</p>
             </div>
+          )}
+        </div>
+      </div>
+
+      {/* 04 RETENTION TARGET */}
+      <div className="section">
+        <div className="sectionNum">04</div>
+        <div className="sectionMain">
+          <div className="sectionLabel">Retention Target</div>
+          <div className="sectionDivider" />
+          <div className="retentionRow">
+            <span className="retentionNum">{scenario.estimatedRetention}</span>
+            <span className="retentionUnit">% projected</span>
+            <span className="retentionThreshold">▍ 40% threshold</span>
+          </div>
+          <div className="retentionLine">
+            <div className="retentionFill" style={{ width: `${scenario.estimatedRetention}%` }} />
+            <div className="retentionMarker" style={{ left: '40%' }} />
+          </div>
+          <p className="retentionNote">
+            YouTube's recommendation engine begins surfacing content above the 40% retention threshold.
+            This scenario is calibrated to break through that ceiling.
+          </p>
+        </div>
+      </div>
+
+      {/* 05 BEATS */}
+      <div className="section">
+        <div className="sectionNum">05</div>
+        <div className="sectionMain">
+          <div className="sectionLabel">Six Beat Structure</div>
+          <div className="sectionDivider" />
+          <div className="beatsList">
+            {scenario.beats.map((beat, idx) => (
+              <BeatBlock
+                key={beat.id}
+                beat={beat}
+                isExpanded={expandedBeat === beat.id}
+                onToggle={() => setExpandedBeat(expandedBeat === beat.id ? null : beat.id)}
+                isLast={idx === scenario.beats.length - 1}
+              />
+            ))}
           </div>
         </div>
       </div>
-      
-      {/* ============== 감정 곡선 ============== */}
-      <div className="bg-gradient-to-r from-purple-50 to-pink-50 border border-purple-200 rounded-lg p-4">
-        <div className="flex items-center gap-2 mb-2">
-          <span className="text-xl">📈</span>
-          <div className="text-sm font-bold text-purple-900">감정 곡선 (다큐 작가급 구조)</div>
+
+      {/* 06 SHORTS VERSION */}
+      <div className="section" style={{ borderBottom: 'none' }}>
+        <div className="sectionNum">06</div>
+        <div className="sectionMain">
+          <div className="sectionLabel">60-Second Cutdown</div>
+          <div className="sectionDivider" />
+          <div className="shortsContent">{scenario.shortVersion}</div>
+          <CopyButton text={scenario.shortVersion} label="Copy Cutdown" inverse />
         </div>
-        <div className="text-sm text-gray-800 break-keep pl-7 font-medium">
-          {scenario.emotionalArc}
-        </div>
-      </div>
-      
-      {/* ============== 알고리즘 작동 원리 (접힘) ============== */}
-      <div className="bg-gradient-to-r from-blue-50 to-cyan-50 border border-blue-200 rounded-lg overflow-hidden">
-        <button
-          onClick={() => setShowAlgorithm(!showAlgorithm)}
-          className="w-full flex items-center justify-between p-4 hover:bg-blue-100/30 transition-colors"
-        >
-          <div className="flex items-center gap-2">
-            <span className="text-xl">⚙️</span>
-            <div className="text-sm font-bold text-blue-900">숨겨진 알고리즘 작동 원리</div>
-            <span className="text-xs text-blue-600 bg-blue-100 px-2 py-0.5 rounded-full">
-              뒷단 노림수
-            </span>
-          </div>
-          <span className="text-blue-600">{showAlgorithm ? '▲' : '▼'}</span>
-        </button>
-        {showAlgorithm && (
-          <div className="px-4 pb-4">
-            <div className="text-sm text-gray-800 leading-relaxed break-keep bg-white/60 rounded-md p-3">
-              {scenario.hiddenAlgorithm}
-            </div>
-            <div className="text-xs text-blue-700 mt-2 break-keep">
-              💡 이 구조는 시청자가 의식하지 못한 채 끝까지 보게 만드는 "보이지 않는 설계"입니다.
-            </div>
-          </div>
-        )}
-      </div>
-      
-      {/* ============== 예상 시청 유지율 ============== */}
-      <div className="bg-white border-2 border-green-200 rounded-lg p-4">
-        <div className="flex items-center justify-between mb-2">
-          <div className="text-sm font-bold text-gray-900">📊 예상 시청 유지율</div>
-          <div className="text-2xl font-bold text-green-600">{scenario.estimatedRetention}%</div>
-        </div>
-        <div className="h-2 bg-gray-100 rounded-full overflow-hidden">
-          <div 
-            className="h-full bg-gradient-to-r from-green-400 to-emerald-500 transition-all"
-            style={{ width: `${scenario.estimatedRetention}%` }}
-          />
-        </div>
-        <div className="text-xs text-gray-500 mt-1.5 break-keep">
-          유튜브 알고리즘은 40% 이상에서 추천 박스 진입을 시작합니다. 이 시나리오는 떡상 임계점을 넘는 구조입니다.
-        </div>
-      </div>
-      
-      {/* ============== 6개 비트 (스토리 연결됨) ============== */}
-      <div className="bg-white border border-gray-200 rounded-lg overflow-hidden">
-        <div className="px-4 py-3 bg-gray-50 border-b">
-          <div className="flex items-center gap-2">
-            <span className="text-xl">📖</span>
-            <div className="text-sm font-bold text-gray-900">시나리오 6장 — 하나의 스토리로 연결됨</div>
-          </div>
-          <div className="text-xs text-gray-500 mt-1 break-keep">
-            각 장은 독립적이지 않습니다. 브리지 문장으로 자연스럽게 다음 장으로 이어집니다.
-          </div>
-        </div>
-        
-        <div className="divide-y divide-gray-100">
-          {scenario.beats.map((beat, idx) => (
-            <BeatBlock
-              key={beat.id}
-              beat={beat}
-              isExpanded={expandedBeat === beat.id}
-              onToggle={() => setExpandedBeat(expandedBeat === beat.id ? null : beat.id)}
-              isLast={idx === scenario.beats.length - 1}
-            />
-          ))}
-        </div>
-      </div>
-      
-      {/* ============== 60초 쇼츠 버전 ============== */}
-      <div className="bg-gradient-to-br from-purple-50 to-pink-50 border-2 border-purple-200 rounded-lg p-4">
-        <div className="flex items-center gap-2 mb-3">
-          <span className="text-xl">⚡</span>
-          <div className="text-sm font-bold text-purple-900">1분 쇼츠 버전 (자체 완결)</div>
-        </div>
-        <div className="bg-white rounded-md p-3 border border-purple-100">
-          <pre className="text-sm text-gray-800 whitespace-pre-wrap font-sans break-keep leading-relaxed">
-            {scenario.shortVersion}
-          </pre>
-        </div>
-        <CopyButton text={scenario.shortVersion} label="쇼츠 대본 복사" />
       </div>
     </div>
   );
 }
 
 // ============================================================
-// 개별 비트 블록 (확장 가능)
+// 개별 비트 블록
 // ============================================================
 function BeatBlock({ beat, isExpanded, onToggle, isLast }: {
   beat: any;
@@ -136,90 +713,49 @@ function BeatBlock({ beat, isExpanded, onToggle, isLast }: {
   onToggle: () => void;
   isLast: boolean;
 }) {
-  const beatColors = [
-    { bg: 'bg-red-50', border: 'border-red-300', text: 'text-red-700', dot: 'bg-red-500' },     // Hook
-    { bg: 'bg-orange-50', border: 'border-orange-300', text: 'text-orange-700', dot: 'bg-orange-500' }, // 미끼
-    { bg: 'bg-yellow-50', border: 'border-yellow-300', text: 'text-yellow-700', dot: 'bg-yellow-500' }, // 갈등
-    { bg: 'bg-green-50', border: 'border-green-300', text: 'text-green-700', dot: 'bg-green-500' },     // 반전
-    { bg: 'bg-blue-50', border: 'border-blue-300', text: 'text-blue-700', dot: 'bg-blue-500' },         // 실전
-    { bg: 'bg-purple-50', border: 'border-purple-300', text: 'text-purple-700', dot: 'bg-purple-500' }, // CTA
-  ];
-  const color = beatColors[beat.id - 1] || beatColors[0];
-  
   return (
-    <div className={`${color.bg} border-l-4 ${color.border}`}>
-      {/* 헤더 (항상 보임) */}
+    <div className="beat">
       <button
+        type="button"
+        className="beatHead"
         onClick={onToggle}
-        className="w-full px-4 py-3 flex items-start gap-3 hover:bg-white/40 transition-colors text-left"
       >
-        <div className={`w-8 h-8 rounded-full ${color.dot} text-white flex items-center justify-center font-bold text-sm shrink-0`}>
-          {beat.id}
+        <div className="beatNum">B0{beat.id}</div>
+        <div className="beatHeadInfo">
+          <div className="beatTitle">{beat.beatName}</div>
+          <p className="beatPurpose">{beat.purpose}</p>
         </div>
-        <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 flex-wrap">
-            <span className="font-bold text-gray-900 text-sm">{beat.beatName}</span>
-            <span className={`text-xs ${color.text} font-mono bg-white/60 px-2 py-0.5 rounded`}>
-              {beat.timeRange}
-            </span>
-          </div>
-          <div className="text-xs text-gray-600 mt-1 break-keep">
-            {beat.purpose}
-          </div>
-        </div>
-        <span className={`${color.text} text-xs shrink-0 mt-1`}>
-          {isExpanded ? '▲' : '▼'}
-        </span>
+        <div className="beatTime">{beat.timeRange}</div>
       </button>
-      
-      {/* 펼쳐진 디테일 */}
+
       {isExpanded && (
-        <div className="px-4 pb-4 space-y-3">
-          {/* 실제 대사/내레이션 */}
-          <div className="bg-white rounded-lg p-3 border border-gray-200">
-            <div className="text-xs font-bold text-gray-500 mb-1.5">📝 내레이션 (실제 대사)</div>
-            <div className="text-sm text-gray-900 leading-relaxed break-keep">
-              "{beat.narration}"
-            </div>
-            <CopyButton text={beat.narration} small />
+        <div className="beatBody">
+          <div className="beatSection narration">
+            <div className="beatSectionLabel">Narration</div>
+            <p className="beatSectionContent">"{beat.narration}"</p>
+            <CopyButton text={beat.narration} label="Copy Line" />
           </div>
-          
-          {/* 화면 연출 */}
-          <div className="bg-white/70 rounded-lg p-3 border border-gray-200">
-            <div className="text-xs font-bold text-gray-500 mb-1.5">🎬 화면 연출 지시</div>
-            <div className="text-sm text-gray-800 leading-relaxed break-keep">
-              {beat.visualDirection}
-            </div>
+
+          <div className="beatSection">
+            <div className="beatSectionLabel">Visual Direction</div>
+            <p className="beatSectionContent">{beat.visualDirection}</p>
           </div>
-          
-          {/* 알고리즘 후킹 (보이지 않는 노림수) */}
-          <div className="bg-blue-50 rounded-lg p-3 border border-blue-200">
-            <div className="text-xs font-bold text-blue-700 mb-1.5">⚙️ 알고리즘 후킹 (뒷단 노림수)</div>
-            <div className="text-sm text-gray-800 leading-relaxed break-keep">
-              {beat.algorithmHook}
-            </div>
+
+          <div className="beatSection algo">
+            <div className="beatSectionLabel">Algorithmic Hook</div>
+            <p className="beatSectionContent">{beat.algorithmHook}</p>
           </div>
-          
-          {/* 시청 유지 목표 */}
-          <div className="bg-green-50 rounded-lg p-3 border border-green-200">
-            <div className="text-xs font-bold text-green-700 mb-1.5">📊 이 구간 시청 유지 목표</div>
-            <div className="text-sm text-gray-800 break-keep">
-              {beat.retentionTarget}
-            </div>
+
+          <div className="beatSection">
+            <div className="beatSectionLabel">Retention Target</div>
+            <p className="beatSectionContent">{beat.retentionTarget}</p>
           </div>
-          
-          {/* 다음 장으로 넘어가는 브리지 */}
+
           {!isLast && (
-            <div className="bg-amber-50 rounded-lg p-3 border-l-4 border-amber-400 border border-amber-200">
-              <div className="text-xs font-bold text-amber-700 mb-1.5">
-                🔗 다음 장으로 연결되는 브리지 문장
-              </div>
-              <div className="text-sm text-gray-900 leading-relaxed break-keep italic">
-                "{beat.bridgeToNext}"
-              </div>
-              <div className="text-xs text-amber-600 mt-1.5 break-keep">
-                ↓ 이 한 줄이 다음 비트의 첫 문장과 자연스럽게 이어집니다.
-              </div>
+            <div className="beatSection bridge">
+              <div className="beatSectionLabel">▾ Bridge to Next Beat</div>
+              <p className="beatSectionContent">"{beat.bridgeToNext}"</p>
+              <div className="bridgeNote">→ Connects to B0{beat.id + 1}</div>
             </div>
           )}
         </div>
@@ -231,29 +767,29 @@ function BeatBlock({ beat, isExpanded, onToggle, isLast }: {
 // ============================================================
 // 복사 버튼
 // ============================================================
-function CopyButton({ text, label = '복사', small = false }: {
+function CopyButton({ text, label = 'COPY', inverse = false }: {
   text: string;
   label?: string;
-  small?: boolean;
+  inverse?: boolean;
 }) {
   const [copied, setCopied] = useState(false);
-  
+
   const handleCopy = () => {
-    navigator.clipboard.writeText(text);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      });
+    }
   };
-  
+
   return (
     <button
+      type="button"
       onClick={handleCopy}
-      className={`mt-2 ${small ? 'text-xs px-2 py-1' : 'text-sm px-3 py-1.5'} rounded-md font-medium transition-all ${
-        copied 
-          ? 'bg-green-100 text-green-700' 
-          : 'bg-blue-50 text-blue-700 hover:bg-blue-100'
-      }`}
+      className={`copyBtn ${copied ? 'copied' : ''} ${inverse ? 'copyBtnInverse' : ''}`}
     >
-      {copied ? '✅ 복사됨' : `📋 ${label}`}
+      {copied ? '✓ COPIED' : label}
     </button>
   );
 }

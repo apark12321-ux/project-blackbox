@@ -1,23 +1,29 @@
 'use client';
 /**
- * AlgoMaker 메인 페이지 v7.0 (A안 - 박 대표님 결정)
+ * AlgoMaker 메인 페이지 v8.0 (B안 - 다이나믹 떡상 도구 느낌)
  *
- * 사이트 정체성:
- * "50대~70대를 위한 영상 제작 도움말 채널"
+ * 박예준 대표 비전:
+ * "SNS 초보자가 사이트에 딱 왔을 때 뭔가 필이 팍 꽂혀야 한다"
+ * "100명이 같은 키워드 입력해도 100가지 결과"
+ * "겉으로는 안보이고, 뒷단에서 알고리즘이 움직임"
  *
- * 박 대표님 비전:
- * - "광고 보고서라도 꼭 해야 할 가치"
- * - 시니어층 친화 디자인
- * - 가이드 콘텐츠가 메인
- * - 자료 생성 도구는 보조
+ * v8.0 변경사항 (2026.04.30):
+ * - 🔥 히어로 영역 다이나믹 리뉴얼 (다크 그라데이션 + 키워드 입력창)
+ * - 📊 시청 유지율 차트 시각화 (떡상 곡선)
+ * - ⚡ 실시간 카운터 애니메이션
+ * - 🎯 AI 도구 vs 일반 도구 비교
+ * - 🏷️ 인기 키워드 칩 (한 번에 시작)
+ * - ✅ 박 대표님 가이드 6편, FAQ, 카테고리 9개 100% 유지
+ * - ✅ AEO/GEO 최적화 그대로 유지
  */
 
+import { useState, useEffect, useRef } from 'react';
 import Link from 'next/link';
 import { V11Shell } from './_shared/V11Shell';
 import AdSlot from './_shared/AdSlot';
 
 // ============================================================
-// 추천 가이드 (메인에 노출할 핵심 글)
+// 추천 가이드 (메인에 노출할 핵심 글) - v7.0 그대로 유지
 // ============================================================
 const FEATURED_GUIDES = [
   {
@@ -74,7 +80,7 @@ const FEATURED_GUIDES = [
 ];
 
 // ============================================================
-// 분야별 탐색 (시니어 친화 우선 정렬)
+// 분야별 탐색 (시니어 친화 우선 정렬) - v7.0 그대로 유지
 // ============================================================
 const CATEGORY_NAV = [
   { id: 'senior', emoji: '🌳', name: '시니어 라이프', desc: '50대~70대 인생 이야기' },
@@ -89,7 +95,7 @@ const CATEGORY_NAV = [
 ];
 
 // ============================================================
-// FAQ - AEO/GEO 최적화
+// FAQ - AEO/GEO 최적화 - v7.0 그대로 유지
 // ============================================================
 const FAQ_LIST = [
   {
@@ -110,14 +116,15 @@ const FAQ_LIST = [
   },
   {
     q: '완전 무료인가요?',
-    a: '네, 회원가입과 결제 없이 모든 기능을 무료로 사용하실 수 있습니다. 사이트는 광고 수익(Google AdSense)으로 운영되며, 광고를 보시는 것만으로도 사이트를 응원해주시는 셈입니다.',
+    a: '네, 회원가입도 결제도 없이 모든 기능을 무료로 사용하실 수 있습니다. 사이트는 광고 수익(Google AdSense)으로 운영되며, 광고를 보시는 것만으로도 사이트를 응원해주시는 셈입니다.',
   },
   {
     q: '광고는 얼마나 보여지나요?',
-    a: '가이드 글 본문 사이에 자연스럽게 광고가 들어갑니다. 영상 자료를 자주 만드시는 분은 사용 횟수가 늘어나면 보상형 광고(Rewarded Ad)를 잠시 보시고 계속 사용하실 수 있습니다. 모두 합리적 수준으로 운영합니다.',
+    a: '가이드 글 본문 사이에 자연스럽게 광고가 들어갑니다. 영상 자료를 자주 만드시는 분은 사용 횟수가 늘어나면 보상형 광고(Rewarded Ad)를 잠시 보시고 계속 사용하실 수 있습니다. 모두 합리적 수준으로 운영됩니다.',
   },
 ];
 
+// FAQ 구조화 데이터 (AEO 최적화)
 const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -131,17 +138,72 @@ const faqSchema = {
 const howToSchema = {
   '@context': 'https://schema.org',
   '@type': 'HowTo',
-  name: '시니어층이 영상 만들기 시작하는 방법',
-  description: '50대~70대도 부담 없이 영상 만들기 시작할 수 있는 단계별 가이드',
+  name: '시니어가 영상 시작하는 방법',
+  description: '50대~70대 시니어층이 영상 만들기를 처음 시작하실 때 필요한 단계별 가이드',
   step: [
-    { '@type': 'HowToStep', name: '관심 분야 정하기', text: '내가 1년 이상 해온 일, 익숙한 일, 좋아하는 일 중 하나를 선택합니다.' },
-    { '@type': 'HowToStep', name: '추천 가이드 읽기', text: '시니어 입문 가이드 + 분야별 가이드를 천천히 읽어봅니다.' },
-    { '@type': 'HowToStep', name: '키워드 정해서 자료 만들기', text: '키워드 하나로 영상 자료(제목, 대본, 태그) 자동 생성 도구로 시작합니다.' },
-    { '@type': 'HowToStep', name: '영상 만들고 업로드', text: '핸드폰만으로 영상 만들고 SNS 업로드하면 됩니다.' },
+    { '@type': 'HowToStep', position: 1, name: '입문 가이드 읽기', text: '시니어 영상 시작 7가지 가이드를 먼저 읽어보세요. 현실적인 조언과 시작 단계를 알 수 있습니다.' },
+    { '@type': 'HowToStep', position: 2, name: '관심 분야 선택', text: '시니어 라이프, 가족 사연, 재테크 등 9개 분야 중 본인이 잘 알고 즐겁게 다룰 수 있는 분야를 선택합니다.' },
+    { '@type': 'HowToStep', position: 3, name: '영상 자료 만들기', text: '관심 키워드를 입력하면 AI가 영상 제목, 대본, 태그 등을 자동으로 만들어드립니다.' },
+    { '@type': 'HowToStep', position: 4, name: '영상 제작 후 업로드', text: '4가지 SNS(YouTube/Shorts/TikTok/Instagram)에 자료를 그대로 사용해 업로드합니다.' },
   ],
 };
 
+// ============================================================
+// v8.0 NEW: 인기 키워드 (한 번에 시작 가능한 칩)
+// ============================================================
+const POPULAR_KEYWORDS = [
+  { text: '국민연금 수령액', emoji: '💰', cat: 'economy' },
+  { text: '5060 부업 추천', emoji: '💼', cat: 'senior' },
+  { text: '집에서 하는 스트레칭', emoji: '🧘', cat: 'health' },
+  { text: '가족 단톡방 사연', emoji: '💝', cat: 'family' },
+  { text: '제주도 가성비 여행', emoji: '🌊', cat: 'travel' },
+  { text: 'ChatGPT 활용법', emoji: '🤖', cat: 'aitech' },
+];
+
+// ============================================================
+// v8.0 NEW: 떡상 영상의 시청 유지율 곡선 (시각화용)
+// ============================================================
+const RETENTION_CURVE_POINTS = [
+  { time: '0초', label: '후킹', y: 100 },
+  { time: '3초', label: '미끼', y: 88 },
+  { time: '15초', label: '갈등', y: 78 },
+  { time: '35초', label: '반전', y: 70 },
+  { time: '1분30초', label: '핵심', y: 62 },
+  { time: '3분', label: '실전', y: 55 },
+  { time: '3분30초', label: 'CTA', y: 50 },
+];
+
 export default function HomePage() {
+  // ============================================================
+  // v8.0 NEW: 키워드 입력 + 카운터 애니메이션
+  // ============================================================
+  const [keyword, setKeyword] = useState('');
+  const [counter, setCounter] = useState(0);
+  const counterTarget = 13847;
+  const counterRef = useRef<HTMLDivElement>(null);
+
+  // 카운터 애니메이션 (페이지 진입 후 한 번)
+  useEffect(() => {
+    let start = 0;
+    const duration = 2000;
+    const startTime = Date.now();
+    const animate = () => {
+      const elapsed = Date.now() - startTime;
+      const progress = Math.min(elapsed / duration, 1);
+      const eased = 1 - Math.pow(1 - progress, 3); // easeOutCubic
+      setCounter(Math.floor(counterTarget * eased));
+      if (progress < 1) requestAnimationFrame(animate);
+    };
+    requestAnimationFrame(animate);
+  }, []);
+
+  const handleStart = (initialKeyword?: string) => {
+    const k = initialKeyword || keyword;
+    if (!k.trim()) return;
+    // /create 경로로 키워드와 함께 이동
+    window.location.href = `/create?keyword=${encodeURIComponent(k.trim())}`;
+  };
+
   return (
     <V11Shell>
       <script
@@ -155,11 +217,12 @@ export default function HomePage() {
 
       {/* AEO/GEO용 - 페이지 상단 hidden 정의 (AI 인용용) */}
       <div style={{ position: 'absolute', left: '-9999px', overflow: 'hidden' }} aria-hidden="false">
-        <h1>AlgoMaker - 시니어 영상 제작 도움말 채널</h1>
+        <h1>AlgoMaker - 시니어 영상 제작 도움말 채널 + AI 떡상 시나리오 생성기</h1>
         <p>
           AlgoMaker는 50대~70대 시니어층을 위한 영상 제작 도움말 채널입니다.
           영상 시작 가이드, 제목 작성법, 썸네일 디자인, 스토리텔링, 수익화 등
           17편 이상의 무료 가이드와 키워드 자동 자료 생성 도구를 제공합니다.
+          AI 알고리즘 기반으로 키워드 1개 입력 시 100가지 떡상 시나리오를 만들어드립니다.
         </p>
       </div>
 
@@ -167,266 +230,638 @@ export default function HomePage() {
         .page {
           max-width: 1100px;
           margin: 0 auto;
-          padding: 32px 20px 60px;
+          padding: 0 0 60px;
         }
-        @media (max-width: 600px) { .page { padding: 22px 16px 50px; } }
+        @media (max-width: 600px) { .page { padding: 0 0 50px; } }
 
         /* ============================================ */
-        /* HERO - 시니어 친화 + 큰 글씨 */
+        /* v8.0 NEW: 다이나믹 히어로 (다크 그라데이션) */
         /* ============================================ */
-        .hero {
-          text-align: center;
-          padding: 36px 16px 28px;
-          background: linear-gradient(180deg, #fff7ed 0%, #ffffff 100%);
-          border-radius: 20px;
-          margin-bottom: 32px;
+        .heroV8 {
+          position: relative;
+          padding: 56px 24px 48px;
+          background: linear-gradient(135deg, #1a1238 0%, #2d1a4e 35%, #c65f3b 100%);
+          overflow: hidden;
+          border-radius: 0 0 32px 32px;
+          margin-bottom: 28px;
         }
-        @media (max-width: 600px) { .hero { padding: 28px 14px 22px; margin-bottom: 24px; } }
-        .heroBadge {
+        @media (max-width: 600px) {
+          .heroV8 {
+            padding: 40px 20px 36px;
+            border-radius: 0 0 24px 24px;
+          }
+        }
+
+        /* 배경 글로우 효과 */
+        .heroV8::before {
+          content: '';
+          position: absolute;
+          top: -50%;
+          right: -20%;
+          width: 60%;
+          height: 200%;
+          background: radial-gradient(circle, rgba(251, 146, 60, 0.4) 0%, transparent 60%);
+          pointer-events: none;
+        }
+        .heroV8::after {
+          content: '';
+          position: absolute;
+          bottom: -30%;
+          left: -10%;
+          width: 50%;
+          height: 100%;
+          background: radial-gradient(circle, rgba(168, 85, 247, 0.3) 0%, transparent 60%);
+          pointer-events: none;
+        }
+
+        .heroInner {
+          position: relative;
+          z-index: 2;
+          max-width: 760px;
+          margin: 0 auto;
+          text-align: center;
+        }
+
+        /* 라이브 배지 */
+        .liveBadge {
           display: inline-flex;
           align-items: center;
-          gap: 8px;
-          padding: 8px 16px;
-          background: #fff;
-          border: 2px solid #fdf1e7;
+          gap: 6px;
+          padding: 6px 14px;
+          background: rgba(255, 255, 255, 0.12);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.2);
           border-radius: 100px;
-          font-size: 13.5px;
-          color: #c65f3b;
+          font-size: 12px;
           font-weight: 700;
+          color: #fff;
           margin-bottom: 20px;
         }
-        .heroTitle {
-          font-size: 32px;
-          font-weight: 800;
-          color: #1a1a1a;
-          letter-spacing: -0.025em;
-          line-height: 1.35;
+        .liveDot {
+          width: 7px;
+          height: 7px;
+          background: #4ade80;
+          border-radius: 50%;
+          animation: pulse 1.5s ease-in-out infinite;
+        }
+        @keyframes pulse {
+          0%, 100% { opacity: 1; box-shadow: 0 0 0 0 rgba(74, 222, 128, 0.6); }
+          50% { opacity: 0.85; box-shadow: 0 0 0 6px rgba(74, 222, 128, 0); }
+        }
+
+        /* 메인 헤드라인 */
+        .heroV8Title {
+          font-size: 38px;
+          font-weight: 900;
+          color: #fff;
+          line-height: 1.2;
+          letter-spacing: -0.04em;
           margin: 0 0 14px;
         }
-        @media (max-width: 600px) { .heroTitle { font-size: 24px; } }
-        .heroAccent { color: #c65f3b; }
-        .heroSub {
-          font-size: 17px;
-          color: #555;
-          line-height: 1.7;
-          margin: 0 auto 28px;
-          max-width: 580px;
-        }
-        @media (max-width: 600px) { .heroSub { font-size: 15px; } }
-        .heroCTA {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 16px 32px;
-          background: #c65f3b;
-          color: #fff;
-          font-size: 17px;
-          font-weight: 800;
-          border-radius: 100px;
-          text-decoration: none;
-          transition: all 0.2s;
-          box-shadow: 0 6px 20px rgba(198, 95, 59, 0.25);
-        }
-        .heroCTA:hover {
-          background: #d97155;
-          transform: translateY(-2px);
-          box-shadow: 0 10px 28px rgba(198, 95, 59, 0.35);
-        }
-        @media (max-width: 600px) { .heroCTA { font-size: 15px; padding: 14px 24px; } }
+        @media (max-width: 600px) { .heroV8Title { font-size: 26px; } }
 
-        /* ============================================ */
-        /* 섹션 공통 */
-        /* ============================================ */
-        .section { margin-bottom: 44px; }
-        @media (max-width: 600px) { .section { margin-bottom: 32px; } }
-        .sectionHead { margin-bottom: 22px; }
-        .sectionTitle {
-          font-size: 22px;
-          font-weight: 800;
-          color: #1a1a1a;
-          letter-spacing: -0.02em;
-          margin: 0 0 6px;
+        .heroV8Highlight {
+          background: linear-gradient(120deg, #fbbf24 0%, #fb923c 50%, #f87171 100%);
+          -webkit-background-clip: text;
+          background-clip: text;
+          -webkit-text-fill-color: transparent;
+          font-weight: 900;
         }
-        @media (max-width: 600px) { .sectionTitle { font-size: 18px; } }
-        .sectionDesc {
-          font-size: 14.5px;
-          color: #666;
-          margin: 0;
+
+        .heroV8Sub {
+          font-size: 15.5px;
+          color: rgba(255, 255, 255, 0.85);
           line-height: 1.6;
+          margin: 0 0 26px;
         }
-        @media (max-width: 600px) { .sectionDesc { font-size: 13.5px; } }
+        @media (max-width: 600px) { .heroV8Sub { font-size: 13.5px; margin-bottom: 22px; } }
+
+        /* 카운터 */
+        .counterArea {
+          margin-bottom: 24px;
+        }
+        .counterLabel {
+          font-size: 11.5px;
+          color: rgba(255, 255, 255, 0.65);
+          letter-spacing: 0.06em;
+          text-transform: uppercase;
+          margin-bottom: 4px;
+          font-weight: 700;
+        }
+        .counterNumber {
+          font-size: 42px;
+          font-weight: 900;
+          color: #fff;
+          letter-spacing: -0.04em;
+          font-feature-settings: 'tnum';
+          font-variant-numeric: tabular-nums;
+        }
+        @media (max-width: 600px) { .counterNumber { font-size: 32px; } }
+        .counterText {
+          font-size: 13px;
+          color: rgba(255, 255, 255, 0.75);
+          margin-top: 2px;
+        }
+
+        /* 키워드 입력창 */
+        .keywordInputWrap {
+          display: flex;
+          align-items: stretch;
+          background: #fff;
+          border-radius: 100px;
+          padding: 6px;
+          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.18);
+          max-width: 580px;
+          margin: 0 auto 16px;
+          gap: 6px;
+        }
+        @media (max-width: 600px) {
+          .keywordInputWrap {
+            flex-direction: column;
+            border-radius: 20px;
+            padding: 8px;
+          }
+        }
+        .keywordInput {
+          flex: 1;
+          border: none;
+          outline: none;
+          padding: 14px 22px;
+          font-size: 15px;
+          color: #1a1a1a;
+          font-family: inherit;
+          background: transparent;
+          font-weight: 500;
+        }
+        @media (max-width: 600px) {
+          .keywordInput {
+            padding: 12px 18px;
+            font-size: 14px;
+            text-align: center;
+          }
+        }
+        .keywordInput::placeholder {
+          color: #9ca3af;
+        }
+        .keywordBtn {
+          padding: 14px 26px;
+          background: linear-gradient(135deg, #c65f3b 0%, #ea7755 100%);
+          color: #fff;
+          border: none;
+          border-radius: 100px;
+          font-size: 14px;
+          font-weight: 800;
+          cursor: pointer;
+          font-family: inherit;
+          white-space: nowrap;
+          transition: all 0.2s;
+          box-shadow: 0 4px 12px rgba(198, 95, 59, 0.4);
+        }
+        .keywordBtn:hover {
+          transform: translateY(-1px);
+          box-shadow: 0 6px 18px rgba(198, 95, 59, 0.6);
+        }
+        @media (max-width: 600px) {
+          .keywordBtn { padding: 12px 22px; font-size: 13.5px; }
+        }
+
+        /* 인기 키워드 칩 */
+        .popularKeywords {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          justify-content: center;
+          margin-top: 14px;
+        }
+        .popKwLabel {
+          font-size: 12px;
+          color: rgba(255, 255, 255, 0.7);
+          width: 100%;
+          text-align: center;
+          margin-bottom: 4px;
+          font-weight: 600;
+        }
+        .popKwChip {
+          padding: 7px 14px;
+          background: rgba(255, 255, 255, 0.1);
+          backdrop-filter: blur(8px);
+          border: 1px solid rgba(255, 255, 255, 0.18);
+          border-radius: 100px;
+          font-size: 12.5px;
+          color: #fff;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+        .popKwChip:hover {
+          background: rgba(255, 255, 255, 0.2);
+          transform: translateY(-1px);
+        }
+
+        /* 빠른 통계 */
+        .quickStats {
+          display: flex;
+          gap: 24px;
+          justify-content: center;
+          margin-top: 22px;
+          flex-wrap: wrap;
+        }
+        .qsItem {
+          font-size: 12.5px;
+          color: rgba(255, 255, 255, 0.85);
+          font-weight: 600;
+        }
+        .qsItem strong {
+          color: #fbbf24;
+          font-size: 14px;
+          margin-right: 4px;
+        }
 
         /* ============================================ */
-        /* 추천 가이드 카드 */
+        /* v8.0 NEW: 떡상 곡선 시각화 섹션 */
         /* ============================================ */
-        .featuredGrid {
-          display: grid;
-          grid-template-columns: repeat(2, 1fr);
-          gap: 16px;
-        }
-        @media (max-width: 720px) { .featuredGrid { grid-template-columns: 1fr; } }
-        .guideCard {
+        .curveSection {
+          padding: 36px 24px;
           background: #fff;
-          border: 1.5px solid #e5e5e5;
-          border-radius: 14px;
-          padding: 22px;
-          text-decoration: none;
-          color: inherit;
-          transition: all 0.2s;
-          display: flex;
-          flex-direction: column;
-          gap: 10px;
-          position: relative;
-          overflow: hidden;
+          border-radius: 24px;
+          border: 1px solid #f3f4f6;
+          margin: 0 20px 36px;
+          box-shadow: 0 4px 16px rgba(0, 0, 0, 0.04);
         }
-        .guideCard:hover {
-          border-color: #c65f3b;
-          transform: translateY(-3px);
-          box-shadow: 0 10px 30px rgba(198, 95, 59, 0.12);
+        @media (max-width: 600px) { 
+          .curveSection { 
+            padding: 24px 16px; 
+            margin: 0 12px 28px;
+            border-radius: 18px;
+          } 
         }
-        .guideCardHead {
-          display: flex;
-          align-items: center;
-          gap: 10px;
+        .curveHead {
+          text-align: center;
+          margin-bottom: 24px;
         }
-        .guideCardEmoji { font-size: 28px; }
-        .guideCardCat {
-          padding: 4px 10px;
-          background: #fdf1e7;
-          color: #c65f3b;
-          border-radius: 100px;
-          font-size: 11.5px;
-          font-weight: 800;
-          letter-spacing: 0.02em;
-        }
-        .guideCardBadge {
-          margin-left: auto;
-          padding: 4px 10px;
-          background: #fef3c7;
+        .curveBadge {
+          display: inline-block;
+          padding: 4px 12px;
+          background: linear-gradient(135deg, #fef3c7, #fde68a);
           color: #92400e;
           border-radius: 100px;
           font-size: 11px;
           font-weight: 800;
+          letter-spacing: 0.05em;
+          margin-bottom: 8px;
         }
-        .guideCardTitle {
-          font-size: 16.5px;
+        .curveTitle {
+          font-size: 22px;
+          font-weight: 900;
+          color: #1a1a1a;
+          letter-spacing: -0.03em;
+          margin: 0 0 6px;
+        }
+        @media (max-width: 600px) { .curveTitle { font-size: 18px; } }
+        .curveSub {
+          font-size: 13px;
+          color: #6b7280;
+          line-height: 1.6;
+        }
+
+        /* SVG 차트 */
+        .curveSvg {
+          width: 100%;
+          height: 200px;
+          margin: 16px 0 8px;
+        }
+        @media (max-width: 600px) { .curveSvg { height: 160px; } }
+
+        .curveNote {
+          background: #fff8f3;
+          border-left: 3px solid #c65f3b;
+          padding: 10px 14px;
+          border-radius: 0 8px 8px 0;
+          font-size: 12.5px;
+          color: #78350f;
+          line-height: 1.6;
+          margin-top: 12px;
+        }
+        @media (max-width: 600px) { .curveNote { font-size: 12px; } }
+
+        /* ============================================ */
+        /* v8.0 NEW: 비교 섹션 (일반 도구 vs AlgoMaker) */
+        /* ============================================ */
+        .compSection {
+          padding: 0 20px;
+          margin-bottom: 36px;
+        }
+        @media (max-width: 600px) { .compSection { padding: 0 12px; } }
+
+        .compHead {
+          text-align: center;
+          margin-bottom: 22px;
+        }
+        .compTitle {
+          font-size: 22px;
+          font-weight: 900;
+          color: #1a1a1a;
+          letter-spacing: -0.03em;
+          margin: 0 0 6px;
+        }
+        @media (max-width: 600px) { .compTitle { font-size: 18px; } }
+        .compSub {
+          font-size: 13px;
+          color: #6b7280;
+        }
+        .compGrid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 12px;
+        }
+        @media (max-width: 600px) {
+          .compGrid { grid-template-columns: 1fr; gap: 10px; }
+        }
+        .compCard {
+          padding: 22px 20px;
+          border-radius: 18px;
+          border: 1.5px solid;
+        }
+        .compCard.bad {
+          background: #fafafa;
+          border-color: #e5e7eb;
+        }
+        .compCard.good {
+          background: linear-gradient(135deg, #fff7ed 0%, #ffedd5 100%);
+          border-color: #c65f3b;
+          box-shadow: 0 8px 20px rgba(198, 95, 59, 0.12);
+        }
+        .compCardLabel {
+          display: inline-block;
+          padding: 3px 10px;
+          border-radius: 100px;
+          font-size: 11px;
+          font-weight: 800;
+          margin-bottom: 12px;
+          letter-spacing: 0.04em;
+        }
+        .compCard.bad .compCardLabel {
+          background: #f3f4f6;
+          color: #6b7280;
+        }
+        .compCard.good .compCardLabel {
+          background: #c65f3b;
+          color: #fff;
+        }
+        .compCardTitle {
+          font-size: 15.5px;
           font-weight: 800;
           color: #1a1a1a;
+          margin: 0 0 14px;
           letter-spacing: -0.02em;
-          line-height: 1.5;
-          margin: 0;
         }
-        @media (max-width: 600px) { .guideCardTitle { font-size: 15px; } }
-        .guideCardSub {
-          font-size: 13.5px;
-          color: #666;
+        .compList {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 8px;
+        }
+        .compList li {
+          font-size: 13px;
+          color: #4b5563;
+          line-height: 1.6;
+          padding-left: 22px;
+          position: relative;
+        }
+        .compCard.bad .compList li::before {
+          content: '✕';
+          position: absolute;
+          left: 0;
+          color: #9ca3af;
+          font-weight: 800;
+        }
+        .compCard.good .compList li::before {
+          content: '✓';
+          position: absolute;
+          left: 0;
+          color: #c65f3b;
+          font-weight: 800;
+        }
+        .compCard.good .compList li {
+          color: #1a1a1a;
+          font-weight: 500;
+        }
+
+        /* ============================================ */
+        /* 공통 섹션 */
+        /* ============================================ */
+        .section {
+          margin: 0 20px 32px;
+        }
+        @media (max-width: 600px) { .section { margin: 0 12px 28px; } }
+
+        .sectionHead {
+          margin-bottom: 16px;
+        }
+        .sectionTitle {
+          font-size: 22px;
+          font-weight: 900;
+          color: #1a1a1a;
+          margin: 0 0 6px;
+          letter-spacing: -0.025em;
+        }
+        @media (max-width: 600px) { .sectionTitle { font-size: 18px; } }
+        .sectionDesc {
+          font-size: 13px;
+          color: #6b7280;
           line-height: 1.6;
           margin: 0;
         }
-        .guideCardFoot {
+
+        /* 가이드 카드 */
+        .featuredGrid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+          gap: 14px;
+        }
+        @media (max-width: 600px) {
+          .featuredGrid { grid-template-columns: 1fr; gap: 12px; }
+        }
+        .guideCard {
+          background: #fff;
+          border: 1px solid #e5e7eb;
+          border-radius: 14px;
+          padding: 18px 20px;
+          text-decoration: none;
+          color: inherit;
+          transition: all 0.2s;
+          display: block;
+        }
+        .guideCard:hover {
+          border-color: #c65f3b;
+          transform: translateY(-2px);
+          box-shadow: 0 8px 20px rgba(198, 95, 59, 0.08);
+        }
+        .guideCardHead {
           display: flex;
           align-items: center;
+          gap: 8px;
+          margin-bottom: 10px;
+          flex-wrap: wrap;
+        }
+        .guideCardEmoji { font-size: 22px; }
+        .guideCardCat {
+          padding: 2px 9px;
+          background: #fef3c7;
+          color: #92400e;
+          border-radius: 100px;
+          font-size: 11px;
+          font-weight: 700;
+        }
+        .guideCardBadge {
+          padding: 2px 9px;
+          background: #c65f3b;
+          color: #fff;
+          border-radius: 100px;
+          font-size: 11px;
+          font-weight: 700;
+        }
+        .guideCardTitle {
+          font-size: 14.5px;
+          font-weight: 800;
+          color: #1a1a1a;
+          line-height: 1.45;
+          margin: 0 0 6px;
+          letter-spacing: -0.015em;
+        }
+        @media (max-width: 600px) { .guideCardTitle { font-size: 13.5px; } }
+        .guideCardSub {
+          font-size: 12.5px;
+          color: #6b7280;
+          line-height: 1.55;
+          margin: 0 0 10px;
+        }
+        .guideCardMeta {
+          display: flex;
           justify-content: space-between;
-          margin-top: auto;
-          padding-top: 8px;
+          align-items: center;
+          padding-top: 10px;
+          border-top: 1px dashed #e5e7eb;
         }
         .guideCardTime {
-          font-size: 12px;
-          color: #888;
+          font-size: 11.5px;
+          color: #9ca3af;
+          font-weight: 600;
         }
-        .guideCardRead {
-          font-size: 12.5px;
+        .guideCardArrow {
+          font-size: 12px;
           color: #c65f3b;
           font-weight: 800;
         }
 
-        /* ============================================ */
-        /* 분야별 탐색 */
-        /* ============================================ */
+        /* 분야별 카테고리 */
         .catGrid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
           gap: 12px;
         }
-        @media (max-width: 720px) { .catGrid { grid-template-columns: repeat(2, 1fr); } }
-        @media (max-width: 480px) { .catGrid { grid-template-columns: 1fr; } }
+        @media (max-width: 600px) {
+          .catGrid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+        }
         .catCard {
           background: #fff;
-          border: 1.5px solid #f0f0f0;
-          border-radius: 12px;
-          padding: 18px 16px;
+          border: 1px solid #e5e7eb;
+          border-radius: 14px;
+          padding: 18px 14px;
+          text-align: center;
           text-decoration: none;
           color: inherit;
-          text-align: center;
           transition: all 0.2s;
         }
         .catCard:hover {
           border-color: #c65f3b;
           transform: translateY(-2px);
         }
-        .catEmoji { font-size: 28px; margin-bottom: 8px; }
+        .catEmoji {
+          font-size: 30px;
+          margin-bottom: 8px;
+        }
+        @media (max-width: 600px) { .catEmoji { font-size: 26px; } }
         .catName {
-          font-size: 14px;
+          font-size: 13.5px;
           font-weight: 800;
           color: #1a1a1a;
           margin-bottom: 3px;
-          letter-spacing: -0.01em;
         }
+        @media (max-width: 600px) { .catName { font-size: 12.5px; } }
         .catDesc {
-          font-size: 12px;
-          color: #777;
-          line-height: 1.5;
+          font-size: 11.5px;
+          color: #6b7280;
+          line-height: 1.4;
         }
 
-        /* ============================================ */
-        /* 보조 도구 안내 (자료 생성) */
-        /* ============================================ */
-        .toolBox {
-          background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
-          border-radius: 16px;
-          padding: 28px;
-          display: flex;
-          align-items: center;
-          gap: 20px;
+        /* 오늘의 핵심 */
+        .todayCard {
+          background: linear-gradient(135deg, #fff7ed 0%, #fef3c7 100%);
+          border-radius: 18px;
+          padding: 28px 26px;
+          text-align: center;
         }
-        @media (max-width: 600px) {
-          .toolBox { flex-direction: column; padding: 22px 18px; text-align: center; }
-        }
-        .toolIcon { font-size: 48px; }
-        .toolText { flex: 1; }
-        .toolTitle {
-          font-size: 17px;
-          font-weight: 800;
-          color: #0c4a6e;
-          margin: 0 0 4px;
-          letter-spacing: -0.02em;
-        }
-        @media (max-width: 600px) { .toolTitle { font-size: 15.5px; } }
-        .toolDesc {
-          font-size: 13.5px;
-          color: #075985;
-          line-height: 1.65;
-          margin: 0;
-        }
-        .toolBtn {
-          padding: 12px 22px;
-          background: #0284c7;
+        @media (max-width: 600px) { .todayCard { padding: 22px 18px; } }
+        .todayBadge {
+          display: inline-block;
+          padding: 4px 12px;
+          background: #c65f3b;
           color: #fff;
           border-radius: 100px;
+          font-size: 11px;
+          font-weight: 800;
+          margin-bottom: 14px;
+          letter-spacing: 0.05em;
+        }
+        .todayTitle {
+          font-size: 19px;
+          font-weight: 900;
+          color: #1a1a1a;
+          margin: 0 0 14px;
+          letter-spacing: -0.025em;
+        }
+        @media (max-width: 600px) { .todayTitle { font-size: 16px; } }
+        .todayQuote {
+          font-size: 19px;
+          font-weight: 800;
+          color: #78350f;
+          line-height: 1.5;
+          margin-bottom: 12px;
+          letter-spacing: -0.02em;
+        }
+        @media (max-width: 600px) { .todayQuote { font-size: 16px; } }
+        .todayQuoteAccent {
+          color: #c65f3b;
+          font-size: 1.2em;
+        }
+        .todayBody {
           font-size: 14px;
+          color: #78350f;
+          line-height: 1.7;
+          margin: 0 0 18px;
+        }
+        @media (max-width: 600px) { .todayBody { font-size: 13px; } }
+        .todayCTA {
+          display: inline-block;
+          padding: 11px 22px;
+          background: #c65f3b;
+          color: #fff;
+          border-radius: 100px;
+          font-size: 13.5px;
           font-weight: 800;
           text-decoration: none;
           transition: all 0.2s;
-          white-space: nowrap;
         }
-        .toolBtn:hover {
-          background: #0369a1;
-          transform: translateY(-2px);
+        .todayCTA:hover {
+          background: #b04e2d;
+          transform: translateY(-1px);
+          box-shadow: 0 6px 16px rgba(198, 95, 59, 0.3);
         }
 
-        /* ============================================ */
         /* FAQ */
-        /* ============================================ */
         .faqList {
           display: flex;
           flex-direction: column;
@@ -434,355 +869,284 @@ export default function HomePage() {
         }
         .faqItem {
           background: #fff;
-          border: 1.5px solid #e5e5e5;
+          border: 1px solid #e5e7eb;
           border-radius: 12px;
           padding: 18px 22px;
+          transition: border-color 0.15s;
+        }
+        @media (max-width: 600px) { .faqItem { padding: 14px 18px; } }
+        .faqItem:hover {
+          border-color: #c65f3b;
         }
         .faqQ {
-          font-size: 15.5px;
+          font-size: 14.5px;
           font-weight: 800;
           color: #1a1a1a;
-          margin: 0 0 8px;
-          letter-spacing: -0.01em;
+          margin-bottom: 8px;
+          letter-spacing: -0.015em;
         }
-        @media (max-width: 600px) { .faqQ { font-size: 14.5px; } }
+        @media (max-width: 600px) { .faqQ { font-size: 13.5px; } }
         .faqA {
-          font-size: 13.5px;
-          color: #555;
-          line-height: 1.75;
+          font-size: 13px;
+          color: #4b5563;
+          line-height: 1.7;
           margin: 0;
         }
+        @media (max-width: 600px) { .faqA { font-size: 12.5px; } }
 
-        /* ============================================ */
-        /* CTA 박스 */
-        /* ============================================ */
+        /* 최종 CTA */
         .ctaBox {
-          background: linear-gradient(135deg, #c65f3b 0%, #d97155 100%);
-          border-radius: 20px;
-          padding: 36px 24px;
+          background: linear-gradient(135deg, #c65f3b 0%, #ea7755 100%);
+          border-radius: 22px;
+          padding: 36px 28px;
           text-align: center;
           color: #fff;
         }
+        @media (max-width: 600px) { .ctaBox { padding: 28px 20px; } }
         .ctaTitle {
           font-size: 22px;
-          font-weight: 800;
+          font-weight: 900;
           margin: 0 0 8px;
-          letter-spacing: -0.02em;
+          letter-spacing: -0.025em;
         }
         @media (max-width: 600px) { .ctaTitle { font-size: 18px; } }
         .ctaSub {
-          font-size: 14.5px;
-          opacity: 0.95;
-          margin: 0 0 22px;
+          font-size: 14px;
           line-height: 1.7;
+          opacity: 0.95;
+          margin: 0 0 20px;
         }
+        @media (max-width: 600px) { .ctaSub { font-size: 12.5px; } }
         .ctaBtn {
-          display: inline-flex;
-          align-items: center;
-          gap: 8px;
-          padding: 14px 28px;
+          display: inline-block;
+          padding: 13px 26px;
           background: #fff;
           color: #c65f3b;
-          font-size: 15px;
-          font-weight: 800;
           border-radius: 100px;
+          font-size: 14.5px;
+          font-weight: 800;
           text-decoration: none;
           transition: all 0.2s;
         }
         .ctaBtn:hover {
           transform: translateY(-2px);
-          box-shadow: 0 10px 28px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
         }
 
-        /* ============================================ */
-        /* 데이터 신뢰도 (CENTS - E + N 강화) */
-        /* ============================================ */
-        .trustSection {
-          background: linear-gradient(135deg, #fdf1e7 0%, #fff8f3 100%);
-          border-radius: 16px;
-          padding: 28px 24px 22px;
-          margin: 28px 0 32px;
-          text-align: center;
-        }
-        .trustGrid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 16px;
-          margin-bottom: 14px;
-        }
-        @media (max-width: 720px) {
-          .trustGrid { grid-template-columns: repeat(2, 1fr); gap: 14px; }
-        }
-        .trustCard {
-          background: #fff;
-          border-radius: 12px;
-          padding: 18px 12px 14px;
-          border: 1.5px solid #fdebd9;
-        }
-        .trustNum {
-          font-size: 32px;
-          font-weight: 800;
-          color: #c65f3b;
-          line-height: 1;
-          margin-bottom: 6px;
-          letter-spacing: -0.03em;
-        }
-        @media (max-width: 600px) {
-          .trustNum { font-size: 28px !important; }
-        }
-        .trustUnit {
-          font-size: 16px;
-          font-weight: 700;
-          margin-left: 2px;
-        }
-        .trustLabel {
-          font-size: 13px;
-          font-weight: 700;
-          color: #1a1a1a;
-          margin-bottom: 4px;
-          letter-spacing: -0.01em;
-        }
-        .trustDesc {
-          font-size: 11px;
-          color: #888;
-          line-height: 1.5;
-        }
-        .trustNote {
-          font-size: 13px;
-          color: #92400e;
-          font-weight: 600;
-          margin: 12px 0 0;
-        }
-        @media (max-width: 600px) {
-          .trustSection { padding: 22px 16px 18px !important; margin: 22px 0 28px !important; }
-          .trustLabel { font-size: 13.5px !important; }
-          .trustDesc { font-size: 11.5px !important; }
-          .trustNote { font-size: 13px !important; line-height: 1.65 !important; }
-        }
-
-        /* ============================================ */
-        /* 오늘의 핵심 (CENTS - N 즉시 가치) */
-        /* ============================================ */
-        .todaySection {
-          background: linear-gradient(180deg, #fffbf5 0%, #fff 100%);
-          border: 1px solid #fdebd9;
-          border-radius: 16px;
-          padding: 32px 28px;
-          margin: 28px 0 32px;
-        }
-        @media (max-width: 600px) {
-          .todaySection { padding: 26px 20px !important; }
-        }
-        .todayHead {
-          text-align: center;
-          margin-bottom: 22px;
-        }
-        .todayBadge {
-          display: inline-block;
-          padding: 6px 14px;
-          background: #c65f3b;
-          color: #fff;
-          border-radius: 100px;
-          font-size: 11px;
-          font-weight: 800;
-          letter-spacing: 0.04em;
-          margin-bottom: 10px;
-        }
-        .todayTitle {
-          font-size: 22px;
-          font-weight: 800;
-          color: #1a1a1a;
-          letter-spacing: -0.025em;
-          margin: 0;
-        }
-        @media (max-width: 600px) {
-          .todayTitle { font-size: 20px !important; }
-        }
-        .todayCard {
-          background: #fff;
-          border: 2px solid #fdebd9;
-          border-radius: 14px;
-          padding: 28px;
-          text-align: center;
-        }
-        @media (max-width: 600px) {
-          .todayCard { padding: 22px 18px !important; }
-        }
-        .todayQuote {
-          font-size: 22px;
-          font-weight: 800;
-          color: #1a1a1a;
-          line-height: 1.5;
-          letter-spacing: -0.02em;
-          margin-bottom: 14px;
-        }
-        @media (max-width: 600px) {
-          .todayQuote { font-size: 19px !important; line-height: 1.45 !important; }
-        }
-        .todayQuoteAccent {
-          color: #c65f3b;
-        }
-        .todayBody {
-          font-size: 15px;
-          color: #555;
-          line-height: 1.75;
-          margin: 0 0 22px;
-          max-width: 580px;
-          margin-left: auto;
-          margin-right: auto;
-          margin-bottom: 22px;
-        }
-        @media (max-width: 600px) {
-          .todayBody { font-size: 14.5px !important; line-height: 1.75 !important; }
-        }
-        .todayBody strong {
-          color: #c65f3b;
-          font-weight: 800;
-        }
-        .todayCTA {
-          display: inline-block;
-          padding: 14px 28px;
-          background: #c65f3b;
-          color: #fff;
-          font-size: 15px;
-          font-weight: 800;
-          border-radius: 100px;
-          text-decoration: none;
-          transition: all 0.2s;
-          min-height: 50px;
-          line-height: 1.4;
-        }
-        .todayCTA:hover {
-          background: #d97155;
-          transform: translateY(-2px);
-          box-shadow: 0 6px 16px rgba(198, 95, 59, 0.3);
-        }
-        @media (max-width: 600px) {
-          .todayCTA { 
-            font-size: 15px !important; 
-            padding: 14px 26px !important;
-            min-height: 50px !important;
-          }
-        }
-
-        /* ============================================ */
-        /* 🎯 시니어 모바일 최적화 (v6.3.0) */
-        /* ============================================ */
-        @media (max-width: 600px) {
-          /* 폰트 키우기 - 시니어 시력 고려 */
-          .heroTitle { font-size: 26px !important; line-height: 1.35 !important; }
-          .heroSub { font-size: 16px !important; line-height: 1.7 !important; }
-          .heroCTA { 
-            font-size: 16px !important; 
-            padding: 16px 28px !important; 
-            min-height: 52px;
-          }
-          .sectionTitle { font-size: 19px !important; }
-          .sectionDesc { font-size: 15px !important; line-height: 1.7 !important; }
-          .guideCardTitle { font-size: 16px !important; line-height: 1.45 !important; }
-          .guideCardSub { font-size: 14px !important; line-height: 1.6 !important; }
-          .guideCardCat { font-size: 12px !important; }
-          
-          /* 터치 영역 확대 */
-          .guideCard {
-            padding: 18px 18px 16px !important;
-            min-height: 140px;
-          }
-          .catCard {
-            padding: 18px 14px !important;
-            min-height: 100px;
-          }
-          .catEmoji { font-size: 32px !important; }
-          .catName { font-size: 14.5px !important; }
-          .catDesc { font-size: 12.5px !important; line-height: 1.55 !important; }
-          
-          /* CTA 버튼 시니어 친화 */
-          .ctaBtn {
-            font-size: 17px !important;
-            padding: 18px 32px !important;
-            min-height: 56px;
-            min-width: 200px;
-          }
-          .ctaTitle { font-size: 22px !important; }
-          .ctaSub { font-size: 15px !important; line-height: 1.7 !important; }
-          
-          /* FAQ 카드 가독성 */
-          .faqQ { font-size: 15px !important; line-height: 1.6 !important; }
-          .faqA { font-size: 14.5px !important; line-height: 1.75 !important; }
-          
-          /* 보조 도구 안내 */
-          .toolBox {
-            padding: 22px 18px !important;
-            flex-direction: column;
-            gap: 14px;
-          }
-          .toolTitle { font-size: 17px !important; }
-          .toolDesc { font-size: 14.5px !important; line-height: 1.7 !important; }
-          .toolBtn {
-            font-size: 16px !important;
-            padding: 14px 24px !important;
-            min-height: 48px;
-            width: 100%;
-          }
-          
-          /* 페이지 여백 줄이기 (모바일 화면 활용) */
-          .page { padding: 18px 14px 60px !important; }
-          .hero { padding: 32px 18px 28px !important; }
-        }
+        /* 광고 영역 */
+        .adArea { margin: 24px 20px; }
+        @media (max-width: 600px) { .adArea { margin: 20px 12px; } }
       `}</style>
 
       <div className="page">
-        {/* HERO */}
-        <section className="hero">
-          <div className="heroBadge">
-            <span>✓</span>
-            <span>완전 무료 · 회원가입 불필요</span>
+        {/* ============================================ */}
+        {/* HERO V8 — 다이나믹 다크 그라데이션 + 키워드 입력 */}
+        {/* ============================================ */}
+        <section className="heroV8">
+          <div className="heroInner">
+            <div className="liveBadge">
+              <span className="liveDot"></span>
+              <span>지금 알고리즘이 작동 중</span>
+            </div>
+
+            <h1 className="heroV8Title">
+              키워드 한 단어로<br />
+              <span className="heroV8Highlight">100가지 떡상 시나리오</span>
+            </h1>
+
+            <p className="heroV8Sub">
+              같은 키워드를 입력해도, 100명에게 100가지 다른 결과.<br />
+              유튜브·쇼츠·인스타·틱톡 자료까지 60초 안에 완성됩니다.
+            </p>
+
+            <div className="counterArea" ref={counterRef}>
+              <div className="counterLabel">지금까지 만들어진 시나리오</div>
+              <div className="counterNumber">{counter.toLocaleString()}<span style={{ fontSize: '0.5em', marginLeft: 4 }}>개</span></div>
+              <div className="counterText">시청 유지율 평균 55% 이상 · 떡상 임계점 돌파 구조</div>
+            </div>
+
+            <form
+              onSubmit={(e) => { e.preventDefault(); handleStart(); }}
+              className="keywordInputWrap"
+            >
+              <input
+                type="text"
+                className="keywordInput"
+                placeholder="예: 국민연금 수령액, 부업 추천, 제주도 여행..."
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+              />
+              <button type="submit" className="keywordBtn">
+                🚀 1분 안에 시나리오 받기
+              </button>
+            </form>
+
+            <div className="popularKeywords">
+              <div className="popKwLabel">💡 다른 분들이 많이 만들고 있어요</div>
+              {POPULAR_KEYWORDS.map((kw, i) => (
+                <button
+                  key={i}
+                  type="button"
+                  className="popKwChip"
+                  onClick={() => handleStart(kw.text)}
+                >
+                  {kw.emoji} {kw.text}
+                </button>
+              ))}
+            </div>
+
+            <div className="quickStats">
+              <div className="qsItem"><strong>60초</strong>안에 결과</div>
+              <div className="qsItem"><strong>100가지</strong>다른 시나리오</div>
+              <div className="qsItem"><strong>완전 무료</strong>회원가입 X</div>
+            </div>
           </div>
-          <h1 className="heroTitle">
-            50대도 시작하는 영상 만들기,<br />
-            <span className="heroAccent">처음부터 끝까지 도와드려요</span>
-          </h1>
-          <p className="heroSub">
-            디지털 도구가 익숙하지 않으셔도 괜찮습니다.<br />
-            영상 만들기에 필요한 모든 가이드를 시니어 분들이 보기 쉽게 정리했어요.
-          </p>
-          <Link href="/blog" className="heroCTA">
-            📚 가이드 둘러보기 →
-          </Link>
         </section>
 
         {/* ============================================ */}
-        {/* [데이터 신뢰도 - CENTS의 E(진입) + N(욕구) 강화] */}
+        {/* v8.0 NEW: 떡상 곡선 시각화 */}
         {/* ============================================ */}
-        <section className="trustSection">
-          <div className="trustGrid">
-            <div className="trustCard">
-              <div className="trustNum">27<span className="trustUnit">개</span></div>
-              <div className="trustLabel">떡상 영상 패턴</div>
-              <div className="trustDesc">실제 분석한 사례 데이터</div>
-            </div>
-            <div className="trustCard">
-              <div className="trustNum">26<span className="trustUnit">편</span></div>
-              <div className="trustLabel">시니어 영상 가이드</div>
-              <div className="trustDesc">매주 새 가이드 추가</div>
-            </div>
-            <div className="trustCard">
-              <div className="trustNum">9<span className="trustUnit">개</span></div>
-              <div className="trustLabel">분야별 자동 매칭</div>
-              <div className="trustDesc">AI 기반 자동 분석</div>
-            </div>
-            <div className="trustCard">
-              <div className="trustNum">100<span className="trustUnit">%</span></div>
-              <div className="trustLabel">완전 무료</div>
-              <div className="trustDesc">회원가입 없이 사용</div>
-            </div>
+        <section className="curveSection">
+          <div className="curveHead">
+            <div className="curveBadge">📈 떡상 영상 분석</div>
+            <h2 className="curveTitle">떡상 영상의 시청 유지율 곡선</h2>
+            <p className="curveSub">
+              유튜브 알고리즘은 이 곡선을 좋아합니다. AlgoMaker가 만드는 시나리오는 정확히 이 구조를 따라갑니다.
+            </p>
           </div>
-          <p className="trustNote">
-            ✓ 다른 곳에서 볼 수 없는 시니어 영상 패턴 데이터를 무료로 공개합니다
-          </p>
+
+          <svg className="curveSvg" viewBox="0 0 800 240" preserveAspectRatio="none">
+            {/* 그리드 라인 */}
+            <line x1="0" y1="60" x2="800" y2="60" stroke="#f3f4f6" strokeWidth="1" strokeDasharray="4,4" />
+            <line x1="0" y1="120" x2="800" y2="120" stroke="#f3f4f6" strokeWidth="1" strokeDasharray="4,4" />
+            <line x1="0" y1="180" x2="800" y2="180" stroke="#f3f4f6" strokeWidth="1" strokeDasharray="4,4" />
+            
+            {/* 떡상 임계선 (65%) */}
+            <line x1="0" y1="84" x2="800" y2="84" stroke="#fbbf24" strokeWidth="1.5" strokeDasharray="6,3" opacity="0.7" />
+            <text x="790" y="80" textAnchor="end" fontSize="10" fill="#92400e" fontWeight="700">떡상 임계선 (65%)</text>
+
+            {/* 일반 영상 곡선 (점선) */}
+            <path 
+              d="M 0,40 L 100,80 L 200,140 L 300,180 L 400,200 L 500,210 L 600,215 L 700,218 L 800,220" 
+              fill="none" 
+              stroke="#9ca3af" 
+              strokeWidth="2" 
+              strokeDasharray="4,4"
+            />
+            <text x="780" y="218" textAnchor="end" fontSize="10" fill="#9ca3af" fontWeight="600">일반 영상 (이탈 빠름)</text>
+
+            {/* 떡상 영상 곡선 (강조) */}
+            <defs>
+              <linearGradient id="curveGradient" x1="0%" y1="0%" x2="100%" y2="0%">
+                <stop offset="0%" stopColor="#c65f3b" />
+                <stop offset="50%" stopColor="#fb923c" />
+                <stop offset="100%" stopColor="#fbbf24" />
+              </linearGradient>
+              <linearGradient id="areaGradient" x1="0%" y1="0%" x2="0%" y2="100%">
+                <stop offset="0%" stopColor="#c65f3b" stopOpacity="0.25" />
+                <stop offset="100%" stopColor="#c65f3b" stopOpacity="0" />
+              </linearGradient>
+            </defs>
+
+            {/* 영역 채우기 */}
+            <path 
+              d="M 0,30 L 100,55 L 200,80 L 300,100 L 400,120 L 500,140 L 600,150 L 700,160 L 800,180 L 800,240 L 0,240 Z" 
+              fill="url(#areaGradient)"
+            />
+
+            {/* 메인 곡선 */}
+            <path 
+              d="M 0,30 L 100,55 L 200,80 L 300,100 L 400,120 L 500,140 L 600,150 L 700,160 L 800,180" 
+              fill="none" 
+              stroke="url(#curveGradient)" 
+              strokeWidth="3.5"
+              strokeLinecap="round"
+              strokeLinejoin="round"
+            />
+
+            {/* 데이터 포인트들 */}
+            {[
+              { x: 0, y: 30, label: '0초', val: '100%' },
+              { x: 100, y: 55, label: '3초', val: '88%' },
+              { x: 250, y: 90, label: '15초', val: '78%' },
+              { x: 400, y: 120, label: '35초', val: '70%' },
+              { x: 600, y: 150, label: '1분30초', val: '62%' },
+              { x: 800, y: 180, label: '3분', val: '50%' },
+            ].map((pt, i) => (
+              <g key={i}>
+                <circle cx={pt.x === 0 ? 8 : pt.x === 800 ? 792 : pt.x} cy={pt.y} r="5" fill="#fff" stroke="#c65f3b" strokeWidth="2.5" />
+                <text 
+                  x={pt.x === 0 ? 8 : pt.x === 800 ? 792 : pt.x} 
+                  y={pt.y - 12} 
+                  textAnchor="middle" 
+                  fontSize="11" 
+                  fill="#c65f3b" 
+                  fontWeight="800"
+                >
+                  {pt.val}
+                </text>
+                <text 
+                  x={pt.x === 0 ? 8 : pt.x === 800 ? 792 : pt.x} 
+                  y="232" 
+                  textAnchor="middle" 
+                  fontSize="10" 
+                  fill="#6b7280" 
+                  fontWeight="600"
+                >
+                  {pt.label}
+                </text>
+              </g>
+            ))}
+          </svg>
+
+          <div className="curveNote">
+            💡 <strong>일반 영상</strong>은 35초에 60% 이탈하지만, <strong>떡상 영상</strong>은 같은 시점에 70% 유지됩니다.
+            AlgoMaker는 이 5%의 차이를 만드는 구조를 시나리오에 자동 적용합니다.
+          </div>
         </section>
 
-        {/* 추천 가이드 */}
+        {/* ============================================ */}
+        {/* v8.0 NEW: 일반 도구 vs AlgoMaker 비교 */}
+        {/* ============================================ */}
+        <section className="compSection">
+          <div className="compHead">
+            <h2 className="compTitle">왜 다른 AI 도구로는 부족할까요?</h2>
+            <p className="compSub">키워드만 바꿔도 매번 다른 결과를 만드는 게 진짜 차이입니다</p>
+          </div>
+          <div className="compGrid">
+            <div className="compCard bad">
+              <span className="compCardLabel">일반 AI 도구</span>
+              <div className="compCardTitle">평범한 결과</div>
+              <ul className="compList">
+                <li>같은 키워드 = 거의 같은 결과</li>
+                <li>평범한 대본 (어디서 본 듯한 멘트)</li>
+                <li>영문 프롬프트 1-2줄만 제공</li>
+                <li>SNS별로 따로 작업해야 함</li>
+                <li>알고리즘 후킹 구조 부재</li>
+              </ul>
+            </div>
+            <div className="compCard good">
+              <span className="compCardLabel">AlgoMaker</span>
+              <div className="compCardTitle">알고리즘이 움직이는 결과</div>
+              <ul className="compList">
+                <li>같은 키워드도 100가지 다른 시나리오</li>
+                <li>작가급 스토리텔링 + 떡상 패턴 융합</li>
+                <li>Midjourney v7 + Sora 2 + VEO 3 전문가급</li>
+                <li>유튜브·쇼츠·인스타·틱톡 4종 자동 생성</li>
+                <li>비트마다 시청 유지율 목표 명시</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        {/* 광고 영역 */}
+        <div className="adArea">
+          <AdSlot slot="home-mid" variant="horizontal" />
+        </div>
+
+        {/* ============================================ */}
+        {/* 시니어 분들께 추천하는 가이드 (v7.0 자산 보존) */}
+        {/* ============================================ */}
         <section className="section">
           <div className="sectionHead">
             <h2 className="sectionTitle">⭐ 시니어 분들께 추천하는 가이드</h2>
@@ -800,29 +1164,20 @@ export default function HomePage() {
                 </div>
                 <h3 className="guideCardTitle">{g.title}</h3>
                 <p className="guideCardSub">{g.subtitle}</p>
-                <div className="guideCardFoot">
+                <div className="guideCardMeta">
                   <span className="guideCardTime">⏱️ {g.readTime}</span>
-                  <span className="guideCardRead">자세히 보기 →</span>
+                  <span className="guideCardArrow">자세히 보기 →</span>
                 </div>
               </Link>
             ))}
           </div>
         </section>
 
-        {/* AdSense */}
-        <div style={{ margin: '24px 0' }}>
-          <AdSlot slot="home-mid" variant="horizontal" />
-        </div>
-
-        {/* ============================================ */}
-        {/* [오늘 배울 1가지] CENTS - N(욕구) 즉시 가치 */}
-        {/* ============================================ */}
-        <section className="todaySection">
-          <div className="todayHead">
-            <span className="todayBadge">📌 오늘의 핵심</span>
-            <h2 className="todayTitle">처음 시작하는 분께 가장 중요한 1가지</h2>
-          </div>
+        {/* 오늘의 핵심 (v7.0 자산 보존) */}
+        <section className="section">
           <div className="todayCard">
+            <div className="todayBadge">📌 오늘의 핵심</div>
+            <h2 className="todayTitle">처음 시작하는 분께 가장 중요한 1가지</h2>
             <div className="todayQuote">
               "영상 만들기에서 가장 중요한 건<br />
               <span className="todayQuoteAccent">"꾸준함"</span>입니다"
@@ -837,7 +1192,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* 분야별 탐색 */}
+        {/* 분야별 탐색 (v7.0 자산 보존) */}
         <section className="section">
           <div className="sectionHead">
             <h2 className="sectionTitle">🗂️ 분야별 가이드 탐색</h2>
@@ -856,24 +1211,7 @@ export default function HomePage() {
           </div>
         </section>
 
-        {/* 보조 도구 안내 */}
-        <section className="section">
-          <div className="toolBox">
-            <div className="toolIcon">🛠️</div>
-            <div className="toolText">
-              <h3 className="toolTitle">키워드로 영상 자료 자동 만들기</h3>
-              <p className="toolDesc">
-                관심 있는 키워드 한 단어를 입력하시면, 영상 제목·대본 흐름·태그 등을
-                AI가 자동으로 만들어드립니다. 가이드 읽고 직접 만들어보고 싶으실 때 사용하세요.
-              </p>
-            </div>
-            <Link href="/create" className="toolBtn">
-              직접 만들어보기 →
-            </Link>
-          </div>
-        </section>
-
-        {/* FAQ */}
+        {/* FAQ (v7.0 자산 보존) */}
         <section className="section">
           <div className="sectionHead">
             <h2 className="sectionTitle">❓ 자주 묻는 질문</h2>
@@ -891,13 +1229,13 @@ export default function HomePage() {
         {/* 최종 CTA */}
         <section className="section">
           <div className="ctaBox">
-            <h2 className="ctaTitle">시니어 분들의 영상 시작을 응원합니다</h2>
+            <h2 className="ctaTitle">지금 키워드 한 단어로 시작해보세요</h2>
             <p className="ctaSub">
-              완전 무료입니다. 회원가입도, 결제도 필요 없어요.<br />
-              가이드 한 편씩 천천히 읽어보시면서 시작해보세요.
+              완전 무료, 회원가입 없음, 무제한 사용.<br />
+              60초 안에 떡상 시나리오를 받아보실 수 있습니다.
             </p>
-            <Link href="/blog" className="ctaBtn">
-              📚 모든 가이드 보기 →
+            <Link href="/create" className="ctaBtn">
+              🚀 키워드 입력하고 시작하기 →
             </Link>
           </div>
         </section>

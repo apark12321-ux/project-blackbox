@@ -1,6 +1,11 @@
 // ============================================================
-// AlgoMaker v6.5.0 - Cinematic Prompt Display
-// Midjourney v7 / Sora 2 / VEO 3 / Flow / NotebookLM 통합
+// AlgoMaker v8.4 - Cinematic Prompt Display
+// Studio Treatment Style:
+// - Cinematography Brief 컨셉
+// - 모노크롬 (블랙·화이트·앰버)
+// - 세리프 + 모노 혼합 타이포그래피
+// - 영문 캡션 라벨
+// - 이모지 0
 // ============================================================
 
 import React, { useState } from 'react';
@@ -12,331 +17,755 @@ interface PromptDisplayProps {
 
 export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
   const [activeTab, setActiveTab] = useState<'midjourney' | 'sora' | 'veo' | 'flow' | 'notebookLM'>('midjourney');
-  
+
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 overflow-hidden">
-      {/* 왜 이 조합인지 (Rationale) */}
-      <div className="bg-gradient-to-r from-indigo-50 to-purple-50 border-b border-indigo-100 p-4">
-        <div className="flex items-start gap-2">
-          <span className="text-xl shrink-0">🎨</span>
-          <div className="flex-1">
-            <div className="text-xs font-bold text-indigo-700 mb-1">전문가가 이 조합을 추천하는 이유</div>
-            <div className="text-sm text-gray-800 leading-relaxed break-keep whitespace-pre-line">
-              {prompts.rationale}
-            </div>
+    <div className="briefDoc">
+      <style jsx>{`
+        .briefDoc {
+          background: #ffffff;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+          color: #0a0a0a;
+        }
+
+        /* ============================================ */
+        /* HEADER */
+        /* ============================================ */
+        .docHeader {
+          padding: 28px 0 24px;
+          border-bottom: 2px solid #0a0a0a;
+        }
+        @media (max-width: 600px) {
+          .docHeader { padding: 22px 0 18px; }
+        }
+
+        .docKicker {
+          font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
+          font-size: 10.5px;
+          font-weight: 600;
+          letter-spacing: 0.18em;
+          color: #c2410c;
+          margin-bottom: 8px;
+          text-transform: uppercase;
+        }
+        @media (max-width: 600px) { .docKicker { font-size: 10px; } }
+
+        .docTitle {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 24px;
+          font-weight: 700;
+          color: #0a0a0a;
+          letter-spacing: -0.025em;
+          line-height: 1.3;
+          margin: 0;
+        }
+        @media (max-width: 600px) { .docTitle { font-size: 20px; } }
+
+        /* ============================================ */
+        /* RATIONALE BLOCK */
+        /* ============================================ */
+        .rationaleBlock {
+          padding: 24px 0;
+          border-bottom: 1px solid #e5e5e5;
+          display: flex;
+          gap: 24px;
+        }
+        @media (max-width: 600px) {
+          .rationaleBlock { padding: 20px 0; gap: 0; flex-direction: column; }
+        }
+
+        .rationaleNum {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 12px;
+          font-weight: 600;
+          color: #0a0a0a;
+          flex-shrink: 0;
+          width: 36px;
+          padding-top: 4px;
+        }
+        @media (max-width: 600px) {
+          .rationaleNum { display: inline-block; width: auto; margin-bottom: 8px; }
+        }
+
+        .rationaleMain {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .rationaleLabel {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          color: #c2410c;
+          text-transform: uppercase;
+          margin-bottom: 8px;
+        }
+
+        .rationaleDivider {
+          width: 28px;
+          height: 1px;
+          background: #0a0a0a;
+          margin-bottom: 14px;
+        }
+
+        .rationaleContent {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 14px;
+          color: #0a0a0a;
+          line-height: 1.85;
+          white-space: pre-line;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .rationaleContent { font-size: 13px; line-height: 1.75; }
+        }
+
+        .rationaleContent :global(strong) {
+          font-weight: 800;
+          color: #0a0a0a;
+          text-decoration: underline;
+          text-decoration-color: #c2410c;
+          text-decoration-thickness: 2px;
+          text-underline-offset: 4px;
+        }
+
+        /* ============================================ */
+        /* TAB ROW */
+        /* ============================================ */
+        .tabSection {
+          padding: 24px 0 0;
+        }
+        .tabSectionLabel {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          color: #c2410c;
+          text-transform: uppercase;
+          margin-bottom: 8px;
+        }
+        .tabSectionDivider {
+          width: 28px;
+          height: 1px;
+          background: #0a0a0a;
+          margin-bottom: 16px;
+        }
+
+        .tabRow {
+          display: flex;
+          gap: 0;
+          border-top: 1px solid #0a0a0a;
+          border-bottom: 1px solid #0a0a0a;
+          overflow-x: auto;
+          -webkit-overflow-scrolling: touch;
+        }
+        .tabBtn {
+          flex: 1;
+          min-width: 100px;
+          padding: 14px 10px;
+          background: transparent;
+          border: none;
+          border-right: 1px solid #e5e5e5;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10.5px;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          color: #737373;
+          cursor: pointer;
+          transition: all 0.15s;
+          text-transform: uppercase;
+          text-align: center;
+          line-height: 1.4;
+        }
+        .tabBtn:last-child {
+          border-right: none;
+        }
+        .tabBtn:hover {
+          background: #fafafa;
+          color: #0a0a0a;
+        }
+        .tabBtn.active {
+          background: #0a0a0a;
+          color: #ffffff;
+        }
+        @media (max-width: 600px) {
+          .tabBtn { 
+            font-size: 9.5px; 
+            padding: 12px 6px;
+            min-width: 80px;
+            letter-spacing: 0.08em;
+          }
+        }
+
+        .tabSubtitle {
+          display: block;
+          font-size: 9px;
+          font-weight: 500;
+          margin-top: 3px;
+          letter-spacing: 0.1em;
+          opacity: 0.7;
+        }
+        @media (max-width: 600px) {
+          .tabSubtitle { font-size: 8.5px; }
+        }
+
+        .tabBody {
+          padding: 24px 0 8px;
+        }
+        @media (max-width: 600px) {
+          .tabBody { padding: 20px 0 8px; }
+        }
+
+        /* ============================================ */
+        /* FULL PROMPT (다크 박스) */
+        /* ============================================ */
+        .fullPromptHead {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 16px;
+          background: #0a0a0a;
+          color: #fafafa;
+          border-bottom: 1px solid #262626;
+        }
+        @media (max-width: 600px) {
+          .fullPromptHead { padding: 10px 14px; }
+        }
+
+        .fullPromptLabel {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.15em;
+          color: #fbbf24;
+          text-transform: uppercase;
+        }
+
+        .fullPromptBody {
+          background: #0a0a0a;
+          color: #fafafa;
+          padding: 16px 20px 20px;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 12.5px;
+          line-height: 1.85;
+          white-space: pre-wrap;
+          word-break: break-word;
+          max-height: 280px;
+          overflow-y: auto;
+        }
+        @media (max-width: 600px) {
+          .fullPromptBody { padding: 14px 16px 16px; font-size: 11.5px; line-height: 1.75; max-height: 220px; }
+        }
+
+        /* ============================================ */
+        /* SPECS TABLE (Cinematography Sheet 스타일) */
+        /* ============================================ */
+        .specsTitle {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          color: #c2410c;
+          text-transform: uppercase;
+          margin: 24px 0 8px;
+        }
+
+        .specsDivider {
+          width: 28px;
+          height: 1px;
+          background: #0a0a0a;
+          margin-bottom: 16px;
+        }
+
+        .specsTable {
+          border-top: 1px solid #0a0a0a;
+        }
+
+        .specRow {
+          display: grid;
+          grid-template-columns: 140px 1fr;
+          gap: 24px;
+          padding: 14px 0;
+          border-bottom: 1px solid #e5e5e5;
+        }
+        @media (max-width: 600px) {
+          .specRow { 
+            grid-template-columns: 100px 1fr; 
+            gap: 14px;
+            padding: 12px 0;
+          }
+        }
+
+        .specKey {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10.5px;
+          font-weight: 600;
+          color: #737373;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          padding-top: 2px;
+        }
+        @media (max-width: 600px) {
+          .specKey { font-size: 9.5px; letter-spacing: 0.08em; }
+        }
+
+        .specVal {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 14px;
+          color: #0a0a0a;
+          line-height: 1.55;
+          font-weight: 600;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .specVal { font-size: 13px; }
+        }
+
+        .specVal.mono {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 12.5px;
+          font-weight: 500;
+          color: #c2410c;
+        }
+        @media (max-width: 600px) {
+          .specVal.mono { font-size: 11.5px; }
+        }
+
+        /* ============================================ */
+        /* META BLOCKS (시드, 네거티브, 사운드, 출력) */
+        /* ============================================ */
+        .metaBlock {
+          margin-top: 18px;
+          padding: 16px 18px;
+          background: #fafafa;
+          border-left: 2px solid #0a0a0a;
+        }
+        @media (max-width: 600px) {
+          .metaBlock { padding: 14px 16px; }
+        }
+
+        .metaBlock.warning {
+          border-left-color: #c2410c;
+          background: #fff7ed;
+        }
+
+        .metaBlock.tech {
+          border-left-color: #0a0a0a;
+          background: #f5f5f5;
+        }
+
+        .metaLabel {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 9.5px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          color: #525252;
+          text-transform: uppercase;
+          margin-bottom: 8px;
+        }
+        .metaBlock.warning .metaLabel { color: #c2410c; }
+
+        .metaContent {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 13px;
+          color: #0a0a0a;
+          line-height: 1.7;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .metaContent { font-size: 12.5px; }
+        }
+
+        .metaContent.mono {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11.5px;
+          color: #525252;
+        }
+
+        .metaInline {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          padding: 6px 0;
+          border-bottom: 1px dashed #d4d4d4;
+        }
+        .metaInline:last-child { border-bottom: none; }
+        .metaInlineKey {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10.5px;
+          color: #737373;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+        }
+        .metaInlineVal {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 12px;
+          color: #0a0a0a;
+          font-weight: 600;
+        }
+
+        /* ============================================ */
+        /* FLOW SEQUENCE */
+        /* ============================================ */
+        .sequenceList {
+          display: flex;
+          flex-direction: column;
+        }
+
+        .sequenceRow {
+          display: grid;
+          grid-template-columns: 60px 1fr 80px;
+          gap: 20px;
+          padding: 16px 0;
+          border-bottom: 1px solid #e5e5e5;
+          align-items: start;
+        }
+        @media (max-width: 600px) {
+          .sequenceRow { 
+            grid-template-columns: 44px 1fr 60px; 
+            gap: 12px;
+            padding: 14px 0;
+          }
+        }
+
+        .sequenceNum {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11.5px;
+          font-weight: 700;
+          color: #c2410c;
+          letter-spacing: 0.1em;
+          padding-top: 2px;
+        }
+        @media (max-width: 600px) {
+          .sequenceNum { font-size: 10.5px; }
+        }
+
+        .sequenceDesc {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 14px;
+          color: #0a0a0a;
+          line-height: 1.55;
+          font-weight: 600;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .sequenceDesc { font-size: 13px; }
+        }
+
+        .sequenceDuration {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10.5px;
+          color: #737373;
+          letter-spacing: 0.08em;
+          text-align: right;
+          padding-top: 4px;
+        }
+        @media (max-width: 600px) {
+          .sequenceDuration { font-size: 9.5px; }
+        }
+
+        /* ============================================ */
+        /* NOTEBOOK GUIDE */
+        /* ============================================ */
+        .notebookGuide {
+          padding: 14px 16px;
+          background: #fffbeb;
+          border-left: 2px solid #c2410c;
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 13px;
+          color: #78350f;
+          line-height: 1.7;
+          margin-bottom: 16px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .notebookGuide { font-size: 12.5px; padding: 12px 14px; }
+        }
+
+        .notebookGuide :global(strong) {
+          font-weight: 800;
+          color: #c2410c;
+        }
+
+        /* ============================================ */
+        /* COPY BUTTON */
+        /* ============================================ */
+        .copyBtn {
+          background: transparent;
+          border: 1px solid #fafafa;
+          color: #fafafa;
+          padding: 5px 12px;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+        .copyBtn:hover {
+          background: #fafafa;
+          color: #0a0a0a;
+        }
+        .copyBtn.copied {
+          background: #c2410c;
+          border-color: #c2410c;
+          color: #ffffff;
+        }
+        @media (max-width: 600px) {
+          .copyBtn { font-size: 9.5px; padding: 5px 10px; }
+        }
+      `}</style>
+
+      {/* DOC HEADER */}
+      <div className="docHeader">
+        <div className="docKicker">▍ Cinematography Brief</div>
+        <h2 className="docTitle">AI Production Spec — Multi Engine</h2>
+      </div>
+
+      {/* 01 RATIONALE */}
+      <div className="rationaleBlock">
+        <div className="rationaleNum">01</div>
+        <div className="rationaleMain">
+          <div className="rationaleLabel">Style Rationale</div>
+          <div className="rationaleDivider" />
+          <div
+            className="rationaleContent"
+            dangerouslySetInnerHTML={{
+              __html: prompts.rationale.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>'),
+            }}
+          />
+        </div>
+      </div>
+
+      {/* 02 ENGINE TABS */}
+      <div className="tabSection">
+        <div className="tabSectionLabel">Engine Selection</div>
+        <div className="tabSectionDivider" />
+        
+        <div className="tabRow">
+          <button type="button" className={`tabBtn ${activeTab === 'midjourney' ? 'active' : ''}`} onClick={() => setActiveTab('midjourney')}>
+            Midjourney v7
+            <span className="tabSubtitle">Stills</span>
+          </button>
+          <button type="button" className={`tabBtn ${activeTab === 'sora' ? 'active' : ''}`} onClick={() => setActiveTab('sora')}>
+            Sora 2
+            <span className="tabSubtitle">Video</span>
+          </button>
+          <button type="button" className={`tabBtn ${activeTab === 'veo' ? 'active' : ''}`} onClick={() => setActiveTab('veo')}>
+            VEO 3
+            <span className="tabSubtitle">Google</span>
+          </button>
+          <button type="button" className={`tabBtn ${activeTab === 'flow' ? 'active' : ''}`} onClick={() => setActiveTab('flow')}>
+            Flow
+            <span className="tabSubtitle">Sequence</span>
+          </button>
+          <button type="button" className={`tabBtn ${activeTab === 'notebookLM' ? 'active' : ''}`} onClick={() => setActiveTab('notebookLM')}>
+            NotebookLM
+            <span className="tabSubtitle">Analysis</span>
+          </button>
+        </div>
+
+        <div className="tabBody">
+          {activeTab === 'midjourney' && <MidjourneyPanel data={prompts.midjourney} />}
+          {activeTab === 'sora' && <SoraPanel data={prompts.sora} />}
+          {activeTab === 'veo' && <VeoPanel data={prompts.veo} />}
+          {activeTab === 'flow' && <FlowPanel data={prompts.flow} />}
+          {activeTab === 'notebookLM' && <NotebookPanel data={prompts.notebookLM} />}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// Midjourney 패널
+// ============================================================
+function MidjourneyPanel({ data }: { data: any }) {
+  return (
+    <>
+      <FullPromptBox label="Midjourney v7 — Full Prompt" content={data.fullPrompt} />
+      
+      <div className="specsTitle">Composition Spec</div>
+      <div className="specsDivider" />
+      <div className="specsTable">
+        <SpecRow keyName="Subject" value={data.subject} />
+        <SpecRow keyName="Composition" value={data.composition} />
+        <SpecRow keyName="Lighting" value={data.lighting} />
+        <SpecRow keyName="Color" value={data.colorPalette} />
+        <SpecRow keyName="Camera/Lens" value={data.cameraSpec} />
+        <SpecRow keyName="Mood" value={data.mood} />
+        <SpecRow keyName="Style Ref" value={data.styleReference} />
+        <SpecRow keyName="Parameters" value={data.parameters} mono />
+      </div>
+
+      <div className="metaBlock tech">
+        <div className="metaInline">
+          <span className="metaInlineKey">Seed</span>
+          <span className="metaInlineVal">{data.seed}</span>
+        </div>
+      </div>
+
+      <div className="metaBlock warning">
+        <div className="metaLabel">Negative Prompt</div>
+        <div className="metaContent mono">{data.negativePrompt}</div>
+      </div>
+    </>
+  );
+}
+
+// ============================================================
+// Sora 패널
+// ============================================================
+function SoraPanel({ data }: { data: any }) {
+  return (
+    <>
+      <FullPromptBox label="Sora 2 — Full Prompt" content={data.fullPrompt} />
+
+      <div className="specsTitle">Direction Spec</div>
+      <div className="specsDivider" />
+      <div className="specsTable">
+        <SpecRow keyName="Shot Type" value={data.shotType} />
+        <SpecRow keyName="Subject" value={data.subject} />
+        <SpecRow keyName="Action" value={data.action} />
+        <SpecRow keyName="Camera Move" value={data.cameraMovement} />
+        <SpecRow keyName="Lens" value={data.lensSpec} />
+        <SpecRow keyName="Lighting" value={data.lighting} />
+        <SpecRow keyName="Color Grade" value={data.colorGrading} />
+        <SpecRow keyName="Pacing" value={data.pacing} />
+      </div>
+
+      <div className="metaBlock">
+        <div className="metaLabel">Audio Direction</div>
+        <div className="metaContent">{data.audioDirection}</div>
+      </div>
+    </>
+  );
+}
+
+// ============================================================
+// VEO 패널
+// ============================================================
+function VeoPanel({ data }: { data: any }) {
+  return (
+    <>
+      <FullPromptBox label="Google VEO 3 — Full Prompt" content={data.fullPrompt} />
+      
+      <div className="specsTitle">Scene Spec</div>
+      <div className="specsDivider" />
+      <div className="specsTable">
+        <SpecRow keyName="Scene" value={data.scene} />
+        <SpecRow keyName="Visual Style" value={data.visualStyle} />
+        <SpecRow keyName="Camera" value={data.cameraDirection} />
+        <SpecRow keyName="Motion" value={data.motionLevel} />
+      </div>
+
+      <div className="metaBlock tech">
+        <div className="metaLabel">Output Specifications</div>
+        <div className="metaInline">
+          <span className="metaInlineKey">Duration</span>
+          <span className="metaInlineVal">{data.duration}</span>
+        </div>
+        <div className="metaInline">
+          <span className="metaInlineKey">Resolution</span>
+          <span className="metaInlineVal">{data.resolution}</span>
+        </div>
+        <div className="metaInline">
+          <span className="metaInlineKey">Aspect Ratio</span>
+          <span className="metaInlineVal">{data.aspectRatio}</span>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// ============================================================
+// Flow 패널
+// ============================================================
+function FlowPanel({ data }: { data: any }) {
+  return (
+    <>
+      <div className="specsTitle">5 Scene Sequence</div>
+      <div className="specsDivider" />
+      <div className="sequenceList">
+        {data.sceneSequence.map((scene: any, i: number) => (
+          <div key={i} className="sequenceRow">
+            <div className="sequenceNum">SC.{String(scene.scene).padStart(2, '0')}</div>
+            <div className="sequenceDesc">{scene.description}</div>
+            <div className="sequenceDuration">{scene.duration}</div>
           </div>
-        </div>
+        ))}
       </div>
-      
-      {/* AI 도구 탭 */}
-      <div className="flex border-b border-gray-200 bg-gray-50 overflow-x-auto">
-        <PromptTab 
-          active={activeTab === 'midjourney'} 
-          onClick={() => setActiveTab('midjourney')}
-          icon="🎨"
-          label="Midjourney v7"
-          subtitle="썸네일/스틸"
-        />
-        <PromptTab 
-          active={activeTab === 'sora'} 
-          onClick={() => setActiveTab('sora')}
-          icon="🎬"
-          label="Sora 2"
-          subtitle="동영상"
-        />
-        <PromptTab 
-          active={activeTab === 'veo'} 
-          onClick={() => setActiveTab('veo')}
-          icon="✨"
-          label="VEO 3"
-          subtitle="구글 동영상"
-        />
-        <PromptTab 
-          active={activeTab === 'flow'} 
-          onClick={() => setActiveTab('flow')}
-          icon="🌊"
-          label="Flow"
-          subtitle="시퀀스"
-        />
-        <PromptTab 
-          active={activeTab === 'notebookLM'} 
-          onClick={() => setActiveTab('notebookLM')}
-          icon="📓"
-          label="NotebookLM"
-          subtitle="분석"
-        />
+
+      <div className="specsTitle" style={{ marginTop: 28 }}>Sequence Direction</div>
+      <div className="specsDivider" />
+      <div className="specsTable">
+        <SpecRow keyName="Transition" value={data.transitionStyle} />
+        <SpecRow keyName="Overall Tone" value={data.overallTone} />
       </div>
-      
-      {/* 콘텐츠 */}
-      <div className="p-4 sm:p-6">
-        {activeTab === 'midjourney' && <MidjourneyDisplay data={prompts.midjourney} />}
-        {activeTab === 'sora' && <SoraDisplay data={prompts.sora} />}
-        {activeTab === 'veo' && <VeoDisplay data={prompts.veo} />}
-        {activeTab === 'flow' && <FlowDisplay data={prompts.flow} />}
-        {activeTab === 'notebookLM' && <NotebookLMDisplay data={prompts.notebookLM} />}
-      </div>
-    </div>
+    </>
   );
 }
 
 // ============================================================
-// Midjourney v7
+// NotebookLM 패널
 // ============================================================
-function MidjourneyDisplay({ data }: { data: any }) {
+function NotebookPanel({ data }: { data: string }) {
   return (
-    <div className="space-y-4">
-      {/* 풀 프롬프트 (그대로 복붙용) */}
-      <PromptBlock
-        label="📋 그대로 복붙 가능한 풀 프롬프트"
-        content={data.fullPrompt}
-        bgColor="bg-gradient-to-br from-violet-50 to-fuchsia-50"
-        borderColor="border-violet-200"
-        copyLabel="Midjourney 프롬프트 복사"
-      />
-      
-      {/* 분해된 디테일 */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <DetailCard label="피사체" content={data.subject} icon="🎯" />
-        <DetailCard label="구도" content={data.composition} icon="📐" />
-        <DetailCard label="조명" content={data.lighting} icon="💡" />
-        <DetailCard label="색감" content={data.colorPalette} icon="🎨" />
-        <DetailCard label="카메라" content={data.cameraSpec} icon="📷" />
-        <DetailCard label="분위기" content={data.mood} icon="🌫️" />
-        <DetailCard label="스타일 레퍼런스" content={data.styleReference} icon="📚" />
-        <DetailCard label="파라미터" content={data.parameters} icon="⚙️" mono />
+    <>
+      <div className="notebookGuide">
+        <strong>Usage:</strong> Paste this prompt into NotebookLM along with your video keyword.
+        It will return a structured analysis of trending patterns and differentiation strategies.
       </div>
-      
-      {/* 시드 + 네거티브 */}
-      <div className="bg-gray-50 rounded-lg p-3 space-y-2">
-        <div className="flex justify-between items-center">
-          <span className="text-xs font-bold text-gray-700">시드 (Seed)</span>
-          <span className="font-mono text-sm text-gray-900">{data.seed}</span>
-        </div>
-        <div>
-          <div className="text-xs font-bold text-red-700 mb-1">네거티브 프롬프트</div>
-          <div className="text-xs text-gray-700 break-keep">{data.negativePrompt}</div>
-        </div>
-      </div>
-    </div>
+      <FullPromptBox label="NotebookLM — Analysis Prompt" content={data} />
+    </>
   );
 }
 
 // ============================================================
-// Sora 2
+// Spec Row (라벨 / 값 한 줄)
 // ============================================================
-function SoraDisplay({ data }: { data: any }) {
-  return (
-    <div className="space-y-4">
-      <PromptBlock
-        label="📋 Sora 2 풀 프롬프트"
-        content={data.fullPrompt}
-        bgColor="bg-gradient-to-br from-cyan-50 to-blue-50"
-        borderColor="border-cyan-200"
-        copyLabel="Sora 프롬프트 복사"
-      />
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <DetailCard label="샷 타입" content={data.shotType} icon="🎬" />
-        <DetailCard label="피사체" content={data.subject} icon="🎯" />
-        <DetailCard label="액션" content={data.action} icon="🎭" />
-        <DetailCard label="카메라 무브" content={data.cameraMovement} icon="📹" />
-        <DetailCard label="렌즈 스펙" content={data.lensSpec} icon="🔍" />
-        <DetailCard label="조명" content={data.lighting} icon="💡" />
-        <DetailCard label="컬러 그레이딩" content={data.colorGrading} icon="🎨" />
-        <DetailCard label="페이싱" content={data.pacing} icon="⏱️" />
-      </div>
-      
-      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-        <div className="text-xs font-bold text-blue-700 mb-1">🔊 사운드 디렉션</div>
-        <div className="text-sm text-gray-800 break-keep">{data.audioDirection}</div>
-      </div>
-    </div>
-  );
-}
-
-// ============================================================
-// VEO 3 (Google)
-// ============================================================
-function VeoDisplay({ data }: { data: any }) {
-  return (
-    <div className="space-y-4">
-      <PromptBlock
-        label="📋 Google VEO 3 풀 프롬프트"
-        content={data.fullPrompt}
-        bgColor="bg-gradient-to-br from-emerald-50 to-green-50"
-        borderColor="border-emerald-200"
-        copyLabel="VEO 프롬프트 복사"
-      />
-      
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-        <DetailCard label="씬" content={data.scene} icon="🎬" />
-        <DetailCard label="비주얼 스타일" content={data.visualStyle} icon="🎨" />
-        <DetailCard label="카메라 디렉션" content={data.cameraDirection} icon="📹" />
-        <DetailCard label="모션 레벨" content={data.motionLevel} icon="🌊" />
-      </div>
-      
-      <div className="grid grid-cols-3 gap-2">
-        <SpecBox label="길이" value={data.duration} />
-        <SpecBox label="해상도" value={data.resolution} />
-        <SpecBox label="비율" value={data.aspectRatio} />
-      </div>
-    </div>
-  );
-}
-
-// ============================================================
-// Flow (시퀀스)
-// ============================================================
-function FlowDisplay({ data }: { data: any }) {
-  return (
-    <div className="space-y-4">
-      <div className="bg-gradient-to-br from-teal-50 to-cyan-50 border border-teal-200 rounded-lg p-4">
-        <div className="text-sm font-bold text-teal-900 mb-3">📋 5씬 시퀀스 구성</div>
-        <div className="space-y-2">
-          {data.sceneSequence.map((scene: any, i: number) => (
-            <div key={i} className="bg-white rounded-md p-3 border border-teal-100 flex items-start gap-3">
-              <div className="w-7 h-7 rounded-full bg-teal-500 text-white flex items-center justify-center text-xs font-bold shrink-0">
-                {scene.scene}
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="text-sm text-gray-900 break-keep">{scene.description}</div>
-                <div className="text-xs text-teal-600 mt-1 font-mono">{scene.duration}</div>
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      <DetailCard label="전환 스타일" content={data.transitionStyle} icon="🔄" />
-      <DetailCard label="전체 톤" content={data.overallTone} icon="🎭" />
-    </div>
-  );
-}
-
-// ============================================================
-// NotebookLM
-// ============================================================
-function NotebookLMDisplay({ data }: { data: string }) {
-  return (
-    <div className="space-y-3">
-      <div className="bg-yellow-50 border border-yellow-200 rounded-lg p-3">
-        <div className="text-xs font-bold text-yellow-800 mb-1">💡 사용법</div>
-        <div className="text-xs text-gray-700 break-keep">
-          NotebookLM에 영상 키워드와 함께 이 프롬프트를 붙여넣으면, 떡상 패턴 분석과 차별화 전략을 자동으로 정리해줍니다.
-        </div>
-      </div>
-      
-      <PromptBlock
-        label="📋 NotebookLM 분석 프롬프트"
-        content={data}
-        bgColor="bg-gradient-to-br from-amber-50 to-yellow-50"
-        borderColor="border-amber-200"
-        copyLabel="분석 프롬프트 복사"
-      />
-    </div>
-  );
-}
-
-// ============================================================
-// 공통: 탭 버튼
-// ============================================================
-function PromptTab({ active, onClick, icon, label, subtitle }: {
-  active: boolean;
-  onClick: () => void;
-  icon: string;
-  label: string;
-  subtitle: string;
-}) {
-  return (
-    <button
-      onClick={onClick}
-      className={`flex-1 min-w-[80px] py-3 px-2 transition-all border-b-2 ${
-        active 
-          ? 'border-indigo-500 bg-white' 
-          : 'border-transparent hover:bg-gray-100'
-      }`}
-    >
-      <div className="text-xl mb-0.5">{icon}</div>
-      <div className={`font-bold text-xs ${active ? 'text-gray-900' : 'text-gray-600'}`}>
-        {label}
-      </div>
-      <div className="text-[10px] text-gray-500">{subtitle}</div>
-    </button>
-  );
-}
-
-// ============================================================
-// 공통: 프롬프트 블록 (큰 코드 블록 + 복사)
-// ============================================================
-function PromptBlock({ label, content, bgColor, borderColor, copyLabel }: {
-  label: string;
-  content: string;
-  bgColor: string;
-  borderColor: string;
-  copyLabel: string;
-}) {
-  const [copied, setCopied] = useState(false);
-  
-  const handleCopy = () => {
-    navigator.clipboard.writeText(content);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-  
-  return (
-    <div className={`${bgColor} border ${borderColor} rounded-lg p-4`}>
-      <div className="flex justify-between items-center mb-2">
-        <div className="text-sm font-bold text-gray-900">{label}</div>
-        <button
-          onClick={handleCopy}
-          className={`text-xs px-3 py-1.5 rounded-md font-medium transition-all ${
-            copied 
-              ? 'bg-green-500 text-white' 
-              : 'bg-gray-900 text-white hover:bg-gray-700'
-          }`}
-        >
-          {copied ? '✅ 복사됨' : `📋 ${copyLabel}`}
-        </button>
-      </div>
-      <div className="bg-white/80 rounded-md p-3 border border-white max-h-72 overflow-y-auto">
-        <pre className="text-xs sm:text-sm text-gray-900 whitespace-pre-wrap font-mono leading-relaxed break-keep">
-          {content}
-        </pre>
-      </div>
-    </div>
-  );
-}
-
-// ============================================================
-// 공통: 디테일 카드
-// ============================================================
-function DetailCard({ label, content, icon, mono }: {
-  label: string;
-  content: string;
-  icon?: string;
+function SpecRow({ keyName, value, mono }: {
+  keyName: string;
+  value: string;
   mono?: boolean;
 }) {
   return (
-    <div className="bg-white border border-gray-200 rounded-lg p-3">
-      <div className="text-xs font-bold text-gray-500 mb-1 flex items-center gap-1">
-        {icon && <span>{icon}</span>}
-        <span>{label}</span>
-      </div>
-      <div className={`text-sm text-gray-900 break-keep ${mono ? 'font-mono' : ''}`}>
-        {content}
-      </div>
+    <div className="specRow">
+      <div className="specKey">{keyName}</div>
+      <div className={`specVal ${mono ? 'mono' : ''}`}>{value}</div>
     </div>
   );
 }
 
 // ============================================================
-// 공통: 스펙 박스
+// 풀 프롬프트 박스 (다크 테마)
 // ============================================================
-function SpecBox({ label, value }: { label: string; value: string }) {
+function FullPromptBox({ label, content }: { label: string; content: string }) {
+  const [copied, setCopied] = useState(false);
+
+  const handleCopy = () => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(content).then(() => {
+        setCopied(true);
+        setTimeout(() => setCopied(false), 2000);
+      });
+    }
+  };
+
   return (
-    <div className="bg-emerald-50 border border-emerald-200 rounded-lg p-3 text-center">
-      <div className="text-xs text-emerald-700 font-bold">{label}</div>
-      <div className="text-sm text-gray-900 mt-0.5 font-medium">{value}</div>
+    <div>
+      <div className="fullPromptHead">
+        <span className="fullPromptLabel">▍ {label}</span>
+        <button
+          type="button"
+          onClick={handleCopy}
+          className={`copyBtn ${copied ? 'copied' : ''}`}
+        >
+          {copied ? '✓ COPIED' : 'COPY'}
+        </button>
+      </div>
+      <pre className="fullPromptBody">{content}</pre>
     </div>
   );
 }
