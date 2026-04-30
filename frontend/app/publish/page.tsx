@@ -351,20 +351,30 @@ function PublishWorkthrough() {
   // v6.5.0 작가급 시나리오 + 전문가 프롬프트 + SNS 4종
   const v650Data = useMemo<V650DataPackage | null>(() => {
     if (!data) return null;
-    return generateV650Data({
-      keyword,
-      categoryId,
-      seed,
-      titles: data.titles,
-      description: data.description,
-      tags: data.tags.map(t => t.tag),
-      sequences: data.sequences,
-      thumbnails: data.thumbnails,
-      shortsScript: data.shortsScript,
-    });
+    try {
+      // tags가 string[] 인지 {tag: string}[] 인지 안전하게 변환
+      const safeTags = (data.tags || []).map((t: any) => 
+        typeof t === 'string' ? t : (t?.tag || '')
+      ).filter(Boolean);
+      
+      return generateV650Data({
+        keyword,
+        categoryId,
+        seed,
+        titles: data.titles,
+        description: data.description,
+        tags: safeTags,
+        sequences: data.sequences,
+        thumbnails: data.thumbnails,
+        shortsScript: data.shortsScript,
+      });
+    } catch (err) {
+      console.error('[v650] generateV650Data error:', err);
+      return null;
+    }
   }, [keyword, categoryId, seed, data]);
 
-  if (!data || !v650Data) {
+  if (!data) {
     return <LoadingScreen />;
   }
 
@@ -1349,18 +1359,26 @@ function PublishWorkthrough() {
 // STEP 1: 비슷한 사례
 // ============================================================
 function CasesPanel({ cases }: { cases: any[] }) {
+  if (!cases || !Array.isArray(cases) || cases.length === 0) {
+    return (
+      <div className="wt-card">
+        <div className="wt-card-label">사례 데이터 준비중</div>
+        <p className="wt-card-body">잠시만 기다려주세요.</p>
+      </div>
+    );
+  }
   return (
     <div className="wt-case-list">
       {cases.map((c: any, i: number) => (
         <div key={i} className="wt-card">
           <div className="wt-card-label">사례 {i + 1}</div>
-          <h3 className="wt-card-title">"{c.title}"</h3>
+          <h3 className="wt-card-title">"{c?.title || '제목 없음'}"</h3>
           <div className="wt-card-meta">
-            {c.views && <span>👁 조회수 {c.views}</span>}
-            {c.duration && <span> · ⏱ {c.duration}</span>}
-            {c.engagement && <span> · 💬 {c.engagement}</span>}
+            {c?.views && <span>👁 조회수 {c.views}</span>}
+            {c?.duration && <span> · ⏱ {c.duration}</span>}
+            {c?.engagement && <span> · 💬 {c.engagement}</span>}
           </div>
-          {c.lesson && (
+          {c?.lesson && (
             <p className="wt-card-body" style={{ marginTop: 10 }}>
               💡 {c.lesson}
             </p>
@@ -1381,33 +1399,44 @@ function TitlePanel({
   copy, 
   copied 
 }: any) {
+  if (!titles || !Array.isArray(titles) || titles.length === 0) {
+    return (
+      <div className="wt-card">
+        <div className="wt-card-label">제목 후보 준비중</div>
+        <p className="wt-card-body">잠시만 기다려주세요.</p>
+      </div>
+    );
+  }
   return (
     <>
-      {titles.map((t: any, i: number) => (
-        <div
-          key={i}
-          className={`wt-title-card ${selectedIdx === i ? 'selected' : ''}`}
-          onClick={() => onSelect(i)}
-        >
-          <div className="wt-title-num">제목 후보 {i + 1}</div>
-          <div className="wt-title-text">{t.title}</div>
-          <div className="wt-title-meta">
-            {t.ctr && <span className="wt-title-meta-item">📈 클릭률 {t.ctr}</span>}
-            {t.length && <span className="wt-title-meta-item">📏 {t.length}자</span>}
-          </div>
-          <button
-            type="button"
-            className={`wt-btn wt-btn-sm ${copied === `title-${i}` ? 'copied' : ''}`}
-            style={{ marginTop: 12 }}
-            onClick={(e) => {
-              e.stopPropagation();
-              copy(t.title, `title-${i}`);
-            }}
+      {titles.map((t: any, i: number) => {
+        const titleText = typeof t === 'string' ? t : (t?.title || '');
+        return (
+          <div
+            key={i}
+            className={`wt-title-card ${selectedIdx === i ? 'selected' : ''}`}
+            onClick={() => onSelect(i)}
           >
-            {copied === `title-${i}` ? '✓ 복사됨' : '📋 복사'}
-          </button>
-        </div>
-      ))}
+            <div className="wt-title-num">제목 후보 {i + 1}</div>
+            <div className="wt-title-text">{titleText}</div>
+            <div className="wt-title-meta">
+              {t?.ctr && <span className="wt-title-meta-item">📈 클릭률 {t.ctr}</span>}
+              {t?.length && <span className="wt-title-meta-item">📏 {t.length}자</span>}
+            </div>
+            <button
+              type="button"
+              className={`wt-btn wt-btn-sm ${copied === `title-${i}` ? 'copied' : ''}`}
+              style={{ marginTop: 12 }}
+              onClick={(e) => {
+                e.stopPropagation();
+                copy(titleText, `title-${i}`);
+              }}
+            >
+              {copied === `title-${i}` ? '✓ 복사됨' : '📋 복사'}
+            </button>
+          </div>
+        );
+      })}
     </>
   );
 }
@@ -1448,16 +1477,16 @@ function ScriptPanel({
         <CinematicScenarioDisplay scenario={v650Data.scenario} />
       ) : (
         <div className="wt-beats">
-          {sequences.map((seq: any, i: number) => (
+          {(sequences && Array.isArray(sequences) ? sequences : []).map((seq: any, i: number) => (
             <div key={i} className="wt-beat">
               <div className="wt-beat-head">
                 <div className="wt-beat-num">B0{i + 1}</div>
                 <div className="wt-beat-info">
-                  <div className="wt-beat-name">{seq.title || `단계 ${i + 1}`}</div>
-                  <div className="wt-beat-time">{seq.timing || `${i * 30}초~${(i + 1) * 30}초`}</div>
+                  <div className="wt-beat-name">{seq?.title || seq?.name || `단계 ${i + 1}`}</div>
+                  <div className="wt-beat-time">{seq?.timing || seq?.timeRange || `${i * 30}초~${(i + 1) * 30}초`}</div>
                 </div>
               </div>
-              <p className="wt-beat-text">{seq.content || seq.description}</p>
+              <p className="wt-beat-text">{seq?.content || seq?.description || seq?.text || ''}</p>
             </div>
           ))}
         </div>
@@ -1552,15 +1581,19 @@ function MetaPanel({
           <button
             type="button"
             className={`wt-btn wt-btn-sm ${copied === 'tags' ? 'copied' : ''}`}
-            onClick={() => copy(tags.map((t: any) => t.tag).join(', '), 'tags')}
+            onClick={() => copy(
+              (tags || []).map((t: any) => typeof t === 'string' ? t : (t?.tag || '')).filter(Boolean).join(', '), 
+              'tags'
+            )}
           >
             {copied === 'tags' ? '✓ 복사됨' : '📋 모두 복사'}
           </button>
         </div>
         <div className="wt-tag-flow">
-          {tags.map((t: any, i: number) => (
-            <span key={i} className="wt-tag-chip">{t.tag}</span>
-          ))}
+          {(tags && Array.isArray(tags) ? tags : []).map((t: any, i: number) => {
+            const tagText = typeof t === 'string' ? t : (t?.tag || '');
+            return tagText ? <span key={i} className="wt-tag-chip">{tagText}</span> : null;
+          })}
         </div>
       </div>
 
@@ -1573,37 +1606,41 @@ function MetaPanel({
           </div>
         </div>
         <div className="wt-thumb-list">
-          {thumbnails.map((t: any, i: number) => (
+          {(thumbnails && Array.isArray(thumbnails) ? thumbnails : []).map((t: any, i: number) => (
             <div key={i} className="wt-thumb-card">
               <div className="wt-thumb-card-head">
                 <div className="wt-thumb-card-idx">{String.fromCharCode(65 + i)}</div>
-                <div className="wt-thumb-card-name">{t.type}</div>
-                <div className="wt-thumb-card-rating">{t.ctr_estimate}</div>
+                <div className="wt-thumb-card-name">{t?.type || `컨셉 ${i + 1}`}</div>
+                <div className="wt-thumb-card-rating">{t?.ctr_estimate || ''}</div>
               </div>
               <div className="wt-thumb-card-grid">
                 <div className="wt-thumb-card-key">배경</div>
-                <div>{t.background}</div>
+                <div>{t?.background || '-'}</div>
                 <div className="wt-thumb-card-key">메인</div>
-                <div>{t.mainText}</div>
+                <div>{t?.mainText || '-'}</div>
                 <div className="wt-thumb-card-key">표정</div>
-                <div>{t.expression}</div>
+                <div>{t?.expression || '-'}</div>
                 <div className="wt-thumb-card-key">색상</div>
-                <div>{t.colors}</div>
+                <div>{t?.colors || '-'}</div>
               </div>
               <div className="wt-thumb-card-actions">
-                <button
-                  type="button"
-                  className={`wt-btn wt-btn-sm ${copied === `thumb-${i}` ? 'copied' : ''}`}
-                  onClick={() => copy(t.imagePromptKr, `thumb-${i}`)}
-                >
-                  {copied === `thumb-${i}` ? '✓ 복사됨' : '📋 한글 프롬프트'}
-                </button>
-                <Link
-                  href={`/imagegen?prompt=${encodeURIComponent(t.imagePromptEn)}&ar=16:9`}
-                  className="wt-btn wt-btn-sm wt-btn-primary"
-                >
-                  🎨 이미지 만들기
-                </Link>
+                {t?.imagePromptKr && (
+                  <button
+                    type="button"
+                    className={`wt-btn wt-btn-sm ${copied === `thumb-${i}` ? 'copied' : ''}`}
+                    onClick={() => copy(t.imagePromptKr, `thumb-${i}`)}
+                  >
+                    {copied === `thumb-${i}` ? '✓ 복사됨' : '📋 한글 프롬프트'}
+                  </button>
+                )}
+                {t?.imagePromptEn && (
+                  <Link
+                    href={`/imagegen?prompt=${encodeURIComponent(t.imagePromptEn)}&ar=16:9`}
+                    className="wt-btn wt-btn-sm wt-btn-primary"
+                  >
+                    🎨 이미지 만들기
+                  </Link>
+                )}
               </div>
             </div>
           ))}
@@ -1644,7 +1681,7 @@ function SnsPanel({
       </div>
 
       {proSnsMode && v650Data ? (
-        <SNSUploadPanel snsFormats={v650Data.snsFormats} />
+        <SNSUploadPanel formats={v650Data.sns} />
       ) : (
         <div className="wt-card">
           <div className="wt-card-label">쇼츠/릴스용 대본</div>
