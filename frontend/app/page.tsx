@@ -1130,7 +1130,7 @@ export default function HomePage() {
               <div className="compCardTitle">알고리즘이 움직이는 결과</div>
               <ul className="compList">
                 <li>같은 키워드도 100가지 다른 시나리오</li>
-                <li>넷플릭스 다큐 + 떡상 유튜버 융합 작가급</li>
+                <li>작가급 스토리텔링 + 떡상 패턴 융합</li>
                 <li>Midjourney v7 + Sora 2 + VEO 3 전문가급</li>
                 <li>유튜브·쇼츠·인스타·틱톡 4종 자동 생성</li>
                 <li>비트마다 시청 유지율 목표 명시</li>
