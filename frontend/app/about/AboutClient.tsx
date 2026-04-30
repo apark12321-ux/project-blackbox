@@ -288,7 +288,7 @@ export default function AboutClient() {
             </div>
             <div className="infoRow">
               <span className="infoLabel">문의 이메일</span>
-              <span className="infoValue">contact@nutube.kr</span>
+              <span className="infoValue">apark12321@gmail.com</span>
             </div>
             <div className="infoRow">
               <span className="infoLabel">서비스 시작</span>
