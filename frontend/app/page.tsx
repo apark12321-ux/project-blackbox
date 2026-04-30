@@ -1,18 +1,19 @@
 'use client';
 /**
- * AlgoMaker 메인 페이지 v9.1 - Guide Channel
+ * AlgoMaker 메인 페이지 v9.3 - Guide Channel (한글화 + 폰트 통일)
  *
  * 박예준 대표 비전 (인수인계 v6.4.1 명시):
  * "50대~70대 시니어층을 위한 영상 제작 도움말 채널"
  * "가이드 글이 메인 콘텐츠"
  * "AlgoMaker 자체 = 완전 무료"
  *
- * v9.1 결정 (2026.04.30):
- *  - ❌ 메인에서 키워드 입력 박스 완전 제거 (AdSense 정책 + 체류시간 ↑)
+ * v9.3 변경 (2026.04.30):
+ *  - ✅ 모든 영문 라벨 한글화 (시니어 친화)
+ *  - ✅ Pretendard 폰트 1종 통일
+ *  - ✅ 이모지 추가 (가이드 채널 친근함)
+ *  - ❌ 메인에서 키워드 입력 박스 완전 제거 (v9.1 유지)
  *  - ✅ 17편 가이드 + 9개 카테고리 + FAQ가 메인 콘텐츠
  *  - ✅ 키워드 도구는 각 가이드 본문의 "직접 만들어보기" 버튼으로만 접근
- *  - ✅ 헤더 사이드바의 "AI 도구" 메뉴 유지
- *  - ✅ Studio Treatment 톤 유지 (블랙·화이트·앰버)
  *
  * 박 대표님 자산 100% 보존:
  *  - FEATURED_GUIDES 6편
@@ -181,7 +182,7 @@ export default function HomePage() {
         }
 
         .heroKicker {
-          font-family: 'JetBrains Mono', 'SF Mono', Monaco, monospace;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 10.5px;
           font-weight: 600;
           letter-spacing: 0.18em;
@@ -192,7 +193,7 @@ export default function HomePage() {
         @media (max-width: 600px) { .heroKicker { font-size: 10px; } }
 
         .heroTitle {
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 36px;
           font-weight: 700;
           color: #0a0a0a;
@@ -209,7 +210,7 @@ export default function HomePage() {
         }
 
         .heroSub {
-          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 16px;
           color: #525252;
           line-height: 1.75;
@@ -237,7 +238,7 @@ export default function HomePage() {
           gap: 4px;
         }
         .heroMetaLabel {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 9.5px;
           font-weight: 700;
           letter-spacing: 0.18em;
@@ -245,7 +246,7 @@ export default function HomePage() {
           text-transform: uppercase;
         }
         .heroMetaValue {
-          font-family: 'Noto Serif KR', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 15px;
           font-weight: 700;
           color: #0a0a0a;
@@ -268,7 +269,7 @@ export default function HomePage() {
           .startSection { padding: 36px 20px; }
         }
         .startKicker {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 10.5px;
           font-weight: 600;
           letter-spacing: 0.18em;
@@ -277,7 +278,7 @@ export default function HomePage() {
           text-transform: uppercase;
         }
         .startTitle {
-          font-family: 'Noto Serif KR', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 24px;
           font-weight: 700;
           color: #0a0a0a;
@@ -287,7 +288,7 @@ export default function HomePage() {
         }
         @media (max-width: 600px) { .startTitle { font-size: 19px; } }
         .startSub {
-          font-family: 'Noto Serif KR', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 14px;
           color: #525252;
           line-height: 1.7;
@@ -313,7 +314,7 @@ export default function HomePage() {
           .startCard { padding: 20px 22px; }
         }
         .startCardKicker {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 10px;
           font-weight: 700;
           letter-spacing: 0.15em;
@@ -325,7 +326,7 @@ export default function HomePage() {
           color: #fbbf24;
         }
         .startCardTitle {
-          font-family: 'Noto Serif KR', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 19px;
           font-weight: 700;
           letter-spacing: -0.02em;
@@ -334,7 +335,7 @@ export default function HomePage() {
         }
         @media (max-width: 600px) { .startCardTitle { font-size: 16px; } }
         .startCardDesc {
-          font-family: 'Noto Serif KR', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 13.5px;
           color: #525252;
           line-height: 1.7;
@@ -356,7 +357,7 @@ export default function HomePage() {
           border-top-color: rgba(255, 255, 255, 0.3);
         }
         .startCardTime {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 10.5px;
           color: #737373;
           letter-spacing: 0.06em;
@@ -365,7 +366,7 @@ export default function HomePage() {
           color: rgba(255, 255, 255, 0.7);
         }
         .startCardArrow {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 11px;
           font-weight: 700;
           color: #0a0a0a;
@@ -389,7 +390,7 @@ export default function HomePage() {
           margin-bottom: 24px;
         }
         .sectionKicker {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 10.5px;
           font-weight: 600;
           letter-spacing: 0.18em;
@@ -398,7 +399,7 @@ export default function HomePage() {
           text-transform: uppercase;
         }
         .sectionTitle {
-          font-family: 'Noto Serif KR', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 22px;
           font-weight: 700;
           color: #0a0a0a;
@@ -407,7 +408,7 @@ export default function HomePage() {
         }
         @media (max-width: 600px) { .sectionTitle { font-size: 18px; } }
         .sectionDesc {
-          font-family: 'Noto Serif KR', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 13.5px;
           color: #525252;
           line-height: 1.65;
@@ -442,7 +443,7 @@ export default function HomePage() {
           .guideCard { border-right: none; }
         }
         .guideCardKicker {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 9.5px;
           font-weight: 700;
           letter-spacing: 0.15em;
@@ -451,7 +452,7 @@ export default function HomePage() {
           margin-bottom: 8px;
         }
         .guideCardTitle {
-          font-family: 'Noto Serif KR', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 14px;
           font-weight: 700;
           color: #0a0a0a;
@@ -461,7 +462,7 @@ export default function HomePage() {
         }
         @media (max-width: 600px) { .guideCardTitle { font-size: 13.5px; } }
         .guideCardSub {
-          font-family: 'Noto Serif KR', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 12px;
           color: #737373;
           line-height: 1.55;
@@ -476,13 +477,13 @@ export default function HomePage() {
           border-top: 1px dashed #d4d4d4;
         }
         .guideCardTime {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 10px;
           color: #737373;
           letter-spacing: 0.06em;
         }
         .guideCardArrow {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 10.5px;
           font-weight: 700;
           color: #0a0a0a;
@@ -510,7 +511,7 @@ export default function HomePage() {
         }
         .catCard:hover { background: #fafafa; }
         .catName {
-          font-family: 'Noto Serif KR', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 14px;
           font-weight: 700;
           color: #0a0a0a;
@@ -519,7 +520,7 @@ export default function HomePage() {
         }
         @media (max-width: 600px) { .catName { font-size: 13px; } }
         .catDesc {
-          font-family: 'Noto Serif KR', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 11.5px;
           color: #737373;
           line-height: 1.5;
@@ -535,7 +536,7 @@ export default function HomePage() {
           border-bottom: 1px solid #e5e5e5;
         }
         .faqQ {
-          font-family: 'Noto Serif KR', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 14.5px;
           font-weight: 700;
           color: #0a0a0a;
@@ -544,7 +545,7 @@ export default function HomePage() {
         }
         @media (max-width: 600px) { .faqQ { font-size: 13.5px; } }
         .faqA {
-          font-family: 'Noto Serif KR', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 13px;
           color: #525252;
           line-height: 1.7;
@@ -561,7 +562,7 @@ export default function HomePage() {
         }
         @media (max-width: 600px) { .toolBlock { padding: 28px 20px; } }
         .toolKicker {
-          font-family: 'JetBrains Mono', monospace;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 10px;
           font-weight: 600;
           letter-spacing: 0.18em;
@@ -570,7 +571,7 @@ export default function HomePage() {
           text-transform: uppercase;
         }
         .toolTitle {
-          font-family: 'Noto Serif KR', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 16px;
           font-weight: 700;
           color: #0a0a0a;
@@ -580,7 +581,7 @@ export default function HomePage() {
         }
         @media (max-width: 600px) { .toolTitle { font-size: 14.5px; } }
         .toolDesc {
-          font-family: 'Noto Serif KR', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 13px;
           color: #525252;
           line-height: 1.65;
@@ -589,7 +590,7 @@ export default function HomePage() {
         }
         @media (max-width: 600px) { .toolDesc { font-size: 12px; } }
         .toolNote {
-          font-family: 'Noto Serif KR', serif;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 12px;
           color: #737373;
           line-height: 1.65;
@@ -606,7 +607,7 @@ export default function HomePage() {
       <div className="page">
         {/* HERO — 가이드 채널 정체성 */}
         <section className="hero">
-          <div className="heroKicker">▍ AlgoMaker · Senior Video Guide Channel</div>
+          <div className="heroKicker">🌿 시니어 영상 제작 가이드 채널</div>
           <h1 className="heroTitle">
             50대도 시작하는 영상 만들기,<br />
             <span className="heroTitleAccent">처음부터 끝까지</span> 도와드립니다
@@ -620,19 +621,19 @@ export default function HomePage() {
 
           <div className="heroMeta">
             <div className="heroMetaItem">
-              <div className="heroMetaLabel">Guides</div>
+              <div className="heroMetaLabel">가이드</div>
               <div className="heroMetaValue">17편</div>
             </div>
             <div className="heroMetaItem">
-              <div className="heroMetaLabel">Categories</div>
+              <div className="heroMetaLabel">분야</div>
               <div className="heroMetaValue">9개 분야</div>
             </div>
             <div className="heroMetaItem">
-              <div className="heroMetaLabel">Updates</div>
+              <div className="heroMetaLabel">업데이트</div>
               <div className="heroMetaValue">매주 새 가이드</div>
             </div>
             <div className="heroMetaItem">
-              <div className="heroMetaLabel">Pricing</div>
+              <div className="heroMetaLabel">이용료</div>
               <div className="heroMetaValue">완전 무료</div>
             </div>
           </div>
@@ -640,7 +641,7 @@ export default function HomePage() {
 
         {/* 추천 시작 — 입문자용 큰 카드 */}
         <section className="startSection">
-          <div className="startKicker">▍ Recommended Start</div>
+          <div className="startKicker">✨ 처음 시작하시는 분께</div>
           <h2 className="startTitle">처음 시작하시는 분께 추천</h2>
           <p className="startSub">
             영상 만들기가 처음이신 분들이 가장 먼저 읽어보시면 좋은 가이드입니다.
@@ -658,8 +659,8 @@ export default function HomePage() {
               시니어 시각으로 풀어낸 종합 안내서.
             </p>
             <div className="startCardFoot">
-              <span className="startCardTime">⏱ 10분 · Reading Time</span>
-              <span className="startCardArrow">READ NOW →</span>
+              <span className="startCardTime">⏱ 10분 · 읽는 시간</span>
+              <span className="startCardArrow">읽어보기 →</span>
             </div>
           </Link>
         </section>
@@ -672,7 +673,7 @@ export default function HomePage() {
         {/* FEATURED GUIDES */}
         <section className="section">
           <div className="sectionHead">
-            <div className="sectionKicker">▍ Featured Guides</div>
+            <div className="sectionKicker">📚 추천 가이드</div>
             <h2 className="sectionTitle">시니어 분들께 추천하는 가이드</h2>
             <p className="sectionDesc">
               영상 만들기에서 가장 자주 묻는 주제를 정리한 가이드 6편.
@@ -686,7 +687,7 @@ export default function HomePage() {
                 <p className="guideCardSub">{g.subtitle}</p>
                 <div className="guideCardMeta">
                   <span className="guideCardTime">⏱ {g.readTime}</span>
-                  <span className="guideCardArrow">READ →</span>
+                  <span className="guideCardArrow">읽어보기 →</span>
                 </div>
               </Link>
             ))}
@@ -696,7 +697,7 @@ export default function HomePage() {
         {/* CATEGORIES */}
         <section className="section">
           <div className="sectionHead">
-            <div className="sectionKicker">▍ Browse by Category</div>
+            <div className="sectionKicker">🗂 분야별 가이드</div>
             <h2 className="sectionTitle">분야별 가이드 탐색</h2>
             <p className="sectionDesc">
               관심 있는 분야의 가이드를 모아서 보실 수 있어요.
@@ -716,7 +717,7 @@ export default function HomePage() {
         {/* FAQ */}
         <section className="section">
           <div className="sectionHead">
-            <div className="sectionKicker">▍ Frequently Asked Questions</div>
+            <div className="sectionKicker">💬 자주 묻는 질문</div>
             <h2 className="sectionTitle">자주 묻는 질문</h2>
           </div>
           <div className="faqList">
@@ -731,7 +732,7 @@ export default function HomePage() {
 
         {/* 보조 도구 안내 (하단에 작게) */}
         <section className="toolBlock">
-          <div className="toolKicker">▍ Additional Tool</div>
+          <div className="toolKicker">🛠 보조 도구</div>
           <h2 className="toolTitle">키워드 입력으로 영상 자료 자동 만들기</h2>
           <p className="toolDesc">
             가이드를 다 읽으신 후, 직접 영상을 만들어보고 싶으실 때
