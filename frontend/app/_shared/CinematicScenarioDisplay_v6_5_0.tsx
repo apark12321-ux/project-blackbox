@@ -601,7 +601,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
         >
           <span className="algoIcon">⚙️</span>
           <span className="algoTitle">숨겨진 알고리즘 작동 원리</span>
-          <span className="algoBadge">뒷단 노림수</span>
+          <span className="algoBadge">숨은 장치</span>
           <span className={`algoArrow ${showAlgorithm ? 'open' : ''}`}>▼</span>
         </button>
         {showAlgorithm && (
@@ -735,7 +735,7 @@ function BeatBlock({ beat, isExpanded, onToggle, isLast }: {
 
           {/* 알고리즘 후킹 */}
           <div className="beatSection algo">
-            <span className="beatSectionLabel">⚙️ 알고리즘 후킹 (뒷단 노림수)</span>
+            <span className="beatSectionLabel">⚙️ 알고리즘 후킹 (숨은 장치)</span>
             <p className="beatSectionContent">{beat.algorithmHook}</p>
           </div>
 

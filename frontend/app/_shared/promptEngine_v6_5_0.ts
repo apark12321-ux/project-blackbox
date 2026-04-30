@@ -406,9 +406,7 @@ function generateRationale(style: VisualStyle, pack: VisualStylePack, seed: numb
 - 카메라: ${pack.cameraLens[0]} 권장 (이 스타일에서 가장 신뢰감 높은 렌즈)
 - 조명: ${pack.lighting[0]} (감정 전달과 시각적 가독성 균형)
 - 색감: ${pack.colorLUT[0]} (해당 도메인 떡상 영상의 공통 색감 패턴)
-- 분위기: ${pack.mood[0]} (시청자 이입을 극대화하는 톤)
-
-이 조합은 박예준 대표님의 비전 "겉으로는 안 보이고, 뒷단에서 움직여야 함"을 시각 언어로 구현한 결과입니다.`;
+- 분위기: ${pack.mood[0]} (시청자 이입을 극대화하는 톤)`;
 }
 
 // ============================================================
