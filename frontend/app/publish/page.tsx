@@ -1,30 +1,29 @@
 'use client';
 /**
- * AlgoMaker 결과 페이지 v8.2
+ * AlgoMaker 결과 페이지 v10.3 - 무한 로딩 hotfix
  *
  * 박예준 대표 비전:
  * "SNS 초보자가 사이트에 딱 왔을 때 뭔가 필이 팍 꽂혀야 한다"
  * "100명이 같은 키워드 입력해도 100가지 결과"
  * "AlgoMaker 자체 = 완전 무료"
  *
- * v8.2 변경사항 (2026.04.30):
- * - 🏷️ 태그 다양화 시스템 (도메인별 연관 키워드 풀)
- *   → 13개 태그가 모두 다른 의미로 다양해짐
- *   → "2026 부동산 전망 추천/방법/입문..." 식 중복 제거
- * - 📊 가짜 검색량/경쟁 강도 라벨 완전 제거 (AdSense 정책 안전)
+ * v10.3 변경사항 (2026.04.30) — 무한 로딩 hotfix:
+ * - 🐛 diversifyTags 함수 시그니처 버그 수정
+ *   기존: (originalTags, keyword, categoryId, seed) - 호출과 안 맞음
+ *   호출: (keyword, rawTags, domain, seed)
+ *   수정: 함수 시그니처를 호출부에 맞춰 정렬
+ *   → 무한 로딩 / "(t||'').toLowerCase is not a function" 에러 해결
+ * - ✅ pool || general fallback 추가 (혹시 모를 도메인 매칭 실패 대비)
+ * - ✅ keyword null 체크 강화
+ * - ✅ LoadingScreen 메시지 더 명확하게
  *
- * v8.1 변경사항 유지:
- * - "넷플릭스" 등 외부 브랜드명 모두 제거
- * - "작가급 스토리텔링 + 떡상 패턴 융합"
+ * v10.2 변경사항 유지:
+ * - contentEngine 정확한 시그니처 적용
+ * - 워크스루 인터페이스
  *
- * v6.5.1 변경사항 유지:
- * - 5회 무료 제한 + RewardedAd 모달 제거
- * - 무제한 사용 → AdSense 노출 ↑
- *
- * v6.5.0 변경사항 유지:
- * - 📖 작가급 스토리 모드 토글 (STEP 3)
- * - 📱 SNS 4종 실제 UI 모드 (STEP 6, 기본 ON)
- * - 🎨 전문가급 프롬프트 모드 (STEP 4)
+ * v8.2 변경사항 유지:
+ * - 태그 다양화 시스템
+ * - 가짜 검색량 라벨 제거 (AdSense 안전)
  */
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
@@ -209,18 +208,18 @@ function seededShuffle<T>(arr: T[], seed: number): T[] {
 }
 
 // 메인 다양화 함수: 기존 generateTags 결과를 받아서 다양한 태그 13개 생성
+// v10.3: 시그니처를 (keyword, rawTags, domain, seed) 순서로 정렬 — 호출부와 일치
 function diversifyTags(
-  originalTags: any[],
   keyword: string,
-  categoryId: string,
+  originalTags: any[],
+  domain: TagDomain,
   seed: number
 ): { tag: string }[] {
-  const domain = detectTagDomain(keyword, categoryId);
-  const pool = DOMAIN_KEYWORD_POOL[domain];
+  const pool = DOMAIN_KEYWORD_POOL[domain] || DOMAIN_KEYWORD_POOL.general;
   const generalPool = DOMAIN_KEYWORD_POOL.general;
   
   // 메인 키워드는 항상 첫 번째
-  const mainTag = keyword.trim();
+  const mainTag = (keyword || '').trim();
   
   // 도메인 풀에서 시드 기반으로 11개 선택
   const shuffledDomain = seededShuffle(pool, seed);
@@ -231,12 +230,12 @@ function diversifyTags(
   const generalTag = shuffledGeneral[0];
   
   // 13개 조합: 메인 + 도메인 11 + 일반 1
-  const allTags = [mainTag, ...domainTags, generalTag];
+  const allTags = [mainTag, ...domainTags, generalTag].filter(Boolean);
   
   // 중복 제거 (혹시 모를 케이스)
   const uniqueTags = Array.from(new Set(allTags)).slice(0, 13);
   
-  // 기존 generateTags 와 호환되는 형식으로 반환 (volume, competition 필드 제거)
+  // 기존 generateTags 와 호환되는 형식으로 반환
   return uniqueTags.map(t => ({ tag: t }));
 }
 
