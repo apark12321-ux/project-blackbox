@@ -1,21 +1,22 @@
 'use client';
 /**
- * AlgoMaker 결과 페이지 v10.3 - 무한 로딩 hotfix
+ * AlgoMaker 결과 페이지 v10.4 - SNS 4개 플랫폼 UI 복구
  *
  * 박예준 대표 비전:
  * "SNS 초보자가 사이트에 딱 왔을 때 뭔가 필이 팍 꽂혀야 한다"
  * "100명이 같은 키워드 입력해도 100가지 결과"
  * "AlgoMaker 자체 = 완전 무료"
  *
- * v10.3 변경사항 (2026.04.30) — 무한 로딩 hotfix:
- * - 🐛 diversifyTags 함수 시그니처 버그 수정
- *   기존: (originalTags, keyword, categoryId, seed) - 호출과 안 맞음
- *   호출: (keyword, rawTags, domain, seed)
- *   수정: 함수 시그니처를 호출부에 맞춰 정렬
- *   → 무한 로딩 / "(t||'').toLowerCase is not a function" 에러 해결
- * - ✅ pool || general fallback 추가 (혹시 모를 도메인 매칭 실패 대비)
- * - ✅ keyword null 체크 강화
- * - ✅ LoadingScreen 메시지 더 명확하게
+ * v10.4 변경사항 (2026.04.30) — STEP 6 hotfix:
+ * - 🐛 generateV650Data 호출 시그니처 버그 수정
+ *   기존: generateV650Data({ keyword, categoryId, seed, titles, ... }) - 객체 1개
+ *   박 대표님 정의: generateV650Data(keyword, selectedTitle, category) - 인자 3개
+ *   수정: 정확한 시그니처에 맞춰 (keyword, firstTitle, categoryId) 전달
+ *   → v650Data null → SNSUploadPanel 미표시 → 쇼츠 대본만 보이던 문제 해결
+ *   → 4개 플랫폼 UI (YouTube · Instagram · TikTok · Facebook) 정상 표시
+ *
+ * v10.3 변경사항 유지:
+ * - diversifyTags 함수 시그니처 버그 수정 (무한 로딩 해결)
  *
  * v10.2 변경사항 유지:
  * - contentEngine 정확한 시그니처 적용
@@ -364,28 +365,17 @@ function PublishWorkthrough() {
   }, [keyword, categoryId, seed]);
 
   // v6.5.0 작가급 시나리오 + 전문가 프롬프트 + SNS 4종
+  // v10.4: 박 대표님 v650Adapter.ts 정확한 시그니처에 맞춤
+  //        generateV650Data(keyword, selectedTitle, category) - 3 args
   const v650Data = useMemo<V650DataPackage | null>(() => {
     if (!data) return null;
     try {
-      // tags가 string[] 인지 {tag: string}[] 인지 안전하게 변환
-      const safeTags = (data.tags || []).map((t: any) => 
-        typeof t === 'string' ? t : (t?.tag || '')
-      ).filter(Boolean);
+      // 첫 번째 제목을 selectedTitle 로 사용 (사용자가 다른 제목 선택해도 시나리오는 첫 번째 기반)
+      const firstTitle = Array.isArray(data.titles) && data.titles.length > 0
+        ? (typeof data.titles[0] === 'string' ? data.titles[0] : (data.titles[0]?.title || keyword))
+        : keyword;
       
-      return generateV650Data({
-        keyword,
-        categoryId,
-        seed,
-        titles: data.titles,
-        description: data.description,
-        tags: safeTags,
-        sequences: data.sequences,
-        thumbnails: data.thumbnails,
-        // shortsScript는 ShortsScript 객체이므로 fullScript 문자열로 변환
-        shortsScript: typeof data.shortsScript === 'string' 
-          ? data.shortsScript 
-          : (data.shortsScript?.fullScript || ''),
-      });
+      return generateV650Data(keyword, firstTitle, categoryId);
     } catch (err) {
       console.error('[v650] generateV650Data error:', err);
       return null;
