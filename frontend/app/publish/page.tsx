@@ -1067,7 +1067,204 @@ function PublishPageInner() {
         .promptCopyBtn.copied { background: #c65f3b; color: #fff; border-color: #c65f3b; }
 
         /* ============================================ */
-        /* STEP 4 - 메타데이터 */
+        /* ============================================ */
+        /* v8.7: METADATA 평탄화 (Studio Treatment) */
+        /* ============================================ */
+        .metaTable {
+          border-top: 1px solid #0a0a0a;
+        }
+        .metaRow {
+          display: grid;
+          grid-template-columns: 140px 1fr;
+          gap: 24px;
+          padding: 18px 0;
+          border-bottom: 1px solid #e5e5e5;
+        }
+        @media (max-width: 600px) {
+          .metaRow {
+            grid-template-columns: 1fr;
+            gap: 10px;
+            padding: 16px 0;
+          }
+        }
+        .metaRowKey {
+          padding-top: 4px;
+        }
+        .metaRowKeyLabel {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          color: #c2410c;
+          text-transform: uppercase;
+        }
+        @media (max-width: 600px) {
+          .metaRowKeyLabel { font-size: 10.5px; }
+        }
+        .metaRowKeySub {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          color: #737373;
+          margin-top: 2px;
+          letter-spacing: 0.06em;
+        }
+        .metaRowVal {
+          min-width: 0;
+        }
+        .metaRowText {
+          font-family: 'Noto Serif KR', 'Pretendard', serif;
+          font-size: 14px;
+          color: #0a0a0a;
+          line-height: 1.75;
+          white-space: pre-wrap;
+          word-break: keep-all;
+          margin-bottom: 12px;
+        }
+        @media (max-width: 600px) {
+          .metaRowText { font-size: 13px; line-height: 1.7; }
+        }
+
+        /* TAGS 가로 흐름 */
+        .metaTagFlow {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          margin-bottom: 12px;
+        }
+        .metaTagChip {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 12px;
+          color: #0a0a0a;
+          padding: 5px 10px;
+          background: #fafafa;
+          border: 1px solid #e5e5e5;
+          letter-spacing: -0.01em;
+        }
+        @media (max-width: 600px) {
+          .metaTagChip { font-size: 11.5px; padding: 5px 9px; }
+        }
+
+        /* THUMBNAIL Concept Row */
+        .thumbConceptRow {
+          padding: 14px 0;
+          border-top: 1px dashed #d4d4d4;
+        }
+        .thumbConceptRow:first-child {
+          border-top: none;
+          padding-top: 4px;
+        }
+        .thumbConceptHead {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin-bottom: 10px;
+        }
+        .thumbConceptIdx {
+          width: 24px;
+          height: 24px;
+          background: #0a0a0a;
+          color: #ffffff;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 11px;
+          font-weight: 700;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .thumbConceptType {
+          font-family: 'Noto Serif KR', serif;
+          font-size: 14px;
+          font-weight: 700;
+          color: #0a0a0a;
+          letter-spacing: -0.015em;
+          flex: 1;
+          min-width: 0;
+        }
+        @media (max-width: 600px) {
+          .thumbConceptType { font-size: 13px; }
+        }
+        .thumbConceptCtr {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          color: #c2410c;
+          letter-spacing: 0.06em;
+          font-weight: 600;
+        }
+        .thumbConceptDetails {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          padding: 10px 14px;
+          background: #fafafa;
+          margin-bottom: 10px;
+          font-family: 'Noto Serif KR', serif;
+          font-size: 13px;
+          line-height: 1.6;
+          color: #0a0a0a;
+        }
+        @media (max-width: 600px) {
+          .thumbConceptDetails { font-size: 12.5px; padding: 10px 12px; }
+        }
+        .thumbConceptKey {
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10px;
+          font-weight: 700;
+          color: #737373;
+          letter-spacing: 0.1em;
+          margin-right: 8px;
+          text-transform: uppercase;
+        }
+        .thumbConceptActions {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+        }
+
+        /* Studio Treatment 버튼 통일 */
+        .metaCopyBtn {
+          background: transparent;
+          border: 1px solid #0a0a0a;
+          color: #0a0a0a;
+          padding: 6px 14px;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10.5px;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+        .metaCopyBtn:hover {
+          background: #0a0a0a;
+          color: #ffffff;
+        }
+        .metaCopyBtn.copied {
+          background: #c2410c;
+          border-color: #c2410c;
+          color: #ffffff;
+        }
+        .metaActionBtn {
+          padding: 6px 14px;
+          background: #0a0a0a;
+          color: #ffffff;
+          font-family: 'JetBrains Mono', monospace;
+          font-size: 10.5px;
+          font-weight: 600;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          text-decoration: none;
+          transition: all 0.15s;
+          border: 1px solid #0a0a0a;
+        }
+        .metaActionBtn:hover {
+          background: #c2410c;
+          border-color: #c2410c;
+        }
+        @media (max-width: 600px) {
+          .metaCopyBtn, .metaActionBtn { font-size: 10px; padding: 5px 12px; }
+        }
+
+        /* STEP 4 - 메타데이터 (구버전, 일부 잔존) */
         /* ============================================ */
         .metaSection {
           margin-top: 16px;
@@ -1866,86 +2063,81 @@ function PublishPageInner() {
           </div>
           {openSteps.meta && (
             <div className="stepBody">
-              {/* 설명 */}
-              <div className="metaSection">
-                <div className="metaLabelRow">
-                  <span className="metaLabel">📝 영상 설명</span>
-                  <button
-                    className={`copyBtnSm ${copied === 'desc' ? 'copied' : ''}`}
-                    onClick={() => copy(description, 'desc')}
-                  >
-                    {copied === 'desc' ? '✓ 복사됨' : '📋 복사'}
-                  </button>
+              <div className="metaTable">
+                {/* DESCRIPTION */}
+                <div className="metaRow">
+                  <div className="metaRowKey">
+                    <div className="metaRowKeyLabel">DESCRIPTION</div>
+                    <div className="metaRowKeySub">영상 설명문</div>
+                  </div>
+                  <div className="metaRowVal">
+                    <div className="metaRowText">{description}</div>
+                    <button
+                      className={`metaCopyBtn ${copied === 'desc' ? 'copied' : ''}`}
+                      onClick={() => copy(description, 'desc')}
+                    >
+                      {copied === 'desc' ? '✓ COPIED' : 'COPY'}
+                    </button>
+                  </div>
                 </div>
-                <div className="metaHelper">SEO 최적화 + 챕터(목차) 포함. 첫 100자가 검색 미리보기에 노출됩니다.</div>
-                <div className="metaContent">{description}</div>
-              </div>
 
-              {/* 태그 (YouTube) */}
-              <div className="metaSection">
-                <div className="metaLabelRow">
-                  <span className="metaLabel">🏷️ 태그 (YouTube 태그 필드용)</span>
-                  <button
-                    className={`copyBtnSm ${copied === 'tags' ? 'copied' : ''}`}
-                    onClick={() => copy(tags.map(t => t.tag).join(', '), 'tags')}
-                  >
-                    {copied === 'tags' ? '✓ 복사됨' : '📋 모두 복사'}
-                  </button>
-                </div>
-                <div className="metaHelper">
-                  YouTube 업로드 화면 "태그" 필드에 그대로 붙여넣으세요. <strong>띄어쓰기 그대로</strong> (해시태그 X, # 기호 X).
-                </div>
-                <div className="tagGrid">
-                  {tags.map((t, i) => (
-                    <div key={i} className="tagItem">
-                      <div className="tagItemName">{t.tag}</div>
+                {/* TAGS */}
+                <div className="metaRow">
+                  <div className="metaRowKey">
+                    <div className="metaRowKeyLabel">TAGS</div>
+                    <div className="metaRowKeySub">YouTube 태그 필드</div>
+                  </div>
+                  <div className="metaRowVal">
+                    <div className="metaTagFlow">
+                      {tags.map((t, i) => (
+                        <span key={i} className="metaTagChip">{t.tag}</span>
+                      ))}
                     </div>
-                  ))}
+                    <button
+                      className={`metaCopyBtn ${copied === 'tags' ? 'copied' : ''}`}
+                      onClick={() => copy(tags.map(t => t.tag).join(', '), 'tags')}
+                    >
+                      {copied === 'tags' ? '✓ COPIED' : 'COPY ALL'}
+                    </button>
+                  </div>
                 </div>
-              </div>
 
-              {/* 썸네일 */}
-              <div className="metaSection">
-                <div className="metaLabelRow">
-                  <span className="metaLabel">🖼️ 썸네일 콘셉트 3가지</span>
-                </div>
-                <div className="metaHelper">
-                  알고리즘 검증된 3가지 콘셉트. 클릭해서 영상 프롬프트로 만들어 사용하세요.
-                </div>
-                <div className="thumbGrid">
-                  {thumbnails.map((t, i) => (
-                    <div key={i} className="thumbCard">
-                      <div className="thumbType">{t.type}</div>
-                      <div className="thumbDetail"><strong>배경:</strong> {t.background}</div>
-                      <div className="thumbDetail"><strong>메인 텍스트:</strong> {t.mainText}</div>
-                      <div className="thumbDetail"><strong>표정:</strong> {t.expression}</div>
-                      <div className="thumbDetail"><strong>색상:</strong> {t.colors}</div>
-                      <div className="thumbCtr">{t.ctr_estimate}</div>
-                      <div style={{ marginTop: 10, display: 'flex', gap: 6, flexWrap: 'wrap' }}>
-                        <button
-                          className={`copyBtnSm ${copied === `thumb-${i}` ? 'copied' : ''}`}
-                          onClick={() => copy(t.imagePromptKr, `thumb-${i}`)}
-                          style={{ marginLeft: 0, fontSize: '11px' }}
-                        >
-                          {copied === `thumb-${i}` ? '✓ 복사' : '🇰🇷 한글 프롬프트'}
-                        </button>
-                        <Link
-                          href={`/imagegen?prompt=${encodeURIComponent(t.imagePromptEn)}&ar=16:9`}
-                          style={{
-                            padding: '5px 12px',
-                            background: '#c65f3b',
-                            color: '#fff',
-                            borderRadius: 100,
-                            fontSize: '11px',
-                            fontWeight: 700,
-                            textDecoration: 'none',
-                          }}
-                        >
-                          🎨 영상 프롬프트로
-                        </Link>
+                {/* THUMBNAIL */}
+                <div className="metaRow">
+                  <div className="metaRowKey">
+                    <div className="metaRowKeyLabel">THUMBNAIL</div>
+                    <div className="metaRowKeySub">3가지 컨셉</div>
+                  </div>
+                  <div className="metaRowVal">
+                    {thumbnails.map((t, i) => (
+                      <div key={i} className="thumbConceptRow">
+                        <div className="thumbConceptHead">
+                          <span className="thumbConceptIdx">{String.fromCharCode(65 + i)}</span>
+                          <span className="thumbConceptType">{t.type}</span>
+                          <span className="thumbConceptCtr">{t.ctr_estimate}</span>
+                        </div>
+                        <div className="thumbConceptDetails">
+                          <div><span className="thumbConceptKey">배경</span> {t.background}</div>
+                          <div><span className="thumbConceptKey">메인</span> {t.mainText}</div>
+                          <div><span className="thumbConceptKey">표정</span> {t.expression}</div>
+                          <div><span className="thumbConceptKey">색상</span> {t.colors}</div>
+                        </div>
+                        <div className="thumbConceptActions">
+                          <button
+                            className={`metaCopyBtn ${copied === `thumb-${i}` ? 'copied' : ''}`}
+                            onClick={() => copy(t.imagePromptKr, `thumb-${i}`)}
+                          >
+                            {copied === `thumb-${i}` ? '✓ COPIED' : 'COPY KR'}
+                          </button>
+                          <Link
+                            href={`/imagegen?prompt=${encodeURIComponent(t.imagePromptEn)}&ar=16:9`}
+                            className="metaActionBtn"
+                          >
+                            GENERATE →
+                          </Link>
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    ))}
                 </div>
               </div>
             </div>
