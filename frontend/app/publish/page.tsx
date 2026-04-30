@@ -1,22 +1,30 @@
 'use client';
 /**
- * AlgoMaker 결과 페이지 v10.4 - SNS 4개 플랫폼 UI 복구
+ * AlgoMaker 결과 페이지 v10.5 - SNS 4개 플랫폼 자체 UI 구현
  *
  * 박예준 대표 비전:
  * "SNS 초보자가 사이트에 딱 왔을 때 뭔가 필이 팍 꽂혀야 한다"
  * "100명이 같은 키워드 입력해도 100가지 결과"
  * "AlgoMaker 자체 = 완전 무료"
  *
- * v10.4 변경사항 (2026.04.30) — STEP 6 hotfix:
- * - 🐛 generateV650Data 호출 시그니처 버그 수정
- *   기존: generateV650Data({ keyword, categoryId, seed, titles, ... }) - 객체 1개
- *   박 대표님 정의: generateV650Data(keyword, selectedTitle, category) - 인자 3개
- *   수정: 정확한 시그니처에 맞춰 (keyword, firstTitle, categoryId) 전달
- *   → v650Data null → SNSUploadPanel 미표시 → 쇼츠 대본만 보이던 문제 해결
- *   → 4개 플랫폼 UI (YouTube · Instagram · TikTok · Facebook) 정상 표시
+ * v10.5 변경사항 (2026.04.30) — STEP 6 디자인 hotfix:
+ * - 🎨 SNSUploadPanel 대신 자체 SNS UI 구현 (Tailwind 미사용)
+ *   원인: 박 대표님 SNSUploadPanel_v6_5_0.tsx 가 Tailwind CSS 사용
+ *         → 박 대표님 사이트에 Tailwind 설치 안 되어 있어서
+ *         → 모든 클래스 무시 → 정렬 깨짐 / 폰트 이상
+ *   수정: styled-jsx 로 4개 플랫폼 진짜 SNS UI 자체 구현
+ *         → YouTube Studio · Shorts · Instagram Reels · TikTok For You
+ *         → Pretendard 폰트 통일, 모바일 우선
+ *         → 박 대표님 SNSUploadPanel 파일은 그대로 보존
+ * - ✅ 박 대표님 v650Data.sns 데이터 그대로 활용 (필드명 일치)
+ * - ✅ 4개 플랫폼별 색상 톤 (YouTube 빨강 · Shorts 핑크 · IG 그라디언트 · TikTok 검정)
+ * - ✅ 복사 버튼 / 챕터 / 해시태그 / 권한 박스 모두 구현
+ *
+ * v10.4 변경사항 유지:
+ * - generateV650Data 호출 시그니처 수정 (3 args)
  *
  * v10.3 변경사항 유지:
- * - diversifyTags 함수 시그니처 버그 수정 (무한 로딩 해결)
+ * - diversifyTags 함수 시그니처 수정 (무한 로딩 해결)
  *
  * v10.2 변경사항 유지:
  * - contentEngine 정확한 시그니처 적용
@@ -50,7 +58,8 @@ import AdSlot from '../_shared/AdSlot';
 import { generateV650Data, type V650DataPackage } from '../_shared/v650Adapter';
 import { CinematicScenarioDisplay } from '../_shared/CinematicScenarioDisplay_v6_5_0';
 import { CinematicPromptDisplay } from '../_shared/CinematicPromptDisplay_v6_5_0';
-import { SNSUploadPanel } from '../_shared/SNSUploadPanel_v6_5_0';
+// v10.5: SNSUploadPanel 대신 자체 SNS UI 구현 (Tailwind 미사용 환경 호환)
+// 박 대표님 SNSUploadPanel_v6_5_0.tsx 파일은 그대로 보존
 
 // ============================================================
 // v8.2: 태그 다양화 시스템
@@ -1720,7 +1729,8 @@ function MetaPanel({
 }
 
 // ============================================================
-// STEP 6: SNS 업로드
+// STEP 6: SNS 업로드 (v10.5 - 자체 구현, Tailwind 미사용)
+// 박 대표님 SNSUploadPanel은 보존, 여기서 v650Data.sns 데이터 직접 사용
 // ============================================================
 function SnsPanel({ 
   v650Data, 
@@ -1728,6 +1738,18 @@ function SnsPanel({
   setProSnsMode,
   shortsScript,
 }: any) {
+  const [activeTab, setActiveTab] = useState<'youtube' | 'shorts' | 'instagram' | 'tiktok'>('youtube');
+  const [snsCopied, setSnsCopied] = useState<string | null>(null);
+  
+  const snsCopy = (text: string, key: string) => {
+    if (typeof navigator !== 'undefined' && navigator.clipboard) {
+      navigator.clipboard.writeText(text).then(() => {
+        setSnsCopied(key);
+        setTimeout(() => setSnsCopied(null), 1800);
+      });
+    }
+  };
+
   return (
     <>
       <div
@@ -1743,14 +1765,377 @@ function SnsPanel({
           </div>
           <div className="wt-toggle-desc">
             {proSnsMode 
-              ? 'YouTube Studio · 인스타 릴스 · 틱톡 실제 업로드 화면' 
-              : '클릭하면 각 SNS 실제 업로드 화면으로 전환됩니다'}
+              ? 'YouTube · Shorts · Instagram · TikTok 실제 업로드 화면' 
+              : '클릭하면 4개 플랫폼 실제 업로드 화면으로 전환됩니다'}
           </div>
         </div>
       </div>
 
-      {proSnsMode && v650Data ? (
-        <SNSUploadPanel formats={v650Data.sns} />
+      {proSnsMode && v650Data?.sns ? (
+        <div className="sns-container">
+          <style jsx>{`
+            .sns-container {
+              border: 1px solid #e5e5e5;
+              background: #ffffff;
+              overflow: hidden;
+            }
+            .sns-tabs {
+              display: grid;
+              grid-template-columns: repeat(4, 1fr);
+              border-bottom: 1px solid #e5e5e5;
+              background: #fafafa;
+            }
+            .sns-tab {
+              padding: 14px 8px;
+              background: transparent;
+              border: none;
+              border-bottom: 3px solid transparent;
+              cursor: pointer;
+              font-family: inherit;
+              transition: all 0.15s;
+              text-align: center;
+              min-height: 64px;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+              justify-content: center;
+              gap: 2px;
+            }
+            .sns-tab:hover {
+              background: #f5f5f5;
+            }
+            .sns-tab.active {
+              background: #ffffff;
+              border-bottom-color: #c2410c;
+            }
+            .sns-tab-icon { font-size: 20px; line-height: 1; }
+            .sns-tab-label {
+              font-size: 12px;
+              font-weight: 700;
+              color: #404040;
+              letter-spacing: -0.01em;
+            }
+            .sns-tab.active .sns-tab-label { color: #0a0a0a; }
+            .sns-tab-sub {
+              font-size: 10px;
+              color: #737373;
+              font-weight: 500;
+            }
+            @media (max-width: 600px) {
+              .sns-tab { padding: 10px 4px; min-height: 58px; }
+              .sns-tab-icon { font-size: 18px; }
+              .sns-tab-label { font-size: 11px; }
+              .sns-tab-sub { font-size: 9px; }
+            }
+            
+            .sns-body {
+              padding: 22px 20px;
+            }
+            @media (max-width: 600px) {
+              .sns-body { padding: 18px 14px; }
+            }
+            
+            .sns-platform-head {
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              padding-bottom: 14px;
+              margin-bottom: 18px;
+              border-bottom: 1px solid #e5e5e5;
+            }
+            .sns-platform-icon {
+              width: 38px;
+              height: 38px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              border-radius: 8px;
+              color: #ffffff;
+              font-size: 18px;
+              font-weight: 800;
+              flex-shrink: 0;
+            }
+            .sns-platform-icon.yt { background: #ff0000; }
+            .sns-platform-icon.shorts { background: linear-gradient(135deg, #ff4458, #c2185b); }
+            .sns-platform-icon.ig { background: linear-gradient(45deg, #f9ce34, #ee2a7b, #6228d7); }
+            .sns-platform-icon.tt { background: #000000; }
+            .sns-platform-name {
+              font-size: 15px;
+              font-weight: 800;
+              color: #0a0a0a;
+              letter-spacing: -0.02em;
+              line-height: 1.3;
+            }
+            .sns-platform-sub {
+              font-size: 11.5px;
+              color: #737373;
+              margin-top: 2px;
+            }
+            
+            .sns-field {
+              margin-bottom: 18px;
+            }
+            .sns-field-label {
+              font-size: 12px;
+              font-weight: 700;
+              color: #0a0a0a;
+              margin-bottom: 4px;
+              letter-spacing: -0.01em;
+            }
+            .sns-field-sub {
+              font-size: 11.5px;
+              color: #737373;
+              margin-bottom: 8px;
+              line-height: 1.5;
+              word-break: keep-all;
+            }
+            .sns-field-input {
+              border: 1px solid #d4d4d4;
+              background: #ffffff;
+              padding: 12px 14px;
+              border-radius: 6px;
+              position: relative;
+            }
+            .sns-field-text {
+              font-size: 14px;
+              color: #0a0a0a;
+              line-height: 1.65;
+              word-break: keep-all;
+              white-space: pre-wrap;
+              margin: 0;
+            }
+            @media (max-width: 600px) {
+              .sns-field-text { font-size: 13.5px; }
+            }
+            .sns-field-counter {
+              font-size: 11px;
+              color: #a3a3a3;
+              text-align: right;
+              margin-top: 8px;
+            }
+            .sns-field-scroll {
+              max-height: 280px;
+              overflow-y: auto;
+            }
+            
+            .sns-copy-btn {
+              display: inline-flex;
+              align-items: center;
+              gap: 4px;
+              margin-top: 8px;
+              padding: 6px 12px;
+              background: #f5f5f5;
+              border: 1px solid #d4d4d4;
+              color: #0a0a0a;
+              font-family: inherit;
+              font-size: 12px;
+              font-weight: 600;
+              cursor: pointer;
+              border-radius: 4px;
+              transition: all 0.15s;
+              min-height: 32px;
+            }
+            .sns-copy-btn:hover {
+              background: #e5e5e5;
+            }
+            .sns-copy-btn.copied {
+              background: #16a34a;
+              color: #ffffff;
+              border-color: #16a34a;
+            }
+            
+            .sns-tag-list {
+              display: flex;
+              flex-wrap: wrap;
+              gap: 6px;
+            }
+            .sns-tag-chip {
+              padding: 4px 10px;
+              background: #f5f5f5;
+              color: #404040;
+              border-radius: 4px;
+              font-size: 12px;
+              letter-spacing: -0.01em;
+            }
+            .sns-tag-chip.ig {
+              background: #fdf2f8;
+              color: #be185d;
+              border-radius: 999px;
+            }
+            .sns-tag-chip.tt {
+              background: #0a0a0a;
+              color: #ffffff;
+              border-radius: 4px;
+              font-weight: 600;
+            }
+            
+            .sns-info-box {
+              padding: 12px 14px;
+              background: #fffbeb;
+              border-left: 3px solid #fbbf24;
+              border-radius: 4px;
+              font-size: 13px;
+              line-height: 1.6;
+              color: #78350f;
+              word-break: keep-all;
+            }
+            .sns-info-box.ig {
+              background: linear-gradient(135deg, #fdf2f8, #f3e8ff);
+              border-left-color: #ec4899;
+              color: #831843;
+            }
+            .sns-info-box.tt {
+              background: #0a0a0a;
+              color: #ffffff;
+              border-left-color: #ec4899;
+            }
+            
+            .sns-chapter-list {
+              display: flex;
+              flex-direction: column;
+              gap: 6px;
+            }
+            .sns-chapter-row {
+              display: grid;
+              grid-template-columns: 56px 1fr;
+              gap: 10px;
+              font-size: 13px;
+              line-height: 1.5;
+              padding: 4px 0;
+            }
+            .sns-chapter-time {
+              font-weight: 700;
+              color: #c2410c;
+              letter-spacing: 0;
+            }
+            .sns-chapter-label {
+              color: #0a0a0a;
+              word-break: keep-all;
+            }
+            
+            .sns-options {
+              display: flex;
+              flex-direction: column;
+              gap: 8px;
+            }
+            .sns-option-row {
+              display: flex;
+              justify-content: space-between;
+              align-items: flex-start;
+              padding: 10px 12px;
+              border: 1px solid #e5e5e5;
+              border-radius: 6px;
+              background: #fafafa;
+              gap: 12px;
+            }
+            .sns-option-info { flex: 1; min-width: 0; }
+            .sns-option-name {
+              font-size: 13px;
+              font-weight: 600;
+              color: #0a0a0a;
+              margin-bottom: 2px;
+            }
+            .sns-option-desc {
+              font-size: 12px;
+              color: #737373;
+              line-height: 1.5;
+              word-break: keep-all;
+            }
+            .sns-option-state {
+              font-size: 18px;
+              flex-shrink: 0;
+            }
+            .sns-option-state.on { color: #16a34a; }
+            .sns-option-state.off { color: #a3a3a3; }
+            
+            .sns-permissions {
+              display: grid;
+              grid-template-columns: repeat(3, 1fr);
+              gap: 8px;
+              margin-top: 8px;
+            }
+            .sns-perm {
+              padding: 10px;
+              border: 1px solid #e5e5e5;
+              border-radius: 6px;
+              text-align: center;
+              background: #fafafa;
+            }
+            .sns-perm.allow {
+              border-color: #86efac;
+              background: #f0fdf4;
+            }
+            .sns-perm-label {
+              font-size: 12px;
+              font-weight: 700;
+              color: #0a0a0a;
+              margin-bottom: 2px;
+            }
+            .sns-perm.allow .sns-perm-label { color: #166534; }
+            .sns-perm-state {
+              font-size: 11px;
+              color: #737373;
+              font-weight: 500;
+            }
+            .sns-perm.allow .sns-perm-state { color: #15803d; }
+          `}</style>
+
+          {/* 4개 플랫폼 탭 */}
+          <div className="sns-tabs">
+            <button
+              type="button"
+              className={`sns-tab ${activeTab === 'youtube' ? 'active' : ''}`}
+              onClick={() => setActiveTab('youtube')}
+            >
+              <span className="sns-tab-icon">📺</span>
+              <span className="sns-tab-label">YouTube</span>
+              <span className="sns-tab-sub">긴 영상</span>
+            </button>
+            <button
+              type="button"
+              className={`sns-tab ${activeTab === 'shorts' ? 'active' : ''}`}
+              onClick={() => setActiveTab('shorts')}
+            >
+              <span className="sns-tab-icon">🩳</span>
+              <span className="sns-tab-label">Shorts</span>
+              <span className="sns-tab-sub">60초</span>
+            </button>
+            <button
+              type="button"
+              className={`sns-tab ${activeTab === 'instagram' ? 'active' : ''}`}
+              onClick={() => setActiveTab('instagram')}
+            >
+              <span className="sns-tab-icon">📸</span>
+              <span className="sns-tab-label">Instagram</span>
+              <span className="sns-tab-sub">Reels</span>
+            </button>
+            <button
+              type="button"
+              className={`sns-tab ${activeTab === 'tiktok' ? 'active' : ''}`}
+              onClick={() => setActiveTab('tiktok')}
+            >
+              <span className="sns-tab-icon">🎵</span>
+              <span className="sns-tab-label">TikTok</span>
+              <span className="sns-tab-sub">For You</span>
+            </button>
+          </div>
+
+          {/* 플랫폼별 본문 */}
+          <div className="sns-body">
+            {activeTab === 'youtube' && (
+              <YoutubeUI data={v650Data.sns.youtube} copy={snsCopy} copied={snsCopied} />
+            )}
+            {activeTab === 'shorts' && (
+              <ShortsUI data={v650Data.sns.shorts} copy={snsCopy} copied={snsCopied} />
+            )}
+            {activeTab === 'instagram' && (
+              <InstagramUI data={v650Data.sns.instagram} copy={snsCopy} copied={snsCopied} />
+            )}
+            {activeTab === 'tiktok' && (
+              <TiktokUI data={v650Data.sns.tiktok} copy={snsCopy} copied={snsCopied} />
+            )}
+          </div>
+        </div>
       ) : (
         <div className="wt-card">
           <div className="wt-card-label">
@@ -1767,5 +2152,439 @@ function SnsPanel({
         </div>
       )}
     </>
+  );
+}
+
+// ============================================================
+// YouTube UI
+// ============================================================
+function YoutubeUI({ data, copy, copied }: any) {
+  if (!data) return <div style={{padding:20, color:'#737373'}}>데이터 준비중</div>;
+  return (
+    <div>
+      <div className="sns-platform-head">
+        <div className="sns-platform-icon yt">▶</div>
+        <div>
+          <div className="sns-platform-name">YouTube Studio</div>
+          <div className="sns-platform-sub">실제 업로드 페이지와 동일한 형식</div>
+        </div>
+      </div>
+
+      <div className="sns-field">
+        <div className="sns-field-label">제목 (필수)</div>
+        <div className="sns-field-sub">시청자에게 동영상 콘텐츠를 알릴 수 있는 제목</div>
+        <div className="sns-field-input">
+          <p className="sns-field-text">{data.title || ''}</p>
+          <div className="sns-field-counter">{data.titleCharCount || 0}/100</div>
+        </div>
+        <button
+          type="button"
+          className={`sns-copy-btn ${copied === 'yt-title' ? 'copied' : ''}`}
+          onClick={() => copy(data.title || '', 'yt-title')}
+        >
+          {copied === 'yt-title' ? '✓ 복사됨' : '📋 복사'}
+        </button>
+      </div>
+
+      <div className="sns-field">
+        <div className="sns-field-label">설명</div>
+        <div className="sns-field-sub">시청자에게 동영상에 대해 설명해 주세요</div>
+        <div className="sns-field-input sns-field-scroll">
+          <p className="sns-field-text">{data.description || ''}</p>
+          <div className="sns-field-counter">{data.descriptionCharCount || 0}/5000</div>
+        </div>
+        <button
+          type="button"
+          className={`sns-copy-btn ${copied === 'yt-desc' ? 'copied' : ''}`}
+          onClick={() => copy(data.description || '', 'yt-desc')}
+        >
+          {copied === 'yt-desc' ? '✓ 복사됨' : '📋 복사'}
+        </button>
+      </div>
+
+      {data.thumbnailGuide && (
+        <div className="sns-field">
+          <div className="sns-field-label">썸네일</div>
+          <div className="sns-info-box">💡 {data.thumbnailGuide}</div>
+        </div>
+      )}
+
+      {data.tags && data.tags.length > 0 && (
+        <div className="sns-field">
+          <div className="sns-field-label">태그 ({data.tags.length}개)</div>
+          <div className="sns-field-sub">잘못 쓰이는 단어가 있을 경우 태그가 유용합니다</div>
+          <div className="sns-field-input">
+            <div className="sns-tag-list">
+              {data.tags.map((tag: string, i: number) => (
+                <span key={i} className="sns-tag-chip">{tag}</span>
+              ))}
+            </div>
+            <div className="sns-field-counter">{data.tagsCharCount || 0}/500</div>
+          </div>
+          <button
+            type="button"
+            className={`sns-copy-btn ${copied === 'yt-tags' ? 'copied' : ''}`}
+            onClick={() => copy((data.tags || []).join(', '), 'yt-tags')}
+          >
+            {copied === 'yt-tags' ? '✓ 복사됨' : '📋 복사'}
+          </button>
+        </div>
+      )}
+
+      {data.category && (
+        <div className="sns-field">
+          <div className="sns-field-label">카테고리</div>
+          <div className="sns-field-input">
+            <p className="sns-field-text">{data.category}</p>
+          </div>
+        </div>
+      )}
+
+      {data.chapters && data.chapters.length > 0 && (
+        <div className="sns-field">
+          <div className="sns-field-label">챕터 (자동 생성)</div>
+          <div className="sns-field-sub">시청자가 원하는 부분으로 바로 이동 가능</div>
+          <div className="sns-field-input">
+            <div className="sns-chapter-list">
+              {data.chapters.map((ch: any, i: number) => (
+                <div key={i} className="sns-chapter-row">
+                  <span className="sns-chapter-time">{ch.time}</span>
+                  <span className="sns-chapter-label">{ch.label}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {(data.endScreenSuggestion || data.cardSuggestion) && (
+        <div className="sns-field">
+          <div className="sns-field-label">최종화면 + 카드 추천</div>
+          <div className="sns-field-sub">알고리즘 우호적인 배치</div>
+          <div className="sns-info-box">
+            {data.endScreenSuggestion && (
+              <div style={{ marginBottom: 6 }}>
+                <strong>📍 최종화면:</strong> {data.endScreenSuggestion}
+              </div>
+            )}
+            {data.cardSuggestion && (
+              <div>
+                <strong>📍 카드:</strong> {data.cardSuggestion}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+// ============================================================
+// Shorts UI
+// ============================================================
+function ShortsUI({ data, copy, copied }: any) {
+  if (!data) return <div style={{padding:20, color:'#737373'}}>데이터 준비중</div>;
+  return (
+    <div>
+      <div className="sns-platform-head">
+        <div className="sns-platform-icon shorts">🩳</div>
+        <div>
+          <div className="sns-platform-name">YouTube Shorts</div>
+          <div className="sns-platform-sub">60초 이하 세로 영상 (9:16)</div>
+        </div>
+      </div>
+
+      <div className="sns-field">
+        <div className="sns-field-label">제목 (#Shorts 필수)</div>
+        <div className="sns-field-input">
+          <p className="sns-field-text">{data.title || ''}</p>
+          <div className="sns-field-counter">{data.titleCharCount || 0}/100</div>
+        </div>
+        <button
+          type="button"
+          className={`sns-copy-btn ${copied === 'sh-title' ? 'copied' : ''}`}
+          onClick={() => copy(data.title || '', 'sh-title')}
+        >
+          {copied === 'sh-title' ? '✓ 복사됨' : '📋 복사'}
+        </button>
+      </div>
+
+      <div className="sns-field">
+        <div className="sns-field-label">설명</div>
+        <div className="sns-field-input sns-field-scroll">
+          <p className="sns-field-text">{data.description || ''}</p>
+        </div>
+        <button
+          type="button"
+          className={`sns-copy-btn ${copied === 'sh-desc' ? 'copied' : ''}`}
+          onClick={() => copy(data.description || '', 'sh-desc')}
+        >
+          {copied === 'sh-desc' ? '✓ 복사됨' : '📋 복사'}
+        </button>
+      </div>
+
+      {data.hashtags && data.hashtags.length > 0 && (
+        <div className="sns-field">
+          <div className="sns-field-label">해시태그 ({data.hashtags.length}개)</div>
+          <div className="sns-field-sub">트렌드 + 니치 조합</div>
+          <div className="sns-field-input">
+            <div className="sns-tag-list">
+              {data.hashtags.map((tag: string, i: number) => (
+                <span key={i} className="sns-tag-chip">{tag}</span>
+              ))}
+            </div>
+          </div>
+          <button
+            type="button"
+            className={`sns-copy-btn ${copied === 'sh-tags' ? 'copied' : ''}`}
+            onClick={() => copy((data.hashtags || []).join(' '), 'sh-tags')}
+          >
+            {copied === 'sh-tags' ? '✓ 복사됨' : '📋 복사'}
+          </button>
+        </div>
+      )}
+
+      <div className="sns-field">
+        <div className="sns-field-label">추가 설정</div>
+        <div className="sns-options">
+          {data.thumbnailFrame && (
+            <div className="sns-option-row">
+              <div className="sns-option-info">
+                <div className="sns-option-name">썸네일</div>
+                <div className="sns-option-desc">{data.thumbnailFrame}</div>
+              </div>
+            </div>
+          )}
+          <div className="sns-option-row">
+            <div className="sns-option-info">
+              <div className="sns-option-name">리믹스 허용</div>
+              <div className="sns-option-desc">허용 시 도달 범위 ↑</div>
+            </div>
+            <span className={`sns-option-state ${data.remixAllow ? 'on' : 'off'}`}>
+              {data.remixAllow ? '✓' : '○'}
+            </span>
+          </div>
+          {data.soundCredit && (
+            <div className="sns-option-row">
+              <div className="sns-option-info">
+                <div className="sns-option-name">사운드</div>
+                <div className="sns-option-desc">{data.soundCredit}</div>
+              </div>
+            </div>
+          )}
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// Instagram UI
+// ============================================================
+function InstagramUI({ data, copy, copied }: any) {
+  if (!data) return <div style={{padding:20, color:'#737373'}}>데이터 준비중</div>;
+  return (
+    <div>
+      <div className="sns-platform-head">
+        <div className="sns-platform-icon ig">📸</div>
+        <div>
+          <div className="sns-platform-name">Instagram - 새 릴스</div>
+          <div className="sns-platform-sub">9:16 세로 영상</div>
+        </div>
+      </div>
+
+      <div className="sns-field">
+        <div className="sns-field-label">문구 작성</div>
+        <div className="sns-field-sub">첫 125자가 미리보기에 표시됩니다</div>
+        <div className="sns-field-input sns-field-scroll">
+          <p className="sns-field-text">{data.caption || ''}</p>
+          <div className="sns-field-counter">{data.captionCharCount || 0}/2200</div>
+        </div>
+        <button
+          type="button"
+          className={`sns-copy-btn ${copied === 'ig-cap' ? 'copied' : ''}`}
+          onClick={() => copy(data.caption || '', 'ig-cap')}
+        >
+          {copied === 'ig-cap' ? '✓ 복사됨' : '📋 복사'}
+        </button>
+      </div>
+
+      {data.hashtags && data.hashtags.length > 0 && (
+        <div className="sns-field">
+          <div className="sns-field-label">해시태그 ({data.hashtagsCount || data.hashtags.length}/30)</div>
+          <div className="sns-field-sub">첫 댓글에 추가하면 캡션이 깔끔합니다</div>
+          <div className="sns-field-input">
+            <div className="sns-tag-list">
+              {data.hashtags.map((tag: string, i: number) => (
+                <span key={i} className="sns-tag-chip ig">{tag}</span>
+              ))}
+            </div>
+          </div>
+          <button
+            type="button"
+            className={`sns-copy-btn ${copied === 'ig-tags' ? 'copied' : ''}`}
+            onClick={() => copy((data.hashtags || []).join(' '), 'ig-tags')}
+          >
+            {copied === 'ig-tags' ? '✓ 복사됨' : '📋 복사'}
+          </button>
+        </div>
+      )}
+
+      {data.coverFrame && (
+        <div className="sns-field">
+          <div className="sns-field-label">커버 선택</div>
+          <div className="sns-field-sub">피드 그리드에 보여질 이미지</div>
+          <div className="sns-info-box ig">🎨 {data.coverFrame}</div>
+        </div>
+      )}
+
+      {data.audioName && (
+        <div className="sns-field">
+          <div className="sns-field-label">오디오</div>
+          <div className="sns-field-sub">트렌드 음원 사용 시 알고리즘 우호적</div>
+          <div className="sns-info-box">🎵 {data.audioName}</div>
+        </div>
+      )}
+
+      <div className="sns-field">
+        <div className="sns-field-label">추가 옵션</div>
+        <div className="sns-options">
+          {data.location && (
+            <div className="sns-option-row">
+              <div className="sns-option-info">
+                <div className="sns-option-name">위치 추가</div>
+                <div className="sns-option-desc">{data.location}</div>
+              </div>
+              <span className="sns-option-state on">✓</span>
+            </div>
+          )}
+          <div className="sns-option-row">
+            <div className="sns-option-info">
+              <div className="sns-option-name">피드에도 공유</div>
+              <div className="sns-option-desc">메인 피드 노출 → 도달 범위 확장</div>
+            </div>
+            <span className={`sns-option-state ${data.shareToFeed ? 'on' : 'off'}`}>
+              {data.shareToFeed ? '✓' : '○'}
+            </span>
+          </div>
+          <div className="sns-option-row">
+            <div className="sns-option-info">
+              <div className="sns-option-name">스토리에도 공유</div>
+              <div className="sns-option-desc">초기 24시간 노출 ↑</div>
+            </div>
+            <span className={`sns-option-state ${data.shareToStory ? 'on' : 'off'}`}>
+              {data.shareToStory ? '✓' : '○'}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ============================================================
+// TikTok UI
+// ============================================================
+function TiktokUI({ data, copy, copied }: any) {
+  if (!data) return <div style={{padding:20, color:'#737373'}}>데이터 준비중</div>;
+  return (
+    <div>
+      <div className="sns-platform-head">
+        <div className="sns-platform-icon tt">🎵</div>
+        <div>
+          <div className="sns-platform-name">TikTok - 동영상 게시</div>
+          <div className="sns-platform-sub">9:16 세로 / For You 페이지 최적화</div>
+        </div>
+      </div>
+
+      <div className="sns-field">
+        <div className="sns-field-label">설명</div>
+        <div className="sns-field-sub">2200자 이내. 첫 줄이 가장 중요합니다</div>
+        <div className="sns-field-input sns-field-scroll">
+          <p className="sns-field-text">{data.caption || ''}</p>
+          <div className="sns-field-counter">{data.captionCharCount || 0}/2200</div>
+        </div>
+        <button
+          type="button"
+          className={`sns-copy-btn ${copied === 'tt-cap' ? 'copied' : ''}`}
+          onClick={() => copy(data.caption || '', 'tt-cap')}
+        >
+          {copied === 'tt-cap' ? '✓ 복사됨' : '📋 복사'}
+        </button>
+      </div>
+
+      {data.hashtags && data.hashtags.length > 0 && (
+        <div className="sns-field">
+          <div className="sns-field-label">해시태그 ({data.hashtagsCount || data.hashtags.length}개)</div>
+          <div className="sns-field-sub">#fyp 와 니치 태그 조합이 핵심</div>
+          <div className="sns-field-input">
+            <div className="sns-tag-list">
+              {data.hashtags.map((tag: string, i: number) => (
+                <span key={i} className="sns-tag-chip tt">{tag}</span>
+              ))}
+            </div>
+          </div>
+          <button
+            type="button"
+            className={`sns-copy-btn ${copied === 'tt-tags' ? 'copied' : ''}`}
+            onClick={() => copy((data.hashtags || []).join(' '), 'tt-tags')}
+          >
+            {copied === 'tt-tags' ? '✓ 복사됨' : '📋 복사'}
+          </button>
+        </div>
+      )}
+
+      {data.soundChoice && (
+        <div className="sns-field">
+          <div className="sns-field-label">사운드 추가</div>
+          <div className="sns-field-sub">For You 페이지 노출의 핵심 요소</div>
+          <div className="sns-info-box tt">🎵 {data.soundChoice}</div>
+        </div>
+      )}
+
+      {data.coverImage && (
+        <div className="sns-field">
+          <div className="sns-field-label">커버 선택</div>
+          <div className="sns-info-box">🖼 {data.coverImage}</div>
+        </div>
+      )}
+
+      {data.whoCanWatch && (
+        <div className="sns-field">
+          <div className="sns-field-label">누가 볼 수 있나요</div>
+          <div className="sns-options">
+            <div className="sns-option-row">
+              <div className="sns-option-info">
+                <div className="sns-option-name">{data.whoCanWatch}</div>
+                <div className="sns-option-desc">For You 페이지 진입 가능</div>
+              </div>
+              <span className="sns-option-state on">✓</span>
+            </div>
+          </div>
+          <div className="sns-permissions">
+            <div className={`sns-perm ${data.allowComments ? 'allow' : ''}`}>
+              <div className="sns-perm-label">댓글</div>
+              <div className="sns-perm-state">{data.allowComments ? '허용' : '차단'}</div>
+            </div>
+            <div className={`sns-perm ${data.allowDuet ? 'allow' : ''}`}>
+              <div className="sns-perm-label">듀엣</div>
+              <div className="sns-perm-state">{data.allowDuet ? '허용' : '차단'}</div>
+            </div>
+            <div className={`sns-perm ${data.allowStitch ? 'allow' : ''}`}>
+              <div className="sns-perm-label">이어찍기</div>
+              <div className="sns-perm-state">{data.allowStitch ? '허용' : '차단'}</div>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {data.scheduledTime && (
+        <div className="sns-field">
+          <div className="sns-field-label">발행 시간 추천</div>
+          <div className="sns-field-sub">알고리즘이 가장 활성화되는 시간대</div>
+          <div className="sns-info-box ig">⏰ {data.scheduledTime}</div>
+        </div>
+      )}
+    </div>
   );
 }

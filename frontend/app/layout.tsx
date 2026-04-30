@@ -56,7 +56,7 @@ const SITE_AUTHOR = {
 const ORGANIZATION = {
   name: '알고파트너스',
   legalName: '알고파트너스',
-  email: 'contact@nutube.kr',
+  email: 'apark12321@gmail.com',
   url: SITE_URL,
   logo: `${SITE_URL}/icon.png`,
 };
