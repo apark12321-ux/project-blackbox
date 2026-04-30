@@ -260,7 +260,7 @@ export default function Page() {
             <div><strong>운영 회사</strong> 알고파트너스</div>
             <div><strong>서비스명</strong> AlgoMaker</div>
             <div><strong>도메인</strong> nutube.kr</div>
-            <div><strong>문의 이메일</strong> contact@nutube.kr</div>
+            <div><strong>문의 이메일</strong> apark12321@gmail.com</div>
             <div><strong>서비스 시작</strong> 2026년 4월</div>
           </div>
 
