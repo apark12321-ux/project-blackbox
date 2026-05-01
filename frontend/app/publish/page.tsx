@@ -1,6 +1,6 @@
 'use client';
 /**
- * AlgoMaker 결과 페이지 v10.5 - SNS 4개 플랫폼 자체 UI 구현
+ * AlgoMaker 결과 페이지 v10.6 - 컴팩트 모드 (드래그 최소화)
  *
  * 박예준 대표 비전:
  * "SNS 초보자가 사이트에 딱 왔을 때 뭔가 필이 팍 꽂혀야 한다"
@@ -452,7 +452,7 @@ function PublishWorkthrough() {
 
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           color: var(--c-fg);
-          line-height: 1.7;
+          line-height: 1.55;
           letter-spacing: -0.01em;
           background: var(--c-bg);
           min-height: 100vh;
@@ -472,7 +472,7 @@ function PublishWorkthrough() {
         /* 키워드 헤더 (고정) */
         /* ============================================ */
         .wt-header {
-          padding: 24px 20px 18px;
+          padding: 18px 20px 14px;
           background: var(--c-bg);
           border-bottom: 1px solid var(--c-line);
         }
@@ -637,20 +637,20 @@ function PublishWorkthrough() {
         /* STEP 본문 (한 번에 1개) */
         /* ============================================ */
         .wt-step {
-          padding: 28px 20px 100px;
+          padding: 18px 20px 90px;
           min-height: 60vh;
         }
         @media (max-width: 600px) {
-          .wt-step { padding: 22px 16px 100px; }
+          .wt-step { padding: 14px 16px 90px; }
         }
 
         .wt-step-head {
-          margin-bottom: 24px;
-          padding-bottom: 18px;
+          margin-bottom: 16px;
+          padding-bottom: 12px;
           border-bottom: 2px solid var(--c-fg);
         }
         @media (max-width: 600px) {
-          .wt-step-head { margin-bottom: 20px; padding-bottom: 14px; }
+          .wt-step-head { margin-bottom: 14px; padding-bottom: 10px; }
         }
 
         .wt-step-num {
@@ -685,7 +685,7 @@ function PublishWorkthrough() {
         .wt-step-desc {
           font-size: 14px;
           color: var(--c-fg-2);
-          line-height: 1.6;
+          line-height: 1.55;
           margin: 6px 0 0;
         }
         @media (max-width: 600px) {
@@ -698,12 +698,12 @@ function PublishWorkthrough() {
         .wt-card {
           background: var(--c-bg);
           border: 1px solid var(--c-line);
-          padding: 18px 20px;
-          margin-bottom: 14px;
+          padding: 14px 16px;
+          margin-bottom: 10px;
           border-radius: 0;
         }
         @media (max-width: 600px) {
-          .wt-card { padding: 16px; margin-bottom: 12px; }
+          .wt-card { padding: 12px 14px; margin-bottom: 8px; }
         }
 
         .wt-card.selected {
@@ -737,12 +737,12 @@ function PublishWorkthrough() {
         .wt-card-body {
           font-size: 15px;
           color: var(--c-fg);
-          line-height: 1.75;
+          line-height: 1.55;
           margin: 0;
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .wt-card-body { font-size: 14px; line-height: 1.7; }
+          .wt-card-body { font-size: 14px; line-height: 1.55; }
         }
 
         .wt-card-meta {
@@ -759,15 +759,15 @@ function PublishWorkthrough() {
           display: flex;
           align-items: center;
           gap: 14px;
-          padding: 14px 16px;
+          padding: 11px 14px;
           background: var(--c-bg-2);
           border: 1px solid var(--c-line);
-          margin-bottom: 18px;
+          margin-bottom: 14px;
           cursor: pointer;
           transition: background 0.15s;
         }
         @media (max-width: 600px) {
-          .wt-toggle { padding: 12px 14px; gap: 12px; }
+          .wt-toggle { padding: 10px 12px; gap: 10px; }
         }
 
         .wt-toggle.on {
@@ -953,10 +953,10 @@ function PublishWorkthrough() {
         /* 제목 카드 */
         /* ============================================ */
         .wt-title-card {
-          padding: 16px 18px;
+          padding: 12px 14px;
           background: var(--c-bg);
           border: 1.5px solid var(--c-line);
-          margin-bottom: 10px;
+          margin-bottom: 8px;
           cursor: pointer;
           transition: all 0.15s;
         }
@@ -969,7 +969,7 @@ function PublishWorkthrough() {
           background: #fffbf7;
         }
         @media (max-width: 600px) {
-          .wt-title-card { padding: 14px 16px; }
+          .wt-title-card { padding: 11px 13px; }
         }
 
         .wt-title-num {
@@ -1012,8 +1012,8 @@ function PublishWorkthrough() {
         /* 메타데이터 (STEP 5) - 평탄화 */
         /* ============================================ */
         .wt-meta-section {
-          margin-bottom: 24px;
-          padding-bottom: 20px;
+          margin-bottom: 16px;
+          padding-bottom: 14px;
           border-bottom: 1px solid var(--c-line);
         }
         .wt-meta-section:last-child {
@@ -1054,7 +1054,7 @@ function PublishWorkthrough() {
         .wt-meta-desc-text {
           font-size: 14.5px;
           color: var(--c-fg);
-          line-height: 1.75;
+          line-height: 1.55;
           margin: 0;
           padding: 14px 16px;
           background: var(--c-bg-2);
@@ -1062,7 +1062,7 @@ function PublishWorkthrough() {
           white-space: pre-wrap;
         }
         @media (max-width: 600px) {
-          .wt-meta-desc-text { font-size: 13.5px; line-height: 1.7; }
+          .wt-meta-desc-text { font-size: 13.5px; line-height: 1.55; }
         }
 
         /* 태그 칩 */
@@ -1092,7 +1092,7 @@ function PublishWorkthrough() {
           gap: 12px;
         }
         .wt-thumb-card {
-          padding: 16px;
+          padding: 12px 14px;
           background: var(--c-bg-2);
           border: 1px solid var(--c-line);
         }
@@ -1166,7 +1166,7 @@ function PublishWorkthrough() {
           gap: 0;
         }
         .wt-beat {
-          padding: 16px 0;
+          padding: 12px 0;
           border-bottom: 1px solid var(--c-line);
         }
         .wt-beat:last-child {
@@ -1207,14 +1207,14 @@ function PublishWorkthrough() {
         .wt-beat-text {
           font-size: 14.5px;
           color: var(--c-fg);
-          line-height: 1.75;
+          line-height: 1.55;
           margin: 6px 0 0;
-          padding: 12px 14px;
+          padding: 10px 12px;
           background: var(--c-bg-2);
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .wt-beat-text { font-size: 13.5px; line-height: 1.7; }
+          .wt-beat-text { font-size: 13.5px; line-height: 1.55; }
         }
       `}</style>
 
@@ -1314,8 +1314,8 @@ function PublishWorkthrough() {
 
             {/* 다시 만들기 버튼 (모든 STEP에 표시) */}
             <div style={{ 
-              marginTop: 28, 
-              padding: 16, 
+              marginTop: 12, 
+              padding: '12px 14px', 
               background: '#fafafa',
               border: '1px solid #e5e5e5',
               textAlign: 'center',
@@ -1339,7 +1339,7 @@ function PublishWorkthrough() {
 
             {/* 광고 (선택적) */}
             {(currentStep === 1 || currentStep === 3) && (
-              <div style={{ marginTop: 28 }}>
+              <div style={{ marginTop: 18 }}>
                 <AdSlot slot={`publish-step-${currentStep}`} variant="horizontal" />
               </div>
             )}
@@ -1829,18 +1829,18 @@ function SnsPanel({
             }
             
             .sns-body {
-              padding: 22px 20px;
+              padding: 16px 18px;
             }
             @media (max-width: 600px) {
-              .sns-body { padding: 18px 14px; }
+              .sns-body { padding: 12px 14px; }
             }
             
             .sns-platform-head {
               display: flex;
               align-items: center;
               gap: 12px;
-              padding-bottom: 14px;
-              margin-bottom: 18px;
+              padding-bottom: 10px;
+              margin-bottom: 14px;
               border-bottom: 1px solid #e5e5e5;
             }
             .sns-platform-icon {
@@ -1873,13 +1873,13 @@ function SnsPanel({
             }
             
             .sns-field {
-              margin-bottom: 18px;
+              margin-bottom: 14px;
             }
             .sns-field-label {
               font-size: 12px;
               font-weight: 700;
               color: #0a0a0a;
-              margin-bottom: 4px;
+              margin-bottom: 3px;
               letter-spacing: -0.01em;
             }
             .sns-field-sub {
@@ -1892,14 +1892,14 @@ function SnsPanel({
             .sns-field-input {
               border: 1px solid #d4d4d4;
               background: #ffffff;
-              padding: 12px 14px;
+              padding: 10px 12px;
               border-radius: 6px;
               position: relative;
             }
             .sns-field-text {
               font-size: 14px;
               color: #0a0a0a;
-              line-height: 1.65;
+              line-height: 1.55;
               word-break: keep-all;
               white-space: pre-wrap;
               margin: 0;
@@ -1911,7 +1911,7 @@ function SnsPanel({
               font-size: 11px;
               color: #a3a3a3;
               text-align: right;
-              margin-top: 8px;
+              margin-top: 4px;
             }
             .sns-field-scroll {
               max-height: 280px;
@@ -1970,12 +1970,12 @@ function SnsPanel({
             }
             
             .sns-info-box {
-              padding: 12px 14px;
+              padding: 10px 12px;
               background: #fffbeb;
               border-left: 3px solid #fbbf24;
               border-radius: 4px;
               font-size: 13px;
-              line-height: 1.6;
+              line-height: 1.55;
               color: #78350f;
               word-break: keep-all;
             }
@@ -2022,7 +2022,7 @@ function SnsPanel({
               display: flex;
               justify-content: space-between;
               align-items: flex-start;
-              padding: 10px 12px;
+              padding: 8px 10px;
               border: 1px solid #e5e5e5;
               border-radius: 6px;
               background: #fafafa;

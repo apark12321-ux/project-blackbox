@@ -1,6 +1,6 @@
 'use client';
 /**
- * AlgoMaker 메인 페이지 v9.3 - Guide Channel (한글화 + 폰트 통일)
+ * AlgoMaker 메인 페이지 v9.5 - 컴팩트 모드 (드래그 최소화)
  *
  * 박예준 대표 비전 (인수인계 v6.4.1 명시):
  * "50대~70대 시니어층을 위한 영상 제작 도움말 채널"
@@ -173,12 +173,12 @@ export default function HomePage() {
         /* HERO — 가이드 채널 정체성 */
         /* ============================================ */
         .hero {
-          padding: 56px 24px 40px;
+          padding: 40px 24px 28px;
           background: #ffffff;
           border-bottom: 2px solid #0a0a0a;
         }
         @media (max-width: 600px) {
-          .hero { padding: 40px 20px 32px; }
+          .hero { padding: 28px 20px 22px; }
         }
 
         .heroKicker {
@@ -213,7 +213,7 @@ export default function HomePage() {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 16px;
           color: #525252;
-          line-height: 1.75;
+          line-height: 1.6;
           font-weight: 500;
           max-width: 720px;
           margin: 0 0 24px;
@@ -261,12 +261,12 @@ export default function HomePage() {
         /* 추천 시작 — 입문자용 가이드 (강조) */
         /* ============================================ */
         .startSection {
-          padding: 48px 24px;
+          padding: 32px 24px;
           background: #fafafa;
           border-bottom: 1px solid #e5e5e5;
         }
         @media (max-width: 600px) {
-          .startSection { padding: 36px 20px; }
+          .startSection { padding: 24px 20px; }
         }
         .startKicker {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -291,7 +291,7 @@ export default function HomePage() {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 14px;
           color: #525252;
-          line-height: 1.7;
+          line-height: 1.55;
           margin: 0 0 24px;
           word-break: keep-all;
         }
@@ -301,7 +301,7 @@ export default function HomePage() {
           display: block;
           background: #ffffff;
           border: 2px solid #0a0a0a;
-          padding: 24px 28px;
+          padding: 18px 22px;
           text-decoration: none;
           color: inherit;
           transition: all 0.2s;
@@ -311,7 +311,7 @@ export default function HomePage() {
           color: #ffffff;
         }
         @media (max-width: 600px) {
-          .startCard { padding: 20px 22px; }
+          .startCard { padding: 14px 18px; }
         }
         .startCardKicker {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -338,7 +338,7 @@ export default function HomePage() {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 13.5px;
           color: #525252;
-          line-height: 1.7;
+          line-height: 1.55;
           margin: 0 0 14px;
           word-break: keep-all;
         }
@@ -381,13 +381,13 @@ export default function HomePage() {
         /* 공통 섹션 */
         /* ============================================ */
         .section {
-          padding: 40px 24px;
+          padding: 28px 24px;
           border-bottom: 1px solid #e5e5e5;
         }
-        @media (max-width: 600px) { .section { padding: 32px 20px; } }
+        @media (max-width: 600px) { .section { padding: 22px 20px; } }
 
         .sectionHead {
-          margin-bottom: 24px;
+          margin-bottom: 16px;
         }
         .sectionKicker {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
@@ -411,7 +411,7 @@ export default function HomePage() {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 13.5px;
           color: #525252;
-          line-height: 1.65;
+          line-height: 1.55;
           margin: 0;
           word-break: keep-all;
         }
@@ -428,7 +428,7 @@ export default function HomePage() {
           .guideGrid { grid-template-columns: 1fr; }
         }
         .guideCard {
-          padding: 18px 20px;
+          padding: 14px 16px;
           border-right: 1px solid #e5e5e5;
           border-bottom: 1px solid #e5e5e5;
           text-decoration: none;
@@ -502,7 +502,7 @@ export default function HomePage() {
           .catGrid { grid-template-columns: repeat(2, 1fr); }
         }
         .catCard {
-          padding: 18px 16px;
+          padding: 14px 14px;
           border-right: 1px solid #e5e5e5;
           border-bottom: 1px solid #e5e5e5;
           text-decoration: none;
@@ -532,7 +532,7 @@ export default function HomePage() {
           border-top: 1px solid #0a0a0a;
         }
         .faqItem {
-          padding: 18px 0;
+          padding: 12px 0;
           border-bottom: 1px solid #e5e5e5;
         }
         .faqQ {
@@ -548,7 +548,7 @@ export default function HomePage() {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 13px;
           color: #525252;
-          line-height: 1.7;
+          line-height: 1.55;
           margin: 0;
           word-break: keep-all;
         }
@@ -584,7 +584,7 @@ export default function HomePage() {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 13px;
           color: #525252;
-          line-height: 1.65;
+          line-height: 1.55;
           margin: 0 0 14px;
           word-break: keep-all;
         }
@@ -593,7 +593,7 @@ export default function HomePage() {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 12px;
           color: #737373;
-          line-height: 1.65;
+          line-height: 1.55;
           font-style: italic;
           word-break: keep-all;
         }
