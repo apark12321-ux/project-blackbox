@@ -1,42 +1,30 @@
 'use client';
 /**
- * AlgoMaker 메인 페이지 v10.4 - v9.6 베이스 + 알고리즘 엔진 임팩트
+ * AlgoMaker 메인 페이지 v10.5 - v10.4 + 알고리즘 가이드 5편 + 체크리스트 15
  *
  * 박예준 대표 비전:
  * "50대~70대 시니어층을 위한 영상 제작 도움말 채널"
  * "가이드 글이 메인 콘텐츠"
- * "AlgoMaker 자체 = 완전 무료"
  *
- * 박 대표님 v10.4 요청 (D안 - 제대로):
- *  "정돈" + "알고리즘 느낌" + "콘텐츠 있는 메인"
+ * v10.5 변경 (D안 - 전부 다):
+ *  ✅ FEATURED_GUIDES에 알고리즘 가이드 5편 추가 (총 11편)
+ *    - algorithm-seo (NEW)
+ *    - algorithm-retention (NEW)
+ *    - algorithm-branding (NEW)
+ *    - algorithm-mistakes (NEW)
+ *    - algorithm-mindset (NEW)
+ *  ✅ blogPath 분기 (algorithm-* 은 /blog/, 기존은 /knowhow/)
+ *  ✅ "📋 업로드 전 체크리스트 15가지" 섹션 추가 (FAQ 직전)
+ *    - 5개 그룹: 기초 브랜딩 / 검색 최적화 / 노출 / 체류 시간 / 운영
+ *    - 각 그룹별 카드 + 체크박스 + 상세
+ *  ✅ 체류시간 ↑ (체크리스트 읽으면서 자연스러운 스크롤)
+ *  ✅ AdSense 점수 ↑ (콘텐츠 풍부)
  *
- * v10.4 핵심: v9.6의 모든 콘텐츠 그대로 + 상단 알고리즘 엔진만 새로 추가
- *
- * v10.4 변경 (2026.05.01):
- *  - ✅ Hero 영역을 "ALGORITHM ENGINE" 임팩트 영역으로 교체
- *    - ▍ ALGORITHM ENGINE ● LIVE 펄스
- *    - 큰 타이틀 "유튜브 알고리즘을 읽어드립니다"
- *    - 서브 타이틀 (5초, 떡상 패턴, 4개 SNS)
- *    - 검정 박스 5단계 가로 파이프라인 (01→02→03→04→05)
- *    - 시작 + 가이드 버튼
- *  - ✅ 추천 가이드 6편 (v9.6 그대로 유지 - emoji + 색상)
- *  - ✅ 분야별 9개 (v9.6 그대로 유지 - 클릭 시 /blog 이동 작동)
- *  - ✅ FAQ 6개 (v9.6 그대로 유지 - 아코디언, 첫 1개 펼침)
- *  - ✅ 광고 1개 (v9.6 위치 유지)
- *
- * 제거된 것 (v9.6 → v10.4):
- *  ❌ Hero "50대도 시작하는 영상 만들기..." 큰 타이틀
- *  ❌ Hero 4열 메타 (가이드 17편/9분야/매주/무료)
- *  ❌ 추천 시작 큰 카드 (startSection - 입문자용 가이드)
- *  ❌ 보조 도구 안내 (toolBlock)
- *  → 알고리즘 엔진 영역이 이 자리 대체
- *
- * 박 대표님 자산 100% 보존:
- *  - FEATURED_GUIDES 6편
- *  - CATEGORY_NAV 9개
- *  - FAQ_LIST 6개
- *  - AEO/GEO JSON-LD
- *  - 광고 위치
+ * v10.4 베이스 (보존):
+ *  - 상단 ALGORITHM ENGINE 임팩트 영역 + LIVE 펄스
+ *  - 검정 5단계 파이프라인
+ *  - 추천 가이드 + 분야 9개 + 광고 + FAQ
+ *  - 분야 클릭 → /blog?category=xxx 이동 작동
  */
 
 import Link from 'next/link';
@@ -104,6 +92,85 @@ const FEATURED_GUIDES = [
     emoji: '💎',
     color: '#0891b2',
   },
+  // ============================================
+  // v10.5 NEW: 알고리즘 가이드 5편 추가
+  // ============================================
+  {
+    slug: 'algorithm-seo',
+    blogPath: true,
+    category: '알고리즘 · SEO',
+    title: '알고리즘이 내 영상을 알아보게 하는 SEO 전략',
+    subtitle: '제목 8:2 법칙 · 설명란 데이터 센터 · 음성 SEO · 해시태그',
+    readTime: '8분',
+    badge: 'NEW',
+    emoji: '🔍',
+    color: '#0a0a0a',
+  },
+  {
+    slug: 'algorithm-retention',
+    blogPath: true,
+    category: '알고리즘 · 시청 지속',
+    title: '시청자를 채널에 가두는 무한 루프 세팅',
+    subtitle: '챕터 · 최종화면 · 재생목록 · 자동 연속 재생 4가지 기술',
+    readTime: '7분',
+    badge: 'NEW',
+    emoji: '⏱',
+    color: '#1e40af',
+  },
+  {
+    slug: 'algorithm-branding',
+    blogPath: true,
+    category: '알고리즘 · 브랜딩',
+    title: '클릭을 부르는 브랜딩과 디테일의 힘',
+    subtitle: '채널 아트 3요소 · 60-30-10 컬러 · 워터마크 마법',
+    readTime: '7분',
+    badge: 'NEW',
+    emoji: '🎨',
+    color: '#9333ea',
+  },
+  {
+    slug: 'algorithm-mistakes',
+    blogPath: true,
+    category: '알고리즘 · 실수 방어',
+    title: '떡상을 가로막는 치명적 실수 방어하기',
+    subtitle: '아동용 함정 · 1시간 대기 공개 · 고정 댓글 = 제2의 제목',
+    readTime: '6분',
+    badge: 'NEW',
+    emoji: '⚠️',
+    color: '#dc2626',
+  },
+  {
+    slug: 'algorithm-mindset',
+    blogPath: true,
+    category: '알고리즘 · 멘탈',
+    title: '유튜버 멘탈 서바이벌과 복리 성장의 비밀',
+    subtitle: '슬럼프 견디기 · VIP 댓글 · 벤치마킹 · 복리 성장',
+    readTime: '6분',
+    badge: 'NEW',
+    emoji: '💪',
+    color: '#16a34a',
+  },
+];
+
+// ============================================
+// v10.5 NEW: 업로드 전 체크리스트 15가지
+// ============================================
+const UPLOAD_CHECKLIST = [
+  { cat: '기초 브랜딩', item: '채널 설명(SEO)', detail: '메인 키워드 포함, 채널 정체성 명시' },
+  { cat: '기초 브랜딩', item: '비즈니스 이메일', detail: '협업용 연락처 등록' },
+  { cat: '기초 브랜딩', item: '채널 트레일러', detail: '비구독자 30초 소개 영상' },
+  { cat: '기초 브랜딩', item: '구독 워터마크', detail: '영상 우측 하단 "구독" 아이콘' },
+  { cat: '검색 최적화', item: '제목 키워드 배치', detail: '검색 키워드(앞 80%) + 후킹(뒤 20%)' },
+  { cat: '검색 최적화', item: '설명란 첫 3줄', detail: '핵심 키워드 자연스러운 문장으로' },
+  { cat: '검색 최적화', item: '해시태그 전략', detail: '메인 + 세부 + 채널명 (3~5개)' },
+  { cat: '검색 최적화', item: '업로드 기본 설정', detail: '설명란 하단 고정 템플릿' },
+  { cat: '노출 및 유입', item: '썸네일 A/B 테스트', detail: '"테스트 및 비교" 기능 활용' },
+  { cat: '노출 및 유입', item: '카테고리 설정', detail: '영상 내용에 정확히 맞게' },
+  { cat: '노출 및 유입', item: '거주 국가 설정', detail: '대한민국 등 타겟 국가' },
+  { cat: '체류 시간', item: '영상 챕터(00:00)', detail: '반드시 00:00부터 시작' },
+  { cat: '체류 시간', item: '재생목록 큐레이션', detail: '주제별 + 키워드 포함 네이밍' },
+  { cat: '체류 시간', item: '최종 화면 설정', detail: '영상 종료 5~20초 전 관련 영상' },
+  { cat: '운영 및 수익', item: '고정 댓글 마케팅', detail: '질문 또는 링크로 소통 활성화' },
 ];
 
 const CATEGORY_NAV = [
@@ -920,6 +987,83 @@ export default function HomePage() {
         }
         @media (max-width: 600px) { .faqA { font-size: 12.5px; padding-bottom: 12px; } }
 
+        /* ============================================ */
+        /* v10.5 NEW: 업로드 체크리스트 */
+        /* ============================================ */
+        .checklist {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+          gap: 12px;
+          margin-top: 4px;
+        }
+        @media (max-width: 600px) {
+          .checklist { grid-template-columns: 1fr; gap: 10px; }
+        }
+
+        .checklistGroup {
+          padding: 14px 16px;
+          background: #ffffff;
+          border: 1px solid #e5e5e5;
+          border-top: 3px solid #c2410c;
+        }
+        @media (max-width: 600px) {
+          .checklistGroup { padding: 12px 14px; }
+        }
+
+        .checklistGroupTitle {
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: -0.01em;
+          color: #c2410c;
+          text-transform: uppercase;
+          padding-bottom: 8px;
+          margin-bottom: 10px;
+          border-bottom: 1px solid #e5e5e5;
+        }
+        @media (max-width: 600px) {
+          .checklistGroupTitle { font-size: 11px; }
+        }
+
+        .checklistItem {
+          display: grid;
+          grid-template-columns: 18px 1fr;
+          gap: 8px;
+          padding: 6px 0;
+          align-items: start;
+        }
+
+        .checklistBox {
+          font-size: 14px;
+          color: #525252;
+          font-weight: 700;
+          line-height: 1.4;
+          font-family: 'SF Mono', 'Consolas', monospace;
+        }
+
+        .checklistContent { min-width: 0; }
+
+        .checklistItemTitle {
+          font-size: 13px;
+          font-weight: 700;
+          color: #0a0a0a;
+          letter-spacing: -0.015em;
+          line-height: 1.4;
+          margin-bottom: 2px;
+        }
+        @media (max-width: 600px) {
+          .checklistItemTitle { font-size: 12.5px; }
+        }
+
+        .checklistItemDetail {
+          font-size: 11.5px;
+          color: #737373;
+          line-height: 1.5;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .checklistItemDetail { font-size: 11px; }
+        }
+
         /* 보조 도구 안내 (작게) */
         .toolBlock {
           padding: 32px 24px;
@@ -1051,7 +1195,7 @@ export default function HomePage() {
           </div>
           <div className="guideGrid">
             {FEATURED_GUIDES.map((g) => (
-              <Link key={g.slug} href={`/knowhow/${g.slug}`} className="guideCard">
+              <Link key={g.slug} href={(g as any).blogPath ? `/blog/${g.slug}` : `/knowhow/${g.slug}`} className="guideCard">
                 <div className="guideCardAccent" style={{ background: g.color || '#c2410c' }} />
                 <div className="guideCardHead">
                   <span className="guideCardEmoji">{g.emoji || '📘'}</span>
@@ -1088,6 +1232,36 @@ export default function HomePage() {
                 <div className="catName">{c.name}</div>
                 <div className="catDesc">{c.desc}</div>
               </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* ============================================ */}
+        {/* v10.5 NEW: 업로드 전 체크리스트 15가지 */}
+        {/* ============================================ */}
+        <section className="section">
+          <div className="sectionHead">
+            <div className="sectionKicker">📋 업로드 전 필수</div>
+            <h2 className="sectionTitle">업로드 전 체크리스트 15가지</h2>
+            <p className="sectionDesc">
+              영상 올리기 전 이 15가지만 체크하시면 알고리즘 점수가 크게 올라갑니다.
+              매번 영상 업로드 전 한 번씩 확인하세요.
+            </p>
+          </div>
+          <div className="checklist">
+            {['기초 브랜딩', '검색 최적화', '노출 및 유입', '체류 시간', '운영 및 수익'].map((cat) => (
+              <div key={cat} className="checklistGroup">
+                <div className="checklistGroupTitle">{cat}</div>
+                {UPLOAD_CHECKLIST.filter(c => c.cat === cat).map((c, i) => (
+                  <div key={i} className="checklistItem">
+                    <div className="checklistBox">□</div>
+                    <div className="checklistContent">
+                      <div className="checklistItemTitle">{c.item}</div>
+                      <div className="checklistItemDetail">{c.detail}</div>
+                    </div>
+                  </div>
+                ))}
+              </div>
             ))}
           </div>
         </section>
