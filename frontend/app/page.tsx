@@ -1,110 +1,61 @@
 'use client';
 /**
- * AlgoMaker 메인 페이지 v10.2 - 알고리즘 라이브 대시보드
+ * AlgoMaker 메인 페이지 v10.3 - 극단적 단순함
  *
- * 박예준 대표 v10.2 요청:
- * "허접한 메인 페이지" — 흔한 SaaS X, 임팩트 최대화
- * "알고리즘 반영 느낌이 없음" — AlgoMaker 답게
- * "세로 드래그 하지 말라니까" — 1화면 (100vh) 안에 다 담기
+ * 박예준 대표 v10.3 요청:
+ * "정리정돈이 필요하다. 어수선해. 뒤죽박죽"
  *
  * D안 (어시스턴트 판단):
- * 알고리즘 라이브 대시보드 - 다크 액센트 + 임팩트
+ * 핵심 1개에 집중 — 알고리즘 엔진 임팩트 + 시작 버튼
  *
- * v10.2 구조 (1화면 고정):
- *  ┌──────────────────────────────────┐
- *  │ 상단: 라이브 메트릭 카드 3개       │
- *  │  🔥 떡상 +18% │ 📈 CTR 8.2% │ 👥 1.3K │
- *  ├──────────────┬───────────────────┤
- *  │ 좌: 알고리즘 │ 우: CTA + 가이드/분야│
- *  │ 파이프라인   │                    │
- *  │ (다크박스)   │                    │
- *  └──────────────┴───────────────────┘
+ * v10.3 구조 (1화면, 정돈):
+ *  [위 여백]
+ *  ▍ ALGORITHM ENGINE  ●LIVE
+ *  
+ *  유튜브 알고리즘을
+ *  읽어드립니다.
+ *  
+ *  키워드 1개로 떡상 패턴 분석 ·
+ *  제목 후보 · 시나리오 · 4개 SNS 자료
+ *  
+ *  01 → 02 → 03 → 04 → 05
+ *  분석   생성  구조  제작  배포
+ *  
+ *  [▶ 무료로 시작]  [📚 가이드 17편]
+ *  
+ *  [아래 여백]
  *
- * 박 대표님 자산 100% 보존:
- *  - FEATURED_GUIDES 6편 → 우측에 컴팩트하게
- *  - CATEGORY_NAV 9개 → 우측에 칩 형태
- *  - FAQ_LIST 6개 → JSON-LD 보존, JSX는 별도 페이지로 (1화면 위해)
- *  - AEO/GEO JSON-LD
- *  - AdSlot 광고 위치 (살짝 작게)
+ * 제거된 것 (v10.2 → v10.3):
+ *  ❌ 상단 메트릭 3개 (5,247 / 8.2% / 5초) - 어수선의 원인
+ *  ❌ 좌우 분할 그리드 - 시선 분산
+ *  ❌ 우측 가이드 리스트 6개 - 사이드바 메뉴와 중복
+ *  ❌ 우측 분야 9개 칩 - 사이드바 메뉴와 중복
+ *  ❌ 검정 다크 박스 (시선 둘로 분할)
  *
- * 1화면 = 세로 100vh (데스크탑 1280×800 기준)
- * 모바일은 100vh 유지하면서 컴팩트하게 재배치
+ * 유지/추가:
+ *  ✅ 알고리즘 임팩트 (LIVE 펄스 + 가로 파이프라인 5단계)
+ *  ✅ 1화면 (100vh) 고정
+ *  ✅ 박 대표님 자산 100% 보존 (FEATURED_GUIDES, CATEGORY_NAV, FAQ_LIST 모두 JSON-LD에)
+ *  ✅ 검색창 X (박 대표님 요청)
+ *  ✅ 분야는 사이드바 메뉴와 푸터에 이미 있음
+ *  ✅ AdSense 정책 안전
+ *
+ * 모바일: 같은 구조, 더 컴팩트
  */
 
 import Link from 'next/link';
 import { V11Shell } from './_shared/V11Shell';
-import AdSlot from './_shared/AdSlot';
 
+// ============================================================
+// 박 대표님 자산 (JSON-LD 보존용 - 화면에는 안 보이지만 SEO/AdSense 점수)
+// ============================================================
 const FEATURED_GUIDES = [
-  {
-    slug: 'middle-aged-channel-tips',
-    category: '시니어 입문',
-    title: '시니어층(40대~70대)가 유튜브 시작할 때 꼭 알아야 할 7가지',
-    subtitle: '퇴직 후 영상 시작하시는 분들을 위한 현실적 가이드',
-    readTime: '10분',
-    badge: '입문자 추천',
-    emoji: '🌱',
-    color: '#16a34a',
-  },
-  {
-    slug: 'family-story-shorts',
-    category: '가족 사연',
-    title: '가족 사연 쇼츠로 시작하기 - 가장 쉬운 영상 수익화 모델',
-    subtitle: '시니어층이 가장 빠르게 시작한 영상 카테고리 분석',
-    readTime: '12분',
-    badge: '인기',
-    emoji: '👨‍👩‍👧',
-    color: '#dc2626',
-  },
-  {
-    slug: 'first-30-seconds-hook',
-    category: '영상 제작',
-    title: '첫 30초가 90%를 결정합니다 - 후크(Hook) 작성법',
-    subtitle: '시청자가 끝까지 보게 만드는 영상 시작 비결',
-    readTime: '9분',
-    badge: '필독',
-    emoji: '🎬',
-    color: '#c2410c',
-  },
-  {
-    slug: 'thumbnail-design',
-    category: '디자인',
-    title: '조회수 차이 만드는 썸네일 디자인 7가지 법칙',
-    subtitle: '한글 텍스트가 잘 들어간 썸네일 만드는 비결',
-    readTime: '8분',
-    emoji: '🎨',
-    color: '#9333ea',
-  },
-  {
-    slug: 'storytelling-structure',
-    category: '스토리텔링',
-    title: '오래 보는 영상의 스토리텔링 구조 분석',
-    subtitle: '시청자가 끝까지 보는 영상의 4단계 이야기 공식',
-    readTime: '11분',
-    emoji: '📖',
-    color: '#2563eb',
-  },
-  {
-    slug: 'content-value-paths',
-    category: '콘텐츠 가치',
-    title: '영상 콘텐츠로 가치를 만드는 5가지 길',
-    subtitle: '내가 잘하는 것을 영상으로 풀어낼 때 다양한 길',
-    readTime: '8분',
-    emoji: '💎',
-    color: '#0891b2',
-  },
-];
-
-const CATEGORY_NAV = [
-  { id: 'senior', name: '시니어 라이프', emoji: '👴', color: '#7c3aed' },
-  { id: 'family', name: '가족 사연', emoji: '👨‍👩‍👧‍👦', color: '#dc2626' },
-  { id: 'economy', name: '재테크', emoji: '💰', color: '#ca8a04' },
-  { id: 'realestate', name: '부동산', emoji: '🏘️', color: '#0891b2' },
-  { id: 'health', name: '건강', emoji: '💪', color: '#16a34a' },
-  { id: 'food', name: '요리', emoji: '🍳', color: '#ea580c' },
-  { id: 'travel', name: '여행', emoji: '✈️', color: '#0284c7' },
-  { id: 'aitech', name: 'AI', emoji: '🤖', color: '#4f46e5' },
-  { id: 'language', name: '외국어', emoji: '🌍', color: '#059669' },
+  { slug: 'middle-aged-channel-tips', title: '시니어층(40대~70대)가 유튜브 시작할 때 꼭 알아야 할 7가지', readTime: '10분' },
+  { slug: 'family-story-shorts', title: '가족 사연 쇼츠로 시작하기', readTime: '12분' },
+  { slug: 'first-30-seconds-hook', title: '첫 30초가 90%를 결정합니다', readTime: '9분' },
+  { slug: 'thumbnail-design', title: '조회수 차이 만드는 썸네일 디자인 7가지 법칙', readTime: '8분' },
+  { slug: 'storytelling-structure', title: '오래 보는 영상의 스토리텔링 구조 분석', readTime: '11분' },
+  { slug: 'content-value-paths', title: '영상 콘텐츠로 가치를 만드는 5가지 길', readTime: '8분' },
 ];
 
 const FAQ_LIST = [
@@ -157,18 +108,15 @@ const howToSchema = {
   ],
 };
 
-const PIPELINE_STEPS = [
-  { num: '01', label: 'INPUT', text: '키워드', desc: '예: "50대 재취업"' },
-  { num: '02', label: 'ANALYZE', text: '사례 분석', desc: '떡상 영상 5천 개 패턴 추출' },
-  { num: '03', label: 'GENERATE', text: '제목 + 썸네일', desc: 'CTR 예측 + 디자인 컨셉' },
-  { num: '04', label: 'STRUCTURE', text: '시나리오', desc: '6단계 흐름 + 시간 배분' },
-  { num: '05', label: 'EXPORT', text: '4개 플랫폼 자료', desc: 'YouTube · Shorts · IG · TikTok' },
-];
-
-const METRICS = [
-  { icon: '🔥', label: '분석 영상', value: '5,247', sub: '떡상 사례 데이터베이스' },
-  { icon: '📈', label: '평균 CTR', value: '8.2%', sub: '일반 평균 4% 대비 2배' },
-  { icon: '⚡', label: '생성 시간', value: '5초', sub: 'AI가 자동으로' },
+// ============================================================
+// 5단계 파이프라인 (가로)
+// ============================================================
+const STEPS = [
+  { num: '01', label: '분석', en: 'ANALYZE' },
+  { num: '02', label: '생성', en: 'GENERATE' },
+  { num: '03', label: '구조', en: 'STRUCTURE' },
+  { num: '04', label: '제작', en: 'PRODUCE' },
+  { num: '05', label: '배포', en: 'EXPORT' },
 ];
 
 export default function HomePage() {
@@ -184,644 +132,288 @@ export default function HomePage() {
       />
 
       <style jsx>{`
-        .algoMain {
+        .home {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           color: #0a0a0a;
           letter-spacing: -0.01em;
-          padding: 14px 18px;
-          max-width: 1280px;
-          margin: 0 auto;
           height: calc(100vh - 60px);
-          min-height: 640px;
+          min-height: 580px;
           display: flex;
           flex-direction: column;
-          gap: 10px;
+          align-items: center;
+          justify-content: center;
+          padding: 40px 24px;
+          max-width: 880px;
+          margin: 0 auto;
         }
-        @media (max-width: 900px) {
-          .algoMain {
-            padding: 10px 12px;
-            height: auto;
-            min-height: auto;
-            gap: 8px;
+        @media (max-width: 600px) {
+          .home {
+            padding: 32px 18px;
+            min-height: 540px;
           }
         }
 
-        /* ============================================ */
-        /* 상단: 라이브 메트릭 3개 */
-        /* ============================================ */
-        .metrics {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 8px;
-          flex-shrink: 0;
-        }
-        @media (max-width: 600px) {
-          .metrics { gap: 6px; }
-        }
-
-        .metricCard {
-          padding: 10px 12px;
-          background: #ffffff;
-          border: 1px solid #e5e5e5;
-          border-top: 3px solid #c2410c;
+        /* 상단 라벨 (LIVE) */
+        .topLabel {
           display: flex;
           align-items: center;
           gap: 10px;
-        }
-        @media (max-width: 600px) {
-          .metricCard { padding: 8px 10px; gap: 8px; flex-direction: column; align-items: flex-start; gap: 4px; }
-        }
-
-        .metricIcon {
-          font-size: 24px;
-          line-height: 1;
-          flex-shrink: 0;
-        }
-        @media (max-width: 600px) { .metricIcon { font-size: 18px; } }
-
-        .metricInfo { flex: 1; min-width: 0; }
-
-        .metricLabel {
-          font-size: 9.5px;
-          font-weight: 700;
-          color: #737373;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-        }
-        @media (max-width: 600px) { .metricLabel { font-size: 8.5px; } }
-
-        .metricValue {
-          font-size: 18px;
-          font-weight: 800;
-          color: #0a0a0a;
-          letter-spacing: -0.025em;
-          line-height: 1.1;
-          margin: 1px 0;
-          font-family: 'SF Mono', 'Consolas', 'Pretendard', monospace;
-        }
-        @media (max-width: 600px) { .metricValue { font-size: 14px; } }
-
-        .metricSub {
-          font-size: 10px;
-          color: #737373;
-          line-height: 1.3;
-        }
-        @media (max-width: 600px) { .metricSub { font-size: 9px; } }
-
-        /* ============================================ */
-        /* 메인 그리드 (좌: 알고리즘 / 우: CTA+가이드+분야) */
-        /* ============================================ */
-        .mainGrid {
-          display: grid;
-          grid-template-columns: 1.1fr 1fr;
-          gap: 10px;
-          flex: 1;
-          min-height: 0;
-        }
-        @media (max-width: 900px) {
-          .mainGrid {
-            grid-template-columns: 1fr;
-            flex: none;
-          }
-        }
-
-        /* ============================================ */
-        /* 좌측: 알고리즘 파이프라인 (다크 박스) */
-        /* ============================================ */
-        .pipelineBox {
-          background: #0a0a0a;
-          padding: 16px 16px;
-          color: #ffffff;
-          display: flex;
-          flex-direction: column;
-          position: relative;
-          overflow: hidden;
-        }
-        @media (max-width: 600px) {
-          .pipelineBox { padding: 12px 12px; }
-        }
-
-        /* 매트릭스 효과 (배경 점) */
-        .pipelineBox::before {
-          content: '';
-          position: absolute;
-          top: 0; left: 0; right: 0; bottom: 0;
-          background-image: 
-            radial-gradient(circle at 1px 1px, rgba(251,191,36,0.08) 1px, transparent 0);
-          background-size: 12px 12px;
-          pointer-events: none;
-        }
-
-        .pipelineHeader {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-bottom: 10px;
-          margin-bottom: 12px;
-          border-bottom: 1px solid #404040;
-          position: relative;
-          z-index: 1;
-        }
-
-        .pipelineLabel {
-          font-size: 10.5px;
-          font-weight: 700;
-          color: #fbbf24;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
+          margin-bottom: 28px;
           font-family: 'SF Mono', 'Consolas', monospace;
         }
-        @media (max-width: 600px) { .pipelineLabel { font-size: 9.5px; } }
+        @media (max-width: 600px) {
+          .topLabel { margin-bottom: 22px; gap: 8px; }
+        }
 
-        .pipelineLive {
+        .topLabelText {
+          font-size: 11px;
+          font-weight: 700;
+          color: #c2410c;
+          letter-spacing: 0.22em;
+          text-transform: uppercase;
+        }
+        @media (max-width: 600px) {
+          .topLabelText { font-size: 10px; letter-spacing: 0.18em; }
+        }
+
+        .liveDot {
           display: flex;
           align-items: center;
           gap: 5px;
-          font-size: 9.5px;
+          font-size: 10px;
           font-weight: 700;
           color: #16a34a;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
-          font-family: 'SF Mono', 'Consolas', monospace;
+          letter-spacing: 0.2em;
+          padding: 2px 8px;
+          background: rgba(22, 163, 74, 0.08);
+          border: 1px solid rgba(22, 163, 74, 0.3);
         }
-        @media (max-width: 600px) { .pipelineLive { font-size: 8.5px; } }
+        @media (max-width: 600px) { .liveDot { font-size: 9px; padding: 2px 7px; } }
 
-        .liveDot {
-          width: 7px;
-          height: 7px;
+        .liveDotCircle {
+          width: 6px;
+          height: 6px;
           background: #16a34a;
           border-radius: 50%;
           animation: pulse 1.6s ease-in-out infinite;
-          box-shadow: 0 0 8px rgba(22, 163, 74, 0.6);
+          box-shadow: 0 0 6px rgba(22, 163, 74, 0.6);
         }
         @keyframes pulse {
           0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(1.1); }
+          50% { opacity: 0.5; transform: scale(1.15); }
         }
 
-        .pipelineSteps {
+        /* 메인 타이틀 */
+        .title {
+          font-size: 44px;
+          font-weight: 800;
+          color: #0a0a0a;
+          letter-spacing: -0.035em;
+          line-height: 1.15;
+          margin: 0 0 18px;
+          text-align: center;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .title { font-size: 30px; margin-bottom: 14px; }
+        }
+
+        .titleAccent {
+          color: #c2410c;
+        }
+
+        /* 서브 타이틀 */
+        .sub {
+          font-size: 16px;
+          color: #525252;
+          line-height: 1.65;
+          font-weight: 500;
+          text-align: center;
+          margin: 0 0 44px;
+          max-width: 540px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .sub { font-size: 13.5px; margin-bottom: 32px; }
+        }
+
+        /* 5단계 파이프라인 (가로) */
+        .pipeline {
           display: flex;
-          flex-direction: column;
-          gap: 4px;
-          flex: 1;
+          align-items: center;
+          gap: 0;
+          margin-bottom: 44px;
+          padding: 14px 18px;
+          background: #0a0a0a;
+          color: #ffffff;
           position: relative;
-          z-index: 1;
-          justify-content: space-around;
+        }
+        @media (max-width: 600px) {
+          .pipeline {
+            margin-bottom: 32px;
+            padding: 12px 12px;
+            gap: 0;
+            width: 100%;
+          }
         }
 
         .pipelineStep {
-          display: grid;
-          grid-template-columns: 32px 1fr;
-          gap: 10px;
-          padding: 6px 8px;
-          background: rgba(255,255,255,0.03);
-          border-left: 2px solid #c2410c;
-          align-items: center;
-        }
-        @media (max-width: 600px) {
-          .pipelineStep { padding: 5px 7px; gap: 8px; grid-template-columns: 26px 1fr; }
-        }
-
-        .stepNum {
-          font-size: 13px;
-          font-weight: 800;
-          color: #fbbf24;
-          font-family: 'SF Mono', 'Consolas', monospace;
-          letter-spacing: 0.05em;
-          text-align: center;
-        }
-        @media (max-width: 600px) { .stepNum { font-size: 11px; } }
-
-        .stepInfo { min-width: 0; }
-
-        .stepLabel {
-          font-size: 8.5px;
-          font-weight: 700;
-          color: #fbbf24;
-          letter-spacing: 0.18em;
-          text-transform: uppercase;
-          font-family: 'SF Mono', 'Consolas', monospace;
-          margin-bottom: 1px;
-        }
-        @media (max-width: 600px) { .stepLabel { font-size: 8px; } }
-
-        .stepText {
-          font-size: 13px;
-          font-weight: 700;
-          color: #ffffff;
-          letter-spacing: -0.015em;
-          line-height: 1.3;
-          margin-bottom: 1px;
-        }
-        @media (max-width: 600px) { .stepText { font-size: 11.5px; } }
-
-        .stepDesc {
-          font-size: 10.5px;
-          color: #a3a3a3;
-          line-height: 1.4;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) { .stepDesc { font-size: 9.5px; } }
-
-        .pipelineFlow {
-          color: #fbbf24;
-          font-size: 10px;
-          text-align: center;
-          padding: 1px 0;
-          font-family: 'SF Mono', monospace;
-          letter-spacing: 0.2em;
-          opacity: 0.5;
-        }
-        @media (max-width: 600px) { .pipelineFlow { font-size: 8px; } }
-
-        /* ============================================ */
-        /* 우측: CTA + 가이드 + 분야 */
-        /* ============================================ */
-        .rightPanel {
           display: flex;
           flex-direction: column;
-          gap: 8px;
-          min-height: 0;
-        }
-
-        /* CTA 카드 (강조) */
-        .ctaCard {
-          padding: 14px 16px;
-          background: linear-gradient(135deg, #c2410c 0%, #a3340a 100%);
-          color: #ffffff;
-          flex-shrink: 0;
+          align-items: center;
+          gap: 3px;
+          padding: 0 14px;
           position: relative;
-          overflow: hidden;
+          z-index: 1;
         }
         @media (max-width: 600px) {
-          .ctaCard { padding: 12px 14px; }
+          .pipelineStep { padding: 0 6px; gap: 2px; }
         }
 
-        .ctaCard::before {
-          content: '';
-          position: absolute;
-          top: -50%;
-          right: -20%;
-          width: 200px;
-          height: 200px;
-          background: radial-gradient(circle, rgba(251,191,36,0.2) 0%, transparent 70%);
-          pointer-events: none;
-        }
-
-        .ctaLabel {
-          font-size: 9.5px;
+        .pipelineStepNum {
+          font-family: 'SF Mono', 'Consolas', monospace;
+          font-size: 11px;
           font-weight: 700;
-          letter-spacing: 0.18em;
           color: #fbbf24;
-          text-transform: uppercase;
-          margin-bottom: 4px;
-          font-family: 'SF Mono', monospace;
-          position: relative;
-          z-index: 1;
+          letter-spacing: 0.05em;
         }
+        @media (max-width: 600px) { .pipelineStepNum { font-size: 9.5px; } }
 
-        .ctaTitle {
-          font-size: 17px;
-          font-weight: 800;
-          color: #ffffff;
-          letter-spacing: -0.02em;
-          line-height: 1.3;
-          margin: 0 0 8px;
-          word-break: keep-all;
-          position: relative;
-          z-index: 1;
-        }
-        @media (max-width: 600px) { .ctaTitle { font-size: 15px; } }
-
-        .ctaSub {
-          font-size: 11.5px;
-          color: rgba(255,255,255,0.85);
-          line-height: 1.5;
-          margin: 0 0 10px;
-          word-break: keep-all;
-          position: relative;
-          z-index: 1;
-        }
-        @media (max-width: 600px) { .ctaSub { font-size: 11px; } }
-
-        .ctaButtons {
-          display: flex;
-          gap: 6px;
-          position: relative;
-          z-index: 1;
-        }
-
-        .ctaBtn {
-          flex: 1;
-          padding: 9px 12px;
-          font-family: inherit;
-          font-size: 12px;
+        .pipelineStepLabel {
+          font-size: 13px;
           font-weight: 700;
+          color: #ffffff;
           letter-spacing: -0.01em;
-          text-decoration: none;
-          text-align: center;
-          transition: all 0.15s;
-          min-height: 36px;
+        }
+        @media (max-width: 600px) { .pipelineStepLabel { font-size: 11px; } }
+
+        .pipelineArrow {
+          color: #c2410c;
+          font-size: 14px;
+          font-weight: 700;
+          flex-shrink: 0;
+        }
+        @media (max-width: 600px) { .pipelineArrow { font-size: 11px; } }
+
+        /* 버튼 영역 */
+        .buttons {
           display: flex;
+          gap: 10px;
+          flex-wrap: wrap;
+          justify-content: center;
+        }
+        @media (max-width: 600px) {
+          .buttons { gap: 8px; width: 100%; flex-wrap: nowrap; }
+        }
+
+        .btn {
+          display: inline-flex;
           align-items: center;
           justify-content: center;
-          gap: 4px;
-          border: none;
+          gap: 6px;
+          padding: 14px 28px;
+          font-family: inherit;
+          font-size: 14.5px;
+          font-weight: 700;
+          letter-spacing: -0.01em;
+          text-decoration: none;
+          transition: all 0.15s;
+          min-height: 48px;
+          border: 1.5px solid;
+          white-space: nowrap;
         }
         @media (max-width: 600px) {
-          .ctaBtn { font-size: 11.5px; padding: 8px 10px; min-height: 34px; }
+          .btn {
+            padding: 12px 16px;
+            font-size: 13px;
+            min-height: 44px;
+            flex: 1;
+          }
         }
 
-        .ctaBtnPrimary {
-          background: #ffffff;
-          color: #0a0a0a;
-        }
-        .ctaBtnPrimary:hover {
-          background: #fbbf24;
-        }
-
-        .ctaBtnSecondary {
-          background: rgba(0,0,0,0.25);
+        .btnPrimary {
+          background: #0a0a0a;
           color: #ffffff;
-          border: 1px solid rgba(255,255,255,0.3);
-        }
-        .ctaBtnSecondary:hover {
-          background: rgba(0,0,0,0.4);
-          border-color: rgba(255,255,255,0.5);
-        }
-
-        /* 가이드 6개 (컴팩트) */
-        .guideList {
-          flex: 1;
-          min-height: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-          overflow: hidden;
-        }
-
-        .guideListHead {
-          display: flex;
-          justify-content: space-between;
-          align-items: baseline;
-          padding-bottom: 4px;
-          border-bottom: 1px solid #0a0a0a;
-          flex-shrink: 0;
-        }
-
-        .guideListTitle {
-          font-size: 11px;
-          font-weight: 800;
-          color: #0a0a0a;
-          letter-spacing: -0.01em;
-        }
-
-        .guideListMore {
-          font-size: 10px;
-          color: #737373;
-          font-weight: 600;
-          text-decoration: none;
-        }
-        .guideListMore:hover { color: #c2410c; }
-
-        .guideItems {
-          flex: 1;
-          min-height: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 3px;
-          overflow: hidden;
-        }
-
-        .guideItem {
-          padding: 6px 8px;
-          background: #ffffff;
-          border: 1px solid #e5e5e5;
-          border-left: 3px solid;
-          text-decoration: none;
-          color: inherit;
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          transition: all 0.15s;
-        }
-        .guideItem:hover {
-          background: #fafafa;
           border-color: #0a0a0a;
         }
-        @media (max-width: 600px) {
-          .guideItem { padding: 5px 7px; gap: 6px; }
+        .btnPrimary:hover {
+          background: #c2410c;
+          border-color: #c2410c;
         }
 
-        .guideItemEmoji {
-          font-size: 16px;
-          line-height: 1;
-          flex-shrink: 0;
-        }
-        @media (max-width: 600px) { .guideItemEmoji { font-size: 14px; } }
-
-        .guideItemText {
-          flex: 1;
-          min-width: 0;
-          font-size: 11.5px;
-          font-weight: 700;
+        .btnSecondary {
+          background: transparent;
           color: #0a0a0a;
-          letter-spacing: -0.01em;
-          line-height: 1.35;
-          word-break: keep-all;
-          display: -webkit-box;
-          -webkit-line-clamp: 1;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-        @media (max-width: 600px) { .guideItemText { font-size: 10.5px; } }
-
-        .guideItemTime {
-          font-size: 9px;
-          color: #737373;
-          font-weight: 600;
-          flex-shrink: 0;
-          font-family: 'SF Mono', monospace;
-        }
-
-        /* 분야 9개 (컴팩트 칩) */
-        .catChips {
-          flex-shrink: 0;
-          display: flex;
-          flex-direction: column;
-          gap: 4px;
-        }
-
-        .catChipsHead {
-          display: flex;
-          justify-content: space-between;
-          align-items: baseline;
-          padding-bottom: 4px;
-          border-bottom: 1px solid #0a0a0a;
-        }
-
-        .catChipsTitle {
-          font-size: 11px;
-          font-weight: 800;
-          color: #0a0a0a;
-          letter-spacing: -0.01em;
-        }
-
-        .catChipsList {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 4px;
-        }
-        @media (max-width: 600px) {
-          .catChipsList { gap: 3px; }
-        }
-
-        .catChip {
-          padding: 5px 6px;
-          background: #ffffff;
-          border: 1px solid #e5e5e5;
-          text-decoration: none;
-          color: inherit;
-          display: flex;
-          align-items: center;
-          gap: 4px;
-          transition: all 0.15s;
-          min-height: 28px;
-        }
-        .catChip:hover {
-          background: #fafafa;
           border-color: #0a0a0a;
-          transform: translateY(-1px);
+        }
+        .btnSecondary:hover {
+          background: #0a0a0a;
+          color: #ffffff;
         }
 
-        .catChipEmoji {
-          font-size: 13px;
-          line-height: 1;
-          flex-shrink: 0;
+        /* 하단 노트 (작게) */
+        .footnote {
+          font-size: 11px;
+          color: #a3a3a3;
+          margin-top: 20px;
+          letter-spacing: 0.04em;
+          text-align: center;
         }
-
-        .catChipName {
-          font-size: 10.5px;
-          font-weight: 700;
-          color: #0a0a0a;
-          letter-spacing: -0.01em;
-          line-height: 1.2;
-          word-break: keep-all;
+        @media (max-width: 600px) {
+          .footnote { font-size: 10px; margin-top: 16px; }
         }
-        @media (max-width: 600px) { .catChipName { font-size: 10px; } }
       `}</style>
 
-      <div className="algoMain">
-        {/* ============================================ */}
-        {/* 상단: 라이브 메트릭 3개 */}
-        {/* ============================================ */}
-        <div className="metrics">
-          {METRICS.map((m, i) => (
-            <div key={i} className="metricCard">
-              <div className="metricIcon">{m.icon}</div>
-              <div className="metricInfo">
-                <div className="metricLabel">{m.label}</div>
-                <div className="metricValue">{m.value}</div>
-                <div className="metricSub">{m.sub}</div>
+      <div className="home">
+        {/* 상단 라벨 */}
+        <div className="topLabel">
+          <div className="topLabelText">▍ ALGORITHM ENGINE</div>
+          <div className="liveDot">
+            <span className="liveDotCircle" />
+            LIVE
+          </div>
+        </div>
+
+        {/* 메인 타이틀 */}
+        <h1 className="title">
+          유튜브 <span className="titleAccent">알고리즘</span>을<br />
+          읽어드립니다
+        </h1>
+
+        {/* 서브 타이틀 */}
+        <p className="sub">
+          키워드 1개로 떡상 패턴 분석 · 제목 후보 ·<br />
+          시나리오 · 4개 SNS 자료까지 5초 안에
+        </p>
+
+        {/* 5단계 파이프라인 */}
+        <div className="pipeline">
+          {STEPS.map((s, i) => (
+            <div key={s.num} style={{ display: 'contents' }}>
+              <div className="pipelineStep">
+                <div className="pipelineStepNum">{s.num}</div>
+                <div className="pipelineStepLabel">{s.label}</div>
               </div>
+              {i < STEPS.length - 1 && (
+                <div className="pipelineArrow">→</div>
+              )}
             </div>
           ))}
         </div>
 
-        {/* ============================================ */}
-        {/* 메인 그리드 */}
-        {/* ============================================ */}
-        <div className="mainGrid">
-          {/* 좌측: 알고리즘 파이프라인 */}
-          <div className="pipelineBox">
-            <div className="pipelineHeader">
-              <div className="pipelineLabel">▍ ALGORITHM ENGINE</div>
-              <div className="pipelineLive">
-                <span className="liveDot" />
-                LIVE
-              </div>
-            </div>
+        {/* 버튼 */}
+        <div className="buttons">
+          <Link href="/publish?keyword=50대 재취업&category=economy" className="btn btnPrimary">
+            ▶ 무료로 시작
+          </Link>
+          <Link href="/blog" className="btn btnSecondary">
+            📚 가이드 17편
+          </Link>
+        </div>
 
-            <div className="pipelineSteps">
-              {PIPELINE_STEPS.map((s, i) => (
-                <div key={i}>
-                  <div className="pipelineStep">
-                    <div className="stepNum">{s.num}</div>
-                    <div className="stepInfo">
-                      <div className="stepLabel">{s.label}</div>
-                      <div className="stepText">{s.text}</div>
-                      <div className="stepDesc">{s.desc}</div>
-                    </div>
-                  </div>
-                  {i < PIPELINE_STEPS.length - 1 && (
-                    <div className="pipelineFlow">▼</div>
-                  )}
-                </div>
-              ))}
-            </div>
-          </div>
-
-          {/* 우측: CTA + 가이드 + 분야 */}
-          <div className="rightPanel">
-            {/* CTA 강조 카드 */}
-            <Link href="/publish?keyword=50대 재취업&category=economy" style={{ textDecoration: 'none', color: 'inherit' }}>
-              <div className="ctaCard">
-                <div className="ctaLabel">▍ START</div>
-                <div className="ctaTitle">키워드 1개로 영상 자료 5초 생성</div>
-                <div className="ctaSub">
-                  떡상 사례 분석 · 제목 후보 · 썸네일 컨셉 · 시나리오 · 4개 SNS 자료
-                </div>
-                <div className="ctaButtons">
-                  <span className="ctaBtn ctaBtnPrimary">▶ 무료로 시작하기</span>
-                  <Link href="/blog" className="ctaBtn ctaBtnSecondary" onClick={(e) => e.stopPropagation()}>
-                    📚 가이드 17편
-                  </Link>
-                </div>
-              </div>
-            </Link>
-
-            {/* 가이드 6개 (컴팩트 리스트) */}
-            <div className="guideList">
-              <div className="guideListHead">
-                <div className="guideListTitle">📚 추천 가이드</div>
-                <Link href="/blog" className="guideListMore">전체 →</Link>
-              </div>
-              <div className="guideItems">
-                {FEATURED_GUIDES.map((g) => (
-                  <Link 
-                    key={g.slug} 
-                    href={`/knowhow/${g.slug}`} 
-                    className="guideItem"
-                    style={{ borderLeftColor: g.color }}
-                  >
-                    <div className="guideItemEmoji">{g.emoji}</div>
-                    <div className="guideItemText">{g.title}</div>
-                    <div className="guideItemTime">{g.readTime}</div>
-                  </Link>
-                ))}
-              </div>
-            </div>
-
-            {/* 분야 9개 (컴팩트 칩) */}
-            <div className="catChips">
-              <div className="catChipsHead">
-                <div className="catChipsTitle">🗂 분야별 (클릭 시 이동)</div>
-              </div>
-              <div className="catChipsList">
-                {CATEGORY_NAV.map((c) => (
-                  <Link 
-                    key={c.id} 
-                    href={`/blog?category=${c.id}`} 
-                    className="catChip"
-                    style={{ borderLeftColor: c.color, borderLeftWidth: '3px' }}
-                  >
-                    <span className="catChipEmoji">{c.emoji}</span>
-                    <span className="catChipName">{c.name}</span>
-                  </Link>
-                ))}
-              </div>
-            </div>
-          </div>
+        {/* 하단 노트 */}
+        <div className="footnote">
+          회원가입 없음 · 완전 무료 · 시니어 친화 디자인
         </div>
       </div>
     </V11Shell>
