@@ -1,31 +1,34 @@
 'use client';
 /**
- * AlgoMaker 메인 페이지 v9.7 - 시각적 강화 + 모바일 컴팩트 + 키워드 박스
+ * AlgoMaker 메인 페이지 v10.0 - 대시보드 1화면 구조
  *
- * 박예준 대표 비전 (인수인계 v6.4.1 명시):
+ * 박예준 대표 비전:
  * "50대~70대 시니어층을 위한 영상 제작 도움말 채널"
  * "가이드 글이 메인 콘텐츠"
  * "AlgoMaker 자체 = 완전 무료"
  *
- * v9.7 변경 (2026.05.01):
- *  - ✅ Hero에 키워드 입력 박스 추가 (박 대표님 D안 요청)
- *    - 큰 입력 필드 + "영상 자료 만들기 →" 버튼
- *    - 카테고리 9개 빠른 선택 칩
- *    - 시니어 친화 안내 문구
- *  - ✅ 가이드 카드: emoji 아이콘 + 색상 액센트 (v9.6 유지)
- *  - ✅ 카테고리 카드: emoji 큰 아이콘 + 색상 액센트 (v9.6 유지)
- *  - ✅ FAQ 아코디언 (v9.6 유지)
- *  - ✅ Hero 메타 4열 grid (v9.6 유지)
- *  - ✅ 박 대표님 자산 100% 보존
+ * 박 대표님 v10.0 요청 (D안):
+ * "메인 페이지를 아래로 쭉 스크롤하지 않고 전체를 볼 수 있도록 설계"
+ * "모바일에서도 잘 보이도록"
  *
- * v9.6 변경 유지:
- *  - 시각적 강화 + 모바일 컴팩트
+ * v10.0 변경 (2026.05.01) - 대시보드 구조:
+ *  - ❌ 큰 Hero 섹션 제거 (50대도 시작하는~ 큰 글자 제거)
+ *  - ❌ 추천 시작 카드 제거 (가이드 카드와 중복)
+ *  - ❌ 보조 도구 섹션 제거 (메뉴에 이미 있음)
+ *  - ❌ 메타 라인 4개 제거
+ *
+ *  - ✅ 키워드 박스 = 가장 위 (핵심 액션 1순위)
+ *  - ✅ 가이드 6개 + 카테고리 9개 = 가로 2분할 (데스크탑)
+ *  - ✅ FAQ = 모두 접힘 (공간 절약)
+ *  - ✅ 모바일: 1열 stack, 짧게
+ *  - ✅ 데스크탑 1280×800에서 거의 1화면 안에 다 보임
  *
  * 박 대표님 자산 100% 보존:
- *  - FEATURED_GUIDES 6편 (emoji + color 추가)
- *  - CATEGORY_NAV 9개 (emoji + color 추가)
+ *  - FEATURED_GUIDES 6편
+ *  - CATEGORY_NAV 9개
  *  - FAQ_LIST 6개
  *  - AEO/GEO JSON-LD
+ *  - 광고 위치
  */
 
 import { useState } from 'react';
@@ -34,9 +37,6 @@ import Link from 'next/link';
 import { V11Shell } from './_shared/V11Shell';
 import AdSlot from './_shared/AdSlot';
 
-// ============================================================
-// 추천 가이드 6편
-// ============================================================
 const FEATURED_GUIDES = [
   {
     slug: 'middle-aged-channel-tips',
@@ -112,11 +112,11 @@ const CATEGORY_NAV = [
 const FAQ_LIST = [
   {
     q: 'AlgoMaker가 어떤 사이트인가요?',
-    a: '50대~70대 시니어층을 위한 영상 제작 도움말 채널입니다. 영상 만들기 처음 시작하시는 분들을 위한 가이드 글이 메인 콘텐츠이고, 키워드만 입력하면 AI가 영상 자료(제목, 대본 흐름, 태그 등)를 만들어주는 보조 도구도 함께 제공합니다. 모든 기능은 완전 무료입니다.',
+    a: 'AlgoMaker는 50대~70대 시니어 분들이 영상 만들기를 시작할 때 꼭 알아야 할 정보들을 정리한 가이드 채널입니다. 영상 시작부터 썸네일 디자인, 수익화까지 전 과정의 가이드 글을 무료로 제공하며, 키워드 입력만으로 영상 제목과 시나리오, 썸네일 컨셉을 자동으로 만들어주는 도구도 함께 제공합니다.',
   },
   {
     q: '시니어층(40대~70대)도 사용할 수 있나요?',
-    a: '네, 그게 주 타겟입니다. 회원가입도 결제도 필요 없고, 디지털 도구가 익숙하지 않으셔도 가이드 글을 따라가시면 영상 만드실 수 있습니다.',
+    a: '네, 시니어층을 가장 많이 고려해서 만들어졌습니다. 한국어 인터페이스, 큰 글씨체, 단계별 안내, 시각적 가이드 등 시니어 분들이 처음 보시는 도구처럼 직관적으로 사용하실 수 있도록 설계되어 있습니다.',
   },
   {
     q: '얼마나 다양한 가이드가 있나요?',
@@ -183,143 +183,32 @@ export default function HomePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
       />
 
-      {/* AEO/GEO 숨김 영역 */}
-      <div style={{ position: 'absolute', left: '-9999px', overflow: 'hidden' }} aria-hidden="false">
-        <h1>AlgoMaker - 시니어 영상 제작 도움말 채널</h1>
-        <p>
-          AlgoMaker는 50대~70대 시니어층을 위한 영상 제작 도움말 채널입니다.
-          영상 시작 가이드, 제목 작성법, 썸네일 디자인, 스토리텔링, 수익화 등
-          17편 이상의 무료 가이드를 제공합니다.
-        </p>
-      </div>
-
       <style jsx>{`
-        .page {
-          max-width: 1100px;
+        .dash {
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+          color: #0a0a0a;
+          letter-spacing: -0.01em;
+          padding: 16px 20px 28px;
+          max-width: 1280px;
           margin: 0 auto;
-          padding: 0 0 60px;
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-        }
-
-        /* ============================================ */
-        /* HERO — 가이드 채널 정체성 */
-        /* ============================================ */
-        .hero {
-          padding: 32px 24px 22px;
-          background: #ffffff;
-          border-bottom: 2px solid #0a0a0a;
         }
         @media (max-width: 600px) {
-          .hero { padding: 22px 18px 18px; }
+          .dash { padding: 12px 14px 24px; }
         }
 
-        .heroKicker {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 10.5px;
-          font-weight: 600;
-          letter-spacing: 0.18em;
-          color: #c2410c;
-          margin-bottom: 10px;
-          text-transform: uppercase;
-        }
-        @media (max-width: 600px) { .heroKicker { font-size: 10px; margin-bottom: 8px; } }
-
-        .heroTitle {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 32px;
-          font-weight: 700;
-          color: #0a0a0a;
-          letter-spacing: -0.03em;
-          line-height: 1.25;
-          margin: 0 0 14px;
-          max-width: 780px;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) { .heroTitle { font-size: 22px; margin-bottom: 12px; } }
-
-        .heroTitleAccent {
-          background: linear-gradient(180deg, transparent 60%, #fbbf24 60%);
-          padding: 0 4px;
-        }
-
-        .heroSub {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 15px;
-          color: #525252;
-          line-height: 1.55;
-          font-weight: 500;
-          max-width: 720px;
-          margin: 0 0 20px;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) { .heroSub { font-size: 13.5px; margin-bottom: 16px; } }
-
-        /* 헤더 핵심 정보 (메타 라인) - v9.6 그리드 컴팩트 */
-        .heroMeta {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 12px;
-          padding-top: 16px;
-          border-top: 1px solid #e5e5e5;
-        }
-        @media (max-width: 600px) {
-          .heroMeta { 
-            grid-template-columns: repeat(4, 1fr);
-            gap: 6px;
-            padding-top: 12px;
-          }
-        }
-        .heroMetaItem {
-          display: flex;
-          flex-direction: column;
-          gap: 3px;
-          padding: 8px 10px;
-          background: #fafafa;
-          border-radius: 6px;
-          align-items: center;
-          text-align: center;
-        }
-        @media (max-width: 600px) {
-          .heroMetaItem { padding: 6px 4px; }
-        }
-        .heroMetaLabel {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 9.5px;
-          font-weight: 700;
-          letter-spacing: 0.12em;
-          color: #737373;
-          text-transform: uppercase;
-        }
-        .heroMetaValue {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 14.5px;
-          font-weight: 700;
-          color: #0a0a0a;
-          letter-spacing: -0.015em;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) {
-          .heroMetaValue { font-size: 12px; }
-          .heroMetaLabel { font-size: 8.5px; letter-spacing: 0.08em; }
-        }
-
-        /* ============================================ */
-        /* v9.7 키워드 입력 박스 (Hero) */
-        /* ============================================ */
-        .heroSearch {
-          margin: 0 0 20px;
-          padding: 18px;
+        /* 키워드 박스 (가장 위, 강조) */
+        .startBox {
+          padding: 18px 20px;
           background: linear-gradient(135deg, #fffbf7 0%, #fff8f0 100%);
           border: 2px solid #c2410c;
-          border-radius: 0;
-          position: relative;
+          margin-bottom: 18px;
         }
         @media (max-width: 600px) {
-          .heroSearch { padding: 14px 14px 12px; margin-bottom: 16px; }
+          .startBox { padding: 14px 14px; margin-bottom: 14px; }
         }
-        .heroSearchTitle {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 13.5px;
+
+        .startTitle {
+          font-size: 14px;
           font-weight: 700;
           color: #0a0a0a;
           letter-spacing: -0.01em;
@@ -328,65 +217,65 @@ export default function HomePage() {
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .heroSearchTitle { font-size: 12.5px; margin-bottom: 8px; }
+          .startTitle { font-size: 13px; margin-bottom: 8px; }
         }
-        .heroSearchKicker {
+
+        .startKicker {
           display: inline-block;
-          padding: 2px 8px;
+          padding: 3px 9px;
           background: #c2410c;
           color: #ffffff;
           font-size: 10.5px;
           font-weight: 700;
           letter-spacing: 0.08em;
           margin-right: 8px;
-          border-radius: 3px;
         }
         @media (max-width: 600px) {
-          .heroSearchKicker { font-size: 10px; padding: 2px 6px; }
+          .startKicker { font-size: 10px; padding: 2px 7px; }
         }
 
-        /* 입력 + 버튼 */
-        .heroSearchRow {
+        .startRow {
           display: flex;
           gap: 8px;
           margin-bottom: 12px;
         }
         @media (max-width: 600px) {
-          .heroSearchRow { gap: 6px; margin-bottom: 10px; }
+          .startRow { gap: 6px; margin-bottom: 10px; }
         }
-        .heroSearchInput {
+
+        .startInput {
           flex: 1;
           min-width: 0;
           padding: 12px 14px;
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+          font-family: inherit;
           font-size: 15px;
           font-weight: 500;
           color: #0a0a0a;
           background: #ffffff;
           border: 1.5px solid #d4d4d4;
-          border-radius: 0;
           outline: none;
           transition: border-color 0.15s;
           letter-spacing: -0.01em;
           min-height: 44px;
         }
-        .heroSearchInput:focus {
+        .startInput:focus {
           border-color: #c2410c;
         }
-        .heroSearchInput::placeholder {
+        .startInput::placeholder {
           color: #a3a3a3;
           font-weight: 400;
         }
         @media (max-width: 600px) {
-          .heroSearchInput { padding: 10px 12px; font-size: 14px; min-height: 42px; }
+          .startInput { padding: 10px 12px; font-size: 14px; min-height: 42px; }
         }
-        .heroSearchBtn {
+
+        .startBtn {
           flex-shrink: 0;
           padding: 0 18px;
           background: #0a0a0a;
           color: #ffffff;
           border: none;
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+          font-family: inherit;
           font-size: 14px;
           font-weight: 700;
           letter-spacing: -0.01em;
@@ -395,24 +284,19 @@ export default function HomePage() {
           min-height: 44px;
           white-space: nowrap;
         }
-        .heroSearchBtn:hover:not(:disabled) {
+        .startBtn:hover:not(:disabled) {
           background: #c2410c;
         }
-        .heroSearchBtn:disabled {
+        .startBtn:disabled {
           opacity: 0.4;
           cursor: not-allowed;
         }
         @media (max-width: 600px) {
-          .heroSearchBtn { padding: 0 14px; font-size: 13px; min-height: 42px; }
+          .startBtn { padding: 0 14px; font-size: 13px; min-height: 42px; }
         }
 
-        /* 카테고리 칩 */
-        .heroSearchCats {
-          margin-bottom: 10px;
-        }
-        .heroSearchCatsLabel {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 11px;
+        .startCatsLabel {
+          font-size: 10.5px;
           font-weight: 700;
           color: #737373;
           letter-spacing: 0.06em;
@@ -420,17 +304,19 @@ export default function HomePage() {
           text-transform: uppercase;
         }
         @media (max-width: 600px) {
-          .heroSearchCatsLabel { font-size: 10px; }
+          .startCatsLabel { font-size: 10px; }
         }
-        .heroSearchCatsList {
+
+        .startCats {
           display: flex;
           flex-wrap: wrap;
           gap: 5px;
         }
         @media (max-width: 600px) {
-          .heroSearchCatsList { gap: 4px; }
+          .startCats { gap: 4px; }
         }
-        .heroSearchCat {
+
+        .startCat {
           display: inline-flex;
           align-items: center;
           gap: 4px;
@@ -438,7 +324,7 @@ export default function HomePage() {
           background: #ffffff;
           border: 1px solid #d4d4d4;
           color: #525252;
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+          font-family: inherit;
           font-size: 12px;
           font-weight: 600;
           cursor: pointer;
@@ -446,216 +332,87 @@ export default function HomePage() {
           letter-spacing: -0.005em;
           min-height: 32px;
         }
-        .heroSearchCat:hover {
+        .startCat:hover {
           border-color: #0a0a0a;
           color: #0a0a0a;
         }
-        .heroSearchCat.active {
+        .startCat.active {
           background: #fffbf7;
           font-weight: 700;
         }
         @media (max-width: 600px) {
-          .heroSearchCat { padding: 5px 8px; font-size: 11px; min-height: 28px; gap: 3px; }
+          .startCat { padding: 5px 8px; font-size: 11px; min-height: 28px; gap: 3px; }
         }
-        .heroSearchCatEmoji {
+
+        .startCatEmoji {
           font-size: 14px;
           line-height: 1;
         }
-        @media (max-width: 600px) {
-          .heroSearchCatEmoji { font-size: 13px; }
-        }
 
-        /* 안내 문구 */
-        .heroSearchNote {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 11.5px;
-          color: #78350f;
-          line-height: 1.5;
-          word-break: keep-all;
-          padding-top: 10px;
-          border-top: 1px dashed #fcd34d;
-        }
-        @media (max-width: 600px) {
-          .heroSearchNote { font-size: 11px; padding-top: 8px; }
-        }
-
-        /* ============================================ */
-        /* 추천 시작 — 입문자용 가이드 (강조) */
-        /* ============================================ */
-        .startSection {
-          padding: 32px 24px;
-          background: #fafafa;
-          border-bottom: 1px solid #e5e5e5;
-        }
-        @media (max-width: 600px) {
-          .startSection { padding: 24px 20px; }
-        }
-        .startKicker {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 10.5px;
-          font-weight: 600;
-          letter-spacing: 0.18em;
-          color: #c2410c;
-          margin-bottom: 10px;
-          text-transform: uppercase;
-        }
-        .startTitle {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 24px;
-          font-weight: 700;
-          color: #0a0a0a;
-          letter-spacing: -0.025em;
-          line-height: 1.3;
-          margin: 0 0 8px;
-        }
-        @media (max-width: 600px) { .startTitle { font-size: 19px; } }
-        .startSub {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 14px;
-          color: #525252;
-          line-height: 1.55;
-          margin: 0 0 24px;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) { .startSub { font-size: 13px; } }
-
-        .startCard {
-          display: block;
-          background: #ffffff;
-          border: 2px solid #0a0a0a;
-          padding: 18px 22px;
-          text-decoration: none;
-          color: inherit;
-          transition: all 0.2s;
-        }
-        .startCard:hover {
-          background: #0a0a0a;
-          color: #ffffff;
-        }
-        @media (max-width: 600px) {
-          .startCard { padding: 14px 18px; }
-        }
-        .startCardKicker {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 0.15em;
-          color: #c2410c;
-          margin-bottom: 10px;
-          text-transform: uppercase;
-        }
-        .startCard:hover .startCardKicker {
-          color: #fbbf24;
-        }
-        .startCardTitle {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 19px;
-          font-weight: 700;
-          letter-spacing: -0.02em;
-          line-height: 1.4;
-          margin: 0 0 8px;
-        }
-        @media (max-width: 600px) { .startCardTitle { font-size: 16px; } }
-        .startCardDesc {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 13.5px;
-          color: #525252;
-          line-height: 1.55;
-          margin: 0 0 14px;
-          word-break: keep-all;
-        }
-        .startCard:hover .startCardDesc {
-          color: rgba(255, 255, 255, 0.8);
-        }
-        @media (max-width: 600px) { .startCardDesc { font-size: 12.5px; } }
-        .startCardFoot {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding-top: 12px;
-          border-top: 1px dashed #d4d4d4;
-        }
-        .startCard:hover .startCardFoot {
-          border-top-color: rgba(255, 255, 255, 0.3);
-        }
-        .startCardTime {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 10.5px;
-          color: #737373;
-          letter-spacing: 0.06em;
-        }
-        .startCard:hover .startCardTime {
-          color: rgba(255, 255, 255, 0.7);
-        }
-        .startCardArrow {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 11px;
-          font-weight: 700;
-          color: #0a0a0a;
-          letter-spacing: 0.15em;
-          text-transform: uppercase;
-        }
-        .startCard:hover .startCardArrow {
-          color: #fbbf24;
-        }
-
-        /* ============================================ */
-        /* 공통 섹션 */
-        /* ============================================ */
-        .section {
-          padding: 28px 24px;
-          border-bottom: 1px solid #e5e5e5;
-        }
-        @media (max-width: 600px) { .section { padding: 22px 20px; } }
-
-        .sectionHead {
-          margin-bottom: 16px;
-        }
-        .sectionKicker {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 10.5px;
-          font-weight: 600;
-          letter-spacing: 0.18em;
-          color: #c2410c;
-          margin-bottom: 8px;
-          text-transform: uppercase;
-        }
-        .sectionTitle {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 22px;
-          font-weight: 700;
-          color: #0a0a0a;
-          letter-spacing: -0.025em;
-          margin: 0 0 6px;
-        }
-        @media (max-width: 600px) { .sectionTitle { font-size: 18px; } }
-        .sectionDesc {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 13.5px;
-          color: #525252;
-          line-height: 1.55;
-          margin: 0;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) { .sectionDesc { font-size: 12.5px; } }
-
-        /* 가이드 카드 */
-        .guideGrid {
+        /* 2분할 그리드 (가이드 + 분야) */
+        .splitGrid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-          gap: 10px;
-          padding-top: 14px;
-          border-top: 1px solid #0a0a0a;
+          grid-template-columns: 1.4fr 1fr;
+          gap: 18px;
+          margin-bottom: 18px;
         }
-        @media (max-width: 600px) {
-          .guideGrid { 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 6px;
-            padding-top: 12px;
+        @media (max-width: 900px) {
+          .splitGrid {
+            grid-template-columns: 1fr;
+            gap: 14px;
+            margin-bottom: 14px;
           }
         }
+
+        .panel {
+          background: #ffffff;
+        }
+
+        .panelHead {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          padding-bottom: 10px;
+          border-bottom: 2px solid #0a0a0a;
+          margin-bottom: 10px;
+        }
+
+        .panelTitle {
+          font-size: 14px;
+          font-weight: 800;
+          color: #0a0a0a;
+          letter-spacing: -0.015em;
+        }
+        @media (max-width: 600px) {
+          .panelTitle { font-size: 13px; }
+        }
+
+        .panelMore {
+          font-size: 11px;
+          color: #737373;
+          font-weight: 600;
+          text-decoration: none;
+          letter-spacing: -0.005em;
+        }
+        .panelMore:hover {
+          color: #c2410c;
+        }
+
+        /* 추천 가이드 그리드 */
+        .guideGrid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 8px;
+        }
+        @media (max-width: 1100px) {
+          .guideGrid { grid-template-columns: repeat(2, 1fr); }
+        }
+        @media (max-width: 600px) {
+          .guideGrid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
+        }
+
         .guideCard {
-          padding: 14px 16px;
+          padding: 12px 12px;
           background: #ffffff;
           border: 1px solid #e5e5e5;
           text-decoration: none;
@@ -665,12 +422,17 @@ export default function HomePage() {
           overflow: hidden;
           display: flex;
           flex-direction: column;
+          min-height: 132px;
         }
         .guideCard:hover {
           background: #fafafa;
           border-color: #0a0a0a;
-          transform: translateY(-2px);
+          transform: translateY(-1px);
         }
+        @media (max-width: 600px) {
+          .guideCard { padding: 10px 10px; min-height: 118px; }
+        }
+
         .guideCardAccent {
           position: absolute;
           top: 0;
@@ -678,99 +440,91 @@ export default function HomePage() {
           right: 0;
           height: 3px;
         }
-        @media (max-width: 600px) {
-          .guideCard { padding: 12px 12px; }
-        }
+
         .guideCardHead {
           display: flex;
           align-items: center;
-          gap: 10px;
-          margin-bottom: 8px;
+          gap: 8px;
+          margin-bottom: 6px;
         }
+
         .guideCardEmoji {
-          font-size: 24px;
+          font-size: 22px;
           line-height: 1;
           flex-shrink: 0;
         }
-        @media (max-width: 600px) { .guideCardEmoji { font-size: 20px; } }
+        @media (max-width: 600px) { .guideCardEmoji { font-size: 18px; } }
+
         .guideCardKicker {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 9.5px;
+          font-size: 9px;
           font-weight: 700;
-          letter-spacing: 0.12em;
+          letter-spacing: 0.1em;
           color: #c2410c;
           text-transform: uppercase;
+          flex: 1;
+          min-width: 0;
         }
-        @media (max-width: 600px) { .guideCardKicker { font-size: 9px; } }
+
         .guideCardTitle {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 14px;
+          font-size: 13px;
           font-weight: 700;
           color: #0a0a0a;
           letter-spacing: -0.015em;
           line-height: 1.4;
           margin: 0 0 6px;
           word-break: keep-all;
-          flex: 1;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
-        @media (max-width: 600px) { .guideCardTitle { font-size: 13px; } }
+        @media (max-width: 600px) { .guideCardTitle { font-size: 12px; } }
+
         .guideCardSub {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 11.5px;
+          font-size: 11px;
           color: #737373;
-          line-height: 1.5;
-          margin: 0 0 10px;
+          line-height: 1.45;
+          margin: 0 0 auto;
           word-break: keep-all;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
         }
-        @media (max-width: 600px) { 
-          .guideCardSub { 
-            font-size: 11px; 
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-          } 
-        }
+        @media (max-width: 600px) { .guideCardSub { font-size: 10.5px; } }
+
         .guideCardMeta {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding-top: 8px;
+          padding-top: 6px;
+          margin-top: 8px;
           border-top: 1px dashed #d4d4d4;
-          margin-top: auto;
         }
+
         .guideCardTime {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 10px;
+          font-size: 9.5px;
           color: #737373;
           letter-spacing: 0.04em;
         }
+
         .guideCardArrow {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 10px;
+          font-size: 9.5px;
           font-weight: 700;
           color: #0a0a0a;
-          letter-spacing: 0.08em;
+          letter-spacing: 0.06em;
           text-transform: uppercase;
         }
 
-        /* 카테고리 그리드 - v9.6 시각적 강화 */
+        /* 카테고리 그리드 (3x3) */
         .catGrid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 8px;
-          border-top: 1px solid #0a0a0a;
-          padding-top: 14px;
+          gap: 6px;
         }
-        @media (max-width: 600px) {
-          .catGrid { 
-            grid-template-columns: repeat(2, 1fr); 
-            gap: 6px;
-            padding-top: 12px;
-          }
-        }
+
         .catCard {
-          padding: 14px 12px;
+          padding: 11px 8px;
           background: #ffffff;
           border: 1px solid #e5e5e5;
           text-decoration: none;
@@ -779,63 +533,71 @@ export default function HomePage() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 6px;
+          gap: 4px;
           text-align: center;
           position: relative;
           overflow: hidden;
+          min-height: 84px;
+          justify-content: center;
         }
-        .catCard:hover { 
+        .catCard:hover {
           background: #fafafa;
           border-color: #0a0a0a;
-          transform: translateY(-2px);
+          transform: translateY(-1px);
         }
-        .catCardEmoji {
-          font-size: 28px;
-          line-height: 1;
-          margin-bottom: 2px;
+        @media (max-width: 600px) {
+          .catCard { padding: 10px 6px; min-height: 76px; }
         }
-        @media (max-width: 600px) { .catCardEmoji { font-size: 24px; } }
+
         .catCardAccent {
           position: absolute;
           top: 0;
           left: 0;
           right: 0;
-          height: 3px;
+          height: 2px;
         }
+
+        .catCardEmoji {
+          font-size: 22px;
+          line-height: 1;
+        }
+        @media (max-width: 600px) { .catCardEmoji { font-size: 20px; } }
+
         .catName {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 13.5px;
+          font-size: 11.5px;
           font-weight: 700;
           color: #0a0a0a;
           letter-spacing: -0.015em;
-          margin-bottom: 2px;
+          line-height: 1.2;
         }
-        @media (max-width: 600px) { .catName { font-size: 12.5px; } }
-        .catDesc {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 11px;
-          color: #737373;
-          line-height: 1.45;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) { .catDesc { font-size: 10.5px; } }
+        @media (max-width: 600px) { .catName { font-size: 11px; } }
 
-        /* FAQ */
-        /* FAQ 아코디언 - v9.6 컴팩트 */
-        .faqList {
-          border-top: 1px solid #0a0a0a;
+        .catDesc {
+          display: none;
         }
+
+        /* FAQ 아코디언 (모두 접힘) */
+        .faqPanel {
+          margin-bottom: 18px;
+        }
+
+        .faqList {
+          background: #ffffff;
+        }
+
         .faqItem {
           border-bottom: 1px solid #e5e5e5;
-          padding: 0;
         }
+        .faqItem:first-child {
+          border-top: 1px solid #e5e5e5;
+        }
+
         .faqItem summary {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 14px;
+          font-size: 13px;
           font-weight: 700;
           color: #0a0a0a;
           letter-spacing: -0.015em;
-          padding: 14px 36px 14px 0;
+          padding: 11px 32px 11px 4px;
           cursor: pointer;
           position: relative;
           list-style: none;
@@ -847,13 +609,12 @@ export default function HomePage() {
         .faqItem summary::after {
           content: '+';
           position: absolute;
-          right: 6px;
+          right: 4px;
           top: 50%;
           transform: translateY(-50%);
-          font-size: 22px;
+          font-size: 20px;
           font-weight: 400;
           color: #737373;
-          transition: transform 0.2s;
           line-height: 1;
         }
         .faqItem[open] summary::after {
@@ -863,266 +624,138 @@ export default function HomePage() {
         .faqItem summary:hover {
           color: #c2410c;
         }
-        @media (max-width: 600px) { 
-          .faqItem summary { font-size: 13px; padding: 12px 32px 12px 0; }
-          .faqItem summary::after { right: 4px; font-size: 20px; }
+        @media (max-width: 600px) {
+          .faqItem summary { font-size: 12.5px; padding: 10px 28px 10px 4px; }
+          .faqItem summary::after { font-size: 18px; right: 2px; }
         }
+
         .faqA {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 13px;
+          font-size: 12.5px;
           color: #525252;
           line-height: 1.6;
           margin: 0;
-          padding: 0 0 14px;
+          padding: 0 4px 12px;
           word-break: keep-all;
         }
-        @media (max-width: 600px) { .faqA { font-size: 12.5px; padding-bottom: 12px; } }
+        @media (max-width: 600px) {
+          .faqA { font-size: 12px; padding-bottom: 10px; }
+        }
 
-        /* 보조 도구 안내 (작게) */
-        .toolBlock {
-          padding: 32px 24px;
-          background: #fafafa;
-          border-bottom: 1px solid #e5e5e5;
+        /* 광고 영역 (작게) */
+        .adWrap {
+          margin: 0 0 18px;
         }
-        @media (max-width: 600px) { .toolBlock { padding: 28px 20px; } }
-        .toolKicker {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 10px;
-          font-weight: 600;
-          letter-spacing: 0.18em;
-          color: #737373;
-          margin-bottom: 8px;
-          text-transform: uppercase;
+        @media (max-width: 600px) {
+          .adWrap { margin-bottom: 14px; }
         }
-        .toolTitle {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 16px;
-          font-weight: 700;
-          color: #0a0a0a;
-          letter-spacing: -0.02em;
-          line-height: 1.4;
-          margin: 0 0 8px;
-        }
-        @media (max-width: 600px) { .toolTitle { font-size: 14.5px; } }
-        .toolDesc {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 13px;
-          color: #525252;
-          line-height: 1.55;
-          margin: 0 0 14px;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) { .toolDesc { font-size: 12px; } }
-        .toolNote {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 12px;
-          color: #737373;
-          line-height: 1.55;
-          font-style: italic;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) { .toolNote { font-size: 11.5px; } }
-
-        /* 광고 영역 */
-        .adArea { padding: 24px; }
-        @media (max-width: 600px) { .adArea { padding: 20px; } }
       `}</style>
 
-      <div className="page">
-        {/* HERO — 가이드 채널 정체성 */}
-        <section className="hero">
-          <div className="heroKicker">🌿 시니어 영상 제작 가이드 채널</div>
-          <h1 className="heroTitle">
-            50대도 시작하는 영상 만들기,<br />
-            <span className="heroTitleAccent">처음부터 끝까지</span> 도와드립니다
-          </h1>
-          <p className="heroSub">
-            디지털 도구가 익숙하지 않으셔도 괜찮습니다.
-            영상 시작 가이드 · 제목 작성법 · 썸네일 디자인 · 스토리텔링 ·
-            수익화까지, 시니어 분들이 보기 쉽게 정리한 17편 이상의 가이드를
-            완전 무료로 보실 수 있습니다.
-          </p>
-
-          {/* v9.7: 키워드 입력 박스 (D안 - 박 대표님 요청) */}
-          <form className="heroSearch" onSubmit={handleSubmit}>
-            <div className="heroSearchTitle">
-              <span className="heroSearchKicker">⚡ 빠른 시작</span>
-              영상 키워드를 입력하면 5초 안에 자료를 만들어드립니다
-            </div>
-            <div className="heroSearchRow">
-              <input
-                type="text"
-                className="heroSearchInput"
-                placeholder="예: 50대 재취업, 부동산 전망, 집밥 레시피"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                aria-label="영상 키워드 입력"
-                maxLength={50}
-              />
-              <button
-                type="submit"
-                className="heroSearchBtn"
-                disabled={!keyword.trim()}
-              >
-                만들기 →
-              </button>
-            </div>
-            <div className="heroSearchCats">
-              <div className="heroSearchCatsLabel">분야 선택 (선택사항)</div>
-              <div className="heroSearchCatsList">
-                {CATEGORY_NAV.map((c) => (
-                  <button
-                    key={c.id}
-                    type="button"
-                    className={`heroSearchCat ${selectedCat === c.id ? 'active' : ''}`}
-                    onClick={() => setSelectedCat(c.id)}
-                    style={selectedCat === c.id ? { borderColor: c.color, color: c.color } : {}}
-                  >
-                    <span className="heroSearchCatEmoji">{c.emoji}</span>
-                    <span>{c.name}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-            <div className="heroSearchNote">
-              💡 가이드부터 차근차근 보고 싶으신 분은 아래 가이드 카드를 살펴보세요
-            </div>
-          </form>
-
-          <div className="heroMeta">
-            <div className="heroMetaItem">
-              <div className="heroMetaLabel">가이드</div>
-              <div className="heroMetaValue">17편</div>
-            </div>
-            <div className="heroMetaItem">
-              <div className="heroMetaLabel">분야</div>
-              <div className="heroMetaValue">9개 분야</div>
-            </div>
-            <div className="heroMetaItem">
-              <div className="heroMetaLabel">업데이트</div>
-              <div className="heroMetaValue">매주 새 가이드</div>
-            </div>
-            <div className="heroMetaItem">
-              <div className="heroMetaLabel">이용료</div>
-              <div className="heroMetaValue">완전 무료</div>
-            </div>
+      <div className="dash">
+        {/* 1. 키워드 박스 (가장 위) */}
+        <form className="startBox" onSubmit={handleSubmit}>
+          <div className="startTitle">
+            <span className="startKicker">⚡ 빠른 시작</span>
+            영상 키워드를 입력하면 5초 안에 자료를 만들어드립니다
           </div>
-        </section>
+          <div className="startRow">
+            <input
+              type="text"
+              className="startInput"
+              placeholder="예: 50대 재취업, 부동산 전망, 집밥 레시피"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              aria-label="영상 키워드 입력"
+              maxLength={50}
+            />
+            <button
+              type="submit"
+              className="startBtn"
+              disabled={!keyword.trim()}
+            >
+              만들기 →
+            </button>
+          </div>
+          <div className="startCatsLabel">분야 선택 (선택사항)</div>
+          <div className="startCats">
+            {CATEGORY_NAV.map((c) => (
+              <button
+                key={c.id}
+                type="button"
+                className={`startCat ${selectedCat === c.id ? 'active' : ''}`}
+                onClick={() => setSelectedCat(c.id)}
+                style={selectedCat === c.id ? { borderColor: c.color, color: c.color } : {}}
+              >
+                <span className="startCatEmoji">{c.emoji}</span>
+                <span>{c.name}</span>
+              </button>
+            ))}
+          </div>
+        </form>
 
-        {/* 추천 시작 — 입문자용 큰 카드 */}
-        <section className="startSection">
-          <div className="startKicker">✨ 처음 시작하시는 분께</div>
-          <h2 className="startTitle">처음 시작하시는 분께 추천</h2>
-          <p className="startSub">
-            영상 만들기가 처음이신 분들이 가장 먼저 읽어보시면 좋은 가이드입니다.
-            10분이면 어떻게 시작해야 할지 명확해집니다.
-          </p>
-
-          <Link href="/knowhow/middle-aged-channel-tips" className="startCard">
-            <div className="startCardKicker">시니어 입문 · 입문자 추천</div>
-            <h3 className="startCardTitle">
-              시니어층(40대~70대)가 유튜브 시작할 때 꼭 알아야 할 7가지
-            </h3>
-            <p className="startCardDesc">
-              퇴직 후 영상 시작하시는 분들을 위한 현실적 가이드.
-              주제 선택부터 카메라 · 편집 도구 · 채널 운영까지
-              시니어 시각으로 풀어낸 종합 안내서.
-            </p>
-            <div className="startCardFoot">
-              <span className="startCardTime">⏱ 10분 · 읽는 시간</span>
-              <span className="startCardArrow">읽어보기 →</span>
+        {/* 2. 가이드 + 분야 (가로 2분할) */}
+        <div className="splitGrid">
+          <section className="panel">
+            <div className="panelHead">
+              <div className="panelTitle">📚 추천 가이드</div>
+              <Link href="/blog" className="panelMore">전체 보기 →</Link>
             </div>
-          </Link>
-        </section>
+            <div className="guideGrid">
+              {FEATURED_GUIDES.map((g) => (
+                <Link key={g.slug} href={`/knowhow/${g.slug}`} className="guideCard">
+                  <div className="guideCardAccent" style={{ background: g.color }} />
+                  <div className="guideCardHead">
+                    <span className="guideCardEmoji">{g.emoji}</span>
+                    <div className="guideCardKicker">
+                      {g.category}{g.badge ? ` · ${g.badge}` : ''}
+                    </div>
+                  </div>
+                  <h3 className="guideCardTitle">{g.title}</h3>
+                  <p className="guideCardSub">{g.subtitle}</p>
+                  <div className="guideCardMeta">
+                    <span className="guideCardTime">⏱ {g.readTime}</span>
+                    <span className="guideCardArrow">읽어보기 →</span>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          </section>
 
-        {/* 광고 영역 */}
-        <div className="adArea">
-          <AdSlot slot="home-mid" variant="horizontal" />
+          <section className="panel">
+            <div className="panelHead">
+              <div className="panelTitle">🗂 분야별</div>
+              <Link href="/blog" className="panelMore">전체 보기 →</Link>
+            </div>
+            <div className="catGrid">
+              {CATEGORY_NAV.map((c) => (
+                <Link key={c.id} href={`/blog?category=${c.id}`} className="catCard">
+                  <div className="catCardAccent" style={{ background: c.color }} />
+                  <div className="catCardEmoji">{c.emoji}</div>
+                  <div className="catName">{c.name}</div>
+                  <div className="catDesc">{c.desc}</div>
+                </Link>
+              ))}
+            </div>
+          </section>
         </div>
 
-        {/* FEATURED GUIDES */}
-        <section className="section">
-          <div className="sectionHead">
-            <div className="sectionKicker">📚 추천 가이드</div>
-            <h2 className="sectionTitle">시니어 분들께 추천하는 가이드</h2>
-            <p className="sectionDesc">
-              영상 만들기에서 가장 자주 묻는 주제를 정리한 가이드 6편.
-            </p>
-          </div>
-          <div className="guideGrid">
-            {FEATURED_GUIDES.map((g) => (
-              <Link key={g.slug} href={`/knowhow/${g.slug}`} className="guideCard">
-                <div className="guideCardAccent" style={{ background: g.color || '#c2410c' }} />
-                <div className="guideCardHead">
-                  <span className="guideCardEmoji">{g.emoji || '📘'}</span>
-                  <div style={{ flex: 1, minWidth: 0 }}>
-                    <div className="guideCardKicker">{g.category}{g.badge ? ` · ${g.badge}` : ''}</div>
-                  </div>
-                </div>
-                <h3 className="guideCardTitle">{g.title}</h3>
-                <p className="guideCardSub">{g.subtitle}</p>
-                <div className="guideCardMeta">
-                  <span className="guideCardTime">⏱ {g.readTime}</span>
-                  <span className="guideCardArrow">읽어보기 →</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
+        {/* 3. 광고 */}
+        <div className="adWrap">
+          <AdSlot slot="home-middle" variant="horizontal" />
+        </div>
 
-        {/* CATEGORIES */}
-        <section className="section">
-          <div className="sectionHead">
-            <div className="sectionKicker">🗂 분야별 가이드</div>
-            <h2 className="sectionTitle">분야별 가이드 탐색</h2>
-            <p className="sectionDesc">
-              관심 있는 분야의 가이드를 모아서 보실 수 있어요.
-              시니어 분들이 많이 찾는 분야부터 정리했습니다.
-            </p>
-          </div>
-          <div className="catGrid">
-            {CATEGORY_NAV.map((c) => (
-              <Link key={c.id} href={`/blog?category=${c.id}`} className="catCard">
-                <div className="catCardAccent" style={{ background: c.color || '#c2410c' }} />
-                <div className="catCardEmoji">{c.emoji || '📂'}</div>
-                <div className="catName">{c.name}</div>
-                <div className="catDesc">{c.desc}</div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
-        {/* FAQ */}
-        <section className="section">
-          <div className="sectionHead">
-            <div className="sectionKicker">💬 자주 묻는 질문</div>
-            <h2 className="sectionTitle">자주 묻는 질문</h2>
+        {/* 4. FAQ (모두 접힘) */}
+        <section className="panel faqPanel">
+          <div className="panelHead">
+            <div className="panelTitle">❓ 자주 묻는 질문</div>
           </div>
           <div className="faqList">
             {FAQ_LIST.map((f, i) => (
-              <details key={i} className="faqItem" open={i === 0}>
+              <details key={i} className="faqItem">
                 <summary>Q. {f.q}</summary>
                 <p className="faqA">{f.a}</p>
               </details>
             ))}
           </div>
-        </section>
-
-        {/* 보조 도구 안내 (하단에 작게) */}
-        <section className="toolBlock">
-          <div className="toolKicker">🛠 보조 도구</div>
-          <h2 className="toolTitle">키워드 입력으로 영상 자료 자동 만들기</h2>
-          <p className="toolDesc">
-            가이드를 다 읽으신 후, 직접 영상을 만들어보고 싶으실 때
-            각 가이드 본문 안에 있는 <strong>"직접 만들어보기"</strong> 버튼을 눌러보세요.
-            관심 키워드 한 단어로 영상 제목 · 대본 · 썸네일 · SNS 메타데이터까지
-            자동으로 만들어드립니다.
-          </p>
-          <p className="toolNote">
-            보조 도구이므로 가이드를 먼저 읽어보시는 것을 추천드립니다.
-            가이드를 통해 어떤 영상을 만들지 방향이 잡힌 후 도구를 사용하시면
-            훨씬 더 만족스러운 결과를 얻으실 수 있습니다.
-          </p>
         </section>
       </div>
     </V11Shell>
