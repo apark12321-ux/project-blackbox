@@ -1896,7 +1896,7 @@ function SnsPanel({
 
       {proSnsMode && v650Data?.sns ? (
         <div className="sns-container">
-          <style jsx>{`
+          <style jsx global>{`
             .sns-container {
               border: 1px solid #e5e5e5;
               background: #ffffff;
