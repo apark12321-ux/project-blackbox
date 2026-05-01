@@ -1,6 +1,6 @@
 'use client';
 /**
- * AlgoMaker V11Shell - 사이드바 + 푸터
+ * AlgoMaker V11Shell v11.1 - 컴팩트 모드 (사이드바 + 푸터)
  * 
  * 박예준 대표 컨셉:
  * - 김 부장(40대 퇴직자) 타겟
@@ -8,6 +8,14 @@
  * - 깔끔한 SaaS 도구 (가독성 최우선)
  * - SEO/AdSense 최적화
  * - 박 대표님 페이지 21개 모두 메뉴에서 접근 가능
+ *
+ * v11.1 변경 (2026.04.30) - 컴팩트 모드:
+ *  - 사이드바 패딩/마진 ~30% 단축
+ *  - 푸터 padding-top 48 → 32, margin-top 60 → 36
+ *  - footerInner gap 40 → 28, padding-bottom 36 → 22
+ *  - menuSection margin-bottom 24 → 16
+ *  - 줄간격 1.7 → 1.55
+ *  - 박 대표님 자산 100% 보존 (메뉴/노출/링크 그대로)
  */
 
 import { ReactNode, useState, useEffect } from 'react';
@@ -110,10 +118,10 @@ function AdSlot({ slot, variant = 'horizontal' }: { slot: string; variant?: stri
       />
 
       <style jsx>{`
-        .adContainer { width: 100%; padding: 8px 0; }
+        .adContainer { width: 100%; padding: 6px 0; }
         .adLabel {
           font-size: 10px; font-weight: 600; color: #999;
-          text-align: left; margin-bottom: 4px; letter-spacing: 0.05em;
+          text-align: left; margin-bottom: 3px; letter-spacing: 0.05em;
         }
       `}</style>
     </div>
@@ -121,7 +129,7 @@ function AdSlot({ slot, variant = 'horizontal' }: { slot: string; variant?: stri
 }
 
 // ============================================================
-// V11Shell (사이드바가 있는 메인 레이아웃)
+// V11Shell (사이드바가 있는 메인 레이아웃) - v11.1 컴팩트
 // ============================================================
 export function V11Shell({ children, currentStep }: { children: ReactNode; currentStep?: number }) {
   const router = useRouter();
@@ -167,61 +175,62 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
         }
         .layout { display: flex; min-height: 100vh; }
         
-        /* 사이드바 */
+        /* 사이드바 - 컴팩트 */
         .sidebar {
           width: 240px; flex-shrink: 0; background: #fff;
           border-right: 1px solid #e5e5e5;
           display: flex; flex-direction: column;
-          padding: 20px 16px; height: 100vh;
+          padding: 14px 14px;
+          height: 100vh;
           position: sticky; top: 0; overflow-y: auto;
         }
-        .sidebarLogo { padding: 4px 8px 20px; }
+        .sidebarLogo { padding: 4px 6px 14px; }
         .freeLabel {
-          display: inline-block; padding: 3px 10px;
+          display: inline-block; padding: 2px 9px;
           background: #e8f5e9; color: #2e7d32;
           border-radius: 100px; font-size: 10px; font-weight: 700;
-          margin-top: 8px; letter-spacing: 0.05em;
+          margin-top: 6px; letter-spacing: 0.05em;
         }
-        .menuSection { margin-bottom: 24px; }
+        .menuSection { margin-bottom: 16px; }
         .menuLabel {
           font-size: 10.5px; font-weight: 700; color: #999;
-          padding: 0 8px 8px; letter-spacing: 0.08em;
+          padding: 0 8px 6px; letter-spacing: 0.08em;
         }
         .menuItem {
-          display: flex; align-items: center; gap: 11px;
-          padding: 12px 12px; border-radius: 10px; cursor: pointer;
-          transition: all 0.15s; margin-bottom: 3px;
+          display: flex; align-items: center; gap: 10px;
+          padding: 9px 11px; border-radius: 10px; cursor: pointer;
+          transition: all 0.15s; margin-bottom: 2px;
           font-size: 14.5px; color: #444; font-weight: 600;
-          min-height: 44px;
+          min-height: 40px;
         }
         .menuItem:hover { background: #fafafa; color: #1a1a1a; }
         .menuItem.active {
           background: #fdf1e7; color: #c65f3b; font-weight: 700;
         }
-        .menuIcon { font-size: 18px; }
+        .menuIcon { font-size: 17px; }
         
-        /* 알림 카드 */
+        /* 알림 카드 - 컴팩트 */
         .noticeCard {
           background: #fafafa; border: 1px solid #e5e5e5;
-          border-radius: 10px; padding: 12px;
-          margin-bottom: 16px;
+          border-radius: 10px; padding: 9px 10px;
+          margin-bottom: 10px;
         }
         .noticeRow {
-          display: flex; align-items: flex-start; gap: 8px;
+          display: flex; align-items: flex-start; gap: 7px;
         }
         .noticeText {
-          font-size: 12px; color: #555; line-height: 1.55;
+          font-size: 12px; color: #555; line-height: 1.5;
           flex: 1;
         }
         .noticeTag {
           font-size: 9px; font-weight: 700;
           background: #c65f3b; color: #fff;
           padding: 2px 6px; border-radius: 4px;
-          margin-top: 2px;
+          margin-top: 1px;
         }
         
         .spacer { flex: 1; }
-        .sidebarAd { padding: 8px 0; }
+        .sidebarAd { padding: 6px 0; }
         
         /* 메인 콘텐츠 */
         .main {
@@ -229,17 +238,17 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
           display: flex; flex-direction: column;
         }
         
-        /* 모바일 헤더 */
+        /* 모바일 헤더 - 컴팩트 */
         .mobileHeader {
           display: none;
           background: #fff; border-bottom: 1px solid #e5e5e5;
-          padding: 12px 16px;
+          padding: 9px 16px;
           align-items: center; justify-content: space-between;
           position: sticky; top: 0; z-index: 100;
         }
         .menuToggle {
           background: none; border: none; cursor: pointer;
-          padding: 10px; font-size: 24px; color: #555;
+          padding: 8px; font-size: 22px; color: #555;
           min-width: 44px; min-height: 44px;
           display: flex; align-items: center; justify-content: center;
         }
@@ -247,25 +256,27 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
         /* 콘텐츠 */
         .content { flex: 1; padding: 0; }
         
-        /* 푸터 */
+        /* 푸터 - 컴팩트 (가장 중요) */
         .footer {
           background: #1a1a1a; color: #ccc;
-          padding: 48px 24px 24px; margin-top: 60px;
+          padding: 32px 24px 18px;
+          margin-top: 36px;
         }
         .footerInner {
           max-width: 1200px; margin: 0 auto;
           display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
-          gap: 40px; padding-bottom: 36px;
+          gap: 28px;
+          padding-bottom: 22px;
           border-bottom: 1px solid #333;
         }
         .footerCol h4 {
           font-size: 13px; font-weight: 700;
-          color: #fff; margin: 0 0 14px;
+          color: #fff; margin: 0 0 10px;
         }
         .footerCol ul {
           list-style: none; padding: 0; margin: 0;
         }
-        .footerCol li { margin-bottom: 8px; }
+        .footerCol li { margin-bottom: 6px; }
         .fLink {
           color: #999; font-size: 13px;
           text-decoration: none; transition: color 0.15s;
@@ -273,21 +284,21 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
         .fLink:hover { color: #fff; }
         .fTag {
           font-size: 13px; color: #999;
-          line-height: 1.7; margin: 12px 0;
+          line-height: 1.55; margin: 8px 0;
         }
         .fCompany {
           font-size: 11.5px; color: #777;
-          line-height: 1.7;
+          line-height: 1.55;
         }
         .fBottom {
           max-width: 1200px; margin: 0 auto;
-          padding-top: 24px;
+          padding-top: 16px;
           display: flex; justify-content: space-between;
-          align-items: center; flex-wrap: wrap; gap: 12px;
+          align-items: center; flex-wrap: wrap; gap: 10px;
           font-size: 11.5px; color: #777;
         }
         
-        /* 모바일 */
+        /* 모바일 - 컴팩트 */
         @media (max-width: 768px) {
           .sidebar {
             position: fixed; left: -280px;
@@ -295,24 +306,34 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
             transition: left 0.25s; z-index: 1000;
             box-shadow: 0 0 24px rgba(0,0,0,0.1);
             width: 280px;
+            padding: 16px 14px;
           }
           .sidebar.open { left: 0; }
           .mobileHeader { display: flex; }
           .footerInner {
             grid-template-columns: 1fr 1fr;
-            gap: 24px;
+            gap: 18px;
           }
-          /* 모바일 사이드바 메뉴 더 크게 */
+          /* 모바일 사이드바 메뉴 살짝 크게 (시니어 친화 유지) */
           .menuItem {
             font-size: 15.5px !important;
-            padding: 14px 14px !important;
-            min-height: 50px;
+            padding: 11px 13px !important;
+            min-height: 46px;
           }
-          .menuIcon { font-size: 20px !important; }
+          .menuIcon { font-size: 19px !important; }
           .menuLabel { font-size: 11.5px !important; }
+          
+          .footer {
+            padding: 24px 18px 14px;
+            margin-top: 28px;
+          }
         }
         @media (max-width: 480px) {
-          .footerInner { grid-template-columns: 1fr; }
+          .footerInner { 
+            grid-template-columns: 1fr; 
+            gap: 16px;
+            padding-bottom: 18px;
+          }
         }
         
         /* 백드롭 */
