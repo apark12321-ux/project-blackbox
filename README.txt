@@ -1,110 +1,83 @@
 ============================================================
-AlgoMaker v10.7 — 드래그앤드롭 적용용 (5개 파일)
+가이드 글 5편 (AdSense 검토 보강용)
 ============================================================
 
 ZIP 안 폴더 구조 (박 대표님 GitHub와 동일):
 
-algomaker_drop_in/
+algomaker_blog_guides/
 └── frontend/
-    ├── app/
-    │   ├── page.tsx              ← 메인 (v9.5)
-    │   ├── layout.tsx            ← 레이아웃 (v9.4)
-    │   ├── publish/
-    │   │   └── page.tsx          ← publish (v10.7)
-    │   └── _shared/
-    │       └── V11Shell.tsx      ← V11Shell (v11.1)
-    └── public/
-        └── ads.txt               ← Publisher ID
+    └── app/
+        └── blog/
+            ├── youtube-start/page.tsx
+            ├── youtube-algorithm/page.tsx
+            ├── youtube-monetization/page.tsx
+            ├── thumbnail-tips/page.tsx
+            └── ai-tools/page.tsx
 
 ============================================================
-적용 시 반영 안 될 때 — 트러블슈팅 체크리스트
+글 5편 정보
 ============================================================
 
-[1] Vercel Production 빌드 확인
-    https://vercel.com → project-blackbox-cpqy → Deployments
-    
-    ✅ 최신 빌드 시간이 방금 시간인지
-    ✅ 상태가 "Ready"인지 (Error 아님)
-    ✅ "Production" 라벨이 최신 빌드에 있는지
-    ❌ Production 라벨이 옛 빌드에 있으면:
-       → 최신 빌드 우측 "..." → "Promote to Production"
+1. youtube-start (유튜브 입문, 약 1,500자)
+   URL: nutube.kr/blog/youtube-start
+   - 채널 만들기, 첫 영상 업로드 가이드 (시니어 친화)
 
-[2] Vercel 빌드 로그 확인 (빌드 실패 여부)
-    Deployments → 최신 빌드 클릭 → "Build Logs"
-    
-    ❌ 빨간 에러 메시지 있으면 빌드 실패한 것
-    → 그 경우 옛 버전이 그대로 운영됨
-    → 에러 메시지 캡처 보내주세요
+2. youtube-algorithm (알고리즘, 약 1,800자)
+   URL: nutube.kr/blog/youtube-algorithm
+   - CTR, 시청 지속율, 알고리즘 통념 정리
 
-[3] 캐시 제거
-    방법 A: F12 → Network 탭 → "Disable cache" 체크 → F5
-    방법 B: Ctrl + Shift + N (시크릿 모드) → 다시 접속
-    방법 C: Ctrl + Shift + Delete → 캐시 삭제
+3. youtube-monetization (수익 창출, 약 2,000자)
+   URL: nutube.kr/blog/youtube-monetization
+   - YPP 조건, 쇼츠 수익, 첫 수익까지 시간
 
-[4] Vercel과 GitHub 연결 확인
-    Vercel → Settings → Git
-    
-    ✅ Production Branch가 "main"인지
-    ✅ GitHub 저장소 연결되어 있는지
+4. thumbnail-tips (썸네일, 약 1,800자)
+   URL: nutube.kr/blog/thumbnail-tips
+   - 썸네일 5가지 비법
+
+5. ai-tools (AI 도구, 약 2,200자)
+   URL: nutube.kr/blog/ai-tools
+   - 시나리오·이미지·음성·편집 AI 도구 정리
 
 ============================================================
-박 대표님 적용 (3분, 한 번에 끝)
+박 대표님 적용 방법
 ============================================================
 
-1. ZIP 다운로드 → 압축 풀기 → algomaker_drop_in 폴더 생김
+1. ZIP 다운로드 → 압축 풀기
 
-2. https://github.com/apark12321-ux/project-blackbox/tree/main/frontend
-   접속 (frontend 폴더 안)
-   
-3. 우측 상단 "Add file" → "Upload files" 클릭
+2. https://github.com/apark12321-ux/project-blackbox/tree/main/frontend/app/blog
+   접속 (blog 폴더)
 
-4. 압축 풀린 폴더의 frontend/ 안의 내용물을 통째로 드래그
-   - app/ 폴더 (page.tsx, layout.tsx, publish/, _shared/ 모두 포함)
-   - public/ 폴더 (ads.txt 포함)
+3. "Add file" → "Upload files" 클릭
 
-5. Commit message: "feat: v10.7 종합 업데이트"
+4. 압축 풀린 폴더의 frontend/app/blog/ 안의 5개 폴더 통째로 드래그
+   - youtube-start/
+   - youtube-algorithm/
+   - youtube-monetization/
+   - thumbnail-tips/
+   - ai-tools/
 
-6. "Commit changes" 클릭
+5. Commit message: feat: 가이드 글 5편 추가
 
-7. Vercel Deployments 탭 → 최신 빌드 대기 (1~2분)
+6. Commit changes 클릭
 
-8. ✅ Ready 확인 → "..." → "Promote to Production"
+7. Vercel 자동 빌드 1~2분 → Promote to Production
 
-9. nutube.kr 또는 vercel.app에서 Ctrl + Shift + R (강력 새로고침)
-   또는 시크릿 모드로 새로 접속
-
-============================================================
-v10.7 변경사항 (반영 후 보일 것)
-============================================================
-
-[STEP 1] 사례 카드 클릭 → STEP 2 자동 이동 + 자동 스크롤
-[STEP 2] 제목 클릭 → 300ms 선택 → STEP 3 자동 이동
-[STEP 3] "시나리오 확인 완료 · 다음 단계로 →" 검정 버튼
-[STEP 4] "프롬프트 확인 완료 · 다음 단계로 →" 검정 버튼
-[STEP 5] "메타데이터 확인 완료 · SNS 업로드 자료 보기 →" 주황 버튼
-
-[STEP 6] 4개 플랫폼 진짜 SNS 디자인:
-  📺 YouTube:   빨강 그라디언트 배너 (#ff0000 → #cc0000)
-  🩳 Shorts:    핑크 그라디언트 + 9:16 모바일 미리보기
-  📸 Instagram: 옐로/핑크/보라 그라디언트
-  🎵 TikTok:    검정 + 시안 라인 + 시안→마젠타 로고
+8. 다음 URL로 확인:
+   nutube.kr/blog/youtube-start
+   nutube.kr/blog/youtube-algorithm
+   nutube.kr/blog/youtube-monetization
+   nutube.kr/blog/thumbnail-tips
+   nutube.kr/blog/ai-tools
 
 ============================================================
-박 대표님 추가 작업 (1개, 5분)
+AdSense 안전성
 ============================================================
 
-📋 개인정보처리방침 이메일 변경:
-   GitHub 검색: contact@nutube.kr
-   해당 파일 → 연필 아이콘 ✏️
-   → apark12321@gmail.com 으로 변경 → Commit
-
-============================================================
-박 대표님 자산 100% 보존
-============================================================
-
-✅ contentEngine.ts (1,723줄)
-✅ v650Adapter.ts
-✅ V11Shell 메뉴/노출/링크
-✅ FEATURED_GUIDES, CATEGORY_NAV, FAQ_LIST
 ✅ 가짜 데이터 0
-✅ 외부 브랜드명 0
+✅ 외부 브랜드명 일반적 카테고리만 (특정 브랜드 추천 X)
+✅ 오리지널 콘텐츠 (저작권 X)
+✅ 1,500~2,200자 양질 콘텐츠
+✅ 시청자 가치 명확
+✅ 상호 링크로 사이트 체류시간 ↑
+✅ V11Shell 사용 (사이드바 + 푸터 통합)
+✅ AdSlot 미포함 (광고 자리는 자동 광고로 채워짐)
