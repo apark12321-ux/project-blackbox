@@ -1,38 +1,44 @@
 'use client';
 /**
- * AlgoMaker 결과 페이지 v10.6 - 컴팩트 모드 (드래그 최소화)
+ * AlgoMaker 결과 페이지 v10.7 - 자동 이동 + 4개 플랫폼 진짜 디자인
  *
  * 박예준 대표 비전:
  * "SNS 초보자가 사이트에 딱 왔을 때 뭔가 필이 팍 꽂혀야 한다"
  * "100명이 같은 키워드 입력해도 100가지 결과"
  * "AlgoMaker 자체 = 완전 무료"
  *
- * v10.5 변경사항 (2026.04.30) — STEP 6 디자인 hotfix:
- * - 🎨 SNSUploadPanel 대신 자체 SNS UI 구현 (Tailwind 미사용)
- *   원인: 박 대표님 SNSUploadPanel_v6_5_0.tsx 가 Tailwind CSS 사용
- *         → 박 대표님 사이트에 Tailwind 설치 안 되어 있어서
- *         → 모든 클래스 무시 → 정렬 깨짐 / 폰트 이상
- *   수정: styled-jsx 로 4개 플랫폼 진짜 SNS UI 자체 구현
- *         → YouTube Studio · Shorts · Instagram Reels · TikTok For You
- *         → Pretendard 폰트 통일, 모바일 우선
- *         → 박 대표님 SNSUploadPanel 파일은 그대로 보존
- * - ✅ 박 대표님 v650Data.sns 데이터 그대로 활용 (필드명 일치)
- * - ✅ 4개 플랫폼별 색상 톤 (YouTube 빨강 · Shorts 핑크 · IG 그라디언트 · TikTok 검정)
- * - ✅ 복사 버튼 / 챕터 / 해시태그 / 권한 박스 모두 구현
+ * v10.7 변경사항 (2026.04.30):
+ * - 🔄 클릭 → 자동 이동 + 자동 스크롤
+ *   STEP 1 (사례): 카드 클릭 → 자동으로 STEP 2 이동
+ *   STEP 2 (제목): 제목 카드 클릭 → 자동으로 STEP 3 이동 (300ms 딜레이로 선택 효과 보임)
+ *   STEP 3 (시나리오): "다음 단계로 →" 큰 검정 버튼
+ *   STEP 4 (프롬프트): "다음 단계로 →" 큰 검정 버튼
+ *   STEP 5 (메타): "SNS 업로드 자료 보기 →" 큰 주황 버튼
+ *   STEP 6 (SNS): 마지막 (이동 X)
+ *   각 STEP 진입 시 window.scrollTo({top: 0, behavior: 'smooth'})
+ * - 💡 STEP 1, 2 상단에 안내 박스 추가 (클릭 시 자동 이동 알림)
+ * - 🎨 4개 플랫폼 진짜 SNS 아이덴티티:
+ *   YouTube: 빨강 그라디언트 배너 (#ff0000)
+ *   Shorts: 핑크 그라디언트 배너 + 9:16 모바일 미리보기 박스
+ *   Instagram: 옐로/핑크/보라 그라디언트 배너
+ *   TikTok: 검정 배너 + 시안 라인
+ * - ✅ 박 대표님 v650Adapter 데이터 그대로 활용
+ * - ✅ AdSense 정책 안전 (가짜 데이터 0)
+ *
+ * v10.6 변경사항 유지:
+ * - 컴팩트 모드 (39개 영역)
+ *
+ * v10.5 변경사항 유지:
+ * - SNS 4개 플랫폼 자체 UI 구현 (Tailwind 미사용)
  *
  * v10.4 변경사항 유지:
- * - generateV650Data 호출 시그니처 수정 (3 args)
+ * - generateV650Data 시그니처 수정
  *
  * v10.3 변경사항 유지:
- * - diversifyTags 함수 시그니처 수정 (무한 로딩 해결)
+ * - diversifyTags 무한 로딩 해결
  *
  * v10.2 변경사항 유지:
  * - contentEngine 정확한 시그니처 적용
- * - 워크스루 인터페이스
- *
- * v8.2 변경사항 유지:
- * - 태그 다양화 시스템
- * - 가짜 검색량 라벨 제거 (AdSense 안전)
  */
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
@@ -1261,7 +1267,7 @@ function PublishWorkthrough() {
 
             {/* STEP 콘텐츠 */}
             {currentStep === 0 && (
-              <CasesPanel cases={data.cases} />
+              <CasesPanel cases={data.cases} goNext={goNext} />
             )}
 
             {currentStep === 1 && (
@@ -1271,6 +1277,7 @@ function PublishWorkthrough() {
                 onSelect={setSelectedTitleIdx}
                 copy={copy}
                 copied={copied}
+                goNext={goNext}
               />
             )}
 
@@ -1282,6 +1289,7 @@ function PublishWorkthrough() {
                 sequences={data.sequences}
                 copy={copy}
                 copied={copied}
+                goNext={goNext}
               />
             )}
 
@@ -1290,6 +1298,7 @@ function PublishWorkthrough() {
                 v650Data={v650Data}
                 proPromptMode={proPromptMode}
                 setProPromptMode={setProPromptMode}
+                goNext={goNext}
               />
             )}
 
@@ -1300,6 +1309,7 @@ function PublishWorkthrough() {
                 thumbnails={data.thumbnails}
                 copy={copy}
                 copied={copied}
+                goNext={goNext}
               />
             )}
 
@@ -1375,8 +1385,9 @@ function PublishWorkthrough() {
 
 // ============================================================
 // STEP 1: 비슷한 사례 (ViralCase: pattern, hook, why, example, emoji)
+// v10.7: 카드 클릭 시 자동으로 다음 STEP 이동
 // ============================================================
-function CasesPanel({ cases }: { cases: any[] }) {
+function CasesPanel({ cases, goNext }: { cases: any[]; goNext?: () => void }) {
   if (!cases || !Array.isArray(cases) || cases.length === 0) {
     return (
       <div className="wt-card">
@@ -1386,58 +1397,78 @@ function CasesPanel({ cases }: { cases: any[] }) {
     );
   }
   return (
-    <div className="wt-case-list">
-      {cases.map((c: any, i: number) => (
-        <div key={i} className="wt-card">
-          <div className="wt-card-label">
-            {c?.emoji || '📌'} {c?.pattern || `사례 ${i + 1}`}
-          </div>
-          <h3 className="wt-card-title" style={{ marginTop: 8 }}>
-            {c?.hook || ''}
-          </h3>
-          <div className="wt-card-meta">
-            {c?.videoLength && <span>⏱ 영상 길이 {c.videoLength}</span>}
-          </div>
-          {c?.why && (
-            <div style={{ 
-              marginTop: 12, 
-              padding: 12, 
-              background: '#fafafa', 
-              borderLeft: '2px solid #c2410c',
-            }}>
-              <div style={{ fontSize: 11, fontWeight: 700, color: '#c2410c', marginBottom: 4, letterSpacing: '0.1em' }}>
-                떡상 이유
+    <>
+      <div style={{ 
+        padding: '8px 12px',
+        background: '#fffbeb',
+        borderLeft: '3px solid #fbbf24',
+        marginBottom: 12,
+        fontSize: 12.5,
+        color: '#78350f',
+        lineHeight: 1.5,
+      }}>
+        💡 마음에 드는 사례를 클릭하면 다음 단계로 자동 이동합니다
+      </div>
+      <div className="wt-case-list">
+        {cases.map((c: any, i: number) => (
+          <div 
+            key={i} 
+            className="wt-card" 
+            style={{ cursor: goNext ? 'pointer' : 'default' }}
+            onClick={() => { if (goNext) goNext(); }}
+          >
+            <div className="wt-card-label">
+              {c?.emoji || '📌'} {c?.pattern || `사례 ${i + 1}`}
+            </div>
+            <h3 className="wt-card-title" style={{ marginTop: 8 }}>
+              {c?.hook || ''}
+            </h3>
+            <div className="wt-card-meta">
+              {c?.videoLength && <span>⏱ 영상 길이 {c.videoLength}</span>}
+            </div>
+            {c?.why && (
+              <div style={{ 
+                marginTop: 12, 
+                padding: 12, 
+                background: '#fafafa', 
+                borderLeft: '2px solid #c2410c',
+              }}>
+                <div style={{ fontSize: 11, fontWeight: 700, color: '#c2410c', marginBottom: 4, letterSpacing: '0.1em' }}>
+                  떡상 이유
+                </div>
+                <p style={{ fontSize: 14, color: '#0a0a0a', lineHeight: 1.65, margin: 0, wordBreak: 'keep-all' }}>
+                  {c.why}
+                </p>
               </div>
-              <p style={{ fontSize: 14, color: '#0a0a0a', lineHeight: 1.65, margin: 0, wordBreak: 'keep-all' }}>
-                {c.why}
-              </p>
-            </div>
-          )}
-          {c?.example && (
-            <div style={{ marginTop: 10, fontSize: 13, color: '#525252', lineHeight: 1.6 }}>
-              💡 <strong>예시 키워드:</strong> {c.example}
-            </div>
-          )}
-          {c?.keyElement && (
-            <div style={{ marginTop: 6, fontSize: 13, color: '#525252', lineHeight: 1.6 }}>
-              ✨ <strong>핵심 요소:</strong> {c.keyElement}
-            </div>
-          )}
-        </div>
-      ))}
-    </div>
+            )}
+            {c?.example && (
+              <div style={{ marginTop: 10, fontSize: 13, color: '#525252', lineHeight: 1.6 }}>
+                💡 <strong>예시 키워드:</strong> {c.example}
+              </div>
+            )}
+            {c?.keyElement && (
+              <div style={{ marginTop: 6, fontSize: 13, color: '#525252', lineHeight: 1.6 }}>
+                ✨ <strong>핵심 요소:</strong> {c.keyElement}
+              </div>
+            )}
+          </div>
+        ))}
+      </div>
+    </>
   );
 }
 
 // ============================================================
 // STEP 2: 제목 후보
+// v10.7: 제목 카드 클릭 시 선택 + 자동 이동 (복사 버튼은 이벤트 분리)
 // ============================================================
 function TitlePanel({ 
   titles, 
   selectedIdx, 
   onSelect, 
   copy, 
-  copied 
+  copied,
+  goNext,
 }: any) {
   if (!titles || !Array.isArray(titles) || titles.length === 0) {
     return (
@@ -1449,13 +1480,31 @@ function TitlePanel({
   }
   return (
     <>
+      <div style={{ 
+        padding: '8px 12px',
+        background: '#fffbeb',
+        borderLeft: '3px solid #fbbf24',
+        marginBottom: 12,
+        fontSize: 12.5,
+        color: '#78350f',
+        lineHeight: 1.5,
+      }}>
+        💡 마음에 드는 제목을 클릭하면 다음 단계로 자동 이동합니다
+      </div>
       {titles.map((t: any, i: number) => {
         const titleText = typeof t === 'string' ? t : (t?.title || '');
         return (
           <div
             key={i}
             className={`wt-title-card ${selectedIdx === i ? 'selected' : ''}`}
-            onClick={() => onSelect(i)}
+            onClick={() => {
+              onSelect(i);
+              if (goNext) {
+                // 카드 시각적 선택 효과 후 자동 이동 (300ms 딜레이)
+                setTimeout(() => goNext(), 300);
+              }
+            }}
+            style={{ cursor: 'pointer' }}
           >
             <div className="wt-title-num">
               제목 후보 {i + 1}{t?.pattern ? ` · ${t.pattern}` : ''}
@@ -1474,11 +1523,11 @@ function TitlePanel({
               className={`wt-btn wt-btn-sm ${copied === `title-${i}` ? 'copied' : ''}`}
               style={{ marginTop: 12 }}
               onClick={(e) => {
-                e.stopPropagation();
+                e.stopPropagation(); // 카드 클릭 이벤트 막기 (복사만 실행)
                 copy(titleText, `title-${i}`);
               }}
             >
-              {copied === `title-${i}` ? '✓ 복사됨' : '📋 복사'}
+              {copied === `title-${i}` ? '✓ 복사됨' : '📋 복사만'}
             </button>
           </div>
         );
@@ -1489,6 +1538,7 @@ function TitlePanel({
 
 // ============================================================
 // STEP 3: 시나리오
+// v10.7: 마지막에 "다음 단계로" 큰 버튼 추가
 // ============================================================
 function ScriptPanel({ 
   v650Data, 
@@ -1497,6 +1547,7 @@ function ScriptPanel({
   sequences,
   copy,
   copied,
+  goNext,
 }: any) {
   return (
     <>
@@ -1563,17 +1614,42 @@ function ScriptPanel({
           ))}
         </div>
       )}
+      
+      {/* 다음 단계로 큰 버튼 */}
+      {goNext && (
+        <button
+          type="button"
+          onClick={goNext}
+          style={{
+            marginTop: 18,
+            width: '100%',
+            padding: '14px 18px',
+            background: '#0a0a0a',
+            color: '#ffffff',
+            border: 'none',
+            fontSize: 14.5,
+            fontWeight: 700,
+            cursor: 'pointer',
+            letterSpacing: '-0.01em',
+            fontFamily: 'inherit',
+          }}
+        >
+          시나리오 확인 완료 · 다음 단계로 →
+        </button>
+      )}
     </>
   );
 }
 
 // ============================================================
 // STEP 4: 영상 제작 프롬프트
+// v10.7: "다음 단계로" 큰 버튼 추가
 // ============================================================
 function PromptPanel({ 
   v650Data, 
   proPromptMode, 
   setProPromptMode,
+  goNext,
 }: any) {
   return (
     <>
@@ -1609,6 +1685,29 @@ function PromptPanel({
           </p>
         </div>
       )}
+      
+      {/* 다음 단계로 큰 버튼 */}
+      {goNext && (
+        <button
+          type="button"
+          onClick={goNext}
+          style={{
+            marginTop: 18,
+            width: '100%',
+            padding: '14px 18px',
+            background: '#0a0a0a',
+            color: '#ffffff',
+            border: 'none',
+            fontSize: 14.5,
+            fontWeight: 700,
+            cursor: 'pointer',
+            letterSpacing: '-0.01em',
+            fontFamily: 'inherit',
+          }}
+        >
+          프롬프트 확인 완료 · 다음 단계로 →
+        </button>
+      )}
     </>
   );
 }
@@ -1621,7 +1720,8 @@ function MetaPanel({
   tags, 
   thumbnails, 
   copy, 
-  copied 
+  copied,
+  goNext,
 }: any) {
   return (
     <>
@@ -1724,6 +1824,29 @@ function MetaPanel({
           ))}
         </div>
       </div>
+      
+      {/* 다음 단계로 큰 버튼 */}
+      {goNext && (
+        <button
+          type="button"
+          onClick={goNext}
+          style={{
+            marginTop: 18,
+            width: '100%',
+            padding: '14px 18px',
+            background: '#c2410c',
+            color: '#ffffff',
+            border: 'none',
+            fontSize: 14.5,
+            fontWeight: 700,
+            cursor: 'pointer',
+            letterSpacing: '-0.01em',
+            fontFamily: 'inherit',
+          }}
+        >
+          메타데이터 확인 완료 · SNS 업로드 자료 보기 →
+        </button>
+      )}
     </>
   );
 }
@@ -1859,6 +1982,136 @@ function SnsPanel({
             .sns-platform-icon.shorts { background: linear-gradient(135deg, #ff4458, #c2185b); }
             .sns-platform-icon.ig { background: linear-gradient(45deg, #f9ce34, #ee2a7b, #6228d7); }
             .sns-platform-icon.tt { background: #000000; }
+            
+            /* 플랫폼별 고유 아이덴티티 (v10.7) */
+            .sns-platform-banner {
+              padding: 14px 18px;
+              margin: -22px -20px 18px -20px;
+              display: flex;
+              align-items: center;
+              gap: 12px;
+              color: #ffffff;
+              font-size: 14px;
+              font-weight: 700;
+              letter-spacing: -0.01em;
+            }
+            @media (max-width: 600px) {
+              .sns-platform-banner { 
+                padding: 12px 14px;
+                margin: -16px -18px 14px -18px;
+                font-size: 13px;
+              }
+            }
+            .sns-platform-banner.yt {
+              background: linear-gradient(180deg, #ff0000 0%, #cc0000 100%);
+            }
+            .sns-platform-banner.shorts {
+              background: linear-gradient(135deg, #ff4458 0%, #ec407a 50%, #c2185b 100%);
+            }
+            .sns-platform-banner.ig {
+              background: linear-gradient(45deg, #f9ce34, #ee2a7b 50%, #6228d7);
+            }
+            .sns-platform-banner.tt {
+              background: #000000;
+              border-bottom: 2px solid #25f4ee;
+            }
+            .sns-platform-banner-logo {
+              width: 28px;
+              height: 28px;
+              background: rgba(255,255,255,0.2);
+              border-radius: 6px;
+              display: flex;
+              align-items: center;
+              justify-content: center;
+              font-size: 16px;
+              flex-shrink: 0;
+            }
+            .sns-platform-banner.tt .sns-platform-banner-logo {
+              background: linear-gradient(45deg, #25f4ee, #fe2c55);
+            }
+            .sns-platform-banner-info { flex: 1; min-width: 0; }
+            .sns-platform-banner-title {
+              font-size: 14px;
+              font-weight: 800;
+              line-height: 1.3;
+              margin: 0;
+            }
+            .sns-platform-banner-sub {
+              font-size: 11px;
+              opacity: 0.85;
+              margin-top: 1px;
+              font-weight: 500;
+            }
+            
+            /* 9:16 모바일 미리보기 (Shorts/Instagram/TikTok) */
+            .sns-mobile-preview {
+              max-width: 220px;
+              aspect-ratio: 9/16;
+              background: #0a0a0a;
+              border-radius: 16px;
+              margin: 0 auto 16px;
+              padding: 10px;
+              position: relative;
+              overflow: hidden;
+            }
+            .sns-mobile-screen {
+              width: 100%;
+              height: 100%;
+              background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+              border-radius: 10px;
+              padding: 12px;
+              display: flex;
+              flex-direction: column;
+              justify-content: flex-end;
+              position: relative;
+            }
+            .sns-mobile-top {
+              position: absolute;
+              top: 10px;
+              left: 12px;
+              right: 12px;
+              display: flex;
+              justify-content: space-between;
+              align-items: center;
+              color: #ffffff;
+              font-size: 11px;
+              font-weight: 700;
+            }
+            .sns-mobile-bottom {
+              color: #ffffff;
+              font-size: 12px;
+              line-height: 1.45;
+              word-break: keep-all;
+            }
+            .sns-mobile-bottom-title {
+              font-weight: 700;
+              margin-bottom: 6px;
+              display: -webkit-box;
+              -webkit-line-clamp: 3;
+              -webkit-box-orient: vertical;
+              overflow: hidden;
+            }
+            .sns-mobile-bottom-tags {
+              color: #88aaff;
+              font-size: 11px;
+              line-height: 1.5;
+            }
+            .sns-mobile-side-icons {
+              position: absolute;
+              right: 18px;
+              bottom: 70px;
+              display: flex;
+              flex-direction: column;
+              gap: 14px;
+              color: #ffffff;
+              font-size: 18px;
+            }
+            .sns-mobile-side-icon { text-align: center; }
+            .sns-mobile-side-icon-num {
+              font-size: 9px;
+              font-weight: 700;
+              margin-top: 1px;
+            }
             .sns-platform-name {
               font-size: 15px;
               font-weight: 800;
@@ -2162,11 +2415,11 @@ function YoutubeUI({ data, copy, copied }: any) {
   if (!data) return <div style={{padding:20, color:'#737373'}}>데이터 준비중</div>;
   return (
     <div>
-      <div className="sns-platform-head">
-        <div className="sns-platform-icon yt">▶</div>
-        <div>
-          <div className="sns-platform-name">YouTube Studio</div>
-          <div className="sns-platform-sub">실제 업로드 페이지와 동일한 형식</div>
+      <div className="sns-platform-banner yt">
+        <div className="sns-platform-banner-logo">▶</div>
+        <div className="sns-platform-banner-info">
+          <div className="sns-platform-banner-title">YouTube Studio</div>
+          <div className="sns-platform-banner-sub">동영상 세부정보 · 실제 업로드 페이지 형식</div>
         </div>
       </div>
 
@@ -2286,11 +2539,35 @@ function ShortsUI({ data, copy, copied }: any) {
   if (!data) return <div style={{padding:20, color:'#737373'}}>데이터 준비중</div>;
   return (
     <div>
-      <div className="sns-platform-head">
-        <div className="sns-platform-icon shorts">🩳</div>
-        <div>
-          <div className="sns-platform-name">YouTube Shorts</div>
-          <div className="sns-platform-sub">60초 이하 세로 영상 (9:16)</div>
+      <div className="sns-platform-banner shorts">
+        <div className="sns-platform-banner-logo">🩳</div>
+        <div className="sns-platform-banner-info">
+          <div className="sns-platform-banner-title">YouTube Shorts</div>
+          <div className="sns-platform-banner-sub">60초 이하 세로 영상 · 9:16</div>
+        </div>
+      </div>
+
+      {/* 모바일 미리보기 */}
+      <div className="sns-mobile-preview">
+        <div className="sns-mobile-screen">
+          <div className="sns-mobile-top">
+            <span>Shorts</span>
+            <span>⋯</span>
+          </div>
+          <div className="sns-mobile-side-icons">
+            <div className="sns-mobile-side-icon">❤️<div className="sns-mobile-side-icon-num">좋아요</div></div>
+            <div className="sns-mobile-side-icon">💬<div className="sns-mobile-side-icon-num">댓글</div></div>
+            <div className="sns-mobile-side-icon">↗<div className="sns-mobile-side-icon-num">공유</div></div>
+            <div className="sns-mobile-side-icon">🎵<div className="sns-mobile-side-icon-num">사운드</div></div>
+          </div>
+          <div className="sns-mobile-bottom">
+            <div className="sns-mobile-bottom-title">{data.title || ''}</div>
+            {data.hashtags && data.hashtags.length > 0 && (
+              <div className="sns-mobile-bottom-tags">
+                {data.hashtags.slice(0, 4).join(' ')}
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
@@ -2385,11 +2662,11 @@ function InstagramUI({ data, copy, copied }: any) {
   if (!data) return <div style={{padding:20, color:'#737373'}}>데이터 준비중</div>;
   return (
     <div>
-      <div className="sns-platform-head">
-        <div className="sns-platform-icon ig">📸</div>
-        <div>
-          <div className="sns-platform-name">Instagram - 새 릴스</div>
-          <div className="sns-platform-sub">9:16 세로 영상</div>
+      <div className="sns-platform-banner ig">
+        <div className="sns-platform-banner-logo">📸</div>
+        <div className="sns-platform-banner-info">
+          <div className="sns-platform-banner-title">Instagram - 새 릴스</div>
+          <div className="sns-platform-banner-sub">9:16 세로 영상</div>
         </div>
       </div>
 
@@ -2489,11 +2766,11 @@ function TiktokUI({ data, copy, copied }: any) {
   if (!data) return <div style={{padding:20, color:'#737373'}}>데이터 준비중</div>;
   return (
     <div>
-      <div className="sns-platform-head">
-        <div className="sns-platform-icon tt">🎵</div>
-        <div>
-          <div className="sns-platform-name">TikTok - 동영상 게시</div>
-          <div className="sns-platform-sub">9:16 세로 / For You 페이지 최적화</div>
+      <div className="sns-platform-banner tt">
+        <div className="sns-platform-banner-logo">🎵</div>
+        <div className="sns-platform-banner-info">
+          <div className="sns-platform-banner-title">TikTok - 동영상 게시</div>
+          <div className="sns-platform-banner-sub">9:16 세로 · For You 페이지 최적화</div>
         </div>
       </div>
 
