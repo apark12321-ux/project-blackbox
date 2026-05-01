@@ -1,6 +1,6 @@
 'use client';
 /**
- * AlgoMaker V11Shell v11.1 - 컴팩트 모드 (사이드바 + 푸터)
+ * AlgoMaker V11Shell v11.2 - 로고 확대 + 클릭 시 홈 이동
  * 
  * 박예준 대표 컨셉:
  * - 김 부장(40대 퇴직자) 타겟
@@ -9,7 +9,15 @@
  * - SEO/AdSense 최적화
  * - 박 대표님 페이지 21개 모두 메뉴에서 접근 가능
  *
- * v11.1 변경 (2026.04.30) - 컴팩트 모드:
+ * v11.2 변경 (2026.05.01) - 박 대표님 요청:
+ *  - ✅ 로고 사이즈 약 30% 확대 (sm 14→18, md 18→22, lg 24→28)
+ *  - ✅ 로고 클릭 → 홈(/)으로 이동 (Link 감싸기)
+ *  - ✅ 사이드바 로고 sm → md (확대)
+ *  - ✅ 모바일 헤더 로고 sm → md (확대)
+ *  - ✅ 푸터 로고 md → lg (확대)
+ *  - ✅ asLink={false} 옵션으로 비활성화 가능 (필요시)
+ *
+ * v11.1 변경 유지 - 컴팩트 모드:
  *  - 사이드바 패딩/마진 ~30% 단축
  *  - 푸터 padding-top 48 → 32, margin-top 60 → 36
  *  - footerInner gap 40 → 28, padding-bottom 36 → 22
@@ -63,14 +71,28 @@ export function clearProject() {
 }
 
 // ============================================================
-// Logo Component
+// Logo Component (v11.2: 사이즈 확대 + 클릭 시 홈 이동)
 // ============================================================
-export function AlgoMakerLogo({ size = 'md', showSubtitle = true }: { size?: 'sm' | 'md' | 'lg'; showSubtitle?: boolean }) {
-  const sizes = { sm: { logo: 14, sub: 9 }, md: { logo: 18, sub: 10 }, lg: { logo: 24, sub: 12 } };
+export function AlgoMakerLogo({ 
+  size = 'md', 
+  showSubtitle = true,
+  asLink = true,
+}: { 
+  size?: 'sm' | 'md' | 'lg'; 
+  showSubtitle?: boolean;
+  asLink?: boolean;
+}) {
+  // v11.2: 사이즈 약 30% 확대 (sm 14→18, md 18→22, lg 24→28)
+  const sizes = { 
+    sm: { logo: 18, sub: 10 }, 
+    md: { logo: 22, sub: 11 }, 
+    lg: { logo: 28, sub: 13 } 
+  };
   const s = sizes[size];
-  return (
+
+  const content = (
     <div style={{ display: 'flex', flexDirection: 'column', gap: 2 }}>
-      <div style={{ fontSize: s.logo, fontWeight: 800, color: '#1a1a1a', letterSpacing: '-0.02em' }}>
+      <div style={{ fontSize: s.logo, fontWeight: 800, color: '#1a1a1a', letterSpacing: '-0.02em', lineHeight: 1.1 }}>
         <span style={{ color: '#c65f3b' }}>Algo</span>Maker
       </div>
       {showSubtitle && (
@@ -80,6 +102,24 @@ export function AlgoMakerLogo({ size = 'md', showSubtitle = true }: { size?: 'sm
       )}
     </div>
   );
+
+  if (asLink) {
+    return (
+      <Link 
+        href="/" 
+        style={{ 
+          textDecoration: 'none', 
+          color: 'inherit',
+          display: 'inline-block',
+          cursor: 'pointer',
+        }}
+        aria-label="홈으로 이동"
+      >
+        {content}
+      </Link>
+    );
+  }
+  return content;
 }
 
 // ============================================================
@@ -350,7 +390,7 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
         {/* 사이드바 */}
         <aside className={`sidebar ${sidebarOpen ? 'open' : ''}`}>
           <div className="sidebarLogo">
-            <AlgoMakerLogo size="sm" showSubtitle={true} />
+            <AlgoMakerLogo size="md" showSubtitle={true} />
             <div className="freeLabel">무료</div>
           </div>
 
@@ -409,7 +449,7 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
             <button className="menuToggle" onClick={() => setSidebarOpen(!sidebarOpen)}>
               ☰
             </button>
-            <AlgoMakerLogo size="sm" showSubtitle={false} />
+            <AlgoMakerLogo size="md" showSubtitle={false} />
             <div style={{ width: 24 }} />
           </div>
 
@@ -421,7 +461,7 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
           <footer className="footer">
             <div className="footerInner">
               <div>
-                <AlgoMakerLogo size="md" showSubtitle={false} />
+                <AlgoMakerLogo size="lg" showSubtitle={false} />
                 <div className="fTag">
                   키워드만 입력하면 AI가<br />
                   영상 제목·태그·대본을 추천해드립니다.

@@ -1,27 +1,35 @@
 'use client';
 /**
- * AlgoMaker 메인 페이지 v9.5 - 컴팩트 모드 (드래그 최소화)
+ * AlgoMaker 메인 페이지 v9.7 - 시각적 강화 + 모바일 컴팩트 + 키워드 박스
  *
  * 박예준 대표 비전 (인수인계 v6.4.1 명시):
  * "50대~70대 시니어층을 위한 영상 제작 도움말 채널"
  * "가이드 글이 메인 콘텐츠"
  * "AlgoMaker 자체 = 완전 무료"
  *
- * v9.3 변경 (2026.04.30):
- *  - ✅ 모든 영문 라벨 한글화 (시니어 친화)
- *  - ✅ Pretendard 폰트 1종 통일
- *  - ✅ 이모지 추가 (가이드 채널 친근함)
- *  - ❌ 메인에서 키워드 입력 박스 완전 제거 (v9.1 유지)
- *  - ✅ 17편 가이드 + 9개 카테고리 + FAQ가 메인 콘텐츠
- *  - ✅ 키워드 도구는 각 가이드 본문의 "직접 만들어보기" 버튼으로만 접근
+ * v9.7 변경 (2026.05.01):
+ *  - ✅ Hero에 키워드 입력 박스 추가 (박 대표님 D안 요청)
+ *    - 큰 입력 필드 + "영상 자료 만들기 →" 버튼
+ *    - 카테고리 9개 빠른 선택 칩
+ *    - 시니어 친화 안내 문구
+ *  - ✅ 가이드 카드: emoji 아이콘 + 색상 액센트 (v9.6 유지)
+ *  - ✅ 카테고리 카드: emoji 큰 아이콘 + 색상 액센트 (v9.6 유지)
+ *  - ✅ FAQ 아코디언 (v9.6 유지)
+ *  - ✅ Hero 메타 4열 grid (v9.6 유지)
+ *  - ✅ 박 대표님 자산 100% 보존
+ *
+ * v9.6 변경 유지:
+ *  - 시각적 강화 + 모바일 컴팩트
  *
  * 박 대표님 자산 100% 보존:
- *  - FEATURED_GUIDES 6편
- *  - CATEGORY_NAV 9개
+ *  - FEATURED_GUIDES 6편 (emoji + color 추가)
+ *  - CATEGORY_NAV 9개 (emoji + color 추가)
  *  - FAQ_LIST 6개
  *  - AEO/GEO JSON-LD
  */
 
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { V11Shell } from './_shared/V11Shell';
 import AdSlot from './_shared/AdSlot';
@@ -37,6 +45,8 @@ const FEATURED_GUIDES = [
     subtitle: '퇴직 후 영상 시작하시는 분들을 위한 현실적 가이드',
     readTime: '10분',
     badge: '입문자 추천',
+    emoji: '🌱',
+    color: '#16a34a',
   },
   {
     slug: 'family-story-shorts',
@@ -45,6 +55,8 @@ const FEATURED_GUIDES = [
     subtitle: '시니어층이 가장 빠르게 시작한 영상 카테고리 분석',
     readTime: '12분',
     badge: '인기',
+    emoji: '👨‍👩‍👧',
+    color: '#dc2626',
   },
   {
     slug: 'first-30-seconds-hook',
@@ -53,6 +65,8 @@ const FEATURED_GUIDES = [
     subtitle: '시청자가 끝까지 보게 만드는 영상 시작 비결',
     readTime: '9분',
     badge: '필독',
+    emoji: '🎬',
+    color: '#c2410c',
   },
   {
     slug: 'thumbnail-design',
@@ -60,6 +74,8 @@ const FEATURED_GUIDES = [
     title: '조회수 차이 만드는 썸네일 디자인 7가지 법칙',
     subtitle: '한글 텍스트가 잘 들어간 썸네일 만드는 비결',
     readTime: '8분',
+    emoji: '🎨',
+    color: '#9333ea',
   },
   {
     slug: 'storytelling-structure',
@@ -67,6 +83,8 @@ const FEATURED_GUIDES = [
     title: '오래 보는 영상의 스토리텔링 구조 분석',
     subtitle: '시청자가 끝까지 보는 영상의 4단계 이야기 공식',
     readTime: '11분',
+    emoji: '📖',
+    color: '#2563eb',
   },
   {
     slug: 'content-value-paths',
@@ -74,19 +92,21 @@ const FEATURED_GUIDES = [
     title: '영상 콘텐츠로 가치를 만드는 5가지 길',
     subtitle: '내가 잘하는 것을 영상으로 풀어낼 때 다양한 길',
     readTime: '8분',
+    emoji: '💎',
+    color: '#0891b2',
   },
 ];
 
 const CATEGORY_NAV = [
-  { id: 'senior', name: '시니어 라이프', desc: '50대~70대 인생 이야기' },
-  { id: 'family', name: '가족 사연', desc: '진심 담은 일상 이야기' },
-  { id: 'economy', name: '재테크 / 노후', desc: '돈 관리, 연금, 자산' },
-  { id: 'realestate', name: '부동산', desc: '청약, 투자, 동네 변화' },
-  { id: 'health', name: '건강 / 운동', desc: '집에서 하는 운동, 식단' },
-  { id: 'food', name: '요리 / 맛집', desc: '집밥 레시피, 동네 맛집' },
-  { id: 'travel', name: '여행 / 취미', desc: '국내외 여행, 즐거움' },
-  { id: 'aitech', name: 'AI / 디지털', desc: '핸드폰, AI 도구 입문' },
-  { id: 'language', name: '외국어', desc: '영어, 일본어 학습 후기' },
+  { id: 'senior', name: '시니어 라이프', desc: '50대~70대 인생 이야기', emoji: '👴', color: '#7c3aed' },
+  { id: 'family', name: '가족 사연', desc: '진심 담은 일상 이야기', emoji: '👨‍👩‍👧‍👦', color: '#dc2626' },
+  { id: 'economy', name: '재테크 / 노후', desc: '돈 관리, 연금, 자산', emoji: '💰', color: '#ca8a04' },
+  { id: 'realestate', name: '부동산', desc: '청약, 투자, 동네 변화', emoji: '🏘️', color: '#0891b2' },
+  { id: 'health', name: '건강 / 운동', desc: '집에서 하는 운동, 식단', emoji: '💪', color: '#16a34a' },
+  { id: 'food', name: '요리 / 맛집', desc: '집밥 레시피, 동네 맛집', emoji: '🍳', color: '#ea580c' },
+  { id: 'travel', name: '여행 / 취미', desc: '국내외 여행, 즐거움', emoji: '✈️', color: '#0284c7' },
+  { id: 'aitech', name: 'AI / 디지털', desc: '핸드폰, AI 도구 입문', emoji: '🤖', color: '#4f46e5' },
+  { id: 'language', name: '외국어', desc: '영어, 일본어 학습 후기', emoji: '🌍', color: '#059669' },
 ];
 
 const FAQ_LIST = [
@@ -140,6 +160,18 @@ const howToSchema = {
 };
 
 export default function HomePage() {
+  const router = useRouter();
+  const [keyword, setKeyword] = useState('');
+  const [selectedCat, setSelectedCat] = useState<string>('general');
+
+  const handleSubmit = (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const trimmed = keyword.trim();
+    if (!trimmed) return;
+    const url = `/publish?keyword=${encodeURIComponent(trimmed)}&category=${encodeURIComponent(selectedCat)}`;
+    router.push(url);
+  };
+
   return (
     <V11Shell>
       <script
@@ -173,12 +205,12 @@ export default function HomePage() {
         /* HERO — 가이드 채널 정체성 */
         /* ============================================ */
         .hero {
-          padding: 40px 24px 28px;
+          padding: 32px 24px 22px;
           background: #ffffff;
           border-bottom: 2px solid #0a0a0a;
         }
         @media (max-width: 600px) {
-          .hero { padding: 28px 20px 22px; }
+          .hero { padding: 22px 18px 18px; }
         }
 
         .heroKicker {
@@ -187,22 +219,23 @@ export default function HomePage() {
           font-weight: 600;
           letter-spacing: 0.18em;
           color: #c2410c;
-          margin-bottom: 12px;
+          margin-bottom: 10px;
           text-transform: uppercase;
         }
-        @media (max-width: 600px) { .heroKicker { font-size: 10px; } }
+        @media (max-width: 600px) { .heroKicker { font-size: 10px; margin-bottom: 8px; } }
 
         .heroTitle {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 36px;
+          font-size: 32px;
           font-weight: 700;
           color: #0a0a0a;
           letter-spacing: -0.03em;
           line-height: 1.25;
-          margin: 0 0 16px;
+          margin: 0 0 14px;
           max-width: 780px;
+          word-break: keep-all;
         }
-        @media (max-width: 600px) { .heroTitle { font-size: 26px; } }
+        @media (max-width: 600px) { .heroTitle { font-size: 22px; margin-bottom: 12px; } }
 
         .heroTitleAccent {
           background: linear-gradient(180deg, transparent 60%, #fbbf24 60%);
@@ -211,50 +244,239 @@ export default function HomePage() {
 
         .heroSub {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 16px;
+          font-size: 15px;
           color: #525252;
-          line-height: 1.6;
+          line-height: 1.55;
           font-weight: 500;
           max-width: 720px;
-          margin: 0 0 24px;
+          margin: 0 0 20px;
           word-break: keep-all;
         }
-        @media (max-width: 600px) { .heroSub { font-size: 14px; } }
+        @media (max-width: 600px) { .heroSub { font-size: 13.5px; margin-bottom: 16px; } }
 
-        /* 헤더 핵심 정보 (메타 라인) */
+        /* 헤더 핵심 정보 (메타 라인) - v9.6 그리드 컴팩트 */
         .heroMeta {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 24px;
-          padding-top: 20px;
+          display: grid;
+          grid-template-columns: repeat(4, 1fr);
+          gap: 12px;
+          padding-top: 16px;
           border-top: 1px solid #e5e5e5;
         }
         @media (max-width: 600px) {
-          .heroMeta { gap: 16px; padding-top: 16px; }
+          .heroMeta { 
+            grid-template-columns: repeat(4, 1fr);
+            gap: 6px;
+            padding-top: 12px;
+          }
         }
         .heroMetaItem {
           display: flex;
           flex-direction: column;
-          gap: 4px;
+          gap: 3px;
+          padding: 8px 10px;
+          background: #fafafa;
+          border-radius: 6px;
+          align-items: center;
+          text-align: center;
+        }
+        @media (max-width: 600px) {
+          .heroMetaItem { padding: 6px 4px; }
         }
         .heroMetaLabel {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 9.5px;
           font-weight: 700;
-          letter-spacing: 0.18em;
+          letter-spacing: 0.12em;
           color: #737373;
           text-transform: uppercase;
         }
         .heroMetaValue {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 15px;
+          font-size: 14.5px;
           font-weight: 700;
           color: #0a0a0a;
           letter-spacing: -0.015em;
+          word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .heroMetaValue { font-size: 13.5px; }
-          .heroMetaLabel { font-size: 9px; }
+          .heroMetaValue { font-size: 12px; }
+          .heroMetaLabel { font-size: 8.5px; letter-spacing: 0.08em; }
+        }
+
+        /* ============================================ */
+        /* v9.7 키워드 입력 박스 (Hero) */
+        /* ============================================ */
+        .heroSearch {
+          margin: 0 0 20px;
+          padding: 18px;
+          background: linear-gradient(135deg, #fffbf7 0%, #fff8f0 100%);
+          border: 2px solid #c2410c;
+          border-radius: 0;
+          position: relative;
+        }
+        @media (max-width: 600px) {
+          .heroSearch { padding: 14px 14px 12px; margin-bottom: 16px; }
+        }
+        .heroSearchTitle {
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+          font-size: 13.5px;
+          font-weight: 700;
+          color: #0a0a0a;
+          letter-spacing: -0.01em;
+          line-height: 1.5;
+          margin-bottom: 10px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .heroSearchTitle { font-size: 12.5px; margin-bottom: 8px; }
+        }
+        .heroSearchKicker {
+          display: inline-block;
+          padding: 2px 8px;
+          background: #c2410c;
+          color: #ffffff;
+          font-size: 10.5px;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          margin-right: 8px;
+          border-radius: 3px;
+        }
+        @media (max-width: 600px) {
+          .heroSearchKicker { font-size: 10px; padding: 2px 6px; }
+        }
+
+        /* 입력 + 버튼 */
+        .heroSearchRow {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 12px;
+        }
+        @media (max-width: 600px) {
+          .heroSearchRow { gap: 6px; margin-bottom: 10px; }
+        }
+        .heroSearchInput {
+          flex: 1;
+          min-width: 0;
+          padding: 12px 14px;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+          font-size: 15px;
+          font-weight: 500;
+          color: #0a0a0a;
+          background: #ffffff;
+          border: 1.5px solid #d4d4d4;
+          border-radius: 0;
+          outline: none;
+          transition: border-color 0.15s;
+          letter-spacing: -0.01em;
+          min-height: 44px;
+        }
+        .heroSearchInput:focus {
+          border-color: #c2410c;
+        }
+        .heroSearchInput::placeholder {
+          color: #a3a3a3;
+          font-weight: 400;
+        }
+        @media (max-width: 600px) {
+          .heroSearchInput { padding: 10px 12px; font-size: 14px; min-height: 42px; }
+        }
+        .heroSearchBtn {
+          flex-shrink: 0;
+          padding: 0 18px;
+          background: #0a0a0a;
+          color: #ffffff;
+          border: none;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+          font-size: 14px;
+          font-weight: 700;
+          letter-spacing: -0.01em;
+          cursor: pointer;
+          transition: background 0.15s;
+          min-height: 44px;
+          white-space: nowrap;
+        }
+        .heroSearchBtn:hover:not(:disabled) {
+          background: #c2410c;
+        }
+        .heroSearchBtn:disabled {
+          opacity: 0.4;
+          cursor: not-allowed;
+        }
+        @media (max-width: 600px) {
+          .heroSearchBtn { padding: 0 14px; font-size: 13px; min-height: 42px; }
+        }
+
+        /* 카테고리 칩 */
+        .heroSearchCats {
+          margin-bottom: 10px;
+        }
+        .heroSearchCatsLabel {
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+          font-size: 11px;
+          font-weight: 700;
+          color: #737373;
+          letter-spacing: 0.06em;
+          margin-bottom: 6px;
+          text-transform: uppercase;
+        }
+        @media (max-width: 600px) {
+          .heroSearchCatsLabel { font-size: 10px; }
+        }
+        .heroSearchCatsList {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 5px;
+        }
+        @media (max-width: 600px) {
+          .heroSearchCatsList { gap: 4px; }
+        }
+        .heroSearchCat {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 6px 10px;
+          background: #ffffff;
+          border: 1px solid #d4d4d4;
+          color: #525252;
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+          font-size: 12px;
+          font-weight: 600;
+          cursor: pointer;
+          transition: all 0.15s;
+          letter-spacing: -0.005em;
+          min-height: 32px;
+        }
+        .heroSearchCat:hover {
+          border-color: #0a0a0a;
+          color: #0a0a0a;
+        }
+        .heroSearchCat.active {
+          background: #fffbf7;
+          font-weight: 700;
+        }
+        @media (max-width: 600px) {
+          .heroSearchCat { padding: 5px 8px; font-size: 11px; min-height: 28px; gap: 3px; }
+        }
+        .heroSearchCatEmoji {
+          font-size: 14px;
+          line-height: 1;
+        }
+        @media (max-width: 600px) {
+          .heroSearchCatEmoji { font-size: 13px; }
+        }
+
+        /* 안내 문구 */
+        .heroSearchNote {
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+          font-size: 11.5px;
+          color: #78350f;
+          line-height: 1.5;
+          word-break: keep-all;
+          padding-top: 10px;
+          border-top: 1px dashed #fcd34d;
+        }
+        @media (max-width: 600px) {
+          .heroSearchNote { font-size: 11px; padding-top: 8px; }
         }
 
         /* ============================================ */
@@ -420,139 +642,241 @@ export default function HomePage() {
         /* 가이드 카드 */
         .guideGrid {
           display: grid;
-          grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
-          gap: 0;
+          grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+          gap: 10px;
+          padding-top: 14px;
           border-top: 1px solid #0a0a0a;
         }
         @media (max-width: 600px) {
-          .guideGrid { grid-template-columns: 1fr; }
+          .guideGrid { 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 6px;
+            padding-top: 12px;
+          }
         }
         .guideCard {
           padding: 14px 16px;
-          border-right: 1px solid #e5e5e5;
-          border-bottom: 1px solid #e5e5e5;
+          background: #ffffff;
+          border: 1px solid #e5e5e5;
           text-decoration: none;
           color: inherit;
-          background: #ffffff;
-          transition: background 0.15s;
+          transition: all 0.15s;
+          position: relative;
+          overflow: hidden;
+          display: flex;
+          flex-direction: column;
         }
         .guideCard:hover {
           background: #fafafa;
+          border-color: #0a0a0a;
+          transform: translateY(-2px);
+        }
+        .guideCardAccent {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
         }
         @media (max-width: 600px) {
-          .guideCard { border-right: none; }
+          .guideCard { padding: 12px 12px; }
         }
+        .guideCardHead {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 8px;
+        }
+        .guideCardEmoji {
+          font-size: 24px;
+          line-height: 1;
+          flex-shrink: 0;
+        }
+        @media (max-width: 600px) { .guideCardEmoji { font-size: 20px; } }
         .guideCardKicker {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 9.5px;
           font-weight: 700;
-          letter-spacing: 0.15em;
+          letter-spacing: 0.12em;
           color: #c2410c;
           text-transform: uppercase;
-          margin-bottom: 8px;
         }
+        @media (max-width: 600px) { .guideCardKicker { font-size: 9px; } }
         .guideCardTitle {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 14px;
           font-weight: 700;
           color: #0a0a0a;
           letter-spacing: -0.015em;
-          line-height: 1.45;
+          line-height: 1.4;
           margin: 0 0 6px;
+          word-break: keep-all;
+          flex: 1;
         }
-        @media (max-width: 600px) { .guideCardTitle { font-size: 13.5px; } }
+        @media (max-width: 600px) { .guideCardTitle { font-size: 13px; } }
         .guideCardSub {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 12px;
+          font-size: 11.5px;
           color: #737373;
-          line-height: 1.55;
-          margin: 0 0 12px;
+          line-height: 1.5;
+          margin: 0 0 10px;
           word-break: keep-all;
+        }
+        @media (max-width: 600px) { 
+          .guideCardSub { 
+            font-size: 11px; 
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+          } 
         }
         .guideCardMeta {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding-top: 10px;
+          padding-top: 8px;
           border-top: 1px dashed #d4d4d4;
+          margin-top: auto;
         }
         .guideCardTime {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 10px;
           color: #737373;
-          letter-spacing: 0.06em;
+          letter-spacing: 0.04em;
         }
         .guideCardArrow {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 10.5px;
+          font-size: 10px;
           font-weight: 700;
           color: #0a0a0a;
-          letter-spacing: 0.1em;
+          letter-spacing: 0.08em;
           text-transform: uppercase;
         }
 
-        /* 카테고리 그리드 */
+        /* 카테고리 그리드 - v9.6 시각적 강화 */
         .catGrid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 0;
+          gap: 8px;
           border-top: 1px solid #0a0a0a;
+          padding-top: 14px;
         }
         @media (max-width: 600px) {
-          .catGrid { grid-template-columns: repeat(2, 1fr); }
+          .catGrid { 
+            grid-template-columns: repeat(2, 1fr); 
+            gap: 6px;
+            padding-top: 12px;
+          }
         }
         .catCard {
-          padding: 14px 14px;
-          border-right: 1px solid #e5e5e5;
-          border-bottom: 1px solid #e5e5e5;
+          padding: 14px 12px;
+          background: #ffffff;
+          border: 1px solid #e5e5e5;
           text-decoration: none;
           color: inherit;
-          transition: background 0.15s;
+          transition: all 0.15s;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 6px;
+          text-align: center;
+          position: relative;
+          overflow: hidden;
         }
-        .catCard:hover { background: #fafafa; }
+        .catCard:hover { 
+          background: #fafafa;
+          border-color: #0a0a0a;
+          transform: translateY(-2px);
+        }
+        .catCardEmoji {
+          font-size: 28px;
+          line-height: 1;
+          margin-bottom: 2px;
+        }
+        @media (max-width: 600px) { .catCardEmoji { font-size: 24px; } }
+        .catCardAccent {
+          position: absolute;
+          top: 0;
+          left: 0;
+          right: 0;
+          height: 3px;
+        }
         .catName {
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+          font-size: 13.5px;
+          font-weight: 700;
+          color: #0a0a0a;
+          letter-spacing: -0.015em;
+          margin-bottom: 2px;
+        }
+        @media (max-width: 600px) { .catName { font-size: 12.5px; } }
+        .catDesc {
+          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+          font-size: 11px;
+          color: #737373;
+          line-height: 1.45;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .catDesc { font-size: 10.5px; } }
+
+        /* FAQ */
+        /* FAQ 아코디언 - v9.6 컴팩트 */
+        .faqList {
+          border-top: 1px solid #0a0a0a;
+        }
+        .faqItem {
+          border-bottom: 1px solid #e5e5e5;
+          padding: 0;
+        }
+        .faqItem summary {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 14px;
           font-weight: 700;
           color: #0a0a0a;
           letter-spacing: -0.015em;
-          margin-bottom: 4px;
-        }
-        @media (max-width: 600px) { .catName { font-size: 13px; } }
-        .catDesc {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 11.5px;
-          color: #737373;
-          line-height: 1.5;
+          padding: 14px 36px 14px 0;
+          cursor: pointer;
+          position: relative;
+          list-style: none;
           word-break: keep-all;
         }
-
-        /* FAQ */
-        .faqList {
-          border-top: 1px solid #0a0a0a;
+        .faqItem summary::-webkit-details-marker {
+          display: none;
         }
-        .faqItem {
-          padding: 12px 0;
-          border-bottom: 1px solid #e5e5e5;
+        .faqItem summary::after {
+          content: '+';
+          position: absolute;
+          right: 6px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 22px;
+          font-weight: 400;
+          color: #737373;
+          transition: transform 0.2s;
+          line-height: 1;
         }
-        .faqQ {
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          font-size: 14.5px;
-          font-weight: 700;
-          color: #0a0a0a;
-          letter-spacing: -0.015em;
-          margin-bottom: 8px;
+        .faqItem[open] summary::after {
+          content: '−';
+          color: #c2410c;
         }
-        @media (max-width: 600px) { .faqQ { font-size: 13.5px; } }
+        .faqItem summary:hover {
+          color: #c2410c;
+        }
+        @media (max-width: 600px) { 
+          .faqItem summary { font-size: 13px; padding: 12px 32px 12px 0; }
+          .faqItem summary::after { right: 4px; font-size: 20px; }
+        }
         .faqA {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           font-size: 13px;
           color: #525252;
-          line-height: 1.55;
+          line-height: 1.6;
           margin: 0;
+          padding: 0 0 14px;
           word-break: keep-all;
         }
-        @media (max-width: 600px) { .faqA { font-size: 12.5px; } }
+        @media (max-width: 600px) { .faqA { font-size: 12.5px; padding-bottom: 12px; } }
 
         /* 보조 도구 안내 (작게) */
         .toolBlock {
@@ -619,6 +943,52 @@ export default function HomePage() {
             완전 무료로 보실 수 있습니다.
           </p>
 
+          {/* v9.7: 키워드 입력 박스 (D안 - 박 대표님 요청) */}
+          <form className="heroSearch" onSubmit={handleSubmit}>
+            <div className="heroSearchTitle">
+              <span className="heroSearchKicker">⚡ 빠른 시작</span>
+              영상 키워드를 입력하면 5초 안에 자료를 만들어드립니다
+            </div>
+            <div className="heroSearchRow">
+              <input
+                type="text"
+                className="heroSearchInput"
+                placeholder="예: 50대 재취업, 부동산 전망, 집밥 레시피"
+                value={keyword}
+                onChange={(e) => setKeyword(e.target.value)}
+                aria-label="영상 키워드 입력"
+                maxLength={50}
+              />
+              <button
+                type="submit"
+                className="heroSearchBtn"
+                disabled={!keyword.trim()}
+              >
+                만들기 →
+              </button>
+            </div>
+            <div className="heroSearchCats">
+              <div className="heroSearchCatsLabel">분야 선택 (선택사항)</div>
+              <div className="heroSearchCatsList">
+                {CATEGORY_NAV.map((c) => (
+                  <button
+                    key={c.id}
+                    type="button"
+                    className={`heroSearchCat ${selectedCat === c.id ? 'active' : ''}`}
+                    onClick={() => setSelectedCat(c.id)}
+                    style={selectedCat === c.id ? { borderColor: c.color, color: c.color } : {}}
+                  >
+                    <span className="heroSearchCatEmoji">{c.emoji}</span>
+                    <span>{c.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+            <div className="heroSearchNote">
+              💡 가이드부터 차근차근 보고 싶으신 분은 아래 가이드 카드를 살펴보세요
+            </div>
+          </form>
+
           <div className="heroMeta">
             <div className="heroMetaItem">
               <div className="heroMetaLabel">가이드</div>
@@ -682,7 +1052,13 @@ export default function HomePage() {
           <div className="guideGrid">
             {FEATURED_GUIDES.map((g) => (
               <Link key={g.slug} href={`/knowhow/${g.slug}`} className="guideCard">
-                <div className="guideCardKicker">{g.category}{g.badge ? ` · ${g.badge}` : ''}</div>
+                <div className="guideCardAccent" style={{ background: g.color || '#c2410c' }} />
+                <div className="guideCardHead">
+                  <span className="guideCardEmoji">{g.emoji || '📘'}</span>
+                  <div style={{ flex: 1, minWidth: 0 }}>
+                    <div className="guideCardKicker">{g.category}{g.badge ? ` · ${g.badge}` : ''}</div>
+                  </div>
+                </div>
                 <h3 className="guideCardTitle">{g.title}</h3>
                 <p className="guideCardSub">{g.subtitle}</p>
                 <div className="guideCardMeta">
@@ -707,6 +1083,8 @@ export default function HomePage() {
           <div className="catGrid">
             {CATEGORY_NAV.map((c) => (
               <Link key={c.id} href={`/blog?category=${c.id}`} className="catCard">
+                <div className="catCardAccent" style={{ background: c.color || '#c2410c' }} />
+                <div className="catCardEmoji">{c.emoji || '📂'}</div>
                 <div className="catName">{c.name}</div>
                 <div className="catDesc">{c.desc}</div>
               </Link>
@@ -722,10 +1100,10 @@ export default function HomePage() {
           </div>
           <div className="faqList">
             {FAQ_LIST.map((f, i) => (
-              <div key={i} className="faqItem">
-                <div className="faqQ">Q. {f.q}</div>
+              <details key={i} className="faqItem" open={i === 0}>
+                <summary>Q. {f.q}</summary>
                 <p className="faqA">{f.a}</p>
-              </div>
+              </details>
             ))}
           </div>
         </section>
