@@ -1,38 +1,39 @@
 'use client';
 /**
- * AlgoMaker 메인 페이지 v10.0 - 대시보드 1화면 구조
+ * AlgoMaker 메인 페이지 v10.1 - 스토리텔링 (D안)
  *
  * 박예준 대표 비전:
  * "50대~70대 시니어층을 위한 영상 제작 도움말 채널"
  * "가이드 글이 메인 콘텐츠"
  * "AlgoMaker 자체 = 완전 무료"
  *
- * 박 대표님 v10.0 요청 (D안):
- * "메인 페이지를 아래로 쭉 스크롤하지 않고 전체를 볼 수 있도록 설계"
- * "모바일에서도 잘 보이도록"
+ * 박 대표님 v10.1 요청:
+ * "검색창은 필요없잖아"        → 키워드 박스 제거
+ * "분야선택은 클릭하면 넘어가지도 않음" → 분야 클릭 시 /blog?category=xxx 이동 작동
+ * "한편의 이야기와 같은 화면"   → 스토리텔링
+ * "오래 머무르게 만드는 뭔가"   → 체류시간 ↑ (AdSense 점수 ↑)
  *
- * v10.0 변경 (2026.05.01) - 대시보드 구조:
- *  - ❌ 큰 Hero 섹션 제거 (50대도 시작하는~ 큰 글자 제거)
- *  - ❌ 추천 시작 카드 제거 (가이드 카드와 중복)
- *  - ❌ 보조 도구 섹션 제거 (메뉴에 이미 있음)
- *  - ❌ 메타 라인 4개 제거
+ * D안 (어시스턴트 판단):
+ * 시니어 공감 + 도구 필요성 복합 스토리텔링
  *
- *  - ✅ 키워드 박스 = 가장 위 (핵심 액션 1순위)
- *  - ✅ 가이드 6개 + 카테고리 9개 = 가로 2분할 (데스크탑)
- *  - ✅ FAQ = 모두 접힘 (공간 절약)
- *  - ✅ 모바일: 1열 stack, 짧게
- *  - ✅ 데스크탑 1280×800에서 거의 1화면 안에 다 보임
+ * v10.1 구조 (8섹션):
+ *  1. HOOK - 시니어 공감 ("퇴직 후 영상 만들어볼까 하셨나요?")
+ *  2. 막히는 5가지 (체크리스트 ❌)
+ *  3. AlgoMaker 해결 (✅)
+ *  4. 실제 작동 예시 ("50대 재취업" 미리보기)
+ *  5. 추천 가이드 6편 (박 대표님 자산)
+ *  6. 분야별 9개 - 클릭 시 /blog 이동 (박 대표님 자산)
+ *  7. CTA (가이드 보기 / 자료 만들기)
+ *  8. FAQ (모두 접힘, 박 대표님 자산)
  *
  * 박 대표님 자산 100% 보존:
  *  - FEATURED_GUIDES 6편
  *  - CATEGORY_NAV 9개
  *  - FAQ_LIST 6개
  *  - AEO/GEO JSON-LD
- *  - 광고 위치
+ *  - AdSlot 광고 위치
  */
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { V11Shell } from './_shared/V11Shell';
 import AdSlot from './_shared/AdSlot';
@@ -159,19 +160,79 @@ const howToSchema = {
   ],
 };
 
+// ============================================================
+// 시니어가 막히는 5가지 + AlgoMaker 해결
+// ============================================================
+const PAIN_POINTS = [
+  {
+    pain: '어떤 영상을 만들지 모르겠어요',
+    desc: '내가 잘 아는 게 영상 거리가 될까... 막막하셨죠.',
+    solution: '키워드 1개만 알려주세요',
+    detail: '실제로 떡상한 사례 3개를 분석해서 보여드립니다. 어떤 패턴인지, 왜 인기인지까지.',
+    emoji: '💭',
+    color: '#dc2626',
+  },
+  {
+    pain: '제목은 어떻게 짓지요?',
+    desc: '같은 영상도 제목 따라 조회수가 10배씩 차이 납니다.',
+    solution: '제목 후보 3가지를 한 번에',
+    detail: '클릭률 높은 패턴별 제목 3개. 예상 CTR과 어떤 시청자에게 끌리는지까지 알려드립니다.',
+    emoji: '✏️',
+    color: '#c2410c',
+  },
+  {
+    pain: '썸네일은 어떻게 만들죠?',
+    desc: '디자인 모르셔도 됩니다. 어떻게 만들지만 알면 됩니다.',
+    solution: '썸네일 컨셉 3가지',
+    detail: '배경, 메인 텍스트, 표정, 색상까지. AI 이미지 생성 도구(Midjourney, DALL-E)에 그대로 넣을 수 있는 한글/영문 프롬프트.',
+    emoji: '🎨',
+    color: '#9333ea',
+  },
+  {
+    pain: '시나리오 어떻게 짜야 하나요?',
+    desc: '시청자가 끝까지 보는 영상은 구조가 있습니다.',
+    solution: '6단계 시나리오 자동 생성',
+    detail: '후킹 → 본격 시작 → 갈등/시점 변화 → 핵심 비밀 → 결론 → CTA. 시간대까지 정확히.',
+    emoji: '📖',
+    color: '#2563eb',
+  },
+  {
+    pain: '어디에 어떻게 올리죠?',
+    desc: '플랫폼마다 형식이 달라서 헷갈리셨죠.',
+    solution: '4개 플랫폼 자료 한 번에',
+    detail: 'YouTube (긴 영상), YouTube Shorts (60초), Instagram Reels, TikTok. 각 플랫폼 실제 업로드 화면처럼 보여드립니다.',
+    emoji: '📱',
+    color: '#16a34a',
+  },
+];
+
+// ============================================================
+// 실제 작동 예시 (50대 재취업 키워드)
+// ============================================================
+const DEMO_EXAMPLES = [
+  {
+    label: '사례 분석',
+    icon: '🔍',
+    content: '"○년 전 이 동네는..." (시간 압축형) · "이거 모르고 계약하면 후회합니다" (실수 회피형) · "실거래가 데이터로 본 진실" (데이터형)',
+  },
+  {
+    label: '제목 후보',
+    icon: '✏️',
+    content: '"50대 재취업, 가격표 말고 이걸 봐야 한다" — 후회하지 않는 선택의 기술',
+  },
+  {
+    label: '썸네일 컨셉',
+    icon: '🎨',
+    content: '정면 클로즈업 + 큰 자막 1줄 ("50대") + 시선 사로잡는 색상 (빨강/노랑) + 표정 변화 명확하게',
+  },
+  {
+    label: '시나리오',
+    icon: '📖',
+    content: '0:00 후킹 → 0:10 본격 시작 → 0:35 갈등/시점 변화 → 1:30 핵심 비밀 → 3:00 결론 + CTA',
+  },
+];
+
 export default function HomePage() {
-  const router = useRouter();
-  const [keyword, setKeyword] = useState('');
-  const [selectedCat, setSelectedCat] = useState<string>('general');
-
-  const handleSubmit = (e?: React.FormEvent) => {
-    if (e) e.preventDefault();
-    const trimmed = keyword.trim();
-    if (!trimmed) return;
-    const url = `/publish?keyword=${encodeURIComponent(trimmed)}&category=${encodeURIComponent(selectedCat)}`;
-    router.push(url);
-  };
-
   return (
     <V11Shell>
       <script
@@ -184,235 +245,307 @@ export default function HomePage() {
       />
 
       <style jsx>{`
-        .dash {
+        .story {
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           color: #0a0a0a;
           letter-spacing: -0.01em;
-          padding: 16px 20px 28px;
-          max-width: 1280px;
+          max-width: 880px;
           margin: 0 auto;
         }
-        @media (max-width: 600px) {
-          .dash { padding: 12px 14px 24px; }
-        }
 
-        /* 키워드 박스 (가장 위, 강조) */
-        .startBox {
-          padding: 18px 20px;
-          background: linear-gradient(135deg, #fffbf7 0%, #fff8f0 100%);
-          border: 2px solid #c2410c;
-          margin-bottom: 18px;
+        /* ============================================ */
+        /* 공통 섹션 */
+        /* ============================================ */
+        .sect {
+          padding: 32px 24px;
+          border-bottom: 1px solid #e5e5e5;
         }
         @media (max-width: 600px) {
-          .startBox { padding: 14px 14px; margin-bottom: 14px; }
+          .sect { padding: 24px 16px; }
+        }
+        .sect:last-of-type {
+          border-bottom: none;
         }
 
-        .startTitle {
-          font-size: 14px;
+        .sectKicker {
+          font-size: 11px;
           font-weight: 700;
-          color: #0a0a0a;
-          letter-spacing: -0.01em;
-          line-height: 1.5;
-          margin-bottom: 10px;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) {
-          .startTitle { font-size: 13px; margin-bottom: 8px; }
-        }
-
-        .startKicker {
-          display: inline-block;
-          padding: 3px 9px;
-          background: #c2410c;
-          color: #ffffff;
-          font-size: 10.5px;
-          font-weight: 700;
-          letter-spacing: 0.08em;
-          margin-right: 8px;
-        }
-        @media (max-width: 600px) {
-          .startKicker { font-size: 10px; padding: 2px 7px; }
-        }
-
-        .startRow {
-          display: flex;
-          gap: 8px;
-          margin-bottom: 12px;
-        }
-        @media (max-width: 600px) {
-          .startRow { gap: 6px; margin-bottom: 10px; }
-        }
-
-        .startInput {
-          flex: 1;
-          min-width: 0;
-          padding: 12px 14px;
-          font-family: inherit;
-          font-size: 15px;
-          font-weight: 500;
-          color: #0a0a0a;
-          background: #ffffff;
-          border: 1.5px solid #d4d4d4;
-          outline: none;
-          transition: border-color 0.15s;
-          letter-spacing: -0.01em;
-          min-height: 44px;
-        }
-        .startInput:focus {
-          border-color: #c2410c;
-        }
-        .startInput::placeholder {
-          color: #a3a3a3;
-          font-weight: 400;
-        }
-        @media (max-width: 600px) {
-          .startInput { padding: 10px 12px; font-size: 14px; min-height: 42px; }
-        }
-
-        .startBtn {
-          flex-shrink: 0;
-          padding: 0 18px;
-          background: #0a0a0a;
-          color: #ffffff;
-          border: none;
-          font-family: inherit;
-          font-size: 14px;
-          font-weight: 700;
-          letter-spacing: -0.01em;
-          cursor: pointer;
-          transition: background 0.15s;
-          min-height: 44px;
-          white-space: nowrap;
-        }
-        .startBtn:hover:not(:disabled) {
-          background: #c2410c;
-        }
-        .startBtn:disabled {
-          opacity: 0.4;
-          cursor: not-allowed;
-        }
-        @media (max-width: 600px) {
-          .startBtn { padding: 0 14px; font-size: 13px; min-height: 42px; }
-        }
-
-        .startCatsLabel {
-          font-size: 10.5px;
-          font-weight: 700;
-          color: #737373;
-          letter-spacing: 0.06em;
-          margin-bottom: 6px;
+          letter-spacing: 0.18em;
+          color: #c2410c;
+          margin-bottom: 8px;
           text-transform: uppercase;
         }
         @media (max-width: 600px) {
-          .startCatsLabel { font-size: 10px; }
+          .sectKicker { font-size: 10px; margin-bottom: 6px; }
         }
 
-        .startCats {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 5px;
+        .sectTitle {
+          font-size: 22px;
+          font-weight: 800;
+          color: #0a0a0a;
+          letter-spacing: -0.025em;
+          line-height: 1.35;
+          margin: 0 0 10px;
+          word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .startCats { gap: 4px; }
+          .sectTitle { font-size: 18px; line-height: 1.4; }
         }
 
-        .startCat {
-          display: inline-flex;
-          align-items: center;
-          gap: 4px;
-          padding: 6px 10px;
-          background: #ffffff;
-          border: 1px solid #d4d4d4;
+        .sectDesc {
+          font-size: 14.5px;
           color: #525252;
-          font-family: inherit;
-          font-size: 12px;
-          font-weight: 600;
-          cursor: pointer;
-          transition: all 0.15s;
-          letter-spacing: -0.005em;
-          min-height: 32px;
+          line-height: 1.65;
+          margin: 0;
+          word-break: keep-all;
+          font-weight: 500;
         }
-        .startCat:hover {
-          border-color: #0a0a0a;
+        @media (max-width: 600px) {
+          .sectDesc { font-size: 13.5px; }
+        }
+
+        /* ============================================ */
+        /* 1. HOOK (시니어 공감) */
+        /* ============================================ */
+        .hookSect {
+          padding: 48px 24px 40px;
+          background: linear-gradient(180deg, #fffbf7 0%, #ffffff 100%);
+          text-align: center;
+        }
+        @media (max-width: 600px) {
+          .hookSect { padding: 32px 18px 28px; }
+        }
+
+        .hookEmoji {
+          font-size: 56px;
+          line-height: 1;
+          margin-bottom: 16px;
+        }
+        @media (max-width: 600px) {
+          .hookEmoji { font-size: 44px; margin-bottom: 12px; }
+        }
+
+        .hookTitle {
+          font-size: 28px;
+          font-weight: 800;
           color: #0a0a0a;
+          letter-spacing: -0.03em;
+          line-height: 1.35;
+          margin: 0 0 14px;
+          word-break: keep-all;
         }
-        .startCat.active {
-          background: #fffbf7;
+        @media (max-width: 600px) {
+          .hookTitle { font-size: 22px; line-height: 1.4; }
+        }
+
+        .hookSub {
+          font-size: 16px;
+          color: #525252;
+          line-height: 1.7;
+          margin: 0 auto;
+          max-width: 580px;
+          word-break: keep-all;
+          font-weight: 500;
+        }
+        @media (max-width: 600px) {
+          .hookSub { font-size: 14px; }
+        }
+
+        .hookHighlight {
+          color: #c2410c;
           font-weight: 700;
         }
-        @media (max-width: 600px) {
-          .startCat { padding: 5px 8px; font-size: 11px; min-height: 28px; gap: 3px; }
+
+        /* ============================================ */
+        /* 2. 막히는 5가지 (페인 포인트) */
+        /* ============================================ */
+        .painList {
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
+          margin-top: 18px;
         }
 
-        .startCatEmoji {
-          font-size: 14px;
+        .painCard {
+          padding: 16px 18px;
+          background: #ffffff;
+          border: 1px solid #e5e5e5;
+          border-left: 4px solid;
+          display: grid;
+          grid-template-columns: 48px 1fr;
+          gap: 14px;
+          align-items: start;
+        }
+        @media (max-width: 600px) {
+          .painCard { padding: 14px 14px; gap: 10px; grid-template-columns: 40px 1fr; }
+        }
+
+        .painEmoji {
+          font-size: 32px;
           line-height: 1;
         }
+        @media (max-width: 600px) { .painEmoji { font-size: 28px; } }
 
-        /* 2분할 그리드 (가이드 + 분야) */
-        .splitGrid {
-          display: grid;
-          grid-template-columns: 1.4fr 1fr;
-          gap: 18px;
-          margin-bottom: 18px;
+        .painContent { min-width: 0; }
+
+        .painLabel {
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.1em;
+          color: #dc2626;
+          text-transform: uppercase;
+          margin-bottom: 4px;
         }
-        @media (max-width: 900px) {
-          .splitGrid {
-            grid-template-columns: 1fr;
-            gap: 14px;
-            margin-bottom: 14px;
+        @media (max-width: 600px) { .painLabel { font-size: 10px; } }
+
+        .painQ {
+          font-size: 17px;
+          font-weight: 800;
+          color: #0a0a0a;
+          letter-spacing: -0.02em;
+          line-height: 1.4;
+          margin: 0 0 6px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .painQ { font-size: 15px; } }
+
+        .painDesc {
+          font-size: 13px;
+          color: #737373;
+          line-height: 1.6;
+          margin: 0 0 10px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .painDesc { font-size: 12.5px; } }
+
+        .painArrow {
+          margin: 8px 0;
+          padding: 8px 12px;
+          background: #f5f5f5;
+          border-left: 3px solid #c2410c;
+        }
+
+        .painSolutionLabel {
+          font-size: 10.5px;
+          font-weight: 700;
+          letter-spacing: 0.12em;
+          color: #c2410c;
+          text-transform: uppercase;
+          margin-bottom: 3px;
+        }
+
+        .painSolution {
+          font-size: 14.5px;
+          font-weight: 700;
+          color: #0a0a0a;
+          letter-spacing: -0.015em;
+          line-height: 1.45;
+          margin: 0 0 4px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .painSolution { font-size: 13.5px; } }
+
+        .painDetail {
+          font-size: 12.5px;
+          color: #525252;
+          line-height: 1.55;
+          margin: 0;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .painDetail { font-size: 12px; } }
+
+        /* ============================================ */
+        /* 3. 실제 작동 예시 */
+        /* ============================================ */
+        .demoBox {
+          margin-top: 18px;
+          padding: 18px;
+          background: #0a0a0a;
+          color: #ffffff;
+          font-family: 'SF Mono', 'Consolas', monospace;
+        }
+        @media (max-width: 600px) {
+          .demoBox { padding: 14px; }
+        }
+
+        .demoLabel {
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          color: #fbbf24;
+          text-transform: uppercase;
+          margin-bottom: 6px;
+          font-family: 'Pretendard', sans-serif;
+        }
+
+        .demoInput {
+          font-size: 18px;
+          font-weight: 800;
+          color: #ffffff;
+          letter-spacing: -0.02em;
+          padding: 10px 14px;
+          background: #1a1a1a;
+          border: 1px solid #404040;
+          margin-bottom: 14px;
+          font-family: 'Pretendard', sans-serif;
+        }
+        @media (max-width: 600px) { .demoInput { font-size: 15px; padding: 8px 12px; } }
+
+        .demoArrow {
+          color: #fbbf24;
+          font-size: 16px;
+          font-weight: 700;
+          margin: 8px 0;
+          text-align: center;
+          font-family: 'Pretendard', sans-serif;
+        }
+
+        .demoResult {
+          padding: 12px 14px;
+          background: #1a1a1a;
+          border-left: 3px solid #fbbf24;
+          margin-bottom: 8px;
+          font-family: 'Pretendard', sans-serif;
+        }
+        @media (max-width: 600px) {
+          .demoResult { padding: 10px 12px; }
+        }
+
+        .demoResultLabel {
+          font-size: 10.5px;
+          font-weight: 700;
+          color: #fbbf24;
+          letter-spacing: 0.1em;
+          margin-bottom: 4px;
+          text-transform: uppercase;
+        }
+
+        .demoResultText {
+          font-size: 13px;
+          color: #e5e5e5;
+          line-height: 1.6;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .demoResultText { font-size: 12px; } }
+
+        /* ============================================ */
+        /* 추천 가이드 6편 */
+        /* ============================================ */
+        .guideGrid {
+          display: grid;
+          grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+          gap: 10px;
+          margin-top: 18px;
+        }
+        @media (max-width: 600px) {
+          .guideGrid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 8px;
           }
         }
 
-        .panel {
-          background: #ffffff;
-        }
-
-        .panelHead {
-          display: flex;
-          justify-content: space-between;
-          align-items: baseline;
-          padding-bottom: 10px;
-          border-bottom: 2px solid #0a0a0a;
-          margin-bottom: 10px;
-        }
-
-        .panelTitle {
-          font-size: 14px;
-          font-weight: 800;
-          color: #0a0a0a;
-          letter-spacing: -0.015em;
-        }
-        @media (max-width: 600px) {
-          .panelTitle { font-size: 13px; }
-        }
-
-        .panelMore {
-          font-size: 11px;
-          color: #737373;
-          font-weight: 600;
-          text-decoration: none;
-          letter-spacing: -0.005em;
-        }
-        .panelMore:hover {
-          color: #c2410c;
-        }
-
-        /* 추천 가이드 그리드 */
-        .guideGrid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 8px;
-        }
-        @media (max-width: 1100px) {
-          .guideGrid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 600px) {
-          .guideGrid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
-        }
-
         .guideCard {
-          padding: 12px 12px;
+          padding: 14px 14px;
           background: #ffffff;
           border: 1px solid #e5e5e5;
           text-decoration: none;
@@ -422,22 +555,19 @@ export default function HomePage() {
           overflow: hidden;
           display: flex;
           flex-direction: column;
-          min-height: 132px;
         }
         .guideCard:hover {
           background: #fafafa;
           border-color: #0a0a0a;
-          transform: translateY(-1px);
+          transform: translateY(-2px);
         }
         @media (max-width: 600px) {
-          .guideCard { padding: 10px 10px; min-height: 118px; }
+          .guideCard { padding: 11px 11px; }
         }
 
         .guideCardAccent {
           position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
+          top: 0; left: 0; right: 0;
           height: 3px;
         }
 
@@ -445,7 +575,7 @@ export default function HomePage() {
           display: flex;
           align-items: center;
           gap: 8px;
-          margin-bottom: 6px;
+          margin-bottom: 8px;
         }
 
         .guideCardEmoji {
@@ -453,37 +583,31 @@ export default function HomePage() {
           line-height: 1;
           flex-shrink: 0;
         }
-        @media (max-width: 600px) { .guideCardEmoji { font-size: 18px; } }
+        @media (max-width: 600px) { .guideCardEmoji { font-size: 19px; } }
 
         .guideCardKicker {
-          font-size: 9px;
+          font-size: 9.5px;
           font-weight: 700;
           letter-spacing: 0.1em;
           color: #c2410c;
           text-transform: uppercase;
-          flex: 1;
-          min-width: 0;
         }
 
         .guideCardTitle {
-          font-size: 13px;
+          font-size: 14px;
           font-weight: 700;
           color: #0a0a0a;
           letter-spacing: -0.015em;
           line-height: 1.4;
           margin: 0 0 6px;
           word-break: keep-all;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
         }
-        @media (max-width: 600px) { .guideCardTitle { font-size: 12px; } }
+        @media (max-width: 600px) { .guideCardTitle { font-size: 12.5px; } }
 
         .guideCardSub {
-          font-size: 11px;
+          font-size: 11.5px;
           color: #737373;
-          line-height: 1.45;
+          line-height: 1.5;
           margin: 0 0 auto;
           word-break: keep-all;
           display: -webkit-box;
@@ -491,40 +615,46 @@ export default function HomePage() {
           -webkit-box-orient: vertical;
           overflow: hidden;
         }
-        @media (max-width: 600px) { .guideCardSub { font-size: 10.5px; } }
+        @media (max-width: 600px) { .guideCardSub { font-size: 11px; } }
 
         .guideCardMeta {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding-top: 6px;
-          margin-top: 8px;
+          padding-top: 8px;
+          margin-top: 10px;
           border-top: 1px dashed #d4d4d4;
         }
 
         .guideCardTime {
-          font-size: 9.5px;
+          font-size: 10px;
           color: #737373;
           letter-spacing: 0.04em;
         }
 
         .guideCardArrow {
-          font-size: 9.5px;
+          font-size: 10px;
           font-weight: 700;
           color: #0a0a0a;
           letter-spacing: 0.06em;
           text-transform: uppercase;
         }
 
-        /* 카테고리 그리드 (3x3) */
+        /* ============================================ */
+        /* 분야별 9개 (클릭 시 /blog?category=xxx 이동) */
+        /* ============================================ */
         .catGrid {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
-          gap: 6px;
+          gap: 8px;
+          margin-top: 18px;
+        }
+        @media (max-width: 600px) {
+          .catGrid { grid-template-columns: repeat(2, 1fr); gap: 6px; }
         }
 
         .catCard {
-          padding: 11px 8px;
+          padding: 14px 12px;
           background: #ffffff;
           border: 1px solid #e5e5e5;
           text-decoration: none;
@@ -533,55 +663,130 @@ export default function HomePage() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 4px;
+          gap: 6px;
           text-align: center;
           position: relative;
           overflow: hidden;
-          min-height: 84px;
-          justify-content: center;
+          cursor: pointer;
         }
         .catCard:hover {
           background: #fafafa;
           border-color: #0a0a0a;
-          transform: translateY(-1px);
+          transform: translateY(-2px);
         }
         @media (max-width: 600px) {
-          .catCard { padding: 10px 6px; min-height: 76px; }
+          .catCard { padding: 12px 8px; gap: 5px; }
         }
 
         .catCardAccent {
           position: absolute;
-          top: 0;
-          left: 0;
-          right: 0;
-          height: 2px;
+          top: 0; left: 0; right: 0;
+          height: 3px;
         }
 
         .catCardEmoji {
-          font-size: 22px;
+          font-size: 28px;
           line-height: 1;
         }
-        @media (max-width: 600px) { .catCardEmoji { font-size: 20px; } }
+        @media (max-width: 600px) { .catCardEmoji { font-size: 24px; } }
 
         .catName {
-          font-size: 11.5px;
+          font-size: 13px;
           font-weight: 700;
           color: #0a0a0a;
           letter-spacing: -0.015em;
-          line-height: 1.2;
+          line-height: 1.3;
         }
-        @media (max-width: 600px) { .catName { font-size: 11px; } }
+        @media (max-width: 600px) { .catName { font-size: 12px; } }
 
         .catDesc {
-          display: none;
+          font-size: 10.5px;
+          color: #737373;
+          line-height: 1.4;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .catDesc { font-size: 10px; } }
+
+        /* ============================================ */
+        /* 7. CTA */
+        /* ============================================ */
+        .ctaSect {
+          padding: 36px 24px;
+          background: #0a0a0a;
+          color: #ffffff;
+          text-align: center;
+        }
+        @media (max-width: 600px) {
+          .ctaSect { padding: 28px 18px; }
         }
 
-        /* FAQ 아코디언 (모두 접힘) */
-        .faqPanel {
-          margin-bottom: 18px;
+        .ctaTitle {
+          font-size: 22px;
+          font-weight: 800;
+          letter-spacing: -0.025em;
+          line-height: 1.35;
+          margin: 0 0 10px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .ctaTitle { font-size: 18px; } }
+
+        .ctaDesc {
+          font-size: 14px;
+          color: #d4d4d4;
+          line-height: 1.65;
+          margin: 0 0 22px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .ctaDesc { font-size: 13px; margin-bottom: 18px; } }
+
+        .ctaButtons {
+          display: flex;
+          gap: 10px;
+          justify-content: center;
+          flex-wrap: wrap;
         }
 
+        .ctaBtn {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 13px 22px;
+          font-family: inherit;
+          font-size: 14px;
+          font-weight: 700;
+          letter-spacing: -0.01em;
+          text-decoration: none;
+          transition: all 0.15s;
+          min-height: 46px;
+        }
+        @media (max-width: 600px) {
+          .ctaBtn { padding: 11px 18px; font-size: 13px; min-height: 42px; }
+        }
+
+        .ctaBtnPrimary {
+          background: #c2410c;
+          color: #ffffff;
+          border: 1.5px solid #c2410c;
+        }
+        .ctaBtnPrimary:hover {
+          background: #a3340a;
+        }
+
+        .ctaBtnSecondary {
+          background: transparent;
+          color: #ffffff;
+          border: 1.5px solid #525252;
+        }
+        .ctaBtnSecondary:hover {
+          border-color: #ffffff;
+          background: rgba(255,255,255,0.05);
+        }
+
+        /* ============================================ */
+        /* 8. FAQ (모두 접힘) */
+        /* ============================================ */
         .faqList {
+          margin-top: 16px;
           background: #ffffff;
         }
 
@@ -593,11 +798,11 @@ export default function HomePage() {
         }
 
         .faqItem summary {
-          font-size: 13px;
+          font-size: 14px;
           font-weight: 700;
           color: #0a0a0a;
           letter-spacing: -0.015em;
-          padding: 11px 32px 11px 4px;
+          padding: 13px 36px 13px 4px;
           cursor: pointer;
           position: relative;
           list-style: none;
@@ -612,7 +817,7 @@ export default function HomePage() {
           right: 4px;
           top: 50%;
           transform: translateY(-50%);
-          font-size: 20px;
+          font-size: 22px;
           font-weight: 400;
           color: #737373;
           line-height: 1;
@@ -625,129 +830,196 @@ export default function HomePage() {
           color: #c2410c;
         }
         @media (max-width: 600px) {
-          .faqItem summary { font-size: 12.5px; padding: 10px 28px 10px 4px; }
-          .faqItem summary::after { font-size: 18px; right: 2px; }
+          .faqItem summary { font-size: 13px; padding: 11px 30px 11px 4px; }
+          .faqItem summary::after { font-size: 20px; right: 2px; }
         }
 
         .faqA {
-          font-size: 12.5px;
+          font-size: 13px;
           color: #525252;
-          line-height: 1.6;
+          line-height: 1.65;
           margin: 0;
-          padding: 0 4px 12px;
+          padding: 0 4px 14px;
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .faqA { font-size: 12px; padding-bottom: 10px; }
+          .faqA { font-size: 12px; padding-bottom: 12px; }
         }
 
-        /* 광고 영역 (작게) */
+        /* 광고 */
         .adWrap {
-          margin: 0 0 18px;
+          padding: 24px;
+          border-bottom: 1px solid #e5e5e5;
         }
         @media (max-width: 600px) {
-          .adWrap { margin-bottom: 14px; }
+          .adWrap { padding: 18px 16px; }
         }
       `}</style>
 
-      <div className="dash">
-        {/* 1. 키워드 박스 (가장 위) */}
-        <form className="startBox" onSubmit={handleSubmit}>
-          <div className="startTitle">
-            <span className="startKicker">⚡ 빠른 시작</span>
-            영상 키워드를 입력하면 5초 안에 자료를 만들어드립니다
-          </div>
-          <div className="startRow">
-            <input
-              type="text"
-              className="startInput"
-              placeholder="예: 50대 재취업, 부동산 전망, 집밥 레시피"
-              value={keyword}
-              onChange={(e) => setKeyword(e.target.value)}
-              aria-label="영상 키워드 입력"
-              maxLength={50}
-            />
-            <button
-              type="submit"
-              className="startBtn"
-              disabled={!keyword.trim()}
-            >
-              만들기 →
-            </button>
-          </div>
-          <div className="startCatsLabel">분야 선택 (선택사항)</div>
-          <div className="startCats">
-            {CATEGORY_NAV.map((c) => (
-              <button
-                key={c.id}
-                type="button"
-                className={`startCat ${selectedCat === c.id ? 'active' : ''}`}
-                onClick={() => setSelectedCat(c.id)}
-                style={selectedCat === c.id ? { borderColor: c.color, color: c.color } : {}}
-              >
-                <span className="startCatEmoji">{c.emoji}</span>
-                <span>{c.name}</span>
-              </button>
+      <div className="story">
+        {/* ============================================ */}
+        {/* 1. HOOK - 시니어 공감 */}
+        {/* ============================================ */}
+        <section className="hookSect">
+          <div className="hookEmoji">💭</div>
+          <h1 className="hookTitle">
+            퇴직 후, 영상 한 번 만들어볼까<br />
+            하셨나요?
+          </h1>
+          <p className="hookSub">
+            "조카는 유튜브로 큰돈 번다는데 나도 한 번..."<br />
+            막상 시작하려니 <span className="hookHighlight">모르는 게 너무 많죠</span>.<br />
+            제목, 썸네일, 시나리오, 알고리즘...
+          </p>
+        </section>
+
+        {/* ============================================ */}
+        {/* 2. 막히는 5가지 (페인 포인트) */}
+        {/* ============================================ */}
+        <section className="sect">
+          <div className="sectKicker">▍ 시니어가 막히는 5가지</div>
+          <h2 className="sectTitle">
+            영상 시작이 어려운<br />이유, 다 비슷합니다
+          </h2>
+          <p className="sectDesc">
+            저희가 가이드 채널 운영하면서 가장 많이 받은 질문입니다.
+            막막한 부분을 솔직히 말씀드리고, AlgoMaker가 어떻게 도와드리는지
+            한 번에 보여드립니다.
+          </p>
+
+          <div className="painList">
+            {PAIN_POINTS.map((p, i) => (
+              <div key={i} className="painCard" style={{ borderLeftColor: p.color }}>
+                <div className="painEmoji">{p.emoji}</div>
+                <div className="painContent">
+                  <div className="painLabel">막막함 {i + 1}</div>
+                  <h3 className="painQ">"{p.pain}"</h3>
+                  <p className="painDesc">{p.desc}</p>
+                  <div className="painArrow">
+                    <div className="painSolutionLabel">→ AlgoMaker가 해결</div>
+                    <div className="painSolution">{p.solution}</div>
+                    <p className="painDetail">{p.detail}</p>
+                  </div>
+                </div>
+              </div>
             ))}
           </div>
-        </form>
+        </section>
 
-        {/* 2. 가이드 + 분야 (가로 2분할) */}
-        <div className="splitGrid">
-          <section className="panel">
-            <div className="panelHead">
-              <div className="panelTitle">📚 추천 가이드</div>
-              <Link href="/blog" className="panelMore">전체 보기 →</Link>
-            </div>
-            <div className="guideGrid">
-              {FEATURED_GUIDES.map((g) => (
-                <Link key={g.slug} href={`/knowhow/${g.slug}`} className="guideCard">
-                  <div className="guideCardAccent" style={{ background: g.color }} />
-                  <div className="guideCardHead">
-                    <span className="guideCardEmoji">{g.emoji}</span>
-                    <div className="guideCardKicker">
-                      {g.category}{g.badge ? ` · ${g.badge}` : ''}
-                    </div>
-                  </div>
-                  <h3 className="guideCardTitle">{g.title}</h3>
-                  <p className="guideCardSub">{g.subtitle}</p>
-                  <div className="guideCardMeta">
-                    <span className="guideCardTime">⏱ {g.readTime}</span>
-                    <span className="guideCardArrow">읽어보기 →</span>
-                  </div>
-                </Link>
-              ))}
-            </div>
-          </section>
+        {/* ============================================ */}
+        {/* 3. 실제 작동 예시 */}
+        {/* ============================================ */}
+        <section className="sect">
+          <div className="sectKicker">▍ 실제로 이렇게 작동합니다</div>
+          <h2 className="sectTitle">
+            "50대 재취업" 키워드를 입력하면
+          </h2>
+          <p className="sectDesc">
+            방금 말씀드린 5가지가 5초 안에 한 번에 만들어집니다.
+            아래는 실제 결과 예시입니다.
+          </p>
 
-          <section className="panel">
-            <div className="panelHead">
-              <div className="panelTitle">🗂 분야별</div>
-              <Link href="/blog" className="panelMore">전체 보기 →</Link>
-            </div>
-            <div className="catGrid">
-              {CATEGORY_NAV.map((c) => (
-                <Link key={c.id} href={`/blog?category=${c.id}`} className="catCard">
-                  <div className="catCardAccent" style={{ background: c.color }} />
-                  <div className="catCardEmoji">{c.emoji}</div>
-                  <div className="catName">{c.name}</div>
-                  <div className="catDesc">{c.desc}</div>
-                </Link>
-              ))}
-            </div>
-          </section>
-        </div>
+          <div className="demoBox">
+            <div className="demoLabel">▍ INPUT (사용자 입력)</div>
+            <div className="demoInput">50대 재취업</div>
 
-        {/* 3. 광고 */}
+            <div className="demoArrow">↓ 5초 후 ↓</div>
+
+            {DEMO_EXAMPLES.map((ex, i) => (
+              <div key={i} className="demoResult">
+                <div className="demoResultLabel">{ex.icon} {ex.label}</div>
+                <p className="demoResultText">{ex.content}</p>
+              </div>
+            ))}
+          </div>
+        </section>
+
+        {/* 광고 */}
         <div className="adWrap">
           <AdSlot slot="home-middle" variant="horizontal" />
         </div>
 
-        {/* 4. FAQ (모두 접힘) */}
-        <section className="panel faqPanel">
-          <div className="panelHead">
-            <div className="panelTitle">❓ 자주 묻는 질문</div>
+        {/* ============================================ */}
+        {/* 5. 추천 가이드 6편 */}
+        {/* ============================================ */}
+        <section className="sect">
+          <div className="sectKicker">▍ 시작 전 꼭 읽으세요</div>
+          <h2 className="sectTitle">📚 추천 가이드</h2>
+          <p className="sectDesc">
+            영상 만들기에 필요한 핵심 가이드 6편.
+            매주 새로운 가이드가 추가됩니다.
+          </p>
+
+          <div className="guideGrid">
+            {FEATURED_GUIDES.map((g) => (
+              <Link key={g.slug} href={`/knowhow/${g.slug}`} className="guideCard">
+                <div className="guideCardAccent" style={{ background: g.color }} />
+                <div className="guideCardHead">
+                  <span className="guideCardEmoji">{g.emoji}</span>
+                  <div className="guideCardKicker">
+                    {g.category}{g.badge ? ` · ${g.badge}` : ''}
+                  </div>
+                </div>
+                <h3 className="guideCardTitle">{g.title}</h3>
+                <p className="guideCardSub">{g.subtitle}</p>
+                <div className="guideCardMeta">
+                  <span className="guideCardTime">⏱ {g.readTime}</span>
+                  <span className="guideCardArrow">읽어보기 →</span>
+                </div>
+              </Link>
+            ))}
           </div>
+        </section>
+
+        {/* ============================================ */}
+        {/* 6. 분야별 9개 (클릭 시 /blog?category=xxx 이동) */}
+        {/* ============================================ */}
+        <section className="sect">
+          <div className="sectKicker">▍ 관심 분야로 둘러보기</div>
+          <h2 className="sectTitle">🗂 분야별 가이드</h2>
+          <p className="sectDesc">
+            분야 카드를 클릭하시면 해당 카테고리의 모든 가이드를 보실 수 있습니다.
+          </p>
+
+          <div className="catGrid">
+            {CATEGORY_NAV.map((c) => (
+              <Link key={c.id} href={`/blog?category=${c.id}`} className="catCard">
+                <div className="catCardAccent" style={{ background: c.color }} />
+                <div className="catCardEmoji">{c.emoji}</div>
+                <div className="catName">{c.name}</div>
+                <div className="catDesc">{c.desc}</div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* ============================================ */}
+        {/* 7. CTA (행동 유도) */}
+        {/* ============================================ */}
+        <section className="ctaSect">
+          <h2 className="ctaTitle">
+            준비 다 되셨다면, 시작해 볼까요?
+          </h2>
+          <p className="ctaDesc">
+            가이드부터 차근차근 보시거나,<br />
+            바로 영상 자료를 만들어 보세요.
+          </p>
+          <div className="ctaButtons">
+            <Link href="/blog" className="ctaBtn ctaBtnSecondary">
+              📚 가이드 모두 보기
+            </Link>
+            <Link href="/publish?keyword=50대 재취업&category=economy" className="ctaBtn ctaBtnPrimary">
+              ✏️ 직접 만들어보기 →
+            </Link>
+          </div>
+        </section>
+
+        {/* ============================================ */}
+        {/* 8. FAQ (모두 접힘) */}
+        {/* ============================================ */}
+        <section className="sect">
+          <div className="sectKicker">▍ 자주 묻는 질문</div>
+          <h2 className="sectTitle">❓ FAQ</h2>
           <div className="faqList">
             {FAQ_LIST.map((f, i) => (
               <details key={i} className="faqItem">
