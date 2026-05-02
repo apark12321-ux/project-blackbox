@@ -395,40 +395,40 @@ export default function BlogListPage() {
 
         .blogKicker {
           font-family: 'SF Mono', 'Consolas', monospace;
-          font-size: 11px;
+          font-size: 12.5px;
           font-weight: 700;
           letter-spacing: 0.22em;
           color: #c2410c;
           margin-bottom: 8px;
           text-transform: uppercase;
         }
-        @media (max-width: 600px) { .blogKicker { font-size: 10px; } }
+        @media (max-width: 600px) { .blogKicker { font-size: 11.5px; } }
 
         .blogTitle {
-          font-size: 32px;
+          font-size: 36px;
           font-weight: 800;
           letter-spacing: -0.03em;
           line-height: 1.25;
           margin: 0 0 8px;
           word-break: keep-all;
         }
-        @media (max-width: 600px) { .blogTitle { font-size: 26px; } }
+        @media (max-width: 600px) { .blogTitle { font-size: 28px; } }
 
         .blogSub {
-          font-size: 16px;
+          font-size: 17px;
           color: #525252;
           line-height: 1.6;
           margin: 0;
           font-weight: 500;
           word-break: keep-all;
         }
-        @media (max-width: 600px) { .blogSub { font-size: 14.5px; } }
+        @media (max-width: 600px) { .blogSub { font-size: 15.5px; } }
 
         .blogMeta {
           display: flex;
           gap: 12px;
           margin-top: 10px;
-          font-size: 13px;
+          font-size: 14px;
           color: #737373;
           font-family: 'SF Mono', 'Consolas', monospace;
           flex-wrap: wrap;
@@ -455,7 +455,7 @@ export default function BlogListPage() {
           background: #ffffff;
           border: 1px solid #e5e5e5;
           font-family: inherit;
-          font-size: 14px;
+          font-size: 15px;
           font-weight: 600;
           color: #525252;
           letter-spacing: -0.005em;
@@ -465,7 +465,7 @@ export default function BlogListPage() {
           flex-shrink: 0;
         }
         @media (max-width: 600px) {
-          .filterBtn { padding: 8px 12px; font-size: 13px; }
+          .filterBtn { padding: 9px 13px; font-size: 14px; }
         }
         .filterBtn:hover {
           background: #fafafa;
@@ -542,7 +542,7 @@ export default function BlogListPage() {
 
         .guideCat {
           font-family: 'SF Mono', 'Consolas', monospace;
-          font-size: 11px;
+          font-size: 12.5px;
           font-weight: 700;
           color: #c2410c;
           letter-spacing: 0.15em;
@@ -562,7 +562,7 @@ export default function BlogListPage() {
         @media (max-width: 600px) { .guideBadge { font-size: 9px; } }
 
         .guideTitle {
-          font-size: 17px;
+          font-size: 19px;
           font-weight: 700;
           letter-spacing: -0.018em;
           line-height: 1.4;
@@ -570,11 +570,11 @@ export default function BlogListPage() {
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .guideTitle { font-size: 16px; }
+          .guideTitle { font-size: 17px; }
         }
 
         .guideSub {
-          font-size: 14px;
+          font-size: 15px;
           color: #737373;
           line-height: 1.55;
           margin: 0 0 6px;
@@ -585,19 +585,19 @@ export default function BlogListPage() {
           overflow: hidden;
         }
         @media (max-width: 600px) {
-          .guideSub { font-size: 13px; }
+          .guideSub { font-size: 14px; }
         }
 
         .guideStats {
           display: flex;
           gap: 10px;
           font-family: 'SF Mono', 'Consolas', monospace;
-          font-size: 12px;
+          font-size: 13px;
           color: #a3a3a3;
           letter-spacing: 0.02em;
         }
         @media (max-width: 600px) {
-          .guideStats { font-size: 10px; gap: 8px; }
+          .guideStats { font-size: 12px; gap: 8px; }
         }
 
         .guideStatsItem {
@@ -613,7 +613,7 @@ export default function BlogListPage() {
           align-items: flex-end;
           gap: 4px;
           font-family: 'SF Mono', 'Consolas', monospace;
-          font-size: 10.5px;
+          font-size: 12px;
           color: #737373;
           letter-spacing: 0.02em;
           flex-shrink: 0;
