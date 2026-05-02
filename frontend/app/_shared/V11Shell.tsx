@@ -1,26 +1,30 @@
 'use client';
 /**
- * AlgoMaker V11Shell v11.5 - GNB 간결화 + /blog 트래픽 유도
+ * AlgoMaker V11Shell v11.7 - 프리미엄 LNB 디자인
  *
- * 박 대표님 v11.5 요청:
- *   "GNB에 가이드 카테고리 너무 많음"
- *   "하위 카테고리로 내려서 목록형으로 조회수 나오게"
- *   → GNB 간결화 + /blog 페이지 트래픽 유도
- *   → AdSense 친화 (페이지뷰 누적 효과)
+ * 박 대표님 v11.7 지적:
+ *   "LNB 자료만들기, 도구 중복 해결" (v11.6에서 처리됨)
+ *   "LNB 좀 있어보이게" → 프리미엄 디자인
  *
- * v11.5 변경 (v11.4 → v11.5):
- *  ✅ GNB 가이드 8편 직접 노출 → 1개 메뉴로
- *    "📚 가이드 [10편 배지]" 클릭 → /blog 목록 페이지 진입
- *  ✅ "도구" 메뉴도 1개로 → /create 진입
- *  ✅ menuLabel "가이드/도구/정보" → 단순화
- *    (가이드/도구는 라벨 없이 직접 메뉴 1개씩)
- *  ✅ menuBadge 추가 (10편 표시)
- *  ✅ 푸터는 그대로 유지 (SEO 내부 링크)
+ * v11.7 변경 (v11.6 → v11.7):
+ *  ✅ LNB 그라데이션 배경 (180deg 미세한 톤)
+ *  ✅ CTA 버튼 그림자 + 빛 애니메이션 (hover 시 빛이 가로지름)
+ *  ✅ CTA 버튼 둥근 모서리 (12px) + 깊이감
+ *  ✅ 메뉴 좌측 활성 인디케이터 (3px 주황 막대)
+ *  ✅ 메뉴 아이콘 호버 시 채도 ↑
+ *  ✅ 메뉴 호버 시 우측으로 살짝 이동 (transform)
+ *  ✅ 활성 메뉴 그라데이션 + 내부 보더
+ *  ✅ 메뉴 배지 그라데이션 + 그림자
+ *  ✅ FREE 라벨 그라데이션 + 그림자
+ *  ✅ 폰트 크기 디테일 조정 (10.5 → 11, 14 → 14.5 등)
+ *  ✅ 사이드바 패딩 14 → 16 (여유)
+ *  ✅ 정책 메뉴 hover 배경 추가
  *
- * 사용자 흐름 개선:
- *  이전: 메인 → 가이드 직접 (2페이지뷰)
- *  이후: 메인 → /blog 목록 → 가이드 (3페이지뷰)
- *  → AdSense 페이지뷰 누적 ↑
+ * v11.6 보존:
+ *  - LNB 도구 메뉴 제거 (CTA와 중복)
+ *  - LNB 가이드 배지 [20편]
+ *  - 푸터 2섹션 (가이드 + 정보·정책)
+ *  - 신규 6편 가이드 노출
  *  - 박 대표님 자산 100% 보존 (메뉴/노출/링크 그대로)
  */
 
@@ -182,14 +186,18 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
 
   // 시니어 영상 멘토링 채널 컨셉 (v6.2.0)
   // ============================================================
-  // v11.5: GNB 간결화 - 카테고리 페이지로 유도
-  // 박 대표님 v11.5 요청:
-  //   "GNB에 가이드 카테고리 너무 많음"
-  //   "하위 카테고리로 내려서 목록형으로 조회수 나오게"
-  //   → /blog 페이지 트래픽 유도 (AdSense 중요 지표)
+  // v11.6: LNB 도구 제거 + 가이드 20편 + 푸터 일관성
+  // 박 대표님 v11.6 지적:
+  //   "자료 만들기와 도구가 같은 카테고리잖아" (도구 제거)
+  //   "가이드는 왜 10편 밖에 안 보이지?" (20편 업데이트)
+  //   "LNB의 가이드와 푸터의 가이드는 뭐가 다른거야?" (일관성)
+  // 
+  // D안 (어시스턴트 판단):
+  //   LNB와 푸터의 "가이드" 같은 의미로 통일
+  //   푸터는 대표 6편 + 전체 보기 링크
   // ============================================================
   
-  // 핵심 CTA 버튼
+  // 핵심 CTA 버튼 (= 자료 만들기 = /create)
   const ctaAction = {
     label: '자료 만들기',
     sub: 'AI가 5초 안에',
@@ -200,11 +208,9 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
   // 홈 버튼 (CTA 위)
   const homeMenu = { icon: '🏠', label: '홈', path: '/', key: 'home' };
   
-  // 메인 메뉴 (간결!)
-  // → 가이드 클릭 시 /blog 목록 페이지로 → 조회수 누적
+  // 메인 메뉴 (가이드만 - 도구는 CTA 와 중복이므로 제거)
   const mainMenu = [
-    { icon: '📚', label: '가이드', path: '/blog', key: 'blog', badge: '10편' },
-    { icon: '🛠', label: '도구', path: '/create', key: 'tool' },
+    { icon: '📚', label: '가이드', path: '/blog', key: 'blog', badge: '20편' },
   ];
   
   // 정보 메뉴
@@ -238,111 +244,198 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
         .layout { display: flex; min-height: 100vh; }
         
         /* 사이드바 - 컴팩트 */
+        /* ============================================ */
+        /* v11.7: 프리미엄 LNB 디자인 */
+        /* 박 대표님 v11.7 요청: "LNB 좀 있어보이게" */
+        /* ============================================ */
         .sidebar {
-          width: 240px; flex-shrink: 0; background: #fff;
+          width: 240px; flex-shrink: 0;
+          background: linear-gradient(180deg, #ffffff 0%, #fafafa 100%);
           border-right: 1px solid #e5e5e5;
           display: flex; flex-direction: column;
-          padding: 14px 14px;
+          padding: 16px 14px;
           height: 100vh;
           position: sticky; top: 0; overflow-y: auto;
+          box-shadow: 1px 0 0 rgba(0, 0, 0, 0.02);
         }
-        .sidebarLogo { padding: 4px 6px 14px; }
+        .sidebarLogo { 
+          padding: 4px 6px 16px;
+          border-bottom: 1px solid rgba(0, 0, 0, 0.04);
+          margin-bottom: 14px;
+        }
         .freeLabel {
-          display: inline-block; padding: 2px 9px;
-          background: #e8f5e9; color: #2e7d32;
-          border-radius: 100px; font-size: 10px; font-weight: 700;
-          margin-top: 6px; letter-spacing: 0.05em;
+          display: inline-block; padding: 3px 10px;
+          background: linear-gradient(135deg, #d1fae5 0%, #a7f3d0 100%);
+          color: #047857;
+          border-radius: 100px; font-size: 10.5px; font-weight: 800;
+          margin-top: 6px; letter-spacing: 0.06em;
+          box-shadow: 0 1px 2px rgba(4, 120, 87, 0.1);
         }
-        .menuSection { margin-bottom: 16px; }
+        .menuSection { margin-bottom: 18px; }
 
-        /* v11.3 NEW: CTA 강조 버튼 (자료 만들기) */
+        /* CTA 강조 버튼 - 프리미엄 */
         .ctaBtn {
-          margin: 0 0 18px;
-          padding: 12px 14px;
+          margin: 0 0 20px;
+          padding: 14px 16px;
           background: linear-gradient(135deg, #c2410c 0%, #ea580c 100%);
           color: #ffffff;
           cursor: pointer;
-          transition: all 0.15s;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
           position: relative;
           overflow: hidden;
+          border-radius: 12px;
+          box-shadow: 
+            0 4px 6px -1px rgba(194, 65, 12, 0.15),
+            0 2px 4px -1px rgba(194, 65, 12, 0.1),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+        }
+        .ctaBtn::before {
+          content: '';
+          position: absolute;
+          top: 0; left: -100%;
+          width: 100%; height: 100%;
+          background: linear-gradient(
+            90deg, 
+            transparent, 
+            rgba(255, 255, 255, 0.15), 
+            transparent
+          );
+          transition: left 0.6s;
         }
         .ctaBtn:hover {
-          background: linear-gradient(135deg, #a3340a 0%, #c2410c 100%);
-          transform: translateY(-1px);
-          box-shadow: 0 4px 8px rgba(194, 65, 12, 0.25);
+          background: linear-gradient(135deg, #b13a0a 0%, #d44a08 100%);
+          transform: translateY(-2px);
+          box-shadow: 
+            0 8px 12px -2px rgba(194, 65, 12, 0.25),
+            0 4px 6px -2px rgba(194, 65, 12, 0.15),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+        }
+        .ctaBtn:hover::before {
+          left: 100%;
+        }
+        .ctaBtn:active {
+          transform: translateY(0);
         }
         .ctaBtnLabel {
-          font-size: 14px;
+          font-size: 15px;
           font-weight: 800;
-          letter-spacing: -0.015em;
-          margin-bottom: 2px;
+          letter-spacing: -0.018em;
+          margin-bottom: 3px;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
         }
         .ctaBtnSub {
-          font-size: 10.5px;
+          font-size: 11px;
           font-weight: 600;
-          letter-spacing: 0.04em;
-          color: rgba(255, 255, 255, 0.85);
+          letter-spacing: 0.05em;
+          color: rgba(255, 255, 255, 0.92);
           font-family: 'SF Mono', 'Consolas', monospace;
         }
         .ctaBtnArrow {
           position: absolute;
-          right: 14px;
+          right: 16px;
           top: 50%;
           transform: translateY(-50%);
-          font-size: 18px;
-          font-weight: 700;
+          font-size: 20px;
+          font-weight: 800;
           color: #fbbf24;
+          text-shadow: 0 1px 2px rgba(0, 0, 0, 0.15);
         }
 
-        /* v11.3 NEW: 정책 메뉴 (작게) */
+        /* 정책 메뉴 (작게) */
         .policySection {
-          margin-top: 8px;
-          padding-top: 12px;
-          border-top: 1px dashed #e5e5e5;
+          margin-top: auto;
+          padding-top: 16px;
+          border-top: 1px dashed #d4d4d4;
         }
         .policyItem {
-          padding: 6px 8px;
-          font-size: 11px;
+          padding: 7px 10px;
+          font-size: 11.5px;
           color: #a3a3a3;
           cursor: pointer;
-          transition: color 0.15s;
+          transition: all 0.15s;
           letter-spacing: -0.005em;
+          border-radius: 6px;
         }
         .policyItem:hover {
           color: #525252;
+          background: rgba(0, 0, 0, 0.02);
         }
-        .menuLabel {
-          font-size: 10.5px; font-weight: 700; color: #999;
-          padding: 0 8px 6px; letter-spacing: 0.08em;
-        }
-        .menuItem {
-          display: flex; align-items: center; gap: 10px;
-          padding: 9px 11px; border-radius: 10px; cursor: pointer;
-          transition: all 0.15s; margin-bottom: 2px;
-          font-size: 14.5px; color: #444; font-weight: 600;
-          min-height: 40px;
-        }
-        .menuItem:hover { background: #fafafa; color: #1a1a1a; }
-        .menuItem.active {
-          background: #fdf1e7; color: #c65f3b; font-weight: 700;
-        }
-        .menuIcon { font-size: 17px; }
         
-        /* v11.5: 메뉴 배지 (가이드 옆 "10편" 등) */
+        .menuLabel {
+          font-size: 11px; font-weight: 700; color: #a3a3a3;
+          padding: 0 10px 8px; letter-spacing: 0.1em;
+          text-transform: uppercase;
+        }
+        
+        .menuItem {
+          display: flex; align-items: center; gap: 11px;
+          padding: 11px 13px; 
+          border-radius: 10px; 
+          cursor: pointer;
+          transition: all 0.18s cubic-bezier(0.4, 0, 0.2, 1);
+          margin-bottom: 3px;
+          font-size: 14.5px; 
+          color: #404040; 
+          font-weight: 600;
+          min-height: 44px;
+          letter-spacing: -0.012em;
+          position: relative;
+        }
+        .menuItem::before {
+          content: '';
+          position: absolute;
+          left: 0; top: 50%;
+          transform: translateY(-50%);
+          width: 3px; height: 0;
+          background: #c2410c;
+          border-radius: 0 2px 2px 0;
+          transition: height 0.2s;
+        }
+        .menuItem:hover { 
+          background: #f5f5f5; 
+          color: #0a0a0a;
+          transform: translateX(2px);
+        }
+        .menuItem.active {
+          background: linear-gradient(135deg, #fff7ed 0%, #fef3e7 100%);
+          color: #c2410c; 
+          font-weight: 700;
+          box-shadow: 
+            0 1px 2px rgba(194, 65, 12, 0.06),
+            inset 0 0 0 1px rgba(194, 65, 12, 0.08);
+        }
+        .menuItem.active::before {
+          height: 60%;
+        }
+        .menuIcon { 
+          font-size: 18px;
+          filter: grayscale(0.1);
+          transition: filter 0.2s;
+        }
+        .menuItem:hover .menuIcon,
+        .menuItem.active .menuIcon {
+          filter: grayscale(0);
+        }
+        
+        /* 메뉴 배지 - 프리미엄 */
         .menuBadge {
           margin-left: auto;
-          padding: 2px 7px;
-          background: #fef3e7;
+          padding: 3px 8px;
+          background: linear-gradient(135deg, #fef3e7 0%, #fde4cb 100%);
           color: #c2410c;
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 0.02em;
+          font-size: 10.5px;
+          font-weight: 800;
+          letter-spacing: 0.03em;
           font-family: 'SF Mono', 'Consolas', monospace;
-          border-radius: 4px;
+          border-radius: 5px;
+          box-shadow: inset 0 0 0 1px rgba(194, 65, 12, 0.08);
         }
         .menuItem.active .menuBadge {
-          background: #c2410c;
+          background: linear-gradient(135deg, #c2410c 0%, #ea580c 100%);
           color: #ffffff;
+          box-shadow: 
+            0 1px 2px rgba(194, 65, 12, 0.2),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15);
         }
         
         /* 알림 카드 - 컴팩트 */
@@ -400,7 +493,7 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
         }
         .footerInner {
           max-width: 1200px; margin: 0 auto;
-          display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+          display: grid; grid-template-columns: 2fr 1.2fr 1.2fr;
           gap: 28px;
           padding-bottom: 22px;
           border-bottom: 1px solid #333;
@@ -607,25 +700,19 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
               <div className="footerCol">
                 <h4>가이드</h4>
                 <ul>
-                  <li><Link href="/blog" className="fLink">📚 전체 가이드 모음</Link></li>
+                  <li><Link href="/blog" className="fLink">📚 전체 보기 (20편)</Link></li>
+                  <li><Link href="/blog/first-100-subs" className="fLink">🎯 첫 100명 구독자</Link></li>
+                  <li><Link href="/blog/viral-patterns" className="fLink">🔥 떡상 채널 패턴</Link></li>
                   <li><Link href="/blog/algorithm-seo" className="fLink">🔍 SEO 검색 최적화</Link></li>
-                  <li><Link href="/blog/algorithm-retention" className="fLink">⏱ 시청 지속률 전략</Link></li>
-                  <li><Link href="/blog/algorithm-branding" className="fLink">🎨 채널 브랜딩</Link></li>
-                  <li><Link href="/blog/algorithm-mistakes" className="fLink">⚠️ 치명적 실수 방어</Link></li>
-                  <li><Link href="/blog/algorithm-mindset" className="fLink">💪 유튜버 멘탈</Link></li>
-                </ul>
-              </div>
-              <div className="footerCol">
-                <h4>도구</h4>
-                <ul>
-                  <li><Link href="/create" className="fLink">✏️ 자료 만들기</Link></li>
-                  <li><Link href="/blog/youtube-start" className="fLink">🎬 영상 처음 시작</Link></li>
-                  <li><Link href="/blog/ai-tools" className="fLink">🤖 AI 도구 활용법</Link></li>
+                  <li><Link href="/blog/phone-shooting" className="fLink">📱 핸드폰 영상</Link></li>
+                  <li><Link href="/blog/chatgpt-script" className="fLink">🤖 ChatGPT 영상 대본</Link></li>
+                  <li><Link href="/blog/revenue-calc" className="fLink">💰 광고 수익 계산</Link></li>
                 </ul>
               </div>
               <div className="footerCol">
                 <h4>정보 · 정책</h4>
                 <ul>
+                  <li><Link href="/create" className="fLink">✏️ 자료 만들기</Link></li>
                   <li><Link href="/about" className="fLink">서비스 소개</Link></li>
                   <li><Link href="/contact" className="fLink">문의하기</Link></li>
                   <li><Link href="/privacy" className="fLink">개인정보 처리방침</Link></li>

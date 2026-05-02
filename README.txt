@@ -1,111 +1,164 @@
 ============================================================
-C 수준 폰트 업그레이드 - 5060 시니어 최우선
+LNB 프리미엄 디자인 + 도구 중복 해결 (V11Shell v11.7)
 ============================================================
 
-박 대표님 지적:
-  "B 수준 적용했는데도 여전히 작아 보임"
-  → C 수준으로 더 크게
+박 대표님 v11.7 지적 (3가지):
+  1. PRODUCTION SPEC 안 나옴 → 별도 진단 필요 (박 대표님 답 대기)
+  2. LNB 자료 만들기 / 도구 중복 → 도구 제거 ✅
+  3. LNB 좀 있어보이게 → 프리미엄 디자인 ✅
 
 ============================================================
-C 수준 폰트 (이전 B 대비)
+변경 파일 1개
 ============================================================
 
-[가이드 페이지]
-- 본문: 17 → 18px (모바일 16 → 17)
-- h1: 30 → 32px (모바일 24 → 26)
-- h2: 22 → 24px (모바일 19 → 21)
-- h3: 18 → 19px (모바일 16.5 → 17.5)
-- 부제: 16 → 17px
-- 콜아웃: 15.5 → 17px
-- 메타: 13 → 14px
-- CTA 버튼: 14 → 15px
-
-[/blog 목록]
-- 타이틀: 32 → 36px (모바일 26 → 28)
-- 부제: 16 → 17px (모바일 14.5 → 15.5)
-- 카드 타이틀: 17 → 19px (모바일 16 → 17)
-- 카드 부제: 14 → 15px (모바일 13 → 14)
-- 메타: 13 → 14px
-- 필터: 14 → 15px (모바일 13 → 14)
-
-[메인 페이지]
-- 타이틀: 36 → 40px (모바일 26 → 28)
-- 부제: 15 → 17px (모바일 14 → 15.5)
-- 메트릭 값: 26 → 30px (모바일 20 → 24)
-- 메트릭 라벨: 11 → 12.5px
-- 슬라이드 타이틀: 22 → 24px (모바일 19 → 21)
-- 슬라이드 설명: 15 → 17px (모바일 14 → 15.5)
-- 슬라이드 디테일: 13 → 14px
+★ frontend/app/_shared/V11Shell.tsx (v11.7)
+  - 도구 메뉴 제거 (이전 v11.6 적용 안 되었던 부분 다시 포함)
+  - 가이드 배지 [10편] → [20편]
+  - 프리미엄 디자인 적용
 
 ============================================================
-폰트 변화 비교 (가이드 본문)
+LNB 프리미엄 디자인 변경
 ============================================================
 
-원본 (적용 전):     데스크탑 15.5px / 모바일 14.5px
-B 수준 (직전 ZIP): 데스크탑 17px / 모바일 16px
-C 수준 (이번 ZIP): 데스크탑 18px / 모바일 17px
+[배경]
+이전: 평면 흰색
+이후: 그라데이션 (#ffffff → #fafafa, 미세한 톤 변화)
+      좌측 그림자 1px (입체감)
 
-→ 시니어/5060 사용자 가독성 ↑↑
-→ 모바일에서도 글자 크게 보임
-→ AdSense 친화 (체류 시간 ↑)
+[CTA 버튼 - "자료 만들기"]
+이전:
+  ┌──────────────┐
+  │ 자료 만들기 →│
+  └──────────────┘
+  단순 그라데이션, 평면적
+
+이후:
+  ╔══════════════╗
+  ║ 자료 만들기 →║ ← 둥근 모서리 12px
+  ╚══════════════╝
+  - 다층 그림자 (4px + 2px + inset)
+  - 호버 시 빛이 가로지르는 애니메이션
+  - 호버 시 -2px 떠오름 (translateY)
+  - text-shadow 깊이감
+
+[메뉴 항목]
+이전: 호버 시 회색 배경, 활성 시 단색 주황
+이후:
+  - 활성 시 좌측 3px 주황 인디케이터 막대
+  - 호버 시 우측 2px 이동 (transform)
+  - 활성 시 그라데이션 배경 + 내부 보더
+  - 아이콘 호버/활성 시 채도 ↑ (filter: grayscale)
+  - cubic-bezier 부드러운 트랜지션
+
+[메뉴 배지 "20편"]
+이전: 단색 배경
+이후:
+  - 그라데이션 #fef3e7 → #fde4cb
+  - 내부 보더 (inset shadow)
+  - 활성 메뉴에서는 흰색 텍스트 + 그라데이션 주황
+
+[FREE 라벨]
+이전: 단색 초록
+이후: 그라데이션 + 그림자 (입체감)
+
+[정책 메뉴]
+이전: 호버 시 색상만 변화
+이후: 호버 시 살짝 회색 배경 + 둥근 모서리
 
 ============================================================
-박 대표님 적용 (1분)
+LNB 변경 (도구 제거 + 20편)
+============================================================
+
+박 대표님이 보고 계신 화면:
+🏠 홈
+[ ✏️ 자료 만들기 → ]
+🚗 가이드 [10편]   ← 10편 (잘못됨)
+🛠 도구             ← 중복!
+
+이번 v11.7 적용 후:
+🏠 홈
+[ ✏️ 자료 만들기 → ]   ← 프리미엄 디자인
+📚 가이드 [20편]       ← 정확한 편수
+                       ← 도구 메뉴 X (중복 제거)
+
+정보
+  ℹ️ 서비스 소개
+  ✉️ 문의하기
+
+─────────────
+개인정보 처리방침
+이용약관
+
+============================================================
+PRODUCTION SPEC 문제 - 별도 진단 필요
+============================================================
+
+박 대표님 캡처 (Image 1) 분석:
+  PRODUCTION SPEC 영역에 라벨만 있고 값 비어있음
+  - SUBJECT, ACTION, CAMERA, LIGHTING, STYLE, SOUND DESIGN, OUTPUT
+
+원인 추정:
+  - 박 대표님 자산 (CinematicPromptDisplay_v6_5_0.tsx) 에는
+    "PRODUCTION SPEC" 라벨이 없음 (Composition Spec / Direction Spec / Scene Spec)
+  - "SOUND DESIGN", "OUTPUT" 라벨도 박 대표님 자산에 없음
+  - → 박 대표님이 다른 컴포넌트/버전 사용 중일 가능성
+
+확인 필요:
+  - 박 대표님 GitHub의 frontend/app/publish/ 폴더 구조
+  - 박 대표님이 사용하는 실제 Cinematic 컴포넌트
+  - PRODUCTION SPEC 빈 상태가 일관적인지, 특정 키워드만인지
+
+★ 박 대표님 답 받으면 정확한 진단 + 수정 가능
+★ 무리하게 박 대표님 자산 (publish/page.tsx) 손대면 위험
+
+============================================================
+박 대표님 적용 (30초)
 ============================================================
 
 1. ZIP 다운로드 → 압축 풀기
 
-2. github.com/apark12321-ux/project-blackbox/tree/main/frontend
+2. github.com/apark12321-ux/project-blackbox/tree/main/frontend/app/_shared
    접속
 
-3. "Add file" → "Upload files"
+3. V11Shell.tsx 클릭 → 휴지통 🗑 → Commit
 
-4. 압축 푼 frontend/ 안 내용 통째로 드래그
-   - app/page.tsx (메인 v3)
-   - app/blog/page.tsx (목록 v3)
-   - app/blog/*/page.tsx (가이드 20편 v3)
+4. "Add file" → "Upload files"
 
-5. "Replace existing file" 모두 선택
+5. 압축 푼 V11Shell.tsx 1개 드래그
 
-6. Commit message: refactor: C 수준 폰트 - 5060 시니어 최우선
+6. Commit message: feat: 프리미엄 LNB 디자인 + 도구 중복 해결
 
 7. Vercel 빌드 → 시크릿 창
 
-8. 확인:
-   ✓ 가이드 본문 18px (B 17px 보다 더 크게)
-   ✓ 모바일 본문 17px (B 16px 보다 더 크게)
-   ✓ 메인 타이틀 40px
-   ✓ /blog 카드 19px
-   ✓ 헤더 32px (가이드)
+8. 햄버거 ☰ 메뉴 확인:
+   ✓ 🏠 홈
+   ✓ ✏️ 자료 만들기 (둥근 모서리 + 그림자 + 빛 애니메이션)
+   ✓ 📚 가이드 [20편] ← 정확한 편수
+   ✓ 도구 메뉴 X (제거됨!)
+   ✓ 활성 메뉴 좌측 주황 막대
+   ✓ 호버 시 우측 이동 + 아이콘 채도 ↑
+   ✓ 정보, 정책
 
 ============================================================
-포함 파일 22개
+박 대표님 자산 100% 보존
 ============================================================
 
-[교체 - 모두 C 수준]
-- frontend/app/page.tsx                   메인 v3
-- frontend/app/blog/page.tsx              /blog v3
-- frontend/app/blog/algorithm-seo/page.tsx
-- frontend/app/blog/algorithm-retention/page.tsx
-- frontend/app/blog/algorithm-branding/page.tsx
-- frontend/app/blog/algorithm-mistakes/page.tsx
-- frontend/app/blog/algorithm-mindset/page.tsx
-- frontend/app/blog/youtube-start/page.tsx
-- frontend/app/blog/youtube-algorithm/page.tsx
-- frontend/app/blog/thumbnail-tips/page.tsx
-- frontend/app/blog/youtube-monetization/page.tsx
-- frontend/app/blog/ai-tools/page.tsx
-- frontend/app/blog/first-100-subs/page.tsx
-- frontend/app/blog/viral-patterns/page.tsx
-- frontend/app/blog/side-job-50/page.tsx
-- frontend/app/blog/channel-concept/page.tsx
-- frontend/app/blog/phone-shooting/page.tsx
-- frontend/app/blog/free-editing-apps/page.tsx
-- frontend/app/blog/camera-anxiety/page.tsx
-- frontend/app/blog/chatgpt-script/page.tsx
-- frontend/app/blog/ai-thumbnail/page.tsx
-- frontend/app/blog/revenue-calc/page.tsx
+✅ publish/page.tsx 그대로 (PRODUCTION SPEC 별도 진단)
+✅ contentEngine.ts 그대로
+✅ Cinematic 두 파일 그대로
+✅ 메인 v10.9 v3 (C 폰트) 그대로
+✅ /blog 페이지 v3 그대로
+✅ 가이드 20편 그대로
 
-★ V11Shell.tsx 변경 X (이전 v11.6 그대로)
-★ publish/page.tsx, contentEngine.ts 변경 X
-★ Cinematic 두 파일 변경 X
+★ 변경된 건 V11Shell 의 LNB CSS + 메뉴 정의만
+
+============================================================
+다음 단계
+============================================================
+
+박 대표님 PRODUCTION SPEC 답 받으면:
+  - 빈 상태 일관/특정 키워드만 / 모름 등
+  - 어떤 라벨인지 확인 (SOUND DESIGN, OUTPUT 등)
+  - 박 대표님 GitHub 폴더 구조 확인 가능 시
+
+→ 정확한 진단 후 박 대표님 자산 안전하게 수정
