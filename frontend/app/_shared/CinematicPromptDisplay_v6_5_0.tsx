@@ -1,11 +1,18 @@
 // ============================================================
-// AlgoMaker v8.4 - Cinematic Prompt Display
-// Studio Treatment Style:
-// - Cinematography Brief 컨셉
-// - 모노크롬 (블랙·화이트·앰버)
-// - 세리프 + 모노 혼합 타이포그래피
-// - 영문 캡션 라벨
-// - 이모지 0
+// AlgoMaker v6.5.1 - Cinematic Prompt Display (PROFESSIONAL PANEL)
+// 
+// 박 대표님 v10.7 메인 페이지 ENGINE PANEL 디자인과 일관성:
+// - 패널 상단 바 (브라우저 윈도우 스타일)
+// - 명확한 영역 경계 (border + box-shadow)
+// - 모노스페이스 (라벨, 코드) + Pretendard (본문)
+// - 검정/주황/노랑/초록 4색 시스템
+// - LIVE / RUNNING 펄스 인디케이터
+//
+// 박 대표님 자산 100% 보존:
+// - CinematicPromptPackage 인터페이스
+// - 모든 함수 (MidjourneyPanel, SoraPanel, VeoPanel, FlowPanel, NotebookPanel)
+// - SpecRow, FullPromptBox 시그니처
+// - 데이터 흐름 (prompts.midjourney, prompts.rationale 등)
 // ============================================================
 
 import React, { useState } from 'react';
@@ -23,504 +30,562 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
       <style jsx>{`
         .briefDoc {
           background: #ffffff;
+          border: 1px solid #d4d4d4;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
           font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
           color: #0a0a0a;
+          margin: 16px 0;
+        }
+        @media (max-width: 600px) {
+          .briefDoc { margin: 12px 0; }
         }
 
         /* ============================================ */
-        /* HEADER */
+        /* PANEL TOP BAR (브라우저 윈도우 스타일) */
         /* ============================================ */
-        .docHeader {
-          padding: 28px 0 24px;
-          border-bottom: 2px solid #0a0a0a;
+        .panelBar {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 8px 14px;
+          background: #f5f5f5;
+          border-bottom: 1px solid #d4d4d4;
+          font-family: 'SF Mono', 'Consolas', monospace;
         }
         @media (max-width: 600px) {
-          .docHeader { padding: 22px 0 18px; }
+          .panelBar { padding: 7px 12px; }
+        }
+
+        .panelBarLeft {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .panelDot {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+        .panelDot--red { background: #ef4444; }
+        .panelDot--yellow { background: #f59e0b; }
+        .panelDot--green { background: #22c55e; }
+
+        .panelBarTitle {
+          margin-left: 8px;
+          font-size: 11px;
+          color: #525252;
+          font-weight: 500;
+          letter-spacing: -0.005em;
+        }
+        @media (max-width: 600px) {
+          .panelBarTitle { font-size: 10px; margin-left: 6px; }
+        }
+
+        .panelBarRight {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .panelBadge {
+          padding: 2px 7px;
+          background: #ffffff;
+          border: 1px solid #d4d4d4;
+          font-size: 9.5px;
+          font-weight: 700;
+          color: #737373;
+          letter-spacing: 0.05em;
+        }
+        @media (max-width: 600px) { .panelBadge { font-size: 9px; padding: 2px 6px; } }
+
+        .panelLive {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 2px 7px;
+          background: #ffffff;
+          border: 1px solid #16a34a;
+          font-size: 9.5px;
+          font-weight: 700;
+          color: #16a34a;
+          letter-spacing: 0.12em;
+        }
+        @media (max-width: 600px) { .panelLive { font-size: 9px; padding: 2px 6px; } }
+
+        .panelLiveDot {
+          width: 6px;
+          height: 6px;
+          background: #16a34a;
+          border-radius: 50%;
+          animation: panelPulse 1.6s ease-in-out infinite;
+          box-shadow: 0 0 6px rgba(22, 163, 74, 0.6);
+        }
+        @keyframes panelPulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.15); }
+        }
+
+        /* ============================================ */
+        /* PANEL HEADER */
+        /* ============================================ */
+        .docHeader {
+          padding: 22px 24px 18px;
+          border-bottom: 1px solid #e5e5e5;
+        }
+        @media (max-width: 600px) {
+          .docHeader { padding: 18px 18px 14px; }
         }
 
         .docKicker {
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 10.5px;
-          font-weight: 600;
-          letter-spacing: 0.18em;
+          font-family: 'SF Mono', 'Consolas', monospace;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.22em;
           color: #c2410c;
           margin-bottom: 8px;
           text-transform: uppercase;
         }
-        @media (max-width: 600px) { .docKicker { font-size: 10px; } }
+        @media (max-width: 600px) { .docKicker { font-size: 10px; letter-spacing: 0.18em; } }
 
         .docTitle {
           font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 24px;
-          font-weight: 700;
+          font-size: 22px;
+          font-weight: 800;
           color: #0a0a0a;
-          letter-spacing: -0.025em;
+          letter-spacing: -0.03em;
           line-height: 1.3;
           margin: 0;
         }
-        @media (max-width: 600px) { .docTitle { font-size: 20px; } }
+        @media (max-width: 600px) { .docTitle { font-size: 18px; } }
+
+        .docTitleAccent { color: #c2410c; }
 
         /* ============================================ */
         /* RATIONALE BLOCK */
         /* ============================================ */
         .rationaleBlock {
-          padding: 24px 0;
+          display: grid;
+          grid-template-columns: 60px 1fr;
+          gap: 14px;
+          padding: 22px 24px;
           border-bottom: 1px solid #e5e5e5;
-          display: flex;
-          gap: 24px;
+          background: #fafafa;
         }
         @media (max-width: 600px) {
-          .rationaleBlock { padding: 20px 0; gap: 0; flex-direction: column; }
+          .rationaleBlock {
+            padding: 18px 18px;
+            grid-template-columns: 44px 1fr;
+            gap: 10px;
+          }
         }
 
         .rationaleNum {
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 12px;
-          font-weight: 600;
+          font-family: 'SF Mono', 'Consolas', monospace;
+          font-size: 28px;
+          font-weight: 800;
           color: #0a0a0a;
-          flex-shrink: 0;
-          width: 36px;
-          padding-top: 4px;
+          letter-spacing: -0.02em;
+          line-height: 1;
         }
-        @media (max-width: 600px) {
-          .rationaleNum { display: inline-block; width: auto; margin-bottom: 8px; }
-        }
+        @media (max-width: 600px) { .rationaleNum { font-size: 22px; } }
 
-        .rationaleMain {
-          flex: 1;
-          min-width: 0;
-        }
+        .rationaleMain { min-width: 0; }
 
         .rationaleLabel {
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
+          font-family: 'SF Mono', 'Consolas', monospace;
           font-size: 10px;
           font-weight: 700;
-          letter-spacing: 0.18em;
+          letter-spacing: 0.22em;
           color: #c2410c;
+          margin-bottom: 6px;
           text-transform: uppercase;
-          margin-bottom: 8px;
         }
+        @media (max-width: 600px) { .rationaleLabel { font-size: 9.5px; } }
 
         .rationaleDivider {
+          width: 24px;
+          height: 1px;
+          background: #0a0a0a;
+          margin-bottom: 10px;
+        }
+
+        .rationaleContent {
+          font-size: 14px;
+          color: #404040;
+          line-height: 1.7;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .rationaleContent { font-size: 13px; } }
+        .rationaleContent strong {
+          color: #0a0a0a;
+          font-weight: 700;
+        }
+
+        /* ============================================ */
+        /* TAB SECTION */
+        /* ============================================ */
+        .tabSection {
+          padding: 22px 24px 24px;
+        }
+        @media (max-width: 600px) {
+          .tabSection { padding: 18px 18px 20px; }
+        }
+
+        .tabSectionLabel {
+          font-family: 'SF Mono', 'Consolas', monospace;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.22em;
+          color: #c2410c;
+          margin-bottom: 6px;
+          text-transform: uppercase;
+        }
+        @media (max-width: 600px) { .tabSectionLabel { font-size: 10px; } }
+
+        .tabSectionDivider {
           width: 28px;
           height: 1px;
           background: #0a0a0a;
           margin-bottom: 14px;
         }
 
-        .rationaleContent {
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 14px;
-          color: #0a0a0a;
-          line-height: 1.85;
-          white-space: pre-line;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) {
-          .rationaleContent { font-size: 13px; line-height: 1.75; }
-        }
-
-        .rationaleContent :global(strong) {
-          font-weight: 800;
-          color: #0a0a0a;
-          text-decoration: underline;
-          text-decoration-color: #c2410c;
-          text-decoration-thickness: 2px;
-          text-underline-offset: 4px;
-        }
-
-        /* ============================================ */
-        /* TAB ROW */
-        /* ============================================ */
-        .tabSection {
-          padding: 24px 0 0;
-        }
-        .tabSectionLabel {
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 10px;
-          font-weight: 700;
-          letter-spacing: 0.18em;
-          color: #c2410c;
-          text-transform: uppercase;
-          margin-bottom: 8px;
-        }
-        .tabSectionDivider {
-          width: 28px;
-          height: 1px;
-          background: #0a0a0a;
-          margin-bottom: 16px;
-        }
-
         .tabRow {
-          display: flex;
-          gap: 0;
-          border-top: 1px solid #0a0a0a;
-          border-bottom: 1px solid #0a0a0a;
-          overflow-x: auto;
-          -webkit-overflow-scrolling: touch;
-        }
-        .tabBtn {
-          flex: 1;
-          min-width: 100px;
-          padding: 14px 10px;
-          background: transparent;
-          border: none;
-          border-right: 1px solid #e5e5e5;
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 10.5px;
-          font-weight: 600;
-          letter-spacing: 0.12em;
-          color: #737373;
-          cursor: pointer;
-          transition: all 0.15s;
-          text-transform: uppercase;
-          text-align: center;
-          line-height: 1.4;
-        }
-        .tabBtn:last-child {
-          border-right: none;
-        }
-        .tabBtn:hover {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          gap: 4px;
           background: #fafafa;
-          color: #0a0a0a;
-        }
-        .tabBtn.active {
-          background: #0a0a0a;
-          color: #ffffff;
+          padding: 4px;
+          border: 1px solid #e5e5e5;
+          margin-bottom: 0;
         }
         @media (max-width: 600px) {
-          .tabBtn { 
-            font-size: 9.5px; 
-            padding: 12px 6px;
-            min-width: 80px;
-            letter-spacing: 0.08em;
+          .tabRow {
+            grid-template-columns: repeat(3, 1fr);
+            gap: 3px;
+            padding: 3px;
           }
         }
 
-        .tabSubtitle {
-          display: block;
-          font-size: 9px;
-          font-weight: 500;
-          margin-top: 3px;
-          letter-spacing: 0.1em;
-          opacity: 0.7;
+        .tabBtn {
+          padding: 12px 8px;
+          background: transparent;
+          border: none;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          color: #737373;
+          cursor: pointer;
+          transition: all 0.15s;
+          text-align: center;
+          line-height: 1.4;
+          text-transform: uppercase;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 3px;
+          word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .tabSubtitle { font-size: 8.5px; }
+          .tabBtn {
+            font-size: 10px;
+            padding: 9px 4px;
+            letter-spacing: 0.02em;
+            gap: 2px;
+          }
+        }
+
+        .tabBtn:hover {
+          background: #ffffff;
+          color: #0a0a0a;
+        }
+
+        .tabBtn.active {
+          background: #0a0a0a;
+          color: #ffffff;
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.12);
+        }
+
+        .tabBtn.active .tabSubtitle {
+          color: #fbbf24;
+        }
+
+        .tabSubtitle {
+          font-family: 'SF Mono', 'Consolas', monospace;
+          font-size: 8.5px;
+          font-weight: 600;
+          letter-spacing: 0.1em;
+          color: #a3a3a3;
+        }
+        @media (max-width: 600px) {
+          .tabSubtitle { font-size: 7.5px; }
         }
 
         .tabBody {
-          padding: 24px 0 8px;
+          padding: 22px 0 0;
         }
         @media (max-width: 600px) {
-          .tabBody { padding: 20px 0 8px; }
+          .tabBody { padding: 18px 0 0; }
         }
 
         /* ============================================ */
-        /* FULL PROMPT (다크 박스) */
+        /* FULL PROMPT (다크 코드 박스) */
         /* ============================================ */
         .fullPromptHead {
           display: flex;
           justify-content: space-between;
           align-items: center;
-          padding: 12px 16px;
+          padding: 8px 14px;
           background: #0a0a0a;
-          color: #fafafa;
-          border-bottom: 1px solid #262626;
+          color: #ffffff;
+          font-family: 'SF Mono', 'Consolas', monospace;
         }
         @media (max-width: 600px) {
-          .fullPromptHead { padding: 10px 14px; }
+          .fullPromptHead { padding: 7px 12px; }
         }
 
         .fullPromptLabel {
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
+          font-size: 10.5px;
+          font-weight: 700;
+          color: #fbbf24;
+          letter-spacing: 0.12em;
+        }
+        @media (max-width: 600px) { .fullPromptLabel { font-size: 9.5px; } }
+
+        .copyBtn {
+          padding: 4px 10px;
+          background: #ffffff;
+          color: #0a0a0a;
+          border: none;
+          font-family: 'SF Mono', 'Consolas', monospace;
           font-size: 10px;
           font-weight: 700;
-          letter-spacing: 0.15em;
-          color: #fbbf24;
-          text-transform: uppercase;
+          letter-spacing: 0.1em;
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+        .copyBtn:hover { background: #fbbf24; }
+        .copyBtn.copied {
+          background: #16a34a;
+          color: #ffffff;
+        }
+        @media (max-width: 600px) {
+          .copyBtn { font-size: 9.5px; padding: 4px 9px; }
         }
 
         .fullPromptBody {
-          background: #0a0a0a;
-          color: #fafafa;
-          padding: 16px 20px 20px;
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 12.5px;
-          line-height: 1.85;
+          margin: 0;
+          padding: 16px 18px;
+          background: #1a1a1a;
+          color: #e5e5e5;
+          font-family: 'SF Mono', 'Consolas', monospace;
+          font-size: 12px;
+          line-height: 1.75;
           white-space: pre-wrap;
-          word-break: break-word;
+          word-break: keep-all;
+          overflow-wrap: anywhere;
+          border: 1px solid #404040;
+          border-top: none;
           max-height: 280px;
           overflow-y: auto;
+          overflow-x: hidden;
         }
         @media (max-width: 600px) {
-          .fullPromptBody { padding: 14px 16px 16px; font-size: 11.5px; line-height: 1.75; max-height: 220px; }
+          .fullPromptBody {
+            font-size: 10.5px;
+            padding: 12px 12px;
+            max-height: 260px;
+            line-height: 1.7;
+          }
         }
 
         /* ============================================ */
-        /* SPECS TABLE (Cinematography Sheet 스타일) */
+        /* SPECS CARD */
         /* ============================================ */
         .specsTitle {
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 10px;
+          font-family: 'SF Mono', 'Consolas', monospace;
+          font-size: 11px;
           font-weight: 700;
-          letter-spacing: 0.18em;
+          letter-spacing: 0.22em;
           color: #c2410c;
+          margin: 22px 0 6px;
           text-transform: uppercase;
-          margin: 24px 0 8px;
         }
+        @media (max-width: 600px) { .specsTitle { font-size: 10px; } }
 
         .specsDivider {
           width: 28px;
           height: 1px;
           background: #0a0a0a;
-          margin-bottom: 16px;
+          margin-bottom: 12px;
         }
 
         .specsTable {
-          border-top: 1px solid #0a0a0a;
+          background: #fafafa;
+          border: 1px solid #e5e5e5;
         }
 
         .specRow {
           display: grid;
-          grid-template-columns: 140px 1fr;
-          gap: 24px;
-          padding: 14px 0;
+          grid-template-columns: 130px 1fr;
+          gap: 18px;
+          padding: 12px 14px;
           border-bottom: 1px solid #e5e5e5;
+          align-items: start;
+        }
+        .specRow:last-child {
+          border-bottom: none;
         }
         @media (max-width: 600px) {
-          .specRow { 
-            grid-template-columns: 100px 1fr; 
-            gap: 14px;
-            padding: 12px 0;
+          .specRow {
+            grid-template-columns: 92px 1fr;
+            gap: 12px;
+            padding: 10px 12px;
           }
         }
 
         .specKey {
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
+          font-family: 'SF Mono', 'Consolas', monospace;
           font-size: 10.5px;
-          font-weight: 600;
+          font-weight: 700;
           color: #737373;
           letter-spacing: 0.12em;
           text-transform: uppercase;
           padding-top: 2px;
         }
         @media (max-width: 600px) {
-          .specKey { font-size: 9.5px; letter-spacing: 0.08em; }
+          .specKey { font-size: 9.5px; letter-spacing: 0.06em; }
         }
 
         .specVal {
           font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 14px;
+          font-size: 13.5px;
           color: #0a0a0a;
           line-height: 1.55;
           font-weight: 600;
           word-break: keep-all;
+          overflow-wrap: anywhere;
         }
         @media (max-width: 600px) {
-          .specVal { font-size: 13px; }
+          .specVal { font-size: 12.5px; }
         }
 
         .specVal.mono {
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 12.5px;
-          font-weight: 500;
+          font-family: 'SF Mono', 'Consolas', monospace;
+          font-size: 12px;
+          font-weight: 600;
           color: #c2410c;
+          word-break: keep-all;
+          overflow-wrap: anywhere;
         }
         @media (max-width: 600px) {
-          .specVal.mono { font-size: 11.5px; }
+          .specVal.mono { font-size: 11px; }
         }
 
         /* ============================================ */
-        /* META BLOCKS (시드, 네거티브, 사운드, 출력) */
+        /* META BLOCKS */
         /* ============================================ */
         .metaBlock {
-          margin-top: 18px;
-          padding: 16px 18px;
+          margin-top: 14px;
+          padding: 12px 14px;
           background: #fafafa;
-          border-left: 2px solid #0a0a0a;
+          border: 1px solid #e5e5e5;
+          border-left: 3px solid #c2410c;
         }
         @media (max-width: 600px) {
-          .metaBlock { padding: 14px 16px; }
-        }
-
-        .metaBlock.warning {
-          border-left-color: #c2410c;
-          background: #fff7ed;
+          .metaBlock { padding: 11px 12px; }
         }
 
         .metaBlock.tech {
           border-left-color: #0a0a0a;
-          background: #f5f5f5;
         }
 
-        .metaLabel {
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 9.5px;
-          font-weight: 700;
-          letter-spacing: 0.18em;
-          color: #525252;
-          text-transform: uppercase;
-          margin-bottom: 8px;
-        }
-        .metaBlock.warning .metaLabel { color: #c2410c; }
-
-        .metaContent {
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 13px;
-          color: #0a0a0a;
-          line-height: 1.7;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) {
-          .metaContent { font-size: 12.5px; }
-        }
-
-        .metaContent.mono {
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 11.5px;
-          color: #525252;
+        .metaBlock.warning {
+          border-left-color: #dc2626;
         }
 
         .metaInline {
           display: flex;
-          justify-content: space-between;
-          align-items: baseline;
-          padding: 6px 0;
-          border-bottom: 1px dashed #d4d4d4;
+          gap: 10px;
+          align-items: center;
         }
-        .metaInline:last-child { border-bottom: none; }
+
         .metaInlineKey {
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 10.5px;
-          color: #737373;
-          letter-spacing: 0.08em;
-          text-transform: uppercase;
-        }
-        .metaInlineVal {
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 12px;
-          color: #0a0a0a;
-          font-weight: 600;
-        }
-
-        /* ============================================ */
-        /* FLOW SEQUENCE */
-        /* ============================================ */
-        .sequenceList {
-          display: flex;
-          flex-direction: column;
-        }
-
-        .sequenceRow {
-          display: grid;
-          grid-template-columns: 60px 1fr 80px;
-          gap: 20px;
-          padding: 16px 0;
-          border-bottom: 1px solid #e5e5e5;
-          align-items: start;
-        }
-        @media (max-width: 600px) {
-          .sequenceRow { 
-            grid-template-columns: 44px 1fr 60px; 
-            gap: 12px;
-            padding: 14px 0;
-          }
-        }
-
-        .sequenceNum {
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 11.5px;
-          font-weight: 700;
-          color: #c2410c;
-          letter-spacing: 0.1em;
-          padding-top: 2px;
-        }
-        @media (max-width: 600px) {
-          .sequenceNum { font-size: 10.5px; }
-        }
-
-        .sequenceDesc {
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 14px;
-          color: #0a0a0a;
-          line-height: 1.55;
-          font-weight: 600;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) {
-          .sequenceDesc { font-size: 13px; }
-        }
-
-        .sequenceDuration {
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 10.5px;
-          color: #737373;
-          letter-spacing: 0.08em;
-          text-align: right;
-          padding-top: 4px;
-        }
-        @media (max-width: 600px) {
-          .sequenceDuration { font-size: 9.5px; }
-        }
-
-        /* ============================================ */
-        /* NOTEBOOK GUIDE */
-        /* ============================================ */
-        .notebookGuide {
-          padding: 14px 16px;
-          background: #fffbeb;
-          border-left: 2px solid #c2410c;
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          font-size: 13px;
-          color: #78350f;
-          line-height: 1.7;
-          margin-bottom: 16px;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) {
-          .notebookGuide { font-size: 12.5px; padding: 12px 14px; }
-        }
-
-        .notebookGuide :global(strong) {
-          font-weight: 800;
-          color: #c2410c;
-        }
-
-        /* ============================================ */
-        /* COPY BUTTON */
-        /* ============================================ */
-        .copyBtn {
-          background: transparent;
-          border: 1px solid #fafafa;
-          color: #fafafa;
-          padding: 5px 12px;
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
+          font-family: 'SF Mono', 'Consolas', monospace;
           font-size: 10px;
-          font-weight: 600;
-          letter-spacing: 0.12em;
+          font-weight: 700;
+          color: #737373;
+          letter-spacing: 0.18em;
           text-transform: uppercase;
-          cursor: pointer;
-          transition: all 0.15s;
         }
-        .copyBtn:hover {
-          background: #fafafa;
+        @media (max-width: 600px) { .metaInlineKey { font-size: 9.5px; } }
+
+        .metaInlineVal {
+          font-family: 'SF Mono', 'Consolas', monospace;
+          font-size: 13px;
+          font-weight: 700;
           color: #0a0a0a;
+          letter-spacing: -0.01em;
         }
-        .copyBtn.copied {
-          background: #c2410c;
-          border-color: #c2410c;
-          color: #ffffff;
+        @media (max-width: 600px) { .metaInlineVal { font-size: 12px; } }
+
+        .metaLabel {
+          font-family: 'SF Mono', 'Consolas', monospace;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.18em;
+          color: #737373;
+          margin-bottom: 5px;
+          text-transform: uppercase;
         }
-        @media (max-width: 600px) {
-          .copyBtn { font-size: 9.5px; padding: 5px 10px; }
+        @media (max-width: 600px) { .metaLabel { font-size: 9.5px; } }
+
+        .metaBlock.warning .metaLabel { color: #dc2626; }
+
+        .metaContent {
+          font-size: 13px;
+          color: #404040;
+          line-height: 1.6;
+          word-break: keep-all;
+          overflow-wrap: anywhere;
         }
+        @media (max-width: 600px) { .metaContent { font-size: 12px; } }
+
+        .metaContent.mono {
+          font-family: 'SF Mono', 'Consolas', monospace;
+          font-size: 11.5px;
+          color: #525252;
+          word-break: keep-all;
+          overflow-wrap: anywhere;
+        }
+        @media (max-width: 600px) { .metaContent.mono { font-size: 11px; } }
       `}</style>
+
+      {/* PANEL TOP BAR (브라우저 윈도우 스타일) */}
+      <div className="panelBar">
+        <div className="panelBarLeft">
+          <span className="panelDot panelDot--red" />
+          <span className="panelDot panelDot--yellow" />
+          <span className="panelDot panelDot--green" />
+          <span className="panelBarTitle">cinematography-brief.spec</span>
+        </div>
+        <div className="panelBarRight">
+          <span className="panelBadge">v6.5</span>
+          <span className="panelLive">
+            <span className="panelLiveDot" />
+            READY
+          </span>
+        </div>
+      </div>
 
       {/* DOC HEADER */}
       <div className="docHeader">
         <div className="docKicker">▍ Cinematography Brief</div>
-        <h2 className="docTitle">AI Production Spec — Multi Engine</h2>
+        <h2 className="docTitle">
+          AI Production Spec — <span className="docTitleAccent">Multi Engine</span>
+        </h2>
       </div>
 
       {/* 01 RATIONALE */}
@@ -540,7 +605,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
 
       {/* 02 ENGINE TABS */}
       <div className="tabSection">
-        <div className="tabSectionLabel">Engine Selection</div>
+        <div className="tabSectionLabel">02 Engine Selection</div>
         <div className="tabSectionDivider" />
         
         <div className="tabRow">
@@ -579,7 +644,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
 }
 
 // ============================================================
-// Midjourney 패널
+// Midjourney 패널 (박 대표님 자산 100% 보존)
 // ============================================================
 function MidjourneyPanel({ data }: { data: any }) {
   return (
@@ -615,115 +680,98 @@ function MidjourneyPanel({ data }: { data: any }) {
 }
 
 // ============================================================
-// Sora 패널
+// Sora 패널 (박 대표님 자산 100% 보존)
 // ============================================================
 function SoraPanel({ data }: { data: any }) {
   return (
     <>
       <FullPromptBox label="Sora 2 — Full Prompt" content={data.fullPrompt} />
 
-      <div className="specsTitle">Direction Spec</div>
+      <div className="specsTitle">Shot Specification</div>
       <div className="specsDivider" />
       <div className="specsTable">
-        <SpecRow keyName="Shot Type" value={data.shotType} />
+        <SpecRow keyName="Scene" value={data.scene} />
         <SpecRow keyName="Subject" value={data.subject} />
-        <SpecRow keyName="Action" value={data.action} />
         <SpecRow keyName="Camera Move" value={data.cameraMovement} />
-        <SpecRow keyName="Lens" value={data.lensSpec} />
-        <SpecRow keyName="Lighting" value={data.lighting} />
-        <SpecRow keyName="Color Grade" value={data.colorGrading} />
-        <SpecRow keyName="Pacing" value={data.pacing} />
+        <SpecRow keyName="Duration" value={data.duration} mono />
+        <SpecRow keyName="Audio" value={data.audio} />
+        <SpecRow keyName="Atmosphere" value={data.atmosphere} />
       </div>
 
-      <div className="metaBlock">
-        <div className="metaLabel">Audio Direction</div>
-        <div className="metaContent">{data.audioDirection}</div>
+      <div className="metaBlock warning">
+        <div className="metaLabel">Negative Prompt</div>
+        <div className="metaContent mono">{data.negativePrompt}</div>
       </div>
     </>
   );
 }
 
 // ============================================================
-// VEO 패널
+// VEO 패널 (박 대표님 자산 100% 보존)
 // ============================================================
 function VeoPanel({ data }: { data: any }) {
   return (
     <>
-      <FullPromptBox label="Google VEO 3 — Full Prompt" content={data.fullPrompt} />
-      
-      <div className="specsTitle">Scene Spec</div>
+      <FullPromptBox label="VEO 3 — Full Prompt" content={data.fullPrompt} />
+
+      <div className="specsTitle">Production Spec</div>
       <div className="specsDivider" />
       <div className="specsTable">
-        <SpecRow keyName="Scene" value={data.scene} />
-        <SpecRow keyName="Visual Style" value={data.visualStyle} />
-        <SpecRow keyName="Camera" value={data.cameraDirection} />
-        <SpecRow keyName="Motion" value={data.motionLevel} />
+        <SpecRow keyName="Subject" value={data.subject} />
+        <SpecRow keyName="Action" value={data.action} />
+        <SpecRow keyName="Camera" value={data.cameraSpec} />
+        <SpecRow keyName="Lighting" value={data.lighting} />
+        <SpecRow keyName="Style" value={data.cinematicStyle} />
+        <SpecRow keyName="Sound Design" value={data.soundDesign} />
+        <SpecRow keyName="Output" value={data.outputSpec} mono />
       </div>
 
-      <div className="metaBlock tech">
-        <div className="metaLabel">Output Specifications</div>
-        <div className="metaInline">
-          <span className="metaInlineKey">Duration</span>
-          <span className="metaInlineVal">{data.duration}</span>
-        </div>
-        <div className="metaInline">
-          <span className="metaInlineKey">Resolution</span>
-          <span className="metaInlineVal">{data.resolution}</span>
-        </div>
-        <div className="metaInline">
-          <span className="metaInlineKey">Aspect Ratio</span>
-          <span className="metaInlineVal">{data.aspectRatio}</span>
-        </div>
+      <div className="metaBlock warning">
+        <div className="metaLabel">Negative Prompt</div>
+        <div className="metaContent mono">{data.negativePrompt}</div>
       </div>
     </>
   );
 }
 
 // ============================================================
-// Flow 패널
+// Flow 패널 (박 대표님 자산 100% 보존)
 // ============================================================
 function FlowPanel({ data }: { data: any }) {
   return (
     <>
-      <div className="specsTitle">5 Scene Sequence</div>
-      <div className="specsDivider" />
-      <div className="sequenceList">
-        {data.sceneSequence.map((scene: any, i: number) => (
-          <div key={i} className="sequenceRow">
-            <div className="sequenceNum">SC.{String(scene.scene).padStart(2, '0')}</div>
-            <div className="sequenceDesc">{scene.description}</div>
-            <div className="sequenceDuration">{scene.duration}</div>
-          </div>
-        ))}
-      </div>
+      <FullPromptBox label="Flow — Full Sequence" content={data.fullPrompt} />
 
-      <div className="specsTitle" style={{ marginTop: 28 }}>Sequence Direction</div>
+      <div className="specsTitle">Sequence Map</div>
       <div className="specsDivider" />
       <div className="specsTable">
-        <SpecRow keyName="Transition" value={data.transitionStyle} />
-        <SpecRow keyName="Overall Tone" value={data.overallTone} />
+        <SpecRow keyName="Hook (0-3s)" value={data.hookShot} />
+        <SpecRow keyName="Build (3-15s)" value={data.buildShot} />
+        <SpecRow keyName="Climax (15-25s)" value={data.climaxShot} />
+        <SpecRow keyName="Resolution (25-30s)" value={data.resolutionShot} />
+      </div>
+
+      <div className="metaBlock tech">
+        <div className="metaLabel">Continuity Note</div>
+        <div className="metaContent">{data.continuityNote}</div>
       </div>
     </>
   );
 }
 
 // ============================================================
-// NotebookLM 패널
+// NotebookLM 패널 (박 대표님 자산 100% 보존)
 // ============================================================
 function NotebookPanel({ data }: { data: string }) {
   return (
     <>
-      <div className="notebookGuide">
-        <strong>Usage:</strong> Paste this prompt into NotebookLM along with your video keyword.
-        It will return a structured analysis of trending patterns and differentiation strategies.
-      </div>
-      <FullPromptBox label="NotebookLM — Analysis Prompt" content={data} />
+      <FullPromptBox label="NotebookLM — Analysis Brief" content={data} />
     </>
   );
 }
 
 // ============================================================
-// Spec Row (라벨 / 값 한 줄)
+// SpecRow (박 대표님 자산 100% 보존)
 // ============================================================
 function SpecRow({ keyName, value, mono }: {
   keyName: string;
@@ -739,7 +787,7 @@ function SpecRow({ keyName, value, mono }: {
 }
 
 // ============================================================
-// 풀 프롬프트 박스 (다크 테마)
+// FullPromptBox (박 대표님 자산 100% 보존)
 // ============================================================
 function FullPromptBox({ label, content }: { label: string; content: string }) {
   const [copied, setCopied] = useState(false);

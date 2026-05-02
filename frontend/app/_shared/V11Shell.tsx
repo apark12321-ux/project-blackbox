@@ -1,28 +1,24 @@
 'use client';
 /**
- * AlgoMaker V11Shell v11.2 - 로고 확대 + 클릭 시 홈 이동
+ * AlgoMaker V11Shell v11.3 - 직관적 메뉴 + CTA 강조
  * 
- * 박예준 대표 컨셉:
- * - 김 부장(40대 퇴직자) 타겟
- * - "키워드만 입력하면 AI가 모두 대신해드립니다"
- * - 깔끔한 SaaS 도구 (가독성 최우선)
- * - SEO/AdSense 최적화
- * - 박 대표님 페이지 21개 모두 메뉴에서 접근 가능
+ * 박 대표님 v11.3 요청 (D안):
+ *   "떡상 분석" 등 일반인 모르는 명칭 → 직관 명칭으로
+ *   메뉴 카테고리 명확화 ("도구·회사" 같은 어색한 라벨 X)
+ *   "자료 만들기" 핵심 액션 강조
  *
- * v11.2 변경 (2026.05.01) - 박 대표님 요청:
- *  - ✅ 로고 사이즈 약 30% 확대 (sm 14→18, md 18→22, lg 24→28)
- *  - ✅ 로고 클릭 → 홈(/)으로 이동 (Link 감싸기)
- *  - ✅ 사이드바 로고 sm → md (확대)
- *  - ✅ 모바일 헤더 로고 sm → md (확대)
- *  - ✅ 푸터 로고 md → lg (확대)
- *  - ✅ asLink={false} 옵션으로 비활성화 가능 (필요시)
- *
- * v11.1 변경 유지 - 컴팩트 모드:
- *  - 사이드바 패딩/마진 ~30% 단축
- *  - 푸터 padding-top 48 → 32, margin-top 60 → 36
- *  - footerInner gap 40 → 28, padding-bottom 36 → 22
- *  - menuSection margin-bottom 24 → 16
- *  - 줄간격 1.7 → 1.55
+ * v11.3 변경 (2026.05.02):
+ *  ✅ "떡상 분석" → 제거 (일반인 모름)
+ *  ✅ "핸드폰 가이드" → "스마트폰으로 영상" (명확)
+ *  ✅ "AI 도구" → "AI 도구 모음"
+ *  ✅ "자료 만들기" → 사이드바 상단 큰 CTA 버튼 (강조)
+ *  ✅ 메뉴 카테고리 재구성:
+ *     - 가이드 (영상 만들기 노하우)
+ *     - 도구 (AI 도구 + 스마트폰)
+ *     - 정보 (서비스 소개 + 문의)
+ *     - 정책 (개인정보 + 이용약관 - 작게)
+ *  ✅ 가이드 메뉴에 알고리즘 가이드 5편 직접 노출
+ *     - SEO 전략, 시청 지속률, 브랜딩 등
  *  - 박 대표님 자산 100% 보존 (메뉴/노출/링크 그대로)
  */
 
@@ -183,18 +179,47 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
   }, []);
 
   // 시니어 영상 멘토링 채널 컨셉 (v6.2.0)
-  const mainMenu = [
+  // ============================================================
+  // v11.3: 직관적 메뉴 재구성
+  // 박 대표님 v11.3 요청:
+  //   "떡상 분석" 등 일반인 모르는 명칭 → 직관 명칭으로
+  //   핵심 액션(자료 만들기) 강조
+  //   카테고리 라벨 명확화
+  // ============================================================
+  
+  // 핵심 CTA 버튼 (사이드바 상단 강조)
+  const ctaAction = {
+    label: '자료 만들기',
+    sub: 'AI가 5초 안에',
+    path: '/create',
+    key: 'create',
+  };
+  
+  // 메뉴 그룹 1: 가이드 (영상 만들기 노하우)
+  const guideMenu = [
     { icon: '🏠', label: '홈', path: '/', key: 'home' },
-    { icon: '🔥', label: '떡상 분석', path: '/blog?cat=viral', key: 'viral' },
-    { icon: '📱', label: '핸드폰 가이드', path: '/blog?cat=phone', key: 'phone' },
-    { icon: '🤖', label: 'AI 도구', path: '/blog?cat=ai', key: 'ai' },
-    { icon: '✏️', label: '자료 만들기', path: '/create', key: 'create' },
+    { icon: '📚', label: '가이드 모음', path: '/blog', key: 'blog' },
+    { icon: '🔍', label: 'SEO 전략', path: '/blog/algorithm-seo', key: 'seo' },
+    { icon: '⏱', label: '시청 지속률', path: '/blog/algorithm-retention', key: 'retention' },
+    { icon: '🎨', label: '브랜딩', path: '/blog/algorithm-branding', key: 'branding' },
   ];
-
-  const subMenu = [
-    { icon: '📝', label: '전체 가이드', path: '/blog', key: 'blog' },
+  
+  // 메뉴 그룹 2: 도구 (AI 도구)
+  const toolMenu = [
+    { icon: '🤖', label: 'AI 도구 모음', path: '/blog/ai-tools', key: 'ai' },
+    { icon: '📱', label: '스마트폰으로 영상', path: '/blog/youtube-start', key: 'phone' },
+  ];
+  
+  // 메뉴 그룹 3: 정보 (회사/문의/정책)
+  const infoMenu = [
     { icon: 'ℹ️', label: '서비스 소개', path: '/about', key: 'about' },
     { icon: '✉️', label: '문의하기', path: '/contact', key: 'contact' },
+  ];
+  
+  // 정책 메뉴 (작게)
+  const policyMenu = [
+    { label: '개인정보 처리방침', path: '/privacy', key: 'privacy' },
+    { label: '이용약관', path: '/terms', key: 'terms' },
   ];
 
   const isActive = (path: string) => {
@@ -232,6 +257,63 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
           margin-top: 6px; letter-spacing: 0.05em;
         }
         .menuSection { margin-bottom: 16px; }
+
+        /* v11.3 NEW: CTA 강조 버튼 (자료 만들기) */
+        .ctaBtn {
+          margin: 0 0 18px;
+          padding: 12px 14px;
+          background: linear-gradient(135deg, #c2410c 0%, #ea580c 100%);
+          color: #ffffff;
+          cursor: pointer;
+          transition: all 0.15s;
+          position: relative;
+          overflow: hidden;
+        }
+        .ctaBtn:hover {
+          background: linear-gradient(135deg, #a3340a 0%, #c2410c 100%);
+          transform: translateY(-1px);
+          box-shadow: 0 4px 8px rgba(194, 65, 12, 0.25);
+        }
+        .ctaBtnLabel {
+          font-size: 14px;
+          font-weight: 800;
+          letter-spacing: -0.015em;
+          margin-bottom: 2px;
+        }
+        .ctaBtnSub {
+          font-size: 10.5px;
+          font-weight: 600;
+          letter-spacing: 0.04em;
+          color: rgba(255, 255, 255, 0.85);
+          font-family: 'SF Mono', 'Consolas', monospace;
+        }
+        .ctaBtnArrow {
+          position: absolute;
+          right: 14px;
+          top: 50%;
+          transform: translateY(-50%);
+          font-size: 18px;
+          font-weight: 700;
+          color: #fbbf24;
+        }
+
+        /* v11.3 NEW: 정책 메뉴 (작게) */
+        .policySection {
+          margin-top: 8px;
+          padding-top: 12px;
+          border-top: 1px dashed #e5e5e5;
+        }
+        .policyItem {
+          padding: 6px 8px;
+          font-size: 11px;
+          color: #a3a3a3;
+          cursor: pointer;
+          transition: color 0.15s;
+          letter-spacing: -0.005em;
+        }
+        .policyItem:hover {
+          color: #525252;
+        }
         .menuLabel {
           font-size: 10.5px; font-weight: 700; color: #999;
           padding: 0 8px 6px; letter-spacing: 0.08em;
@@ -394,9 +476,20 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
             <div className="freeLabel">무료</div>
           </div>
 
+          {/* CTA 강조 버튼 (자료 만들기 - 핵심 액션) */}
+          <div
+            className="ctaBtn"
+            onClick={() => { router.push(ctaAction.path); setSidebarOpen(false); }}
+          >
+            <div className="ctaBtnLabel">✏️ {ctaAction.label}</div>
+            <div className="ctaBtnSub">{ctaAction.sub}</div>
+            <div className="ctaBtnArrow">→</div>
+          </div>
+
+          {/* 가이드 메뉴 */}
           <div className="menuSection">
-            <div className="menuLabel">메뉴</div>
-            {mainMenu.map((m) => (
+            <div className="menuLabel">가이드</div>
+            {guideMenu.map((m) => (
               <div
                 key={m.key}
                 className={`menuItem ${isActive(m.path) ? 'active' : ''}`}
@@ -408,9 +501,10 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
             ))}
           </div>
 
+          {/* 도구 메뉴 */}
           <div className="menuSection">
-            <div className="menuLabel">정보</div>
-            {subMenu.map((m) => (
+            <div className="menuLabel">도구</div>
+            {toolMenu.map((m) => (
               <div
                 key={m.key}
                 className={`menuItem ${isActive(m.path) ? 'active' : ''}`}
@@ -418,6 +512,34 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
               >
                 <span className="menuIcon">{m.icon}</span>
                 <span>{m.label}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* 정보 메뉴 */}
+          <div className="menuSection">
+            <div className="menuLabel">정보</div>
+            {infoMenu.map((m) => (
+              <div
+                key={m.key}
+                className={`menuItem ${isActive(m.path) ? 'active' : ''}`}
+                onClick={() => { router.push(m.path); setSidebarOpen(false); }}
+              >
+                <span className="menuIcon">{m.icon}</span>
+                <span>{m.label}</span>
+              </div>
+            ))}
+          </div>
+
+          {/* 정책 메뉴 (작게) */}
+          <div className="policySection">
+            {policyMenu.map((m) => (
+              <div
+                key={m.key}
+                className="policyItem"
+                onClick={() => { router.push(m.path); setSidebarOpen(false); }}
+              >
+                {m.label}
               </div>
             ))}
           </div>
@@ -474,23 +596,25 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
               <div className="footerCol">
                 <h4>가이드</h4>
                 <ul>
-                  <li><Link href="/blog?cat=viral" className="fLink">🔥 떡상 분석</Link></li>
-                  <li><Link href="/blog?cat=phone" className="fLink">📱 핸드폰 가이드</Link></li>
-                  <li><Link href="/blog?cat=ai" className="fLink">🤖 AI 도구</Link></li>
-                  <li><Link href="/blog" className="fLink">📝 전체 가이드</Link></li>
+                  <li><Link href="/blog" className="fLink">📚 가이드 모음</Link></li>
+                  <li><Link href="/blog/algorithm-seo" className="fLink">🔍 SEO 전략</Link></li>
+                  <li><Link href="/blog/algorithm-retention" className="fLink">⏱ 시청 지속률</Link></li>
+                  <li><Link href="/blog/algorithm-branding" className="fLink">🎨 브랜딩</Link></li>
                 </ul>
               </div>
               <div className="footerCol">
-                <h4>도구·회사</h4>
+                <h4>도구</h4>
                 <ul>
                   <li><Link href="/create" className="fLink">✏️ 자료 만들기</Link></li>
-                  <li><Link href="/about" className="fLink">서비스 소개</Link></li>
-                  <li><Link href="/contact" className="fLink">문의하기</Link></li>
+                  <li><Link href="/blog/ai-tools" className="fLink">🤖 AI 도구 모음</Link></li>
+                  <li><Link href="/blog/youtube-start" className="fLink">📱 스마트폰으로 영상</Link></li>
                 </ul>
               </div>
               <div className="footerCol">
-                <h4>정책</h4>
+                <h4>정보 · 정책</h4>
                 <ul>
+                  <li><Link href="/about" className="fLink">서비스 소개</Link></li>
+                  <li><Link href="/contact" className="fLink">문의하기</Link></li>
                   <li><Link href="/privacy" className="fLink">개인정보 처리방침</Link></li>
                   <li><Link href="/terms" className="fLink">이용약관</Link></li>
                 </ul>

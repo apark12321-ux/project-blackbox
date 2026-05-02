@@ -1,33 +1,30 @@
 'use client';
 /**
- * AlgoMaker 메인 페이지 v10.7 - 프로페셔널 ENGINE PANEL
+ * AlgoMaker 메인 페이지 v10.8 - 신뢰 최우선 메트릭
  *
- * 박예준 대표 v10.7 요청:
- *   "Engine Selection이 어수선하고 어설픔. 프로페셔널 템플릿"
+ * 박 대표님 v10.8 요청 (D안):
+ *   "엉터리 수치가 들어가면 안되고"
+ *   → AdSense 신뢰 최우선
  *
- * D안 (어시스턴트 판단):
- *  SaaS 대시보드 + AI 도구 + 제품 패널 융합 스타일
+ * v10.8 변경 (v10.7 → v10.8):
+ *  ❌ 분석 영상 5,247 (출처 없는 수치) 제거
+ *  ❌ 평균 CTR 8.2% (가짜 통계) 제거
+ *  ❌ 생성 속도 5초 (의심스러운 수치) 제거
+ *  
+ *  ✅ AI 엔진 5 (실제 연동: MJ/Sora/VEO/Flow/NotebookLM)
+ *  ✅ 파이프라인 5 (실제 단계: 분석/생성/구조/제작/배포)
+ *  ✅ SNS 4 (실제 자동 생성: YT/Shorts/IG/TikTok)
+ *  
+ *  → 모든 수치가 검증 가능
+ *  → 박 대표님이 "실제 그렇다"고 말할 수 있음
+ *  → AdSense 검토자도 의심 X
  *
- * v10.7 변경 (v10.6 → v10.7):
- *  ✅ algoHero 단일 영역 → enginePanel 패널 구조로
- *  ✅ 명확한 영역 경계 (border + box-shadow)
- *  ✅ 패널 상단 바 (브라우저 윈도우/터미널 느낌)
- *    - 좌측: 빨강/노랑/초록 dot + algorithm-engine.live 도메인
- *    - 우측: v6.5 배지 + ●LIVE
- *  ✅ 좌우 분할 본문 (1.4:1 비율)
- *    - 좌측: KICKER + 타이틀 + 부제 + 메트릭 3개 카드
- *    - 우측: 검정 PIPELINE 영역 (5단계 진행바 애니메이션)
- *  ✅ 메트릭 카드 (분석 영상 5,247 / CTR 8.2% / 5초)
- *  ✅ 파이프라인 진행바 애니메이션 (단계별 fill)
- *  ✅ ✓ 체크마크로 완료 표시
- *  ✅ EXEC: 5 stages · 5.0s 푸터
- *  ✅ 일관된 모노스페이스 레이블 + 산세리프 본문
- *  ✅ 시니어 워딩 X (v10.6 유지)
- *
- * 박 대표님 자산 100% 보존:
- *  - V11Shell, FAQ, 가이드, 분야 9개 모두 유지
- *  - JSON-LD 보존
- *  - 키워드 선택 UX (v10.6) 그대로 유지
+ * v10.7 보존:
+ *  - ENGINE PANEL 패널 디자인 (브라우저 윈도우 + 좌우 분할)
+ *  - 키워드 선택 UX (분야 9 + 주제 6)
+ *  - 시니어 워딩 X
+ *  - 추천 가이드 6편
+ *  - FAQ 6개
  */
 
 import { useState } from 'react';
@@ -1192,19 +1189,19 @@ export default function HomePage() {
 
               <div className="engineMetrics">
                 <div className="engineMetric">
-                  <div className="engineMetricLabel">분석 영상</div>
-                  <div className="engineMetricValue">5,247</div>
-                  <div className="engineMetricUnit">개 사례</div>
+                  <div className="engineMetricLabel">AI 엔진</div>
+                  <div className="engineMetricValue">5</div>
+                  <div className="engineMetricUnit">동시 연동</div>
                 </div>
                 <div className="engineMetric">
-                  <div className="engineMetricLabel">평균 CTR</div>
-                  <div className="engineMetricValue">8.2<span className="engineMetricUnit">%</span></div>
-                  <div className="engineMetricUnit">일반 2배</div>
+                  <div className="engineMetricLabel">파이프라인</div>
+                  <div className="engineMetricValue">5</div>
+                  <div className="engineMetricUnit">자동 단계</div>
                 </div>
                 <div className="engineMetric">
-                  <div className="engineMetricLabel">생성 속도</div>
-                  <div className="engineMetricValue">5<span className="engineMetricUnit">초</span></div>
-                  <div className="engineMetricUnit">평균</div>
+                  <div className="engineMetricLabel">SNS 자동</div>
+                  <div className="engineMetricValue">4</div>
+                  <div className="engineMetricUnit">플랫폼</div>
                 </div>
               </div>
             </div>
