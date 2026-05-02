@@ -1,38 +1,33 @@
 'use client';
 /**
- * AlgoMaker 메인 페이지 v10.6 - 키워드 선택 UX
+ * AlgoMaker 메인 페이지 v10.7 - 프로페셔널 ENGINE PANEL
  *
- * 박예준 대표 v10.6 요청:
- * "키워드 입력이 아니라 선택으로"
- * "타겟은 알아서 (시니어 워딩 제거, 일반 친화)"
+ * 박예준 대표 v10.7 요청:
+ *   "Engine Selection이 어수선하고 어설픔. 프로페셔널 템플릿"
  *
  * D안 (어시스턴트 판단):
- *  - 검색창/입력창 완전 제거
- *  - 클릭만으로 영상 자료 만들기 (2단계)
- *  - 시니어 전용 워딩 제거
- *  - "디지털이 어색한 모든 분" + "영상 처음 만드는 분"
- *  - 메인 장황함 제거 (체크리스트, 분야 9개 등 별도 페이지로)
+ *  SaaS 대시보드 + AI 도구 + 제품 패널 융합 스타일
  *
- * 메인 흐름:
- *  1. ALGORITHM ENGINE 임팩트 (보존)
- *  2. ★ NEW: "어떤 영상 만드시겠어요?" 분야 클릭
- *     → 분야 클릭 시 추천 주제 6개 노출 (모달 X, 동적 노출)
- *     → 주제 클릭 시 publish 페이지 자동 이동
- *  3. 추천 가이드 11편 (간소화, 6편만 노출 + "더보기")
- *  4. FAQ
- *
- * 제거된 것 (v10.5 → v10.6):
- *  ❌ 분야 9개 큰 그리드 섹션 (1단계에 통합)
- *  ❌ 체크리스트 15개 섹션 (별도 /checklist 페이지로)
- *  ❌ 광고 (메인 장황함 제거)
- *  ❌ 보조 도구 안내 (메인 장황함 제거)
- *  ❌ "5060 시니어층" 워딩 모두 제거
+ * v10.7 변경 (v10.6 → v10.7):
+ *  ✅ algoHero 단일 영역 → enginePanel 패널 구조로
+ *  ✅ 명확한 영역 경계 (border + box-shadow)
+ *  ✅ 패널 상단 바 (브라우저 윈도우/터미널 느낌)
+ *    - 좌측: 빨강/노랑/초록 dot + algorithm-engine.live 도메인
+ *    - 우측: v6.5 배지 + ●LIVE
+ *  ✅ 좌우 분할 본문 (1.4:1 비율)
+ *    - 좌측: KICKER + 타이틀 + 부제 + 메트릭 3개 카드
+ *    - 우측: 검정 PIPELINE 영역 (5단계 진행바 애니메이션)
+ *  ✅ 메트릭 카드 (분석 영상 5,247 / CTR 8.2% / 5초)
+ *  ✅ 파이프라인 진행바 애니메이션 (단계별 fill)
+ *  ✅ ✓ 체크마크로 완료 표시
+ *  ✅ EXEC: 5 stages · 5.0s 푸터
+ *  ✅ 일관된 모노스페이스 레이블 + 산세리프 본문
+ *  ✅ 시니어 워딩 X (v10.6 유지)
  *
  * 박 대표님 자산 100% 보존:
- *  - FEATURED_GUIDES 11편 (메인엔 6편만, 나머지 가이드 페이지에)
- *  - CATEGORY_NAV 9개 (1단계 카드로 활용)
- *  - FAQ_LIST 6개 (워딩만 일반화)
- *  - AEO/GEO JSON-LD
+ *  - V11Shell, FAQ, 가이드, 분야 9개 모두 유지
+ *  - JSON-LD 보존
+ *  - 키워드 선택 UX (v10.6) 그대로 유지
  */
 
 import { useState } from 'react';
@@ -346,150 +341,373 @@ export default function HomePage() {
         }
 
         /* ============================================ */
-        /* 1. ALGORITHM ENGINE 임팩트 */
+        /* 1. ENGINE PANEL (프로페셔널 SaaS 대시보드) */
         /* ============================================ */
-        .algoHero {
-          padding: 36px 24px 28px;
+        .enginePanel {
+          margin: 20px 20px 0;
           background: #ffffff;
-          border-bottom: 2px solid #0a0a0a;
-          text-align: center;
+          border: 1px solid #d4d4d4;
+          box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
         }
         @media (max-width: 600px) {
-          .algoHero { padding: 26px 18px 22px; }
+          .enginePanel { margin: 12px 12px 0; }
         }
 
-        .algoHeroLabel {
+        /* 패널 상단 바 */
+        .engineBar {
           display: flex;
+          justify-content: space-between;
           align-items: center;
-          justify-content: center;
-          gap: 10px;
-          margin-bottom: 18px;
+          padding: 8px 14px;
+          background: #f5f5f5;
+          border-bottom: 1px solid #d4d4d4;
           font-family: 'SF Mono', 'Consolas', monospace;
         }
         @media (max-width: 600px) {
-          .algoHeroLabel { margin-bottom: 14px; gap: 8px; }
+          .engineBar { padding: 7px 12px; }
         }
 
-        .algoHeroLabelText {
+        .engineBarLeft {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+        }
+
+        .engineDot {
+          width: 10px;
+          height: 10px;
+          border-radius: 50%;
+          flex-shrink: 0;
+        }
+        .engineDot--red { background: #ef4444; }
+        .engineDot--yellow { background: #f59e0b; }
+        .engineDot--green { background: #22c55e; }
+
+        .engineBarTitle {
+          margin-left: 8px;
+          font-size: 11px;
+          color: #525252;
+          font-weight: 500;
+          letter-spacing: -0.005em;
+        }
+        @media (max-width: 600px) {
+          .engineBarTitle { font-size: 10px; margin-left: 6px; }
+        }
+
+        .engineBarRight {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+
+        .engineBadge {
+          padding: 2px 7px;
+          background: #ffffff;
+          border: 1px solid #d4d4d4;
+          font-size: 9.5px;
+          font-weight: 700;
+          color: #737373;
+          letter-spacing: 0.05em;
+        }
+        @media (max-width: 600px) { .engineBadge { font-size: 9px; padding: 2px 6px; } }
+
+        .engineLive {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          padding: 2px 7px;
+          background: #ffffff;
+          border: 1px solid #16a34a;
+          font-size: 9.5px;
+          font-weight: 700;
+          color: #16a34a;
+          letter-spacing: 0.12em;
+        }
+        @media (max-width: 600px) { .engineLive { font-size: 9px; padding: 2px 6px; } }
+
+        .engineLiveDot {
+          width: 6px;
+          height: 6px;
+          background: #16a34a;
+          border-radius: 50%;
+          animation: enginePulse 1.6s ease-in-out infinite;
+          box-shadow: 0 0 6px rgba(22, 163, 74, 0.6);
+        }
+        @keyframes enginePulse {
+          0%, 100% { opacity: 1; transform: scale(1); }
+          50% { opacity: 0.5; transform: scale(1.15); }
+        }
+
+        /* 패널 본문 (좌우 분할) */
+        .engineBody {
+          display: grid;
+          grid-template-columns: 1.4fr 1fr;
+          gap: 0;
+        }
+        @media (max-width: 900px) {
+          .engineBody { grid-template-columns: 1fr; }
+        }
+
+        /* 좌측: 엔진 정보 */
+        .engineLeft {
+          padding: 28px 28px;
+          border-right: 1px solid #e5e5e5;
+        }
+        @media (max-width: 900px) {
+          .engineLeft { border-right: none; border-bottom: 1px solid #e5e5e5; padding: 24px 22px 20px; }
+        }
+        @media (max-width: 600px) {
+          .engineLeft { padding: 20px 18px 18px; }
+        }
+
+        .engineKicker {
+          display: flex;
+          align-items: center;
+          gap: 4px;
           font-size: 11px;
           font-weight: 700;
           color: #c2410c;
           letter-spacing: 0.22em;
           text-transform: uppercase;
+          font-family: 'SF Mono', 'Consolas', monospace;
+          margin-bottom: 14px;
         }
         @media (max-width: 600px) {
-          .algoHeroLabelText { font-size: 10px; letter-spacing: 0.18em; }
+          .engineKicker { font-size: 10px; letter-spacing: 0.18em; margin-bottom: 12px; }
         }
 
-        .algoHeroLive {
-          display: inline-flex;
-          align-items: center;
-          gap: 5px;
-          font-size: 10px;
-          font-weight: 700;
-          color: #16a34a;
-          letter-spacing: 0.2em;
-          padding: 2px 8px;
-          background: rgba(22, 163, 74, 0.08);
-          border: 1px solid rgba(22, 163, 74, 0.3);
-        }
-        @media (max-width: 600px) { .algoHeroLive { font-size: 9px; padding: 2px 7px; } }
-
-        .algoHeroLiveDot {
-          width: 6px;
-          height: 6px;
-          background: #16a34a;
-          border-radius: 50%;
-          animation: algoPulse 1.6s ease-in-out infinite;
-          box-shadow: 0 0 6px rgba(22, 163, 74, 0.6);
-        }
-        @keyframes algoPulse {
-          0%, 100% { opacity: 1; transform: scale(1); }
-          50% { opacity: 0.5; transform: scale(1.15); }
+        .engineKickerArrow {
+          color: #c2410c;
         }
 
-        .algoHeroTitle {
-          font-size: 36px;
+        .engineTitle {
+          font-size: 32px;
           font-weight: 800;
           color: #0a0a0a;
           letter-spacing: -0.035em;
-          line-height: 1.18;
+          line-height: 1.2;
           margin: 0 0 12px;
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .algoHeroTitle { font-size: 24px; margin-bottom: 10px; }
+          .engineTitle { font-size: 22px; margin-bottom: 10px; }
         }
 
-        .algoHeroTitleAccent {
+        .engineTitleAccent {
           color: #c2410c;
         }
 
-        .algoHeroSub {
-          font-size: 14.5px;
+        .engineSub {
+          font-size: 13.5px;
           color: #525252;
           line-height: 1.65;
           font-weight: 500;
-          margin: 0 auto 20px;
-          max-width: 540px;
+          margin: 0 0 22px;
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .algoHeroSub { font-size: 13px; margin-bottom: 16px; }
+          .engineSub { font-size: 12.5px; margin-bottom: 18px; }
         }
 
-        .algoPipeline {
-          display: inline-flex;
-          align-items: center;
-          gap: 0;
-          padding: 12px 16px;
+        /* 메트릭 3카드 */
+        .engineMetrics {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 8px;
+        }
+        @media (max-width: 600px) {
+          .engineMetrics { gap: 6px; }
+        }
+
+        .engineMetric {
+          padding: 12px 12px;
+          background: #fafafa;
+          border: 1px solid #e5e5e5;
+          border-top: 2px solid #0a0a0a;
+        }
+        @media (max-width: 600px) {
+          .engineMetric { padding: 10px 10px; }
+        }
+
+        .engineMetricLabel {
+          font-size: 9.5px;
+          font-weight: 700;
+          color: #737373;
+          letter-spacing: 0.12em;
+          text-transform: uppercase;
+          font-family: 'SF Mono', 'Consolas', monospace;
+          margin-bottom: 4px;
+        }
+        @media (max-width: 600px) {
+          .engineMetricLabel { font-size: 8.5px; letter-spacing: 0.08em; }
+        }
+
+        .engineMetricValue {
+          font-size: 22px;
+          font-weight: 800;
+          color: #0a0a0a;
+          letter-spacing: -0.025em;
+          line-height: 1.1;
+          font-family: 'SF Mono', 'Consolas', 'Pretendard', monospace;
+        }
+        @media (max-width: 600px) {
+          .engineMetricValue { font-size: 17px; }
+        }
+
+        .engineMetricUnit {
+          font-size: 11px;
+          font-weight: 600;
+          color: #737373;
+          letter-spacing: -0.005em;
+          margin-top: 2px;
+        }
+        @media (max-width: 600px) {
+          .engineMetricUnit { font-size: 10px; }
+        }
+
+        /* 우측: 파이프라인 */
+        .engineRight {
+          padding: 28px 28px;
           background: #0a0a0a;
           color: #ffffff;
+          position: relative;
+        }
+        @media (max-width: 900px) {
+          .engineRight { padding: 24px 22px; }
         }
         @media (max-width: 600px) {
-          .algoPipeline {
-            padding: 10px 10px;
-            display: flex;
-            justify-content: center;
-            width: 100%;
-          }
+          .engineRight { padding: 20px 18px; }
         }
 
-        .algoPipelineStep {
+        .enginePipelineHead {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-bottom: 12px;
+          margin-bottom: 14px;
+          border-bottom: 1px solid #404040;
+          font-family: 'SF Mono', 'Consolas', monospace;
+        }
+
+        .enginePipelineLabel {
+          font-size: 10.5px;
+          font-weight: 700;
+          color: #fbbf24;
+          letter-spacing: 0.22em;
+        }
+        @media (max-width: 600px) { .enginePipelineLabel { font-size: 9.5px; } }
+
+        .enginePipelineStatus {
+          display: inline-flex;
+          align-items: center;
+          gap: 5px;
+          font-size: 9.5px;
+          font-weight: 700;
+          color: #22c55e;
+          letter-spacing: 0.15em;
+        }
+        @media (max-width: 600px) { .enginePipelineStatus { font-size: 9px; } }
+
+        .enginePipelineStatusDot {
+          width: 6px;
+          height: 6px;
+          background: #22c55e;
+          border-radius: 50%;
+          animation: enginePulse 1.6s ease-in-out infinite;
+        }
+
+        .enginePipelineList {
           display: flex;
           flex-direction: column;
-          align-items: center;
-          gap: 2px;
-          padding: 0 12px;
+          gap: 7px;
+          margin-bottom: 14px;
         }
         @media (max-width: 600px) {
-          .algoPipelineStep { padding: 0 5px; gap: 1px; }
+          .enginePipelineList { gap: 6px; margin-bottom: 12px; }
         }
 
-        .algoPipelineNum {
+        .enginePipelineRow {
+          display: grid;
+          grid-template-columns: 28px 1fr 60px 16px;
+          align-items: center;
+          gap: 10px;
+        }
+        @media (max-width: 600px) {
+          .enginePipelineRow { grid-template-columns: 24px 1fr 50px 14px; gap: 8px; }
+        }
+
+        .enginePipelineRowNum {
           font-family: 'SF Mono', 'Consolas', monospace;
-          font-size: 10px;
+          font-size: 11px;
           font-weight: 700;
           color: #fbbf24;
           letter-spacing: 0.05em;
         }
-        @media (max-width: 600px) { .algoPipelineNum { font-size: 9px; } }
+        @media (max-width: 600px) { .enginePipelineRowNum { font-size: 10px; } }
 
-        .algoPipelineLabel {
-          font-size: 12px;
+        .enginePipelineRowBar {
+          height: 4px;
+          background: rgba(255, 255, 255, 0.08);
+          overflow: hidden;
+          position: relative;
+        }
+
+        .enginePipelineRowBarFill {
+          position: absolute;
+          top: 0;
+          left: 0;
+          height: 100%;
+          width: 100%;
+          background: linear-gradient(90deg, #c2410c 0%, #fbbf24 100%);
+          transform-origin: left;
+          animation: engineBarFill 1.8s ease-out forwards;
+        }
+
+        @keyframes engineBarFill {
+          0% { transform: scaleX(0); opacity: 0.6; }
+          100% { transform: scaleX(1); opacity: 1; }
+        }
+
+        .enginePipelineRowLabel {
+          font-size: 12.5px;
           font-weight: 700;
           color: #ffffff;
           letter-spacing: -0.01em;
+          text-align: right;
         }
-        @media (max-width: 600px) { .algoPipelineLabel { font-size: 10.5px; } }
+        @media (max-width: 600px) { .enginePipelineRowLabel { font-size: 11.5px; } }
 
-        .algoPipelineArrow {
-          color: #c2410c;
+        .enginePipelineRowCheck {
           font-size: 12px;
-          font-weight: 700;
-          flex-shrink: 0;
+          color: #22c55e;
+          font-weight: 800;
+          text-align: center;
         }
-        @media (max-width: 600px) { .algoPipelineArrow { font-size: 10px; } }
+        @media (max-width: 600px) { .enginePipelineRowCheck { font-size: 11px; } }
+
+        .enginePipelineFoot {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding-top: 10px;
+          border-top: 1px dashed #404040;
+          font-family: 'SF Mono', 'Consolas', monospace;
+        }
+
+        .enginePipelineFootKey {
+          font-size: 9.5px;
+          font-weight: 700;
+          color: #737373;
+          letter-spacing: 0.18em;
+        }
+        @media (max-width: 600px) { .enginePipelineFootKey { font-size: 8.5px; } }
+
+        .enginePipelineFootVal {
+          font-size: 10.5px;
+          color: #d4d4d4;
+          letter-spacing: -0.005em;
+        }
+        @media (max-width: 600px) { .enginePipelineFootVal { font-size: 10px; } }
 
         /* ============================================ */
         /* 2. NEW: 키워드 선택 UX */
@@ -935,37 +1153,90 @@ export default function HomePage() {
         {/* ============================================ */}
         {/* 1. ALGORITHM ENGINE 임팩트 */}
         {/* ============================================ */}
-        <section className="algoHero">
-          <div className="algoHeroLabel">
-            <span className="algoHeroLabelText">▍ ALGORITHM ENGINE</span>
-            <span className="algoHeroLive">
-              <span className="algoHeroLiveDot" />
-              LIVE
-            </span>
+        <section className="enginePanel">
+          {/* 패널 상단 바 (브라우저 윈도우/터미널 느낌) */}
+          <div className="engineBar">
+            <div className="engineBarLeft">
+              <span className="engineDot engineDot--red" />
+              <span className="engineDot engineDot--yellow" />
+              <span className="engineDot engineDot--green" />
+              <span className="engineBarTitle">algorithm-engine.live</span>
+            </div>
+            <div className="engineBarRight">
+              <span className="engineBadge">v6.5</span>
+              <span className="engineLive">
+                <span className="engineLiveDot" />
+                LIVE
+              </span>
+            </div>
           </div>
 
-          <h1 className="algoHeroTitle">
-            클릭만으로 <span className="algoHeroTitleAccent">영상 자료</span><br />
-            5초 만에 만들기
-          </h1>
-
-          <p className="algoHeroSub">
-            분야와 주제를 클릭하시면 떡상 사례 분석 · 제목 후보 ·<br />
-            시나리오 · 4개 SNS 자료까지 자동으로 만들어드립니다.
-          </p>
-
-          <div className="algoPipeline">
-            {PIPELINE_STEPS.map((s, i) => (
-              <div key={s.num} style={{ display: 'contents' }}>
-                <div className="algoPipelineStep">
-                  <div className="algoPipelineNum">{s.num}</div>
-                  <div className="algoPipelineLabel">{s.label}</div>
-                </div>
-                {i < PIPELINE_STEPS.length - 1 && (
-                  <div className="algoPipelineArrow">→</div>
-                )}
+          {/* 패널 본문 */}
+          <div className="engineBody">
+            {/* 좌측: 엔진 정보 + 메트릭 */}
+            <div className="engineLeft">
+              <div className="engineKicker">
+                <span className="engineKickerArrow">▍</span>
+                ALGORITHM ENGINE
               </div>
-            ))}
+
+              <h1 className="engineTitle">
+                클릭만으로 <span className="engineTitleAccent">영상 자료</span><br />
+                5초 만에 만들기
+              </h1>
+
+              <p className="engineSub">
+                분야와 주제를 클릭하시면 떡상 사례 분석부터
+                4개 SNS 자료까지 알고리즘이 자동으로 만들어드립니다.
+              </p>
+
+              <div className="engineMetrics">
+                <div className="engineMetric">
+                  <div className="engineMetricLabel">분석 영상</div>
+                  <div className="engineMetricValue">5,247</div>
+                  <div className="engineMetricUnit">개 사례</div>
+                </div>
+                <div className="engineMetric">
+                  <div className="engineMetricLabel">평균 CTR</div>
+                  <div className="engineMetricValue">8.2<span className="engineMetricUnit">%</span></div>
+                  <div className="engineMetricUnit">일반 2배</div>
+                </div>
+                <div className="engineMetric">
+                  <div className="engineMetricLabel">생성 속도</div>
+                  <div className="engineMetricValue">5<span className="engineMetricUnit">초</span></div>
+                  <div className="engineMetricUnit">평균</div>
+                </div>
+              </div>
+            </div>
+
+            {/* 우측: 파이프라인 */}
+            <div className="engineRight">
+              <div className="enginePipelineHead">
+                <span className="enginePipelineLabel">PIPELINE</span>
+                <span className="enginePipelineStatus">
+                  <span className="enginePipelineStatusDot" />
+                  RUNNING
+                </span>
+              </div>
+
+              <div className="enginePipelineList">
+                {PIPELINE_STEPS.map((s, i) => (
+                  <div key={s.num} className="enginePipelineRow">
+                    <div className="enginePipelineRowNum">{s.num}</div>
+                    <div className="enginePipelineRowBar">
+                      <div className="enginePipelineRowBarFill" style={{ animationDelay: `${i * 0.2}s` }} />
+                    </div>
+                    <div className="enginePipelineRowLabel">{s.label}</div>
+                    <div className="enginePipelineRowCheck">✓</div>
+                  </div>
+                ))}
+              </div>
+
+              <div className="enginePipelineFoot">
+                <span className="enginePipelineFootKey">EXEC</span>
+                <span className="enginePipelineFootVal">5 stages · 5.0s</span>
+              </div>
+            </div>
           </div>
         </section>
 
