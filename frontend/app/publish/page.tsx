@@ -64,6 +64,20 @@ import AdSlot from '../_shared/AdSlot';
 import { generateV650Data, type V650DataPackage } from '../_shared/v650Adapter';
 import { CinematicScenarioDisplay } from '../_shared/CinematicScenarioDisplay_v6_5_0';
 import { CinematicPromptDisplay } from '../_shared/CinematicPromptDisplay_v6_5_0';
+
+// v11.0: 알고리즘 노하우 인사이트 (박 대표님 docx 자산 기반)
+import { getAlgorithmInsights } from '../_shared/algorithmInsights';
+
+// Safe wrapper - getAlgorithmInsights 시그니처 변동 대응
+function getAlgorithmInsightsSafe(keyword: string) {
+  try {
+    // 함수가 (keyword) 만 받든 (keyword, categoryId) 받든 모두 대응
+    const result = (getAlgorithmInsights as any)(keyword, '');
+    return result || null;
+  } catch {
+    return null;
+  }
+}
 // v10.5: SNSUploadPanel 대신 자체 SNS UI 구현 (Tailwind 미사용 환경 호환)
 // 박 대표님 SNSUploadPanel_v6_5_0.tsx 파일은 그대로 보존
 
@@ -895,6 +909,162 @@ function PublishWorkthrough() {
         }
 
         /* ============================================ */
+        /* v11.0 NEW: 시나리오 헤더 + 다른 버전 버튼 */
+        /* ============================================ */
+        .wt-script-head {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          padding: 12px 14px;
+          background: #fafafa;
+          border: 1px solid #e5e5e5;
+          margin-bottom: 12px;
+          flex-wrap: wrap;
+          gap: 10px;
+        }
+        @media (max-width: 600px) {
+          .wt-script-head { padding: 10px 12px; }
+        }
+        .wt-script-head-label {
+          flex: 1;
+          min-width: 0;
+        }
+        .wt-script-head-num {
+          display: block;
+          font-size: 14px;
+          font-weight: 800;
+          color: #0a0a0a;
+          letter-spacing: -0.018em;
+        }
+        .wt-script-head-tip {
+          display: block;
+          font-size: 11.5px;
+          color: #737373;
+          margin-top: 2px;
+        }
+
+        .wt-btn-regen {
+          padding: 8px 14px;
+          background: #ffffff;
+          border: 1.5px solid #c2410c;
+          color: #c2410c;
+          font-family: inherit;
+          font-size: 12.5px;
+          font-weight: 700;
+          letter-spacing: -0.01em;
+          cursor: pointer;
+          transition: all 0.15s;
+          flex-shrink: 0;
+        }
+        .wt-btn-regen:hover {
+          background: #c2410c;
+          color: #ffffff;
+        }
+
+        /* ============================================ */
+        /* v11.0 NEW: 알고리즘 노하우 박스 (알맹이) */
+        /* 박 대표님 v11.0: "시나리오 결과물에 알맹이 추가" */
+        /* ============================================ */
+        .wt-insights {
+          margin-top: 16px;
+          padding: 18px 18px 14px;
+          background: linear-gradient(135deg, #fff7ed 0%, #fef3e7 100%);
+          border: 1px solid rgba(194, 65, 12, 0.12);
+        }
+        @media (max-width: 600px) {
+          .wt-insights { padding: 14px 14px 12px; }
+        }
+
+        .wt-insights-head {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding-bottom: 10px;
+          margin-bottom: 12px;
+          border-bottom: 1px dashed rgba(194, 65, 12, 0.2);
+        }
+        .wt-insights-icon {
+          font-size: 18px;
+        }
+        .wt-insights-title {
+          font-size: 14px;
+          font-weight: 800;
+          color: #c2410c;
+          letter-spacing: -0.018em;
+        }
+        @media (max-width: 600px) {
+          .wt-insights-title { font-size: 13px; }
+        }
+
+        .wt-insights-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+        }
+        @media (max-width: 600px) {
+          .wt-insights-grid { grid-template-columns: 1fr; gap: 8px; }
+        }
+
+        .wt-insight {
+          padding: 12px 12px;
+          background: #ffffff;
+          border: 1px solid rgba(194, 65, 12, 0.08);
+        }
+
+        .wt-insight-label {
+          font-size: 12px;
+          font-weight: 800;
+          color: #c2410c;
+          margin-bottom: 6px;
+          letter-spacing: -0.01em;
+          font-family: 'Pretendard', sans-serif;
+        }
+
+        .wt-insight-body {
+          font-size: 13px;
+          color: #404040;
+          line-height: 1.55;
+          margin: 0 0 6px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .wt-insight-body { font-size: 12.5px; }
+        }
+        .wt-insight-body strong {
+          color: #c2410c;
+          font-weight: 700;
+        }
+
+        .wt-insight-example {
+          padding: 8px 10px;
+          background: #fafafa;
+          border-left: 2px solid #fbbf24;
+          font-size: 12px;
+          line-height: 1.55;
+          color: #525252;
+          word-break: keep-all;
+          margin-top: 6px;
+        }
+        .wt-insight-example strong {
+          color: #0a0a0a;
+        }
+
+        .wt-insight-list {
+          margin: 0;
+          padding-left: 18px;
+        }
+        .wt-insight-list li {
+          font-size: 12.5px;
+          color: #404040;
+          line-height: 1.6;
+          margin-bottom: 4px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .wt-insight-list li { font-size: 12px; }
+        }
+
+        /* ============================================ */
         /* 하단 네비게이션 (고정) */
         /* ============================================ */
         .wt-nav {
@@ -1293,6 +1463,8 @@ function PublishWorkthrough() {
                 copy={copy}
                 copied={copied}
                 goNext={goNext}
+                regenerate={regenerate}
+                keyword={keyword}
               />
             )}
 
@@ -1536,70 +1708,112 @@ function ScriptPanel({
   copy,
   copied,
   goNext,
+  regenerate,  // v11.0: 새로 만들기
+  keyword,     // v11.0: 노하우 박스용
 }: any) {
+  const insights = (v650Data && keyword) ? getAlgorithmInsightsSafe(keyword) : null;
+  
   return (
     <>
-      <div
-        className={`wt-toggle ${cinematicMode ? 'on' : ''}`}
-        onClick={() => setCinematicMode((m: boolean) => !m)}
-      >
-        <div className="wt-toggle-switch">
-          <div className="wt-toggle-knob" />
+      {/* v11.0: 작가급 시나리오 항상 ON (토글 제거) */}
+      {/* 박 대표님 v11.0 지적: */}
+      {/*   "작가급 시나리오 변환키 X, 한 번에 보여주기" */}
+      {/*   "마음에 안 들면 새로운 전체 시나리오" */}
+      
+      <div className="wt-script-head">
+        <div className="wt-script-head-label">
+          <span className="wt-script-head-num">▍ 작가급 시나리오</span>
+          <span className="wt-script-head-tip">알고리즘 후킹 6단계 비트 구조</span>
         </div>
-        <div className="wt-toggle-text">
-          <div className="wt-toggle-name">
-            작가급 시나리오 모드 {cinematicMode ? '(켜짐)' : '(꺼짐)'}
-          </div>
-          <div className="wt-toggle-desc">
-            {cinematicMode 
-              ? '6단계 비트 + 알고리즘 후킹 구조로 보고 있습니다' 
-              : '클릭하면 단순 시퀀스 → 작가급 시나리오로 전환됩니다'}
-          </div>
-        </div>
+        <button
+          type="button"
+          onClick={regenerate}
+          className="wt-btn-regen"
+          title="다른 시나리오 만들기"
+        >
+          ↻ 다른 버전
+        </button>
       </div>
 
-      {cinematicMode && v650Data ? (
+      {v650Data ? (
         <CinematicScenarioDisplay scenario={v650Data.scenario} />
       ) : (
-        <div className="wt-beats">
-          {(sequences && Array.isArray(sequences) ? sequences : []).map((seq: any, i: number) => (
-            <div key={i} className="wt-beat">
-              <div className="wt-beat-head">
-                <div className="wt-beat-num">B0{seq?.number || i + 1}</div>
-                <div className="wt-beat-info">
-                  <div className="wt-beat-name">{seq?.title || `단계 ${i + 1}`}</div>
-                  <div className="wt-beat-time">{seq?.duration || ''}</div>
-                </div>
-              </div>
-              {seq?.purpose && (
-                <div style={{ 
-                  fontSize: 12, 
-                  color: '#737373', 
-                  fontStyle: 'italic',
-                  marginBottom: 4,
-                  paddingLeft: 0,
-                  wordBreak: 'keep-all',
-                }}>
-                  목적: {seq.purpose}
-                </div>
-              )}
-              <p className="wt-beat-text">{seq?.script || ''}</p>
-              {seq?.tip && (
-                <div style={{ 
-                  marginTop: 8, 
-                  padding: '8px 12px',
-                  background: '#fffbeb',
-                  borderLeft: '2px solid #fbbf24',
-                  fontSize: 12.5,
-                  lineHeight: 1.6,
-                  color: '#78350f',
-                  wordBreak: 'keep-all',
-                }}>
-                  {seq.tip}
+        <div className="wt-card">
+          <div className="wt-card-label">시나리오 준비중</div>
+          <p className="wt-card-body">잠시만 기다려주세요.</p>
+        </div>
+      )}
+
+      {/* v11.0 NEW: 박 대표님 노하우 박스 (알맹이) */}
+      {insights && (
+        <div className="wt-insights">
+          <div className="wt-insights-head">
+            <span className="wt-insights-icon">💡</span>
+            <span className="wt-insights-title">이 시나리오에 적용된 알고리즘 노하우</span>
+          </div>
+          
+          <div className="wt-insights-grid">
+            {/* SEO 제목 8:2 법칙 */}
+            <div className="wt-insight">
+              <div className="wt-insight-label">📌 제목 8:2 법칙</div>
+              <p className="wt-insight-body">
+                제목 앞 80%에 검색 키워드, 뒤 20%에 호기심 유발 문구.
+              </p>
+              {insights.seoTitle?.examples?.[0] && (
+                <div className="wt-insight-example">
+                  ✗ {insights.seoTitle.examples[0].bad}<br />
+                  ✓ <strong>{insights.seoTitle.examples[0].good}</strong>
                 </div>
               )}
             </div>
-          ))}
+            
+            {/* 음성 SEO */}
+            <div className="wt-insight">
+              <div className="wt-insight-label">🎤 음성 SEO</div>
+              <p className="wt-insight-body">
+                영상 시작 30초 안에 "{keyword}" 키워드를 직접 발음하세요.
+                유튜브가 음성을 텍스트로 변환해 검색 데이터로 사용합니다.
+              </p>
+            </div>
+
+            {/* 첫 30초 후크 */}
+            <div className="wt-insight">
+              <div className="wt-insight-label">🎯 첫 30초 후크 (검증된 패턴)</div>
+              <ul className="wt-insight-list">
+                {insights.hooks?.slice(0, 3).map((h: string, i: number) => (
+                  <li key={i}>{h}</li>
+                ))}
+              </ul>
+            </div>
+
+            {/* 댓글 유도 */}
+            <div className="wt-insight">
+              <div className="wt-insight-label">💬 댓글 유도 질문 (참여 ↑)</div>
+              <ul className="wt-insight-list">
+                {insights.questions?.slice(0, 2).map((q: string, i: number) => (
+                  <li key={i}>{q}</li>
+                ))}
+              </ul>
+            </div>
+
+            {/* 챕터 규칙 */}
+            <div className="wt-insight">
+              <div className="wt-insight-label">⏱ 챕터 = 시청 시간 2배</div>
+              <p className="wt-insight-body">
+                첫 챕터 <strong>00:00에서 시작</strong> (필수). 5~7개 챕터,
+                챕터명에 "{keyword}" 자연스럽게 포함.
+              </p>
+            </div>
+
+            {/* 해시태그 */}
+            <div className="wt-insight">
+              <div className="wt-insight-label">🏷 해시태그 (3~5개만!)</div>
+              <p className="wt-insight-body">
+                딱 3~5개. <strong>15개 초과 시 모두 무효</strong>.<br />
+                추천: #{keyword.replace(/\s/g, '')} + 연관 2~3개
+              </p>
+            </div>
+          </div>
         </div>
       )}
       
