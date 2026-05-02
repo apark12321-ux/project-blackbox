@@ -31,29 +31,29 @@ export default function FreeEditingAppsGuide() {
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;
           font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          color: #0a0a0a; line-height: 1.65; letter-spacing: -0.01em;
+          color: #0a0a0a; line-height: 1.75; letter-spacing: -0.01em;
         }
         @media (max-width: 600px) { .guide { padding: 18px 16px 50px; } }
         .guide-kicker { font-size: 11px; font-weight: 700; letter-spacing: 0.18em; color: #c2410c; margin-bottom: 8px; text-transform: uppercase; }
-        .guide-h1 { font-size: 28px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.3; margin: 0 0 12px; word-break: keep-all; }
-        @media (max-width: 600px) { .guide-h1 { font-size: 22px; } }
-        .guide-subtitle { font-size: 15px; color: #525252; margin: 0 0 24px; line-height: 1.6; word-break: keep-all; }
-        .guide-meta { display: flex; gap: 12px; font-size: 12px; color: #737373; padding-bottom: 18px; border-bottom: 1px solid #e5e5e5; margin-bottom: 28px; flex-wrap: wrap; }
-        .guide h2 { font-size: 20px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.4; margin: 36px 0 14px; padding-top: 8px; word-break: keep-all; }
-        @media (max-width: 600px) { .guide h2 { font-size: 17px; margin: 28px 0 12px; } }
-        .guide h3 { font-size: 17px; font-weight: 700; letter-spacing: -0.015em; margin: 24px 0 10px; word-break: keep-all; }
-        @media (max-width: 600px) { .guide h3 { font-size: 15.5px; } }
-        .guide p { font-size: 15.5px; margin: 0 0 14px; word-break: keep-all; }
-        @media (max-width: 600px) { .guide p { font-size: 14.5px; } }
+        .guide-h1 { font-size: 30px; font-weight: 800; letter-spacing: -0.025em; line-height: 1.3; margin: 0 0 12px; word-break: keep-all; }
+        @media (max-width: 600px) { .guide-h1 { font-size: 24px; } }
+        .guide-subtitle { font-size: 16px; color: #525252; margin: 0 0 24px; line-height: 1.6; word-break: keep-all; }
+        .guide-meta { display: flex; gap: 12px; font-size: 13px; color: #737373; padding-bottom: 18px; border-bottom: 1px solid #e5e5e5; margin-bottom: 28px; flex-wrap: wrap; }
+        .guide h2 { font-size: 22px; font-weight: 800; letter-spacing: -0.02em; line-height: 1.4; margin: 36px 0 14px; padding-top: 8px; word-break: keep-all; }
+        @media (max-width: 600px) { .guide h2 { font-size: 19px; margin: 28px 0 12px; } }
+        .guide h3 { font-size: 18px; font-weight: 700; letter-spacing: -0.015em; margin: 24px 0 10px; word-break: keep-all; }
+        @media (max-width: 600px) { .guide h3 { font-size: 16.5px; } }
+        .guide p { font-size: 17px; margin: 0 0 14px; word-break: keep-all; }
+        @media (max-width: 600px) { .guide p { font-size: 16px; } }
         .guide ul, .guide ol { padding-left: 22px; margin: 8px 0 18px; }
-        .guide li { font-size: 15.5px; margin-bottom: 8px; line-height: 1.6; word-break: keep-all; }
-        @media (max-width: 600px) { .guide li { font-size: 14.5px; } }
-        .guide-callout { padding: 14px 16px; background: #fffbeb; border-left: 3px solid #fbbf24; margin: 16px 0; font-size: 14.5px; line-height: 1.6; color: #78350f; word-break: keep-all; }
-        .guide-formula { padding: 16px 18px; background: #0a0a0a; color: #ffffff; margin: 18px 0; font-family: 'SF Mono', 'Consolas', monospace; font-size: 14px; line-height: 1.7; word-break: keep-all; }
+        .guide li { font-size: 17px; margin-bottom: 8px; line-height: 1.6; word-break: keep-all; }
+        @media (max-width: 600px) { .guide li { font-size: 16px; } }
+        .guide-callout { padding: 14px 16px; background: #fffbeb; border-left: 3px solid #fbbf24; margin: 16px 0; font-size: 15.5px; line-height: 1.6; color: #78350f; word-break: keep-all; }
+        .guide-formula { padding: 16px 18px; background: #0a0a0a; color: #ffffff; margin: 18px 0; font-family: 'SF Mono', 'Consolas', monospace; font-size: 15px; line-height: 1.7; word-break: keep-all; }
         .guide-formula strong { color: #fbbf24; font-weight: 700; }
         .guide-cta { margin-top: 36px; padding: 20px; background: #fafafa; border: 1px solid #e5e5e5; text-align: center; }
-        .guide-cta-title { font-size: 16px; font-weight: 700; margin: 0 0 8px; }
-        .guide-cta-desc { font-size: 13.5px; color: #525252; margin: 0 0 14px; line-height: 1.55; }
+        .guide-cta-title { font-size: 17px; font-weight: 700; margin: 0 0 8px; }
+        .guide-cta-desc { font-size: 14.5px; color: #525252; margin: 0 0 14px; line-height: 1.55; }
         .guide-cta-btn { display: inline-block; padding: 12px 24px; background: #0a0a0a; color: #ffffff; text-decoration: none; font-size: 14px; font-weight: 700; }
         .guide-cta-btn:hover { background: #c2410c; }
       `}</style>

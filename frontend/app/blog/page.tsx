@@ -26,7 +26,7 @@ interface Guide {
   slug: string;
   title: string;
   subtitle: string;
-  category: 'algorithm' | 'creation' | 'tools' | 'mindset';
+  category: 'algorithm' | 'creation' | 'tools' | 'mindset' | 'channel' | 'monetization';
   categoryLabel: string;
   emoji: string;
   readTime: string;
@@ -37,7 +37,9 @@ interface Guide {
 }
 
 const GUIDES: Guide[] = [
+  // ============================================================
   // 알고리즘 가이드 5편 (박 대표님 자료 기반)
+  // ============================================================
   {
     slug: 'algorithm-seo',
     blogPath: true,
@@ -102,7 +104,143 @@ const GUIDES: Guide[] = [
     updatedAt: '2026-05-02',
   },
 
-  // 박 대표님 기존 가이드 (영상 제작 + 도구)
+  // ============================================================
+  // 신규 10편 (2026-05-02)
+  // ============================================================
+  {
+    slug: 'first-100-subs',
+    blogPath: true,
+    title: '첫 100명 구독자 모으는 실전 전략',
+    subtitle: '30일 안에 첫 100명 모으는 5단계 + 흔한 실수 5가지',
+    category: 'channel',
+    categoryLabel: '채널 운영',
+    emoji: '🎯',
+    readTime: '9분',
+    publishedAt: '2026-05-02',
+    updatedAt: '2026-05-02',
+    badge: '신규',
+  },
+  {
+    slug: 'viral-patterns',
+    blogPath: true,
+    title: '떡상 채널 5가지 공통 패턴',
+    subtitle: '구독자 1만명 채널들의 공통점 분석',
+    category: 'channel',
+    categoryLabel: '채널 운영',
+    emoji: '🔥',
+    readTime: '8분',
+    publishedAt: '2026-05-02',
+    updatedAt: '2026-05-02',
+    badge: '신규',
+  },
+  {
+    slug: 'side-job-50',
+    blogPath: true,
+    title: '50대 이후 부업 유튜브 시작하는 법',
+    subtitle: '퇴직 전후 인생 경험을 자산으로 만드는 5단계',
+    category: 'channel',
+    categoryLabel: '채널 운영',
+    emoji: '👔',
+    readTime: '9분',
+    publishedAt: '2026-05-02',
+    updatedAt: '2026-05-02',
+    badge: '신규',
+  },
+  {
+    slug: 'channel-concept',
+    blogPath: true,
+    title: '영상 컨셉 정하기 5단계 워크시트',
+    subtitle: '본인만의 채널 정체성 찾는 워크시트',
+    category: 'channel',
+    categoryLabel: '채널 운영',
+    emoji: '🎯',
+    readTime: '8분',
+    publishedAt: '2026-05-02',
+    updatedAt: '2026-05-02',
+    badge: '신규',
+  },
+  {
+    slug: 'phone-shooting',
+    blogPath: true,
+    title: '핸드폰만으로 영상 찍는 5가지 꿀팁',
+    subtitle: '비싼 카메라 X. 핸드폰 1대로 충분합니다',
+    category: 'creation',
+    categoryLabel: '영상 제작',
+    emoji: '📱',
+    readTime: '7분',
+    publishedAt: '2026-05-02',
+    updatedAt: '2026-05-02',
+    badge: '신규',
+  },
+  {
+    slug: 'free-editing-apps',
+    blogPath: true,
+    title: '영상 편집 무료 앱 4개 비교',
+    subtitle: 'CapCut, VLLO, KineMaster, InShot 솔직 비교',
+    category: 'creation',
+    categoryLabel: '영상 제작',
+    emoji: '✂️',
+    readTime: '8분',
+    publishedAt: '2026-05-02',
+    updatedAt: '2026-05-02',
+    badge: '신규',
+  },
+  {
+    slug: 'camera-anxiety',
+    blogPath: true,
+    title: '카메라 울렁증 극복 5가지 방법',
+    subtitle: '1주일 안에 자연스럽게 말하는 실전 5가지',
+    category: 'creation',
+    categoryLabel: '영상 제작',
+    emoji: '🎤',
+    readTime: '7분',
+    publishedAt: '2026-05-02',
+    updatedAt: '2026-05-02',
+    badge: '신규',
+  },
+  {
+    slug: 'chatgpt-script',
+    blogPath: true,
+    title: 'ChatGPT로 영상 대본 쓰는 법',
+    subtitle: '시니어 친화 프롬프트 7가지 템플릿',
+    category: 'tools',
+    categoryLabel: 'AI 도구',
+    emoji: '🤖',
+    readTime: '9분',
+    publishedAt: '2026-05-02',
+    updatedAt: '2026-05-02',
+    badge: '신규',
+  },
+  {
+    slug: 'ai-thumbnail',
+    blogPath: true,
+    title: 'AI 썸네일 만드는 도구 5개 비교',
+    subtitle: 'Canva, 미리캔버스, Midjourney, DALL-E 비교',
+    category: 'tools',
+    categoryLabel: 'AI 도구',
+    emoji: '🎨',
+    readTime: '8분',
+    publishedAt: '2026-05-02',
+    updatedAt: '2026-05-02',
+    badge: '신규',
+  },
+  {
+    slug: 'revenue-calc',
+    blogPath: true,
+    title: '유튜브 광고 수익 실수령액 계산법',
+    subtitle: '세금·환율·수수료 모두 반영한 실전 계산',
+    category: 'monetization',
+    categoryLabel: '수익화',
+    emoji: '💰',
+    readTime: '9분',
+    publishedAt: '2026-05-02',
+    updatedAt: '2026-05-02',
+    badge: '신규',
+  },
+
+  // ============================================================
+  // 박 대표님 기존 가이드 5편
+  // ============================================================
   {
     slug: 'youtube-start',
     blogPath: true,
@@ -144,8 +282,8 @@ const GUIDES: Guide[] = [
     blogPath: true,
     title: '유튜브 수익화 조건과 방법 정리',
     subtitle: '구독자 1,000명, 시청 시간 4,000시간 달성 전략',
-    category: 'tools',
-    categoryLabel: '도구·운영',
+    category: 'monetization',
+    categoryLabel: '수익화',
     emoji: '💰',
     readTime: '11분',
     publishedAt: '2026-04-25',
@@ -157,7 +295,7 @@ const GUIDES: Guide[] = [
     title: 'AI 영상 만들기 도구 모음',
     subtitle: '초보도 쓸 수 있는 AI 도구 추천 가이드',
     category: 'tools',
-    categoryLabel: '도구·운영',
+    categoryLabel: 'AI 도구',
     emoji: '🤖',
     readTime: '8분',
     publishedAt: '2026-04-28',
@@ -169,8 +307,10 @@ const GUIDES: Guide[] = [
 const CATEGORIES = [
   { id: 'all', label: '전체', icon: '📚' },
   { id: 'algorithm', label: '알고리즘', icon: '🤖' },
+  { id: 'channel', label: '채널 운영', icon: '🎯' },
   { id: 'creation', label: '영상 제작', icon: '🎬' },
-  { id: 'tools', label: '도구·운영', icon: '🛠' },
+  { id: 'tools', label: 'AI 도구', icon: '🛠' },
+  { id: 'monetization', label: '수익화', icon: '💰' },
   { id: 'mindset', label: '멘탈', icon: '💪' },
 ];
 
@@ -181,7 +321,7 @@ const collectionSchema = {
   '@context': 'https://schema.org',
   '@type': 'CollectionPage',
   name: 'AlgoMaker 가이드 모음',
-  description: '영상 만들기 노하우 17편 - 알고리즘, 시청 지속률, 브랜딩, 멘탈, 도구까지',
+  description: '영상 만들기 노하우 20편 - 알고리즘, 채널 운영, 영상 제작, AI 도구, 수익화, 멘탈까지',
   url: 'https://nutube.kr/blog',
   inLanguage: 'ko',
 };
@@ -265,30 +405,30 @@ export default function BlogListPage() {
         @media (max-width: 600px) { .blogKicker { font-size: 10px; } }
 
         .blogTitle {
-          font-size: 28px;
+          font-size: 32px;
           font-weight: 800;
           letter-spacing: -0.03em;
           line-height: 1.25;
           margin: 0 0 8px;
           word-break: keep-all;
         }
-        @media (max-width: 600px) { .blogTitle { font-size: 22px; } }
+        @media (max-width: 600px) { .blogTitle { font-size: 26px; } }
 
         .blogSub {
-          font-size: 14px;
+          font-size: 16px;
           color: #525252;
           line-height: 1.6;
           margin: 0;
           font-weight: 500;
           word-break: keep-all;
         }
-        @media (max-width: 600px) { .blogSub { font-size: 13px; } }
+        @media (max-width: 600px) { .blogSub { font-size: 14.5px; } }
 
         .blogMeta {
           display: flex;
           gap: 12px;
           margin-top: 10px;
-          font-size: 11.5px;
+          font-size: 13px;
           color: #737373;
           font-family: 'SF Mono', 'Consolas', monospace;
           flex-wrap: wrap;
@@ -315,7 +455,7 @@ export default function BlogListPage() {
           background: #ffffff;
           border: 1px solid #e5e5e5;
           font-family: inherit;
-          font-size: 12.5px;
+          font-size: 14px;
           font-weight: 600;
           color: #525252;
           letter-spacing: -0.005em;
@@ -325,7 +465,7 @@ export default function BlogListPage() {
           flex-shrink: 0;
         }
         @media (max-width: 600px) {
-          .filterBtn { padding: 7px 11px; font-size: 11.5px; }
+          .filterBtn { padding: 8px 12px; font-size: 13px; }
         }
         .filterBtn:hover {
           background: #fafafa;
@@ -355,7 +495,7 @@ export default function BlogListPage() {
           display: grid;
           grid-template-columns: 60px 1fr 90px;
           gap: 16px;
-          padding: 18px 4px;
+          padding: 22px 8px;
           border-bottom: 1px solid #e5e5e5;
           text-decoration: none;
           color: inherit;
@@ -402,7 +542,7 @@ export default function BlogListPage() {
 
         .guideCat {
           font-family: 'SF Mono', 'Consolas', monospace;
-          font-size: 9.5px;
+          font-size: 11px;
           font-weight: 700;
           color: #c2410c;
           letter-spacing: 0.15em;
@@ -422,7 +562,7 @@ export default function BlogListPage() {
         @media (max-width: 600px) { .guideBadge { font-size: 9px; } }
 
         .guideTitle {
-          font-size: 15px;
+          font-size: 17px;
           font-weight: 700;
           letter-spacing: -0.018em;
           line-height: 1.4;
@@ -430,11 +570,11 @@ export default function BlogListPage() {
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .guideTitle { font-size: 14px; }
+          .guideTitle { font-size: 16px; }
         }
 
         .guideSub {
-          font-size: 12.5px;
+          font-size: 14px;
           color: #737373;
           line-height: 1.55;
           margin: 0 0 6px;
@@ -445,14 +585,14 @@ export default function BlogListPage() {
           overflow: hidden;
         }
         @media (max-width: 600px) {
-          .guideSub { font-size: 11.5px; }
+          .guideSub { font-size: 13px; }
         }
 
         .guideStats {
           display: flex;
           gap: 10px;
           font-family: 'SF Mono', 'Consolas', monospace;
-          font-size: 10.5px;
+          font-size: 12px;
           color: #a3a3a3;
           letter-spacing: 0.02em;
         }
@@ -514,7 +654,7 @@ export default function BlogListPage() {
           <h1 className="blogTitle">영상 만들기 가이드 모음</h1>
           <p className="blogSub">
             영상 처음 시작하시는 분부터 알고리즘 마스터까지.
-            검색엔진 최적화, 시청 지속률, 브랜딩, 도구 활용 등 실전 노하우 {GUIDES.length}편.
+            검색엔진 최적화, 채널 운영, 영상 제작, AI 도구, 수익화 등 실전 노하우 {GUIDES.length}편.
           </p>
           <div className="blogMeta">
             <span>📚 {GUIDES.length}편</span>

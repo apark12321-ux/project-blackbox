@@ -603,7 +603,7 @@ export default function HomePage() {
         }
 
         .engineTitle {
-          font-size: 32px;
+          font-size: 36px;
           font-weight: 800;
           color: #0a0a0a;
           letter-spacing: -0.035em;
@@ -612,7 +612,7 @@ export default function HomePage() {
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .engineTitle { font-size: 22px; margin-bottom: 10px; }
+          .engineTitle { font-size: 26px; margin-bottom: 10px; }
         }
 
         .engineTitleAccent {
@@ -620,7 +620,7 @@ export default function HomePage() {
         }
 
         .engineSub {
-          font-size: 13.5px;
+          font-size: 15px;
           color: #525252;
           line-height: 1.65;
           font-weight: 500;
@@ -628,7 +628,7 @@ export default function HomePage() {
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .engineSub { font-size: 12.5px; margin-bottom: 18px; }
+          .engineSub { font-size: 14px; margin-bottom: 18px; }
         }
 
         /* 메트릭 3카드 */
@@ -652,7 +652,7 @@ export default function HomePage() {
         }
 
         .engineMetricLabel {
-          font-size: 9.5px;
+          font-size: 11px;
           font-weight: 700;
           color: #737373;
           letter-spacing: 0.12em;
@@ -661,11 +661,11 @@ export default function HomePage() {
           margin-bottom: 4px;
         }
         @media (max-width: 600px) {
-          .engineMetricLabel { font-size: 8.5px; letter-spacing: 0.08em; }
+          .engineMetricLabel { font-size: 10px; letter-spacing: 0.08em; }
         }
 
         .engineMetricValue {
-          font-size: 22px;
+          font-size: 26px;
           font-weight: 800;
           color: #0a0a0a;
           letter-spacing: -0.025em;
@@ -673,18 +673,18 @@ export default function HomePage() {
           font-family: 'SF Mono', 'Consolas', 'Pretendard', monospace;
         }
         @media (max-width: 600px) {
-          .engineMetricValue { font-size: 17px; }
+          .engineMetricValue { font-size: 20px; }
         }
 
         .engineMetricUnit {
-          font-size: 11px;
+          font-size: 12.5px;
           font-weight: 600;
           color: #737373;
           letter-spacing: -0.005em;
           margin-top: 2px;
         }
         @media (max-width: 600px) {
-          .engineMetricUnit { font-size: 10px; }
+          .engineMetricUnit { font-size: 11.5px; }
         }
 
         /* 우측: 파이프라인 */
@@ -798,7 +798,7 @@ export default function HomePage() {
         }
 
         .slideTitle {
-          font-size: 20px;
+          font-size: 22px;
           font-weight: 800;
           color: #ffffff;
           letter-spacing: -0.025em;
@@ -807,11 +807,11 @@ export default function HomePage() {
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .slideTitle { font-size: 17px; }
+          .slideTitle { font-size: 19px; }
         }
 
         .slideDesc {
-          font-size: 13px;
+          font-size: 15px;
           color: #d4d4d4;
           line-height: 1.65;
           font-weight: 500;
@@ -820,7 +820,7 @@ export default function HomePage() {
           flex: 1;
         }
         @media (max-width: 600px) {
-          .slideDesc { font-size: 12px; }
+          .slideDesc { font-size: 14px; }
         }
 
         .slideDetail {
@@ -830,14 +830,14 @@ export default function HomePage() {
           padding: 8px 12px;
           background: rgba(251, 191, 36, 0.08);
           border-left: 2px solid #fbbf24;
-          font-size: 11.5px;
+          font-size: 13px;
           font-weight: 700;
           color: #fbbf24;
           letter-spacing: -0.005em;
           font-family: 'SF Mono', 'Consolas', monospace;
         }
         @media (max-width: 600px) {
-          .slideDetail { font-size: 10.5px; padding: 7px 10px; }
+          .slideDetail { font-size: 12px; padding: 7px 10px; }
         }
 
         .slideDetailIcon {

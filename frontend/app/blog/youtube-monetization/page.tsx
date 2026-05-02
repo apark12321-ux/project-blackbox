@@ -18,7 +18,7 @@ export default function YouTubeMonetizationGuide() {
           padding: 24px 20px 60px;
           font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
           color: #0a0a0a;
-          line-height: 1.65;
+          line-height: 1.75;
           letter-spacing: -0.01em;
         }
         @media (max-width: 600px) {
@@ -33,7 +33,7 @@ export default function YouTubeMonetizationGuide() {
           text-transform: uppercase;
         }
         .guide-h1 {
-          font-size: 28px;
+          font-size: 30px;
           font-weight: 800;
           letter-spacing: -0.025em;
           line-height: 1.3;
@@ -41,7 +41,7 @@ export default function YouTubeMonetizationGuide() {
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .guide-h1 { font-size: 22px; }
+          .guide-h1 { font-size: 24px; }
         }
         .guide-subtitle {
           font-size: 15px;
@@ -53,14 +53,14 @@ export default function YouTubeMonetizationGuide() {
         .guide-meta {
           display: flex;
           gap: 12px;
-          font-size: 12px;
+          font-size: 13px;
           color: #737373;
           padding-bottom: 18px;
           border-bottom: 1px solid #e5e5e5;
           margin-bottom: 28px;
         }
         .guide h2 {
-          font-size: 20px;
+          font-size: 22px;
           font-weight: 800;
           letter-spacing: -0.02em;
           line-height: 1.4;
@@ -69,45 +69,45 @@ export default function YouTubeMonetizationGuide() {
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .guide h2 { font-size: 17px; margin: 28px 0 12px; }
+          .guide h2 { font-size: 19px; margin: 28px 0 12px; }
         }
         .guide h3 {
-          font-size: 17px;
+          font-size: 18px;
           font-weight: 700;
           letter-spacing: -0.015em;
           margin: 24px 0 10px;
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .guide h3 { font-size: 15.5px; }
+          .guide h3 { font-size: 16.5px; }
         }
         .guide p {
-          font-size: 15.5px;
+          font-size: 17px;
           margin: 0 0 14px;
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .guide p { font-size: 14.5px; }
+          .guide p { font-size: 16px; }
         }
         .guide ul, .guide ol {
           padding-left: 22px;
           margin: 8px 0 18px;
         }
         .guide li {
-          font-size: 15.5px;
+          font-size: 17px;
           margin-bottom: 8px;
           line-height: 1.6;
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .guide li { font-size: 14.5px; }
+          .guide li { font-size: 16px; }
         }
         .guide-callout {
           padding: 14px 16px;
           background: #fffbeb;
           border-left: 3px solid #fbbf24;
           margin: 16px 0;
-          font-size: 14.5px;
+          font-size: 15.5px;
           line-height: 1.6;
           color: #78350f;
           word-break: keep-all;
@@ -137,13 +137,13 @@ export default function YouTubeMonetizationGuide() {
           text-align: center;
         }
         .guide-cta-title {
-          font-size: 16px;
+          font-size: 17px;
           font-weight: 700;
           margin: 0 0 8px;
           color: #0a0a0a;
         }
         .guide-cta-desc {
-          font-size: 13.5px;
+          font-size: 14.5px;
           color: #525252;
           margin: 0 0 14px;
           line-height: 1.55;
