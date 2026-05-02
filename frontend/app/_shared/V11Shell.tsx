@@ -1,28 +1,26 @@
 'use client';
 /**
- * AlgoMaker V11Shell v11.4 - GNB 카테고리 동일 포맷
+ * AlgoMaker V11Shell v11.5 - GNB 간결화 + /blog 트래픽 유도
  *
- * 박 대표님 v11.4 요청 (A안):
- *   "하위 카테고리는 동일한 포맷으로 가져가줘"
- *   → 가이드 메뉴 = 모두 글(가이드 페이지)만
- *   → 도구 메뉴 = 모두 사용 가능 도구만
- *   → 홈 = 별도 (CTA 위)
+ * 박 대표님 v11.5 요청:
+ *   "GNB에 가이드 카테고리 너무 많음"
+ *   "하위 카테고리로 내려서 목록형으로 조회수 나오게"
+ *   → GNB 간결화 + /blog 페이지 트래픽 유도
+ *   → AdSense 친화 (페이지뷰 누적 효과)
  *
- * v11.4 변경 (v11.3 → v11.4):
- *  ✅ 홈 → 별도 위치 (CTA 위)
- *  ✅ 가이드 메뉴 8편 (모두 글 형식 - 동일 포맷):
- *    - 전체 가이드 모음
- *    - SEO 검색 최적화
- *    - 시청 지속률 전략
- *    - 채널 브랜딩
- *    - 치명적 실수 방어
- *    - 유튜버 멘탈
- *    - 영상 처음 시작
- *    - AI 도구 활용법
- *  ✅ 도구 메뉴 1개 (자료 만들기 - 실제 사용 도구만)
- *  ✅ 정보 메뉴 2개 (서비스 소개, 문의하기)
- *  ✅ 정책 메뉴 2개 (개인정보, 이용약관 - 작게)
- *  ✅ 푸터도 v11.4 새 구조와 일관성
+ * v11.5 변경 (v11.4 → v11.5):
+ *  ✅ GNB 가이드 8편 직접 노출 → 1개 메뉴로
+ *    "📚 가이드 [10편 배지]" 클릭 → /blog 목록 페이지 진입
+ *  ✅ "도구" 메뉴도 1개로 → /create 진입
+ *  ✅ menuLabel "가이드/도구/정보" → 단순화
+ *    (가이드/도구는 라벨 없이 직접 메뉴 1개씩)
+ *  ✅ menuBadge 추가 (10편 표시)
+ *  ✅ 푸터는 그대로 유지 (SEO 내부 링크)
+ *
+ * 사용자 흐름 개선:
+ *  이전: 메인 → 가이드 직접 (2페이지뷰)
+ *  이후: 메인 → /blog 목록 → 가이드 (3페이지뷰)
+ *  → AdSense 페이지뷰 누적 ↑
  *  - 박 대표님 자산 100% 보존 (메뉴/노출/링크 그대로)
  */
 
@@ -184,15 +182,14 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
 
   // 시니어 영상 멘토링 채널 컨셉 (v6.2.0)
   // ============================================================
-  // v11.4: GNB 메뉴 카테고리 동일 포맷
-  // 박 대표님 v11.4 요청:
-  //   "하위 카테고리는 동일한 포맷으로 가져가줘"
-  //   → 가이드 카테고리 = 모두 글(아티클) 형식
-  //   → 도구 카테고리 = 모두 사용 도구
-  //   → "홈"은 별도 (CTA 위)
+  // v11.5: GNB 간결화 - 카테고리 페이지로 유도
+  // 박 대표님 v11.5 요청:
+  //   "GNB에 가이드 카테고리 너무 많음"
+  //   "하위 카테고리로 내려서 목록형으로 조회수 나오게"
+  //   → /blog 페이지 트래픽 유도 (AdSense 중요 지표)
   // ============================================================
   
-  // 핵심 CTA 버튼 (사이드바 상단 강조)
+  // 핵심 CTA 버튼
   const ctaAction = {
     label: '자료 만들기',
     sub: 'AI가 5초 안에',
@@ -200,27 +197,17 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
     key: 'create',
   };
   
-  // 홈 버튼 (CTA 바로 아래, 별도)
+  // 홈 버튼 (CTA 위)
   const homeMenu = { icon: '🏠', label: '홈', path: '/', key: 'home' };
   
-  // 가이드 메뉴 (모두 글 형식의 가이드 - 동일 포맷!)
-  const guideMenu = [
-    { icon: '📚', label: '전체 가이드 모음', path: '/blog', key: 'blog' },
-    { icon: '🔍', label: 'SEO 검색 최적화', path: '/blog/algorithm-seo', key: 'seo' },
-    { icon: '⏱', label: '시청 지속률 전략', path: '/blog/algorithm-retention', key: 'retention' },
-    { icon: '🎨', label: '채널 브랜딩', path: '/blog/algorithm-branding', key: 'branding' },
-    { icon: '⚠️', label: '치명적 실수 방어', path: '/blog/algorithm-mistakes', key: 'mistakes' },
-    { icon: '💪', label: '유튜버 멘탈', path: '/blog/algorithm-mindset', key: 'mindset' },
-    { icon: '🎬', label: '영상 처음 시작', path: '/blog/youtube-start', key: 'start' },
-    { icon: '🤖', label: 'AI 도구 활용법', path: '/blog/ai-tools', key: 'ai-guide' },
+  // 메인 메뉴 (간결!)
+  // → 가이드 클릭 시 /blog 목록 페이지로 → 조회수 누적
+  const mainMenu = [
+    { icon: '📚', label: '가이드', path: '/blog', key: 'blog', badge: '10편' },
+    { icon: '🛠', label: '도구', path: '/create', key: 'tool' },
   ];
   
-  // 도구 메뉴 (실제 사용 가능 도구 - 동일 포맷!)
-  const toolMenu = [
-    { icon: '✏️', label: '자료 만들기', path: '/create', key: 'create-tool' },
-  ];
-  
-  // 정보 메뉴 (회사 + 문의 - 동일 포맷!)
+  // 정보 메뉴
   const infoMenu = [
     { icon: 'ℹ️', label: '서비스 소개', path: '/about', key: 'about' },
     { icon: '✉️', label: '문의하기', path: '/contact', key: 'contact' },
@@ -340,6 +327,23 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
           background: #fdf1e7; color: #c65f3b; font-weight: 700;
         }
         .menuIcon { font-size: 17px; }
+        
+        /* v11.5: 메뉴 배지 (가이드 옆 "10편" 등) */
+        .menuBadge {
+          margin-left: auto;
+          padding: 2px 7px;
+          background: #fef3e7;
+          color: #c2410c;
+          font-size: 10px;
+          font-weight: 700;
+          letter-spacing: 0.02em;
+          font-family: 'SF Mono', 'Consolas', monospace;
+          border-radius: 4px;
+        }
+        .menuItem.active .menuBadge {
+          background: #c2410c;
+          color: #ffffff;
+        }
         
         /* 알림 카드 - 컴팩트 */
         .noticeCard {
@@ -506,10 +510,9 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
             <div className="ctaBtnArrow">→</div>
           </div>
 
-          {/* 가이드 메뉴 */}
+          {/* 메인 메뉴 (가이드/도구 - 카테고리만, 클릭 시 목록 페이지로) */}
           <div className="menuSection">
-            <div className="menuLabel">가이드</div>
-            {guideMenu.map((m) => (
+            {mainMenu.map((m) => (
               <div
                 key={m.key}
                 className={`menuItem ${isActive(m.path) ? 'active' : ''}`}
@@ -517,21 +520,9 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
               >
                 <span className="menuIcon">{m.icon}</span>
                 <span>{m.label}</span>
-              </div>
-            ))}
-          </div>
-
-          {/* 도구 메뉴 */}
-          <div className="menuSection">
-            <div className="menuLabel">도구</div>
-            {toolMenu.map((m) => (
-              <div
-                key={m.key}
-                className={`menuItem ${isActive(m.path) ? 'active' : ''}`}
-                onClick={() => { router.push(m.path); setSidebarOpen(false); }}
-              >
-                <span className="menuIcon">{m.icon}</span>
-                <span>{m.label}</span>
+                {(m as any).badge && (
+                  <span className="menuBadge">{(m as any).badge}</span>
+                )}
               </div>
             ))}
           </div>
