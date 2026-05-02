@@ -27,7 +27,7 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
 
   return (
     <div className="briefDoc">
-      <style jsx>{`
+      <style jsx global>{`
         .briefDoc {
           background: #ffffff;
           border: 1px solid #d4d4d4;

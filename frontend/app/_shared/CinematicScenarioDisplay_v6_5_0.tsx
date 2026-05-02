@@ -27,7 +27,7 @@ export function CinematicScenarioDisplay({ scenario }: ScenarioDisplayProps) {
 
   return (
     <div className="treatmentDoc">
-      <style jsx>{`
+      <style jsx global>{`
         .treatmentDoc {
           background: #ffffff;
           border: 1px solid #d4d4d4;

@@ -1,118 +1,44 @@
 ============================================================
-AlgoMaker — UX 일괄 개선
+🐛 BUG FIX — styled-jsx scope 버그 수정
 ============================================================
 
-박 대표님 요청 (D안 + D안):
-  1. 메뉴 명칭 직관적으로 ("떡상 분석" → 일반인 모름)
-  2. AI 툴 페이지 텍스트 줄바꿈 어색함 해결
-  3. 엉터리 수치 제거 (신뢰 최우선)
-
-============================================================
-변경 파일 4개
-============================================================
-
-★ frontend/app/_shared/V11Shell.tsx (v11.3)
-  메뉴 직관적 재구성
-
-★ frontend/app/page.tsx (v10.8)
-  ENGINE PANEL 메트릭 신뢰 최우선 수치로 교체
-
-★ frontend/app/_shared/CinematicPromptDisplay_v6_5_0.tsx (v6.5.1)
-  텍스트 줄바꿈 어색함 해결
-
-★ frontend/app/_shared/CinematicScenarioDisplay_v6_5_0.tsx (v6.5.1)
-  텍스트 줄바꿈 어색함 해결
-
-============================================================
-[1] V11Shell v11.3 — 직관적 메뉴
-============================================================
-
-이전 (어색함):
-  메뉴
-  🏠 홈
-  🔥 떡상 분석          ← 일반인 모름 ("이게 뭐야?")
-  📱 핸드폰 가이드      ← AI 도구와 분리 어색
-  🤖 AI 도구
-  ✏️ 자료 만들기        ← 핵심 액션인데 묻힘
+박 대표님 캡처 분석 결과:
+  - Full Prompt 흰색 배경 (검정 적용 X)
+  - 텍스트 가로 잘림 (overflow-wrap 적용 X)
   
-  정보 (또는 도구·회사 ← 어색)
-  📝 전체 가이드
-  ℹ️ 서비스 소개
-  ✉️ 문의하기
-
-이후 (직관적):
-  ┌────────────────────┐
-  │ ✏️ 자료 만들기 →   │ ← 큰 CTA 버튼 (주황 그라디언트)
-  │ AI가 5초 안에      │
-  └────────────────────┘
+원인: styled-jsx scope 끊김
   
-  가이드
-  🏠 홈
-  📚 가이드 모음
-  🔍 SEO 전략         ← 알고리즘 가이드 직접 노출
-  ⏱ 시청 지속률
-  🎨 브랜딩
+  CinematicPromptDisplay 메인 함수에 <style jsx> 1개 정의
+  → MidjourneyPanel/SoraPanel/FullPromptBox/SpecRow는
+    별도 함수라서 styled-jsx scope 적용 X
+  → CSS 적용 안 됨 → 흰색 배경 + 텍스트 잘림
+
+해결:
+  <style jsx> → <style jsx global>
+  → 자식 함수까지 모두 적용
+
+============================================================
+변경 파일 2개
+============================================================
+
+★ frontend/app/_shared/CinematicPromptDisplay_v6_5_0.tsx
+  Line 30: <style jsx> → <style jsx global>
   
-  도구
-  🤖 AI 도구 모음
-  📱 스마트폰으로 영상  ← 명확
-  
-  정보
-  ℹ️ 서비스 소개
-  ✉️ 문의하기
-  
-  ─────────────────  ← 점선 구분
-  개인정보 처리방침      ← 정책 (작게)
-  이용약관
+★ frontend/app/_shared/CinematicScenarioDisplay_v6_5_0.tsx
+  Line 30: <style jsx> → <style jsx global>
+  (BeatBlock, CopyButton 자식 함수도 같은 버그)
 
 ============================================================
-[2] Main v10.8 — 메트릭 신뢰 최우선
+박 대표님 자산 100% 보존
 ============================================================
 
-이전 (의심스러움):
-  분석 영상  5,247  개 사례     ← 출처 X
-  평균 CTR  8.2%   일반 2배    ← 가짜 통계
-  생성 속도  5초    평균        ← 의심
-
-이후 (검증 가능):
-  AI 엔진     5    동시 연동    ← 실제 (MJ/Sora/VEO/Flow/NB)
-  파이프라인  5    자동 단계    ← 실제 (분석/생성/구조/제작/배포)
-  SNS 자동   4    플랫폼      ← 실제 (YT/Shorts/IG/TikTok)
-
-→ AdSense 검토자도 검증 가능
-→ 박 대표님이 "실제 그렇다"고 말할 수 있음
-
-============================================================
-[3] CinematicPromptDisplay v6.5.1 — 텍스트 줄바꿈
-============================================================
-
-이전 (단어 끊김):
-  SCENE: 월세 vs 전세 시작 전 알았으면 좋았을 것...
-  VISUAL STYLE: long-form journalism pho...
-  CAMERA: static tripod with micro-adjus...
-  LIGHTING: available natural light. Sha...
-
-이후 (정상 줄바꿈):
-  SCENE: 월세 vs 전세 시작 전
-  알았으면 좋았을 것 (한글 단어 단위 보존)
-  
-  VISUAL STYLE: long-form journalism
-  photography (영문 단어 단위 보존)
-
-CSS 변경:
-  - word-break: keep-all (한글 단어 보존)
-  - overflow-wrap: anywhere (영문 긴 단어 끊김 방지)
-  - 모바일 폰트 12.5 → 12 (가독성 ↑)
-  - 모바일 padding 14 → 12 (공간 확보)
-  - 모바일 line-height 1.7 → 1.75 (줄 간격 여유)
-  - 모바일 탭 5열 → 3열 (가로 스크롤 X)
-
-============================================================
-[4] CinematicScenarioDisplay v6.5.1 — 동일 줄바꿈 처리
-============================================================
-
-shortsContent (60초 컷다운) + algoText (알고리즘 분석)
-모두 word-break: keep-all + overflow-wrap: anywhere
+✅ 모든 함수 시그니처 그대로
+   - MidjourneyPanel, SoraPanel, VeoPanel, FlowPanel, NotebookPanel
+   - SpecRow, FullPromptBox
+   - BeatBlock, CopyButton
+✅ Props 인터페이스 그대로
+✅ 데이터 흐름 그대로
+✅ import 경로 그대로 (publish/page.tsx 수정 X)
 
 ============================================================
 박 대표님 적용 (1분)
@@ -125,54 +51,52 @@ shortsContent (60초 컷다운) + algoText (알고리즘 분석)
 
 3. "Add file" → "Upload files"
 
-4. 압축 푼 폴더의 frontend/ 안 내용 통째로 드래그
+4. 압축 푼 frontend/app/_shared/ 안 2개 파일 드래그
+   - CinematicPromptDisplay_v6_5_0.tsx
+   - CinematicScenarioDisplay_v6_5_0.tsx
+   
+5. "Replace existing file" 선택 (기존 파일 덮어쓰기)
 
-5. Commit message:
-   feat: 메뉴 직관 + 텍스트 줄바꿈 + 신뢰 메트릭
+6. Commit message: fix: styled-jsx scope 버그 수정 (자식 함수 적용)
 
-6. Vercel 자동 빌드 1~2분
+7. Vercel 자동 빌드 1~2분
 
-7. 시크릿 창 → nutube.kr 접속
+8. 시크릿 창 → nutube.kr 접속
 
-8. 모바일 햄버거 ☰ 클릭:
-   ✓ 큰 [✏️ 자료 만들기 →] CTA 버튼
-   ✓ "가이드" 카테고리 (SEO/시청 지속률/브랜딩 직접 링크)
-   ✓ "도구" 카테고리 (AI 도구 모음, 스마트폰)
-   ✓ "정보" 카테고리 (서비스 소개, 문의)
-   ✓ 정책 메뉴 (작게, 점선 구분)
+9. 분야 → 주제 클릭 → publish 도착 → 전문가급 프롬프트 모드 켜기
 
-9. 메인 페이지 ENGINE PANEL:
-   ✓ AI 엔진 5 / 파이프라인 5 / SNS 4
-   ✓ 5,247, 8.2% 같은 의심 수치 X
-
-10. 분야 → 주제 클릭 → publish 결과 페이지:
-    ✓ 텍스트 끊김 없이 자연스럽게 줄바꿈
-    ✓ 한글 단어 안 끊김
-    ✓ 영문 긴 단어도 깔끔하게
-
-============================================================
-AdSense 안전 보장
-============================================================
-
-✅ 모든 메트릭 검증 가능 (가짜 통계 X)
-✅ 메뉴 직관적 (사용자 이해도 ↑)
-✅ 텍스트 가독성 (모바일 친화)
-✅ 박 대표님 자산 100% 보존
-   - publish/page.tsx 수정 X
-   - contentEngine.ts 수정 X
-   - import 경로 그대로
-   - 모든 함수 시그니처 그대로
-   - 데이터 흐름 그대로
+10. 확인:
+    ✓ Sora 2 — Full Prompt 헤더가 검정 배경
+    ✓ Full Prompt 본문이 검정 코드 박스
+    ✓ 노란 라벨 (▍ Sora 2 — Full Prompt)
+    ✓ 흰색 COPY 버튼
+    ✓ 텍스트가 화면 밖으로 안 잘림
+    ✓ 한글 단어 단위로 줄바꿈
+    ✓ 영문 긴 단어도 깔끔하게 줄바꿈
+    ✓ Composition Spec 카드 정렬
+    ✓ Negative Prompt 빨간 띠
 
 ============================================================
-포함 파일 4개
+이전 ZIP과 차이
 ============================================================
 
-[교체]
-- frontend/app/_shared/V11Shell.tsx                    (v11.3)
-- frontend/app/page.tsx                                 (v10.8)
-- frontend/app/_shared/CinematicPromptDisplay_v6_5_0.tsx (v6.5.1)
-- frontend/app/_shared/CinematicScenarioDisplay_v6_5_0.tsx (v6.5.1)
+이전 (UX 일괄 개선):
+  - 4개 파일: V11Shell + main + Cinematic 2개
+  - 메뉴 직관 / 메트릭 신뢰 / 줄바꿈 처리
 
-★ 다른 파일 변경 X
-   publish/page.tsx, contentEngine.ts, layout.tsx, 가이드 등 그대로
+이번 (BUG FIX):
+  - 2개 파일: Cinematic 2개만 (styled-jsx global)
+  - 다른 파일은 그대로
+
+★ 박 대표님이 이전 ZIP 적용한 후
+  이 BUG FIX ZIP 의 2개 파일만 추가 적용하시면 됩니다.
+
+★ 또는 아직 이전 ZIP 적용 전이라면
+  전체 적용 후 이 ZIP의 2개 파일도 같이 적용
+
+============================================================
+포함 파일 2개
+============================================================
+
+- frontend/app/_shared/CinematicPromptDisplay_v6_5_0.tsx
+- frontend/app/_shared/CinematicScenarioDisplay_v6_5_0.tsx
