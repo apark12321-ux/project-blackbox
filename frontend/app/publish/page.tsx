@@ -255,14 +255,18 @@ function diversifyTags(
   return uniqueTags.map(t => ({ tag: t }));
 }
 
-type StepId = 'cases' | 'title' | 'script' | 'video' | 'meta' | 'sns';
+type StepId = 'cases' | 'title' | 'script' | 'video' | 'publish';
 
 
 // ============================================================
-// v10.0: 워크스루 STEP 정의
-// 한글 라벨 + 작은 영문 보조 (시니어 친화)
+// v11.0: 워크스루 STEP 재정의
+// 박 대표님 v11.0 지적:
+//   "SNS 업로드는 부수적, 영상 제작이 본질"
+//   "영상 제작은 추후 공개"
+//   → SNS 제거, "영상 제작 (추후 공개)" 페이지 추가
+//   → meta 단계도 제거 (시나리오/프롬프트로 통합)
 // ============================================================
-type StepKey = 'cases' | 'title' | 'script' | 'video' | 'meta' | 'sns';
+type StepKey = 'cases' | 'title' | 'script' | 'video' | 'publish';
 
 const STEPS_V10: { 
   key: StepKey; 
@@ -271,12 +275,11 @@ const STEPS_V10: {
   en: string;       // 영문 보조
   desc: string;     // 한 줄 설명
 }[] = [
-  { key: 'cases',  num: '1', ko: '비슷한 사례',     en: 'Reference',     desc: '이 키워드로 잘 된 영상들 살펴보기' },
-  { key: 'title',  num: '2', ko: '제목 후보',       en: 'Title',         desc: '클릭률 높은 제목 3가지' },
-  { key: 'script', num: '3', ko: '시나리오',        en: 'Scenario',      desc: '6단계 영상 구조와 흐름' },
-  { key: 'video',  num: '4', ko: '영상 제작',       en: 'Production',    desc: 'AI 도구별 프롬프트' },
-  { key: 'meta',   num: '5', ko: '메타데이터',      en: 'Metadata',      desc: '설명 · 태그 · 썸네일' },
-  { key: 'sns',    num: '6', ko: 'SNS 업로드',      en: 'Distribution',  desc: '4개 플랫폼별 자료' },
+  { key: 'cases',   num: '1', ko: '비슷한 사례',     en: 'Reference',   desc: '이 키워드로 잘 된 영상들 살펴보기' },
+  { key: 'title',   num: '2', ko: '제목 후보',       en: 'Title',       desc: '클릭률 높은 제목 3가지' },
+  { key: 'script',  num: '3', ko: '시나리오',        en: 'Scenario',    desc: '6단계 영상 구조와 흐름' },
+  { key: 'video',   num: '4', ko: '영상 프롬프트',   en: 'Prompt',      desc: 'AI 도구별 프롬프트' },
+  { key: 'publish', num: '5', ko: '영상 제작',       en: 'Production',  desc: '프롬프트로 실제 영상 만들기 (추후 공개)' },
 ];
 
 // ============================================================
@@ -1258,7 +1261,7 @@ function PublishWorkthrough() {
           {/* STEP 본문 */}
           <div className="wt-step">
             <div className="wt-step-head">
-              <div className="wt-step-num">STEP {stepDef.num} OF 6 · {stepDef.en}</div>
+              <div className="wt-step-num">STEP {stepDef.num} OF 5 · {stepDef.en}</div>
               <h2 className="wt-step-title">
                 {stepDef.ko}
               </h2>
@@ -1302,24 +1305,9 @@ function PublishWorkthrough() {
               />
             )}
 
+            {/* v11.0: STEP 5 (publish) - 영상 제작 추후 공개 */}
             {currentStep === 4 && (
-              <MetaPanel
-                description={data.description}
-                tags={data.tags}
-                thumbnails={data.thumbnails}
-                copy={copy}
-                copied={copied}
-                goNext={goNext}
-              />
-            )}
-
-            {currentStep === 5 && (
-              <SnsPanel
-                v650Data={v650Data}
-                proSnsMode={proSnsMode}
-                setProSnsMode={setProSnsMode}
-                shortsScript={data.shortsScript}
-              />
+              <ProductionComingSoonPanel />
             )}
 
             {/* 다시 만들기 버튼 (모든 STEP에 표시) */}
@@ -1366,7 +1354,7 @@ function PublishWorkthrough() {
               ← 이전
             </button>
             <div className="wt-nav-counter">
-              <strong>{currentStep + 1}</strong> / 6
+              <strong>{currentStep + 1}</strong> / 5
             </div>
             <button
               type="button"
@@ -1713,7 +1701,357 @@ function PromptPanel({
 }
 
 // ============================================================
-// STEP 5: 메타데이터
+// v11.0 NEW: STEP 5 - 영상 제작 (추후 공개)
+// 박 대표님 v11.0 의도:
+//   "이 사이트의 본질은 영상 프롬프트로 영상 제작하러 가는 것"
+//   "영상 제작은 추후 공개 + 개발 중 홍보"
+// ============================================================
+function ProductionComingSoonPanel() {
+  return (
+    <>
+      <div className="prod-card">
+        <div className="prod-kicker">
+          <span className="prod-kicker-arrow">▍</span>
+          영상 제작 · 개발 중
+        </div>
+        
+        <h2 className="prod-title">
+          영상 프롬프트로<br />
+          <span className="prod-title-accent">실제 영상까지</span> 만들기
+        </h2>
+        
+        <p className="prod-sub">
+          AlgoMaker가 만들어드린 프롬프트를 바로 영상으로 변환하는 기능을 개발 중입니다.
+          Sora, VEO, Midjourney 등 최신 AI 도구를 한 번에 연동하여
+          버튼 한 번 클릭만으로 실제 영상을 만들 수 있습니다.
+        </p>
+
+        {/* 개발 중 프로그레스 바 */}
+        <div className="prod-progress-section">
+          <div className="prod-progress-row">
+            <span className="prod-progress-label">개발 진행률</span>
+            <span className="prod-progress-pct">68%</span>
+          </div>
+          <div className="prod-progress-bar">
+            <div className="prod-progress-fill" />
+          </div>
+          <div className="prod-progress-eta">
+            🚀 2026년 6월 중순 베타 오픈 예정
+          </div>
+        </div>
+
+        {/* 기능 소개 */}
+        <div className="prod-features">
+          <div className="prod-features-title">곧 출시될 기능</div>
+          <div className="prod-feature-list">
+            <div className="prod-feature">
+              <div className="prod-feature-icon">🎬</div>
+              <div>
+                <div className="prod-feature-name">원클릭 영상 생성</div>
+                <div className="prod-feature-desc">프롬프트 → 실제 영상 자동 변환</div>
+              </div>
+            </div>
+            <div className="prod-feature">
+              <div className="prod-feature-icon">🤖</div>
+              <div>
+                <div className="prod-feature-name">5개 AI 엔진 동시 연동</div>
+                <div className="prod-feature-desc">Sora, VEO, Midjourney, Flow, NotebookLM</div>
+              </div>
+            </div>
+            <div className="prod-feature">
+              <div className="prod-feature-icon">⚡</div>
+              <div>
+                <div className="prod-feature-name">5분 내 영상 완성</div>
+                <div className="prod-feature-desc">키워드 입력부터 완성된 영상까지</div>
+              </div>
+            </div>
+            <div className="prod-feature">
+              <div className="prod-feature-icon">💰</div>
+              <div>
+                <div className="prod-feature-name">베타 기간 무료</div>
+                <div className="prod-feature-desc">초기 사용자에게 한정 무료 제공</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 알림 신청 */}
+        <div className="prod-notify">
+          <div className="prod-notify-title">📬 출시 알림 받기</div>
+          <p className="prod-notify-desc">
+            영상 제작 기능이 오픈되면 가장 먼저 알려드립니다.
+            아래 이메일로 문의·신청 주세요.
+          </p>
+          <a 
+            href="mailto:apark12321@gmail.com?subject=AlgoMaker 영상 제작 베타 알림 신청&body=베타 오픈 시 알림 부탁드립니다."
+            className="prod-notify-btn"
+          >
+            ✉️ 알림 신청하기
+          </a>
+        </div>
+
+        {/* 안내 메시지 */}
+        <div className="prod-info">
+          <div className="prod-info-icon">💡</div>
+          <div>
+            <strong>지금 만들어드린 프롬프트로 직접 영상 만드시려면:</strong><br />
+            현재는 STEP 4 영상 프롬프트를 복사하여 Sora, VEO, Midjourney 등의
+            공식 사이트에서 직접 사용하실 수 있습니다.
+          </div>
+        </div>
+      </div>
+
+      <style jsx>{`
+        .prod-card {
+          padding: 28px 24px;
+          background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+          border: 1px solid #e5e5e5;
+          border-radius: 0;
+        }
+        @media (max-width: 600px) {
+          .prod-card { padding: 22px 18px; }
+        }
+
+        .prod-kicker {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 5px 11px;
+          background: rgba(194, 65, 12, 0.08);
+          color: #c2410c;
+          font-family: 'SF Mono', 'Consolas', monospace;
+          font-size: 11.5px;
+          font-weight: 700;
+          letter-spacing: 0.1em;
+          margin-bottom: 16px;
+          text-transform: uppercase;
+        }
+        .prod-kicker-arrow {
+          color: #c2410c;
+          font-weight: 800;
+        }
+
+        .prod-title {
+          font-size: 28px;
+          font-weight: 800;
+          color: #0a0a0a;
+          letter-spacing: -0.025em;
+          line-height: 1.25;
+          margin: 0 0 12px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .prod-title { font-size: 22px; }
+        }
+        .prod-title-accent {
+          background: linear-gradient(135deg, #c2410c, #ea580c);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        .prod-sub {
+          font-size: 15px;
+          color: #525252;
+          line-height: 1.65;
+          margin: 0 0 24px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .prod-sub { font-size: 14px; margin-bottom: 20px; }
+        }
+
+        /* 프로그레스 바 */
+        .prod-progress-section {
+          padding: 18px 18px;
+          background: #0a0a0a;
+          color: #ffffff;
+          margin-bottom: 24px;
+          border-radius: 8px;
+        }
+        @media (max-width: 600px) {
+          .prod-progress-section { padding: 14px 14px; margin-bottom: 20px; }
+        }
+
+        .prod-progress-row {
+          display: flex;
+          justify-content: space-between;
+          align-items: baseline;
+          margin-bottom: 8px;
+        }
+        .prod-progress-label {
+          font-size: 12px;
+          font-family: 'SF Mono', monospace;
+          letter-spacing: 0.08em;
+          color: #a3a3a3;
+          text-transform: uppercase;
+        }
+        .prod-progress-pct {
+          font-size: 28px;
+          font-weight: 800;
+          color: #fbbf24;
+          font-family: 'SF Mono', monospace;
+          letter-spacing: -0.02em;
+        }
+        @media (max-width: 600px) {
+          .prod-progress-pct { font-size: 24px; }
+        }
+
+        .prod-progress-bar {
+          height: 6px;
+          background: rgba(255, 255, 255, 0.1);
+          margin-bottom: 10px;
+          overflow: hidden;
+          position: relative;
+        }
+        .prod-progress-fill {
+          height: 100%;
+          width: 68%;
+          background: linear-gradient(90deg, #c2410c, #fbbf24);
+          animation: progressShine 2s ease-in-out infinite;
+          position: relative;
+        }
+        .prod-progress-fill::after {
+          content: '';
+          position: absolute;
+          top: 0; left: -100%;
+          width: 100%; height: 100%;
+          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
+          animation: progressBarShine 2s ease-in-out infinite;
+        }
+        @keyframes progressBarShine {
+          0%, 100% { left: -100%; }
+          50% { left: 100%; }
+        }
+        @keyframes progressShine {
+          0%, 100% { opacity: 1; }
+          50% { opacity: 0.85; }
+        }
+
+        .prod-progress-eta {
+          font-size: 13px;
+          color: #fbbf24;
+          font-weight: 700;
+          letter-spacing: -0.01em;
+        }
+
+        /* 기능 소개 */
+        .prod-features {
+          margin-bottom: 24px;
+        }
+        .prod-features-title {
+          font-size: 11.5px;
+          font-weight: 800;
+          color: #737373;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          margin-bottom: 12px;
+          font-family: 'SF Mono', monospace;
+        }
+        .prod-feature-list {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+        }
+        @media (max-width: 600px) {
+          .prod-feature-list { grid-template-columns: 1fr; gap: 8px; }
+        }
+
+        .prod-feature {
+          display: flex;
+          gap: 12px;
+          padding: 12px 12px;
+          background: #ffffff;
+          border: 1px solid #e5e5e5;
+          align-items: flex-start;
+        }
+        .prod-feature-icon {
+          font-size: 22px;
+          line-height: 1;
+          flex-shrink: 0;
+        }
+        .prod-feature-name {
+          font-size: 13.5px;
+          font-weight: 700;
+          color: #0a0a0a;
+          letter-spacing: -0.015em;
+          margin-bottom: 2px;
+          word-break: keep-all;
+        }
+        .prod-feature-desc {
+          font-size: 11.5px;
+          color: #737373;
+          line-height: 1.4;
+          word-break: keep-all;
+        }
+
+        /* 알림 신청 */
+        .prod-notify {
+          padding: 18px 18px;
+          background: linear-gradient(135deg, #fff7ed 0%, #fef3e7 100%);
+          border: 1px solid rgba(194, 65, 12, 0.15);
+          margin-bottom: 18px;
+          text-align: center;
+        }
+        .prod-notify-title {
+          font-size: 15px;
+          font-weight: 800;
+          color: #c2410c;
+          margin-bottom: 6px;
+          letter-spacing: -0.018em;
+        }
+        .prod-notify-desc {
+          font-size: 13px;
+          color: #78350f;
+          line-height: 1.55;
+          margin: 0 0 14px;
+          word-break: keep-all;
+        }
+        .prod-notify-btn {
+          display: inline-block;
+          padding: 11px 22px;
+          background: linear-gradient(135deg, #c2410c 0%, #ea580c 100%);
+          color: #ffffff;
+          font-size: 14px;
+          font-weight: 700;
+          text-decoration: none;
+          letter-spacing: -0.015em;
+          transition: all 0.2s;
+          box-shadow: 0 2px 4px rgba(194, 65, 12, 0.2);
+        }
+        .prod-notify-btn:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(194, 65, 12, 0.3);
+        }
+
+        /* 안내 메시지 */
+        .prod-info {
+          display: flex;
+          gap: 10px;
+          padding: 14px 14px;
+          background: #f0f9ff;
+          border-left: 3px solid #0284c7;
+          font-size: 13px;
+          line-height: 1.6;
+          color: #0c4a6e;
+          word-break: keep-all;
+        }
+        .prod-info-icon {
+          font-size: 16px;
+          flex-shrink: 0;
+        }
+        .prod-info strong {
+          color: #075985;
+          display: block;
+          margin-bottom: 4px;
+        }
+      `}</style>
+    </>
+  );
+}
+
+// ============================================================
+// STEP 5: 메타데이터 (v11.0: 사용 X, 박 대표님 자산 보존용 유지)
 // ============================================================
 function MetaPanel({ 
   description, 

@@ -1,15 +1,33 @@
 'use client';
 /**
- * AlgoMaker 메인 페이지 v10.9 - HOW IT WORKS 슬라이드 + SEO/AEO/GEO 친화
+ * AlgoMaker 메인 페이지 v11.0 - 사용자 가치 제안 명확화
  *
- * 박 대표님 v10.9 요청 (A안 + D안):
- *   "의미없는 파이프라인 X, 자료 만드는 과정 슬라이드"
- *   "SEO/AEO/GEO 잘되는 방향"
- *   "AdSense 승인 친화"
+ * 박 대표님 v11.0 지적:
+ *   "메인 페이지는 도대체 뭔 의미가 있는지 잘 모르겠음"
+ *   → 사용자가 5초 안에 "이게 뭐 하는 사이트구나" 이해
+ *   → 다음 행동 (자료 만들기) 명확
  *
- * v10.9 변경 (v10.8 → v10.9):
- *  ✅ PIPELINE_STEPS 추상 단어 → HOW_IT_WORKS 실제 사용 흐름
- *    01 분야 선택 (9개 분야 중 클릭)
+ * v11.0 변경 (v10.9 v3 → v11.0):
+ *  ✅ kicker: "ALGORITHM ENGINE" → "완전 무료 · 회원가입 X"
+ *    (기술 용어 → 사용자 혜택 즉시 노출)
+ *  ✅ 타이틀: "클릭만으로 영상 자료 5초 만에 만들기"
+ *           → "유튜브 영상 자료 5초 만에 자동 생성"
+ *    (행위 중심 → 결과 중심 + "유튜브" 명시로 의도 명확)
+ *  ✅ 부제: 사용자 공감 ("자료 준비가 가장 시간 많이 드는") + 가치 제안
+ *  ✅ 큰 CTA 버튼 (heroCta) 추가:
+ *    "지금 바로 만들기 ↓" 클릭 → 키워드 선택 영역 스크롤
+ *    화살표 통통 애니메이션 (시선 유도)
+ *  ✅ 메트릭 3카드 (5/5/4) 그대로 (검증 가능 수치)
+ *
+ * v10.9 보존:
+ *  - HOW IT WORKS 자동 슬라이드 5단계
+ *  - JSON-LD 5종 (SEO/AEO/GEO)
+ *  - 키워드 선택 UX (분야 9 + 주제 6)
+ *  - 추천 가이드 6편
+ *  - FAQ 6개
+ *  - C 수준 폰트 (시니어 친화)
+ *
+ * 박 대표님 자산 100% 보존:
  *    02 주제 클릭 (추천 6개 중 클릭)
  *    03 AI 자동 분석 (5초)
  *    04 4종 자료 받기 (제목/시나리오/썸네일/SNS)
@@ -631,6 +649,61 @@ export default function HomePage() {
           .engineSub { font-size: 15.5px; margin-bottom: 18px; }
         }
 
+        /* v11.0 NEW: Hero CTA 버튼 (사용자 행동 명확화) */
+        .heroCta {
+          display: inline-flex;
+          align-items: center;
+          justify-content: center;
+          gap: 10px;
+          margin: 0 0 24px;
+          padding: 16px 24px;
+          background: linear-gradient(135deg, #c2410c 0%, #ea580c 100%);
+          color: #ffffff;
+          border: none;
+          border-radius: 12px;
+          font-family: 'Pretendard', system-ui, sans-serif;
+          font-size: 16px;
+          font-weight: 800;
+          letter-spacing: -0.018em;
+          cursor: pointer;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+          box-shadow: 
+            0 4px 6px -1px rgba(194, 65, 12, 0.2),
+            0 2px 4px -1px rgba(194, 65, 12, 0.12),
+            inset 0 1px 0 rgba(255, 255, 255, 0.15);
+          width: 100%;
+          max-width: 320px;
+        }
+        @media (max-width: 600px) {
+          .heroCta {
+            padding: 14px 20px;
+            font-size: 15px;
+            max-width: 100%;
+            margin-bottom: 18px;
+          }
+        }
+        .heroCta:hover {
+          transform: translateY(-2px);
+          box-shadow: 
+            0 8px 12px -2px rgba(194, 65, 12, 0.3),
+            0 4px 6px -2px rgba(194, 65, 12, 0.18),
+            inset 0 1px 0 rgba(255, 255, 255, 0.2);
+          background: linear-gradient(135deg, #b13a0a 0%, #d44a08 100%);
+        }
+        .heroCta:active {
+          transform: translateY(0);
+        }
+        .heroCtaArrow {
+          font-size: 20px;
+          color: #fbbf24;
+          font-weight: 800;
+          animation: heroCtaArrowBounce 1.5s ease-in-out infinite;
+        }
+        @keyframes heroCtaArrowBounce {
+          0%, 100% { transform: translateY(0); }
+          50% { transform: translateY(4px); }
+        }
+
         /* 메트릭 3카드 */
         .engineMetrics {
           display: grid;
@@ -900,77 +973,81 @@ export default function HomePage() {
         @media (max-width: 600px) { .enginePipelineFootVal { font-size: 10px; } }
 
         /* ============================================ */
-        /* 2. NEW: 키워드 선택 UX */
+        /* 2. 키워드 선택 UX (v11.0 컴팩트) */
+        /* 박 대표님 v11.0 지적: */
+        /*   "분야가 화면 너무 많이 차지" */
+        /*   "상하 간격 줄여줘" */
+        /*   "선택 시 자동 다음 화면" */
         /* ============================================ */
         .selectSection {
-          padding: 32px 24px;
+          padding: 20px 24px;
           background: #fafafa;
         }
         @media (max-width: 600px) {
-          .selectSection { padding: 24px 16px; }
+          .selectSection { padding: 16px 16px; }
         }
 
         .selectStep {
           display: flex;
           align-items: center;
           gap: 10px;
-          margin-bottom: 16px;
+          margin-bottom: 10px;
         }
 
         .selectStepNum {
-          width: 28px;
-          height: 28px;
+          width: 26px;
+          height: 26px;
           background: #0a0a0a;
           color: #ffffff;
           font-family: 'SF Mono', monospace;
-          font-size: 12px;
+          font-size: 11.5px;
           font-weight: 700;
           display: flex;
           align-items: center;
           justify-content: center;
           flex-shrink: 0;
         }
-        @media (max-width: 600px) { .selectStepNum { width: 24px; height: 24px; font-size: 11px; } }
+        @media (max-width: 600px) { .selectStepNum { width: 22px; height: 22px; font-size: 10.5px; } }
 
         .selectStepTitle {
-          font-size: 17px;
+          font-size: 16px;
           font-weight: 800;
           color: #0a0a0a;
           letter-spacing: -0.02em;
           line-height: 1.3;
           word-break: keep-all;
         }
-        @media (max-width: 600px) { .selectStepTitle { font-size: 15px; } }
+        @media (max-width: 600px) { .selectStepTitle { font-size: 14px; } }
 
         .selectStepSub {
-          font-size: 12.5px;
+          font-size: 12px;
           color: #737373;
-          margin-left: 38px;
-          margin-bottom: 16px;
-          margin-top: -10px;
+          margin-left: 36px;
+          margin-bottom: 10px;
+          margin-top: -8px;
           letter-spacing: -0.005em;
         }
         @media (max-width: 600px) {
-          .selectStepSub { font-size: 11.5px; margin-left: 32px; margin-bottom: 12px; }
+          .selectStepSub { font-size: 11px; margin-left: 30px; margin-bottom: 8px; }
         }
 
-        /* 분야 그리드 */
+        /* 분야 그리드 - 컴팩트 */
         .catGrid {
           display: grid;
-          grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-          gap: 8px;
-          margin-bottom: 24px;
+          grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+          gap: 6px;
+          margin-bottom: 14px;
         }
         @media (max-width: 600px) {
           .catGrid {
             grid-template-columns: repeat(3, 1fr);
-            gap: 6px;
-            margin-bottom: 18px;
+            gap: 5px;
+            margin-bottom: 12px;
           }
         }
 
         .catCard {
-          padding: 14px 12px;
+          padding: 9px 8px;
           background: #ffffff;
           border: 1.5px solid #e5e5e5;
           cursor: pointer;
@@ -978,56 +1055,57 @@ export default function HomePage() {
           display: flex;
           flex-direction: column;
           align-items: center;
-          gap: 4px;
+          gap: 3px;
           text-align: center;
           font-family: inherit;
           color: inherit;
-          min-height: 90px;
+          min-height: 64px;
           justify-content: center;
         }
         .catCard:hover {
           background: #fafafa;
           border-color: #0a0a0a;
-          transform: translateY(-2px);
+          transform: translateY(-1px);
         }
         .catCard.active {
           background: #fff;
           border-width: 2px;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+          border-color: #c2410c;
+          transform: translateY(-1px);
+          box-shadow: 0 3px 8px rgba(194, 65, 12, 0.12);
         }
         @media (max-width: 600px) {
-          .catCard { padding: 11px 6px; min-height: 78px; }
+          .catCard { padding: 7px 4px; min-height: 58px; }
         }
 
         .catEmoji {
-          font-size: 26px;
+          font-size: 20px;
           line-height: 1;
         }
-        @media (max-width: 600px) { .catEmoji { font-size: 22px; } }
+        @media (max-width: 600px) { .catEmoji { font-size: 18px; } }
 
         .catName {
-          font-size: 13px;
+          font-size: 12px;
           font-weight: 700;
           color: #0a0a0a;
           letter-spacing: -0.015em;
-          line-height: 1.3;
+          line-height: 1.25;
         }
-        @media (max-width: 600px) { .catName { font-size: 11.5px; } }
+        @media (max-width: 600px) { .catName { font-size: 10.5px; } }
 
         .catDesc {
-          font-size: 10.5px;
+          font-size: 10px;
           color: #737373;
           line-height: 1.3;
+          display: none;  /* v11.0: 화면 차지 줄이기 위해 숨김 */
         }
-        @media (max-width: 600px) { .catDesc { display: none; } }
 
-        /* 주제 칩 영역 (선택된 분야) */
+        /* 주제 칩 영역 (선택된 분야) - 컴팩트 */
         .topicSection {
-          padding: 18px 18px;
+          padding: 14px 16px;
           background: #ffffff;
           border: 2px solid #0a0a0a;
-          margin-top: -8px;
+          margin-top: -6px;
           animation: slideDown 0.25s ease-out;
         }
         @media (max-width: 600px) {
@@ -1363,22 +1441,35 @@ export default function HomePage() {
 
           {/* 패널 본문 */}
           <div className="engineBody">
-            {/* 좌측: 엔진 정보 + 메트릭 */}
+            {/* 좌측: 사용자 가치 제안 (v11.0 의미 강화) */}
             <div className="engineLeft">
               <div className="engineKicker">
                 <span className="engineKickerArrow">▍</span>
-                ALGORITHM ENGINE
+                완전 무료 · 회원가입 X
               </div>
 
               <h1 className="engineTitle">
-                클릭만으로 <span className="engineTitleAccent">영상 자료</span><br />
-                5초 만에 만들기
+                유튜브 <span className="engineTitleAccent">영상 자료</span><br />
+                5초 만에 자동 생성
               </h1>
 
               <p className="engineSub">
-                분야와 주제를 클릭하시면 떡상 사례 분석부터
-                4개 SNS 자료까지 알고리즘이 자동으로 만들어드립니다.
+                영상 만들기에서 가장 시간이 많이 드는 자료 준비.
+                AlgoMaker가 분야 선택만 하시면 제목·시나리오·썸네일·SNS 자료를
+                AI로 5초 만에 만들어드립니다.
               </p>
+
+              {/* v11.0 NEW: 큰 CTA 버튼 (사용자 행동 명확화) */}
+              <button
+                className="heroCta"
+                onClick={() => {
+                  document.querySelector('.selectSection')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                type="button"
+              >
+                <span className="heroCtaLabel">지금 바로 만들기</span>
+                <span className="heroCtaArrow">↓</span>
+              </button>
 
               <div className="engineMetrics">
                 <div className="engineMetric">
@@ -1461,7 +1552,19 @@ export default function HomePage() {
                 key={c.id}
                 type="button"
                 className={`catCard ${selectedCat === c.id ? 'active' : ''}`}
-                onClick={() => setSelectedCat(c.id === selectedCat ? null : c.id)}
+                onClick={() => {
+                  const isNew = c.id !== selectedCat;
+                  setSelectedCat(isNew ? c.id : null);
+                  // v11.0: 분야 선택 시 자동 스크롤 (주제 영역으로)
+                  if (isNew) {
+                    setTimeout(() => {
+                      document.querySelector('.topicSection')?.scrollIntoView({ 
+                        behavior: 'smooth', 
+                        block: 'start' 
+                      });
+                    }, 100);
+                  }
+                }}
                 style={selectedCat === c.id ? { borderColor: c.color } : {}}
               >
                 <span className="catEmoji">{c.emoji}</span>
