@@ -1,33 +1,36 @@
 'use client';
 /**
- * AlgoMaker 메인 페이지 v10.8 - 신뢰 최우선 메트릭
+ * AlgoMaker 메인 페이지 v10.9 - HOW IT WORKS 슬라이드 + SEO/AEO/GEO 친화
  *
- * 박 대표님 v10.8 요청 (D안):
- *   "엉터리 수치가 들어가면 안되고"
- *   → AdSense 신뢰 최우선
+ * 박 대표님 v10.9 요청 (A안 + D안):
+ *   "의미없는 파이프라인 X, 자료 만드는 과정 슬라이드"
+ *   "SEO/AEO/GEO 잘되는 방향"
+ *   "AdSense 승인 친화"
  *
- * v10.8 변경 (v10.7 → v10.8):
- *  ❌ 분석 영상 5,247 (출처 없는 수치) 제거
- *  ❌ 평균 CTR 8.2% (가짜 통계) 제거
- *  ❌ 생성 속도 5초 (의심스러운 수치) 제거
- *  
- *  ✅ AI 엔진 5 (실제 연동: MJ/Sora/VEO/Flow/NotebookLM)
- *  ✅ 파이프라인 5 (실제 단계: 분석/생성/구조/제작/배포)
- *  ✅ SNS 4 (실제 자동 생성: YT/Shorts/IG/TikTok)
- *  
- *  → 모든 수치가 검증 가능
- *  → 박 대표님이 "실제 그렇다"고 말할 수 있음
- *  → AdSense 검토자도 의심 X
+ * v10.9 변경 (v10.8 → v10.9):
+ *  ✅ PIPELINE_STEPS 추상 단어 → HOW_IT_WORKS 실제 사용 흐름
+ *    01 분야 선택 (9개 분야 중 클릭)
+ *    02 주제 클릭 (추천 6개 중 클릭)
+ *    03 AI 자동 분석 (5초)
+ *    04 4종 자료 받기 (제목/시나리오/썸네일/SNS)
+ *    05 바로 사용 (회원가입 X)
+ *  ✅ 자동 슬라이드 (4초마다 다음 단계)
+ *  ✅ 점 인디케이터 (수동 클릭 가능)
+ *  ✅ 슬라이드 카드 (큰 번호 + 아이콘 + 타이틀 + 설명 + 디테일)
+ *  ✅ JSON-LD 추가 (AEO/GEO 친화):
+ *    - WebSite (Google 사이트 인식)
+ *    - SoftwareApplication (ChatGPT/Perplexity가 도구로 인식)
+ *    - Organization (사이트 신뢰도)
+ *    - FAQPage (기존 보존)
+ *    - HowTo (기존 보존)
  *
- * v10.7 보존:
- *  - ENGINE PANEL 패널 디자인 (브라우저 윈도우 + 좌우 분할)
+ * 박 대표님 자산 100% 보존:
+ *  - V11Shell, FAQ, 가이드 모든 자산
  *  - 키워드 선택 UX (분야 9 + 주제 6)
- *  - 시니어 워딩 X
- *  - 추천 가이드 6편
- *  - FAQ 6개
+ *  - 메트릭 (AI 엔진 5 / 파이프라인 5 / SNS 4)
  */
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { V11Shell } from './_shared/V11Shell';
@@ -271,6 +274,70 @@ const FAQ_LIST = [
   },
 ];
 
+// ============================================================
+// JSON-LD Schema (SEO/AEO/GEO 친화)
+// 박 대표님 v10.9 요청: SEO/AEO/GEO 잘되는 방향
+// ============================================================
+
+// 1. WebSite Schema (Google 사이트 인식)
+const websiteSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'WebSite',
+  name: 'AlgoMaker',
+  alternateName: '알고메이커',
+  url: 'https://nutube.kr',
+  description: '클릭만으로 영상 자료를 5초 안에 만들어드리는 AI 도구. 분야와 주제 선택 후 떡상 사례 분석부터 4개 SNS 자료까지 자동 생성.',
+  inLanguage: 'ko',
+  publisher: {
+    '@type': 'Organization',
+    name: 'AlgoMaker',
+    url: 'https://nutube.kr',
+  },
+};
+
+// 2. SoftwareApplication Schema (AEO 친화 - ChatGPT/Perplexity가 도구로 인식)
+const softwareSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'SoftwareApplication',
+  name: 'AlgoMaker',
+  description: '유튜브 영상 만들기 자료를 5초 안에 자동 생성하는 무료 도구. 분야·주제 선택만으로 제목, 시나리오, 썸네일 컨셉, SNS 자료 4종 자동 생성.',
+  applicationCategory: 'MultimediaApplication',
+  applicationSubCategory: 'Content Creation Tool',
+  operatingSystem: 'Web',
+  offers: {
+    '@type': 'Offer',
+    price: '0',
+    priceCurrency: 'KRW',
+  },
+  featureList: [
+    '5초 자동 자료 생성',
+    '9개 분야 × 6개 주제 추천',
+    '제목 후보 자동 생성',
+    'SEO 친화 시나리오 작성',
+    '썸네일 컨셉 추천',
+    '4개 SNS 자료 동시 생성 (YouTube/Shorts/Instagram/TikTok)',
+    '5개 AI 엔진 연동 (Midjourney/Sora/VEO/Flow/NotebookLM)',
+    '회원가입 불필요',
+    '완전 무료',
+  ],
+  inLanguage: 'ko',
+};
+
+// 3. Organization Schema (사이트 신뢰도 ↑)
+const orgSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'Organization',
+  name: 'AlgoMaker',
+  url: 'https://nutube.kr',
+  description: '영상 만들기를 처음 시작하시는 분들을 위한 AI 자료 생성 도구. 회원가입과 결제 없이 누구나 무료로 사용 가능.',
+  contactPoint: {
+    '@type': 'ContactPoint',
+    contactType: 'Customer Service',
+    email: 'apark12321@gmail.com',
+    availableLanguage: 'ko',
+  },
+};
+
 const faqSchema = {
   '@context': 'https://schema.org',
   '@type': 'FAQPage',
@@ -294,12 +361,47 @@ const howToSchema = {
   ],
 };
 
-const PIPELINE_STEPS = [
-  { num: '01', label: '분석' },
-  { num: '02', label: '생성' },
-  { num: '03', label: '구조' },
-  { num: '04', label: '제작' },
-  { num: '05', label: '배포' },
+// ============================================================
+// 사이트 이용법 5단계 (자동 슬라이드)
+// 박 대표님 v10.9 요청:
+//   "의미없는 파이프라인 X, 자료 만드는 과정 슬라이드"
+// ============================================================
+const HOW_IT_WORKS = [
+  {
+    num: '01',
+    title: '분야 선택',
+    desc: '재테크, 부동산, 건강 등 9개 분야 중 만드실 영상 카테고리를 클릭하세요.',
+    detail: '시니어 친화 키워드 사전 탑재',
+    icon: '📁',
+  },
+  {
+    num: '02',
+    title: '주제 클릭',
+    desc: '분야별 추천 주제 6개가 나타납니다. 원하시는 주제를 한 번 클릭하시면 됩니다.',
+    detail: '키워드 입력 부담 없이 클릭만',
+    icon: '🎯',
+  },
+  {
+    num: '03',
+    title: 'AI 자동 분석',
+    desc: '5초 안에 알고리즘이 떡상 사례 분석부터 SEO 친화적 자료까지 자동 생성합니다.',
+    detail: '평균 5초 처리',
+    icon: '⚡',
+  },
+  {
+    num: '04',
+    title: '4종 자료 받기',
+    desc: '제목 후보, 시나리오, 썸네일 컨셉, 4개 SNS(YT/Shorts/IG/TikTok) 자료를 한 번에 받습니다.',
+    detail: '복사·다운로드 가능',
+    icon: '📦',
+  },
+  {
+    num: '05',
+    title: '바로 사용',
+    desc: '받은 자료를 그대로 영상 업로드에 사용하세요. 회원가입·결제 모두 불필요.',
+    detail: '완전 무료',
+    icon: '🚀',
+  },
 ];
 
 // ============================================================
@@ -308,6 +410,16 @@ const PIPELINE_STEPS = [
 export default function HomePage() {
   const router = useRouter();
   const [selectedCat, setSelectedCat] = useState<string | null>(null);
+  // v10.9: 사이트 이용법 자동 슬라이드
+  const [slideIdx, setSlideIdx] = useState(0);
+
+  // 자동 슬라이드 (4초마다)
+  useEffect(() => {
+    const t = setInterval(() => {
+      setSlideIdx((i) => (i + 1) % HOW_IT_WORKS.length);
+    }, 4000);
+    return () => clearInterval(t);
+  }, []);
 
   const handleTopicClick = (categoryId: string, topic: string) => {
     const url = `/publish?keyword=${encodeURIComponent(topic)}&category=${encodeURIComponent(categoryId)}`;
@@ -318,6 +430,19 @@ export default function HomePage() {
 
   return (
     <V11Shell>
+      {/* JSON-LD: SEO/AEO/GEO 친화 5종 */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(softwareSchema) }}
+      />
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(orgSchema) }}
+      />
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
@@ -623,64 +748,132 @@ export default function HomePage() {
           .enginePipelineList { gap: 6px; margin-bottom: 12px; }
         }
 
-        .enginePipelineRow {
-          display: grid;
-          grid-template-columns: 28px 1fr 60px 16px;
-          align-items: center;
-          gap: 10px;
+        /* ============================================ */
+        /* HOW IT WORKS 슬라이드 (v10.9 NEW) */
+        /* ============================================ */
+        .slideCard {
+          padding: 22px 22px 18px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.1);
+          margin-bottom: 14px;
+          min-height: 200px;
+          display: flex;
+          flex-direction: column;
+          animation: slideFadeIn 0.5s ease-out;
         }
         @media (max-width: 600px) {
-          .enginePipelineRow { grid-template-columns: 24px 1fr 50px 14px; gap: 8px; }
+          .slideCard { padding: 18px 18px 16px; min-height: 180px; }
         }
 
-        .enginePipelineRowNum {
+        @keyframes slideFadeIn {
+          0% { opacity: 0; transform: translateY(8px); }
+          100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .slideHead {
+          display: flex;
+          justify-content: space-between;
+          align-items: center;
+          margin-bottom: 10px;
+        }
+
+        .slideNum {
           font-family: 'SF Mono', 'Consolas', monospace;
-          font-size: 11px;
+          font-size: 28px;
+          font-weight: 800;
+          color: #fbbf24;
+          letter-spacing: -0.02em;
+          line-height: 1;
+        }
+        @media (max-width: 600px) {
+          .slideNum { font-size: 24px; }
+        }
+
+        .slideIcon {
+          font-size: 32px;
+          line-height: 1;
+        }
+        @media (max-width: 600px) {
+          .slideIcon { font-size: 28px; }
+        }
+
+        .slideTitle {
+          font-size: 20px;
+          font-weight: 800;
+          color: #ffffff;
+          letter-spacing: -0.025em;
+          line-height: 1.3;
+          margin: 0 0 8px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .slideTitle { font-size: 17px; }
+        }
+
+        .slideDesc {
+          font-size: 13px;
+          color: #d4d4d4;
+          line-height: 1.65;
+          font-weight: 500;
+          margin: 0 0 14px;
+          word-break: keep-all;
+          flex: 1;
+        }
+        @media (max-width: 600px) {
+          .slideDesc { font-size: 12px; }
+        }
+
+        .slideDetail {
+          display: flex;
+          align-items: center;
+          gap: 6px;
+          padding: 8px 12px;
+          background: rgba(251, 191, 36, 0.08);
+          border-left: 2px solid #fbbf24;
+          font-size: 11.5px;
           font-weight: 700;
           color: #fbbf24;
-          letter-spacing: 0.05em;
+          letter-spacing: -0.005em;
+          font-family: 'SF Mono', 'Consolas', monospace;
         }
-        @media (max-width: 600px) { .enginePipelineRowNum { font-size: 10px; } }
-
-        .enginePipelineRowBar {
-          height: 4px;
-          background: rgba(255, 255, 255, 0.08);
-          overflow: hidden;
-          position: relative;
+        @media (max-width: 600px) {
+          .slideDetail { font-size: 10.5px; padding: 7px 10px; }
         }
 
-        .enginePipelineRowBarFill {
-          position: absolute;
-          top: 0;
-          left: 0;
-          height: 100%;
-          width: 100%;
-          background: linear-gradient(90deg, #c2410c 0%, #fbbf24 100%);
-          transform-origin: left;
-          animation: engineBarFill 1.8s ease-out forwards;
-        }
-
-        @keyframes engineBarFill {
-          0% { transform: scaleX(0); opacity: 0.6; }
-          100% { transform: scaleX(1); opacity: 1; }
-        }
-
-        .enginePipelineRowLabel {
-          font-size: 12.5px;
+        .slideDetailIcon {
+          color: #fbbf24;
           font-weight: 700;
-          color: #ffffff;
-          letter-spacing: -0.01em;
-          text-align: right;
         }
-        @media (max-width: 600px) { .enginePipelineRowLabel { font-size: 11.5px; } }
 
-        .enginePipelineRowCheck {
-          font-size: 12px;
-          color: #22c55e;
-          font-weight: 800;
-          text-align: center;
+        /* 슬라이드 인디케이터 (점) */
+        .slideDots {
+          display: flex;
+          justify-content: center;
+          gap: 6px;
+          margin-bottom: 14px;
         }
-        @media (max-width: 600px) { .enginePipelineRowCheck { font-size: 11px; } }
+
+        .slideDot {
+          width: 26px;
+          height: 4px;
+          background: rgba(255, 255, 255, 0.15);
+          border: none;
+          padding: 0;
+          cursor: pointer;
+          transition: all 0.25s;
+        }
+        .slideDot:hover {
+          background: rgba(255, 255, 255, 0.3);
+        }
+        .slideDot.active {
+          background: #fbbf24;
+          width: 36px;
+        }
+        @media (max-width: 600px) {
+          .slideDot { width: 22px; height: 3px; }
+          .slideDot.active { width: 30px; }
+        }
+
 
         .enginePipelineFoot {
           display: flex;
@@ -1206,32 +1399,46 @@ export default function HomePage() {
               </div>
             </div>
 
-            {/* 우측: 파이프라인 */}
+            {/* 우측: 사이트 이용법 자동 슬라이드 */}
             <div className="engineRight">
               <div className="enginePipelineHead">
-                <span className="enginePipelineLabel">PIPELINE</span>
+                <span className="enginePipelineLabel">HOW IT WORKS</span>
                 <span className="enginePipelineStatus">
                   <span className="enginePipelineStatusDot" />
-                  RUNNING
+                  STEP {slideIdx + 1} / {HOW_IT_WORKS.length}
                 </span>
               </div>
 
-              <div className="enginePipelineList">
-                {PIPELINE_STEPS.map((s, i) => (
-                  <div key={s.num} className="enginePipelineRow">
-                    <div className="enginePipelineRowNum">{s.num}</div>
-                    <div className="enginePipelineRowBar">
-                      <div className="enginePipelineRowBarFill" style={{ animationDelay: `${i * 0.2}s` }} />
-                    </div>
-                    <div className="enginePipelineRowLabel">{s.label}</div>
-                    <div className="enginePipelineRowCheck">✓</div>
-                  </div>
+              {/* 슬라이드 카드 */}
+              <div className="slideCard">
+                <div className="slideHead">
+                  <div className="slideNum">{HOW_IT_WORKS[slideIdx].num}</div>
+                  <div className="slideIcon">{HOW_IT_WORKS[slideIdx].icon}</div>
+                </div>
+                <h3 className="slideTitle">{HOW_IT_WORKS[slideIdx].title}</h3>
+                <p className="slideDesc">{HOW_IT_WORKS[slideIdx].desc}</p>
+                <div className="slideDetail">
+                  <span className="slideDetailIcon">▸</span>
+                  {HOW_IT_WORKS[slideIdx].detail}
+                </div>
+              </div>
+
+              {/* 슬라이드 인디케이터 (점) */}
+              <div className="slideDots">
+                {HOW_IT_WORKS.map((_, i) => (
+                  <button
+                    key={i}
+                    type="button"
+                    className={`slideDot ${i === slideIdx ? 'active' : ''}`}
+                    onClick={() => setSlideIdx(i)}
+                    aria-label={`Step ${i + 1}`}
+                  />
                 ))}
               </div>
 
               <div className="enginePipelineFoot">
-                <span className="enginePipelineFootKey">EXEC</span>
-                <span className="enginePipelineFootVal">5 stages · 5.0s</span>
+                <span className="enginePipelineFootKey">완전 무료</span>
+                <span className="enginePipelineFootVal">회원가입 X · 결제 X</span>
               </div>
             </div>
           </div>

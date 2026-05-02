@@ -1,24 +1,28 @@
 'use client';
 /**
- * AlgoMaker V11Shell v11.3 - 직관적 메뉴 + CTA 강조
- * 
- * 박 대표님 v11.3 요청 (D안):
- *   "떡상 분석" 등 일반인 모르는 명칭 → 직관 명칭으로
- *   메뉴 카테고리 명확화 ("도구·회사" 같은 어색한 라벨 X)
- *   "자료 만들기" 핵심 액션 강조
+ * AlgoMaker V11Shell v11.4 - GNB 카테고리 동일 포맷
  *
- * v11.3 변경 (2026.05.02):
- *  ✅ "떡상 분석" → 제거 (일반인 모름)
- *  ✅ "핸드폰 가이드" → "스마트폰으로 영상" (명확)
- *  ✅ "AI 도구" → "AI 도구 모음"
- *  ✅ "자료 만들기" → 사이드바 상단 큰 CTA 버튼 (강조)
- *  ✅ 메뉴 카테고리 재구성:
- *     - 가이드 (영상 만들기 노하우)
- *     - 도구 (AI 도구 + 스마트폰)
- *     - 정보 (서비스 소개 + 문의)
- *     - 정책 (개인정보 + 이용약관 - 작게)
- *  ✅ 가이드 메뉴에 알고리즘 가이드 5편 직접 노출
- *     - SEO 전략, 시청 지속률, 브랜딩 등
+ * 박 대표님 v11.4 요청 (A안):
+ *   "하위 카테고리는 동일한 포맷으로 가져가줘"
+ *   → 가이드 메뉴 = 모두 글(가이드 페이지)만
+ *   → 도구 메뉴 = 모두 사용 가능 도구만
+ *   → 홈 = 별도 (CTA 위)
+ *
+ * v11.4 변경 (v11.3 → v11.4):
+ *  ✅ 홈 → 별도 위치 (CTA 위)
+ *  ✅ 가이드 메뉴 8편 (모두 글 형식 - 동일 포맷):
+ *    - 전체 가이드 모음
+ *    - SEO 검색 최적화
+ *    - 시청 지속률 전략
+ *    - 채널 브랜딩
+ *    - 치명적 실수 방어
+ *    - 유튜버 멘탈
+ *    - 영상 처음 시작
+ *    - AI 도구 활용법
+ *  ✅ 도구 메뉴 1개 (자료 만들기 - 실제 사용 도구만)
+ *  ✅ 정보 메뉴 2개 (서비스 소개, 문의하기)
+ *  ✅ 정책 메뉴 2개 (개인정보, 이용약관 - 작게)
+ *  ✅ 푸터도 v11.4 새 구조와 일관성
  *  - 박 대표님 자산 100% 보존 (메뉴/노출/링크 그대로)
  */
 
@@ -180,11 +184,12 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
 
   // 시니어 영상 멘토링 채널 컨셉 (v6.2.0)
   // ============================================================
-  // v11.3: 직관적 메뉴 재구성
-  // 박 대표님 v11.3 요청:
-  //   "떡상 분석" 등 일반인 모르는 명칭 → 직관 명칭으로
-  //   핵심 액션(자료 만들기) 강조
-  //   카테고리 라벨 명확화
+  // v11.4: GNB 메뉴 카테고리 동일 포맷
+  // 박 대표님 v11.4 요청:
+  //   "하위 카테고리는 동일한 포맷으로 가져가줘"
+  //   → 가이드 카테고리 = 모두 글(아티클) 형식
+  //   → 도구 카테고리 = 모두 사용 도구
+  //   → "홈"은 별도 (CTA 위)
   // ============================================================
   
   // 핵심 CTA 버튼 (사이드바 상단 강조)
@@ -195,22 +200,27 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
     key: 'create',
   };
   
-  // 메뉴 그룹 1: 가이드 (영상 만들기 노하우)
+  // 홈 버튼 (CTA 바로 아래, 별도)
+  const homeMenu = { icon: '🏠', label: '홈', path: '/', key: 'home' };
+  
+  // 가이드 메뉴 (모두 글 형식의 가이드 - 동일 포맷!)
   const guideMenu = [
-    { icon: '🏠', label: '홈', path: '/', key: 'home' },
-    { icon: '📚', label: '가이드 모음', path: '/blog', key: 'blog' },
-    { icon: '🔍', label: 'SEO 전략', path: '/blog/algorithm-seo', key: 'seo' },
-    { icon: '⏱', label: '시청 지속률', path: '/blog/algorithm-retention', key: 'retention' },
-    { icon: '🎨', label: '브랜딩', path: '/blog/algorithm-branding', key: 'branding' },
+    { icon: '📚', label: '전체 가이드 모음', path: '/blog', key: 'blog' },
+    { icon: '🔍', label: 'SEO 검색 최적화', path: '/blog/algorithm-seo', key: 'seo' },
+    { icon: '⏱', label: '시청 지속률 전략', path: '/blog/algorithm-retention', key: 'retention' },
+    { icon: '🎨', label: '채널 브랜딩', path: '/blog/algorithm-branding', key: 'branding' },
+    { icon: '⚠️', label: '치명적 실수 방어', path: '/blog/algorithm-mistakes', key: 'mistakes' },
+    { icon: '💪', label: '유튜버 멘탈', path: '/blog/algorithm-mindset', key: 'mindset' },
+    { icon: '🎬', label: '영상 처음 시작', path: '/blog/youtube-start', key: 'start' },
+    { icon: '🤖', label: 'AI 도구 활용법', path: '/blog/ai-tools', key: 'ai-guide' },
   ];
   
-  // 메뉴 그룹 2: 도구 (AI 도구)
+  // 도구 메뉴 (실제 사용 가능 도구 - 동일 포맷!)
   const toolMenu = [
-    { icon: '🤖', label: 'AI 도구 모음', path: '/blog/ai-tools', key: 'ai' },
-    { icon: '📱', label: '스마트폰으로 영상', path: '/blog/youtube-start', key: 'phone' },
+    { icon: '✏️', label: '자료 만들기', path: '/create', key: 'create-tool' },
   ];
   
-  // 메뉴 그룹 3: 정보 (회사/문의/정책)
+  // 정보 메뉴 (회사 + 문의 - 동일 포맷!)
   const infoMenu = [
     { icon: 'ℹ️', label: '서비스 소개', path: '/about', key: 'about' },
     { icon: '✉️', label: '문의하기', path: '/contact', key: 'contact' },
@@ -476,6 +486,16 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
             <div className="freeLabel">무료</div>
           </div>
 
+          {/* 홈 (CTA 위) */}
+          <div
+            className={`menuItem ${isActive(homeMenu.path) ? 'active' : ''}`}
+            onClick={() => { router.push(homeMenu.path); setSidebarOpen(false); }}
+            style={{ marginBottom: 12 }}
+          >
+            <span className="menuIcon">{homeMenu.icon}</span>
+            <span>{homeMenu.label}</span>
+          </div>
+
           {/* CTA 강조 버튼 (자료 만들기 - 핵심 액션) */}
           <div
             className="ctaBtn"
@@ -596,18 +616,20 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
               <div className="footerCol">
                 <h4>가이드</h4>
                 <ul>
-                  <li><Link href="/blog" className="fLink">📚 가이드 모음</Link></li>
-                  <li><Link href="/blog/algorithm-seo" className="fLink">🔍 SEO 전략</Link></li>
-                  <li><Link href="/blog/algorithm-retention" className="fLink">⏱ 시청 지속률</Link></li>
-                  <li><Link href="/blog/algorithm-branding" className="fLink">🎨 브랜딩</Link></li>
+                  <li><Link href="/blog" className="fLink">📚 전체 가이드 모음</Link></li>
+                  <li><Link href="/blog/algorithm-seo" className="fLink">🔍 SEO 검색 최적화</Link></li>
+                  <li><Link href="/blog/algorithm-retention" className="fLink">⏱ 시청 지속률 전략</Link></li>
+                  <li><Link href="/blog/algorithm-branding" className="fLink">🎨 채널 브랜딩</Link></li>
+                  <li><Link href="/blog/algorithm-mistakes" className="fLink">⚠️ 치명적 실수 방어</Link></li>
+                  <li><Link href="/blog/algorithm-mindset" className="fLink">💪 유튜버 멘탈</Link></li>
                 </ul>
               </div>
               <div className="footerCol">
                 <h4>도구</h4>
                 <ul>
                   <li><Link href="/create" className="fLink">✏️ 자료 만들기</Link></li>
-                  <li><Link href="/blog/ai-tools" className="fLink">🤖 AI 도구 모음</Link></li>
-                  <li><Link href="/blog/youtube-start" className="fLink">📱 스마트폰으로 영상</Link></li>
+                  <li><Link href="/blog/youtube-start" className="fLink">🎬 영상 처음 시작</Link></li>
+                  <li><Link href="/blog/ai-tools" className="fLink">🤖 AI 도구 활용법</Link></li>
                 </ul>
               </div>
               <div className="footerCol">

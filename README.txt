@@ -1,44 +1,181 @@
 ============================================================
-🐛 BUG FIX — styled-jsx scope 버그 수정
+AlgoMaker — A안 + D안 (전부 다 + 자동 슬라이드)
 ============================================================
 
-박 대표님 캡처 분석 결과:
-  - Full Prompt 흰색 배경 (검정 적용 X)
-  - 텍스트 가로 잘림 (overflow-wrap 적용 X)
-  
-원인: styled-jsx scope 끊김
-  
-  CinematicPromptDisplay 메인 함수에 <style jsx> 1개 정의
-  → MidjourneyPanel/SoraPanel/FullPromptBox/SpecRow는
-    별도 함수라서 styled-jsx scope 적용 X
-  → CSS 적용 안 됨 → 흰색 배경 + 텍스트 잘림
-
-해결:
-  <style jsx> → <style jsx global>
-  → 자식 함수까지 모두 적용
+박 대표님 v10.9 요청:
+  1. GNB 메뉴 카테고리 동일 포맷
+  2. 가이드 목록형 + 업데이트 날짜 (AdSense 친화)
+  3. 메인 의미없는 파이프라인 → 사이트 이용법 슬라이드
+  4. SEO/AEO/GEO 잘되는 방향
 
 ============================================================
-변경 파일 2개
+변경 파일 3개
 ============================================================
 
-★ frontend/app/_shared/CinematicPromptDisplay_v6_5_0.tsx
-  Line 30: <style jsx> → <style jsx global>
+★ frontend/app/page.tsx (v10.9)
+  - 파이프라인 → HOW IT WORKS 자동 슬라이드 (4초마다)
+  - JSON-LD 5종 (WebSite, SoftwareApplication, Organization, FAQ, HowTo)
+
+★ frontend/app/blog/page.tsx (NEW)
+  - 가이드 목록형 페이지 (10편)
+  - 발행일/수정일 표시
+  - 카테고리 필터 (전체/알고리즘/영상 제작/도구·운영/멘탈)
+  - JSON-LD CollectionPage + ItemList
+
+★ frontend/app/_shared/V11Shell.tsx (v11.4)
+  - 홈 별도 (CTA 위)
+  - 가이드 메뉴 8편 (모두 글 형식 - 동일 포맷!)
+  - 도구 메뉴 1개 (자료 만들기 - 실제 사용 도구만)
+  - 정보 메뉴 2개
+  - 정책 메뉴 2개
+  - 푸터도 v11.4 새 구조로 일관성
+
+============================================================
+[1] 메인 v10.9 — HOW IT WORKS 자동 슬라이드
+============================================================
+
+이전 (이해 불가):
+  PIPELINE
+  01 ━━━━━ 분석    ✓
+  02 ━━━━━ 생성    ✓
+  03 ━━━━━ 구조    ✓
+  04 ━━━━━ 제작    ✓
+  05 ━━━━━ 배포    ✓
+  EXEC  5 stages · 5.0s
+  → "이게 뭐야?" 사용자 의문
+
+이후 (사이트 이용법 슬라이드):
+  HOW IT WORKS    STEP 1 / 5
+  ┌────────────────────┐
+  │ 01            📁  │
+  │                    │
+  │ 분야 선택          │
+  │                    │
+  │ 재테크, 부동산...  │
+  │ 9개 분야 중 클릭   │
+  │                    │
+  │ ▸ 시니어 친화 키워드│
+  └────────────────────┘
+  ●○○○○ ← 점 인디케이터
+  완전 무료 · 회원가입 X
   
-★ frontend/app/_shared/CinematicScenarioDisplay_v6_5_0.tsx
-  Line 30: <style jsx> → <style jsx global>
-  (BeatBlock, CopyButton 자식 함수도 같은 버그)
+  4초마다 자동 다음 단계로
+  점 클릭으로 수동 이동 가능
+
+5단계:
+  01 분야 선택 (9개 분야)
+  02 주제 클릭 (추천 6개)
+  03 AI 자동 분석 (5초)
+  04 4종 자료 받기 (제목/시나리오/썸네일/SNS)
+  05 바로 사용 (회원가입 X)
+
+============================================================
+[2] /blog 페이지 — 가이드 목록형 (AdSense 친화)
+============================================================
+
+새 페이지 구조:
+  ▍ KNOWLEDGE BASE
+  영상 만들기 가이드 모음
+  
+  📚 10편 · 📅 최종 업데이트 2026.05.02 · 🆓 모두 무료
+  
+  [전체 10] [알고리즘 6] [영상 제작 2] [도구 2] [멘탈 1]
+  
+  ─────────────────────────────────────
+  🔍  알고리즘 · 필수
+      알고리즘이 내 영상을 알아보게 하는 SEO 전략
+      제목 8:2 법칙과 음성 SEO로 검색 노출 200%
+      ⏱ 8분 · 📅 2026.05.02     발행 2026.05.02
+                                  →
+  ─────────────────────────────────────
+  ⏱  알고리즘 · 인기
+      시청자를 채널에 가두는 무한 루프 세팅
+      ...
+  
+  AdSense 친화 요소:
+  ✅ 모든 가이드 발행일/수정일 명시
+  ✅ 활발히 업데이트되는 사이트로 인식
+  ✅ 카테고리 필터 (사용성 ↑)
+  ✅ JSON-LD CollectionPage + ItemList
+
+============================================================
+[3] V11Shell v11.4 — GNB 동일 포맷
+============================================================
+
+이전 (이질적):
+  CTA 자료 만들기
+  
+  가이드 (5개 - 일관성 X)
+    🏠 홈                    ← 가이드 아님
+    📚 가이드 모음           ← 메타 페이지
+    🔍 SEO 전략             ← 가이드
+    ⏱ 시청 지속률           ← 가이드
+    🎨 브랜딩               ← 가이드
+  
+  도구 (2개)
+    🤖 AI 도구 모음         ← 가이드인데 도구로
+    📱 스마트폰으로 영상     ← 가이드인데 도구로
+
+이후 (동일 포맷!):
+  🏠 홈 (별도)
+  
+  CTA 자료 만들기
+  
+  가이드 (8개 - 모두 글)
+    📚 전체 가이드 모음
+    🔍 SEO 검색 최적화
+    ⏱ 시청 지속률 전략
+    🎨 채널 브랜딩
+    ⚠️ 치명적 실수 방어
+    💪 유튜버 멘탈
+    🎬 영상 처음 시작
+    🤖 AI 도구 활용법
+  
+  도구 (1개 - 실제 사용)
+    ✏️ 자료 만들기
+  
+  정보 (2개)
+    ℹ️ 서비스 소개
+    ✉️ 문의하기
+  
+  ────────────  ← 점선
+  개인정보 처리방침
+  이용약관
+
+============================================================
+[4] JSON-LD (SEO/AEO/GEO 친화)
+============================================================
+
+메인 페이지 5종:
+  1. WebSite Schema (Google 사이트 인식)
+  2. SoftwareApplication Schema (ChatGPT/Perplexity가 도구로 인식)
+  3. Organization Schema (사이트 신뢰도)
+  4. FAQPage Schema (자주 묻는 질문)
+  5. HowTo Schema (4단계 사이트 이용법)
+
+/blog 페이지 2종:
+  1. CollectionPage Schema (가이드 모음)
+  2. ItemList Schema (10편 모든 가이드 메타 + 발행일)
+
+→ AEO/GEO: ChatGPT, Perplexity 등이 사이트 정보 정확히 답변
+→ SEO: Google 검색 결과에 풍부한 정보 노출
+→ AdSense: 구조화된 데이터로 신뢰도 ↑
 
 ============================================================
 박 대표님 자산 100% 보존
 ============================================================
 
-✅ 모든 함수 시그니처 그대로
-   - MidjourneyPanel, SoraPanel, VeoPanel, FlowPanel, NotebookPanel
-   - SpecRow, FullPromptBox
-   - BeatBlock, CopyButton
-✅ Props 인터페이스 그대로
-✅ 데이터 흐름 그대로
-✅ import 경로 그대로 (publish/page.tsx 수정 X)
+✅ V11Shell v11.4 (메뉴만 재구성, CTA + 노티스 + AdSlot 그대로)
+✅ FAQ_LIST 6개 보존
+✅ 키워드 선택 UX (분야 9 + 주제 6 = 54개)
+✅ 메트릭 (AI 엔진 5 / 파이프라인 5 / SNS 4)
+✅ 추천 가이드 6편 카드 (메인)
+✅ AdSense 광고 위치 (변경 X)
+✅ ENGINE PANEL 좌측 정보 영역 (그대로)
+✅ publish/page.tsx 수정 X
+✅ contentEngine.ts 수정 X
+✅ Cinematic 두 파일 수정 X
+✅ import 경로 그대로
 
 ============================================================
 박 대표님 적용 (1분)
@@ -51,52 +188,34 @@
 
 3. "Add file" → "Upload files"
 
-4. 압축 푼 frontend/app/_shared/ 안 2개 파일 드래그
-   - CinematicPromptDisplay_v6_5_0.tsx
-   - CinematicScenarioDisplay_v6_5_0.tsx
-   
-5. "Replace existing file" 선택 (기존 파일 덮어쓰기)
+4. 압축 푼 frontend/ 안 내용 통째로 드래그
+   - app/page.tsx (메인 v10.9)
+   - app/blog/page.tsx (NEW 가이드 목록)
+   - app/_shared/V11Shell.tsx (v11.4)
 
-6. Commit message: fix: styled-jsx scope 버그 수정 (자식 함수 적용)
+5. Commit message: feat: HOW IT WORKS 슬라이드 + 가이드 목록 + JSON-LD
 
-7. Vercel 자동 빌드 1~2분
+6. Vercel 자동 빌드 1~2분
 
-8. 시크릿 창 → nutube.kr 접속
+7. 시크릿 창 → nutube.kr 접속
 
-9. 분야 → 주제 클릭 → publish 도착 → 전문가급 프롬프트 모드 켜기
-
-10. 확인:
-    ✓ Sora 2 — Full Prompt 헤더가 검정 배경
-    ✓ Full Prompt 본문이 검정 코드 박스
-    ✓ 노란 라벨 (▍ Sora 2 — Full Prompt)
-    ✓ 흰색 COPY 버튼
-    ✓ 텍스트가 화면 밖으로 안 잘림
-    ✓ 한글 단어 단위로 줄바꿈
-    ✓ 영문 긴 단어도 깔끔하게 줄바꿈
-    ✓ Composition Spec 카드 정렬
-    ✓ Negative Prompt 빨간 띠
+8. 확인:
+   ✓ 메인: HOW IT WORKS 슬라이드 (4초마다 자동)
+   ✓ 메인: 점 인디케이터 클릭 작동
+   ✓ /blog: 10편 목록 + 발행일/수정일
+   ✓ /blog: 카테고리 필터 작동
+   ✓ 사이드바: 홈 별도 + CTA + 가이드 8편 + 도구 1개
 
 ============================================================
-이전 ZIP과 차이
+포함 파일 3개
 ============================================================
 
-이전 (UX 일괄 개선):
-  - 4개 파일: V11Shell + main + Cinematic 2개
-  - 메뉴 직관 / 메트릭 신뢰 / 줄바꿈 처리
+[교체]
+- frontend/app/page.tsx                  v10.9
+- frontend/app/_shared/V11Shell.tsx      v11.4
 
-이번 (BUG FIX):
-  - 2개 파일: Cinematic 2개만 (styled-jsx global)
-  - 다른 파일은 그대로
+[NEW]
+- frontend/app/blog/page.tsx             가이드 목록 (NEW)
 
-★ 박 대표님이 이전 ZIP 적용한 후
-  이 BUG FIX ZIP 의 2개 파일만 추가 적용하시면 됩니다.
-
-★ 또는 아직 이전 ZIP 적용 전이라면
-  전체 적용 후 이 ZIP의 2개 파일도 같이 적용
-
-============================================================
-포함 파일 2개
-============================================================
-
-- frontend/app/_shared/CinematicPromptDisplay_v6_5_0.tsx
-- frontend/app/_shared/CinematicScenarioDisplay_v6_5_0.tsx
+★ 다른 파일 변경 X
+   publish/page.tsx, contentEngine.ts, layout.tsx, 가이드 페이지 등 그대로
