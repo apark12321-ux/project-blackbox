@@ -1,126 +1,120 @@
 ============================================================
-🐛 GNB 간결화 — /blog 트래픽 유도
+신규 가이드 10편 — 일괄 추가
 ============================================================
 
-박 대표님 지적:
-  "GNB 가이드 카테고리 너무 많음"
-  "하위 카테고리로 내려서 목록형으로 조회수 나오게"
+박 대표님 요청:
+  "더 많은 포스팅 만들어서 기존거에 추가 배포"
+  (D안: AdSense + 시니어 친화, 품질 우선)
 
-해결:
-  GNB 가이드 8편 직접 노출 → 1개 메뉴로
-  사용자가 "가이드" 클릭 → /blog 목록 페이지 진입
-  → /blog 페이지 조회수 누적
-  → AdSense 페이지뷰 ↑
+총 10편, 총 88,000자, 평균 8,800자/편
+모두 1500~2500자 이상 (AdSense 친화)
 
 ============================================================
-변경 파일 1개
+포함된 10편 가이드
 ============================================================
 
-★ frontend/app/_shared/V11Shell.tsx (v11.5)
-  GNB 메뉴만 간결화
+[채널 운영 - 4편]
+1. first-100-subs    — 첫 100명 구독자 모으는 실전 전략 (9분)
+2. viral-patterns    — 떡상 채널 5가지 공통 패턴 (8분)
+3. side-job-50       — 50대 이후 부업 유튜브 시작하는 법 (9분)
+10. channel-concept  — 영상 컨셉 정하기 5단계 워크시트 (8분)
+
+[영상 제작 - 3편]
+4. phone-shooting    — 핸드폰만으로 영상 찍는 5가지 꿀팁 (7분)
+5. free-editing-apps — 영상 편집 무료 앱 4개 비교 (8분)
+7. camera-anxiety    — 카메라 울렁증 극복 5가지 방법 (7분)
+
+[AI 도구 - 2편]
+6. chatgpt-script    — ChatGPT로 영상 대본 쓰는 법 (9분)
+8. ai-thumbnail      — AI 썸네일 만드는 도구 5개 비교 (8분)
+
+[수익화 - 1편]
+9. revenue-calc      — 광고 수익 실수령액 계산법 (9분)
 
 ============================================================
-GNB 변경 (v11.4 → v11.5)
+공통 사항 (모든 글)
 ============================================================
 
-이전 (장황):
-  🏠 홈
-  [ ✏️ 자료 만들기 → ]
-  
-  가이드 (8개 직접 노출 - 너무 많음!)
-    📚 전체 가이드 모음
-    🔍 SEO 검색 최적화
-    ⏱ 시청 지속률 전략
-    🎨 채널 브랜딩
-    ⚠️ 치명적 실수 방어
-    💪 유튜버 멘탈
-    🎬 영상 처음 시작
-    🤖 AI 도구 활용법
-  
-  도구
-    ✏️ 자료 만들기
-
-이후 (간결!):
-  🏠 홈
-  [ ✏️ 자료 만들기 → ]
-  
-  📚 가이드  [10편] ← 클릭 시 /blog 목록 페이지로
-  🛠 도구           ← 클릭 시 /create 로
-  
-  정보
-    ℹ️ 서비스 소개
-    ✉️ 문의하기
-  
-  ─────────────
-  개인정보 처리방침
-  이용약관
+✅ 평균 8,800자 (AdSense 친화 풍부 콘텐츠)
+✅ 발행일/수정일: 2026-05-02
+✅ JSON-LD Article Schema (SEO/AEO/GEO)
+✅ 시니어/초보 친화 어조
+✅ V11Shell 사용 (메뉴/푸터 일관성)
+✅ CTA 버튼 (메인 페이지로 트래픽 유도)
+✅ 5분/7분/8분/9분 읽기 시간 명시
+✅ 발행일 + 카테고리 메타
+✅ 박 대표님 사이트 톤 (사기 강의 X 등 안전성)
 
 ============================================================
-사용자 흐름 개선 (AdSense 친화)
-============================================================
-
-이전 (페이지뷰 2):
-  메인 → 알고리즘 SEO 가이드
-        ↑ /blog 페이지 외면됨
-
-이후 (페이지뷰 3):
-  메인 → /blog 목록 페이지 (조회수 +1)
-       ↓ 카테고리 필터 + 10편 보기
-       → 알고리즘 SEO 가이드 (조회수 +1)
-       
-→ 페이지뷰 누적 효과
-→ /blog 페이지가 SEO 친화적 (목록 + 메타데이터)
-→ 사용자가 다양한 가이드 발견 가능 (재방문 ↑)
-
-============================================================
-박 대표님 자산 100% 보존
-============================================================
-
-✅ /blog 페이지 (이전 ZIP의 가이드 목록 페이지) 그대로
-✅ 메인 v10.9 (HOW IT WORKS 슬라이드) 그대로
-✅ 모든 가이드 페이지 그대로
-✅ publish/page.tsx 그대로
-✅ contentEngine.ts 그대로
-✅ Cinematic 두 파일 그대로
-✅ 푸터는 가이드 7편 그대로 유지 (SEO 내부 링크)
-
-★ 변경된 건 V11Shell의 GNB 메뉴 정의 + JSX 만
-
-============================================================
-박 대표님 적용 (30초)
+박 대표님 적용 (1분)
 ============================================================
 
 1. ZIP 다운로드 → 압축 풀기
 
-2. github.com/apark12321-ux/project-blackbox/tree/main/frontend/app/_shared
+2. github.com/apark12321-ux/project-blackbox/tree/main/frontend
    접속
 
-3. V11Shell.tsx 클릭 → 휴지통 🗑 → Commit
+3. "Add file" → "Upload files"
 
-4. "Add file" → "Upload files"
+4. 압축 푼 frontend/ 안 내용 통째로 드래그
+   - app/blog/first-100-subs/page.tsx
+   - app/blog/viral-patterns/page.tsx
+   - app/blog/phone-shooting/page.tsx
+   - app/blog/free-editing-apps/page.tsx
+   - app/blog/chatgpt-script/page.tsx
+   - app/blog/side-job-50/page.tsx
+   - app/blog/camera-anxiety/page.tsx
+   - app/blog/ai-thumbnail/page.tsx
+   - app/blog/revenue-calc/page.tsx
+   - app/blog/channel-concept/page.tsx
 
-5. 압축 푼 V11Shell.tsx 파일 1개 드래그
+5. Commit message:
+   feat: 신규 가이드 10편 추가 (총 20편)
 
-6. Commit message: refactor: GNB 간결화 - /blog 트래픽 유도
+6. Vercel 자동 빌드 1~2분
 
-7. Vercel 빌드 → 시크릿 창
+7. 시크릿 창 → nutube.kr 접속
 
-8. 햄버거 ☰ 메뉴 확인:
-   ✓ 🏠 홈 (위)
-   ✓ ✏️ 자료 만들기 (CTA 큰 버튼)
-   ✓ 📚 가이드 [10편 배지]   ← 클릭 시 /blog 이동
-   ✓ 🛠 도구                  ← 클릭 시 /create 이동
-   ✓ 정보 (소개, 문의)
-   ✓ 정책 (작게)
-
-9. 가이드 클릭:
-   ✓ /blog 목록 페이지 진입 (10편 + 필터)
-   ✓ 페이지뷰 누적
+8. 각 글 직접 URL로 확인:
+   ✓ nutube.kr/blog/first-100-subs
+   ✓ nutube.kr/blog/viral-patterns
+   ✓ nutube.kr/blog/phone-shooting
+   ✓ nutube.kr/blog/free-editing-apps
+   ✓ nutube.kr/blog/chatgpt-script
+   ✓ nutube.kr/blog/side-job-50
+   ✓ nutube.kr/blog/camera-anxiety
+   ✓ nutube.kr/blog/ai-thumbnail
+   ✓ nutube.kr/blog/revenue-calc
+   ✓ nutube.kr/blog/channel-concept
 
 ============================================================
-포함 파일 1개
+다음 단계 (다음 ZIP에서)
 ============================================================
 
-- frontend/app/_shared/V11Shell.tsx (v11.5)
+1. /blog 목록 페이지 업데이트
+   - 기존 10편 + 새 10편 = 20편 모두 등록
+   - 카테고리 분류 (채널 운영/영상 제작/AI 도구/수익화/멘탈)
+   - 신규 배지 표시
 
-★ 다른 파일 변경 X (이전 ZIP의 모든 파일 그대로 보존)
+2. 박 대표님 다른 글 (있다면) 추가 통합
+   - 박 대표님이 알려주신 전체 리스트 기반
+
+3. publish 페이지 모바일 UX 개선 (sticky 진행바 + 하단 고정 네비)
+
+============================================================
+포함 파일 10개
+============================================================
+
+전부 새 글 (NEW):
+- frontend/app/blog/first-100-subs/page.tsx
+- frontend/app/blog/viral-patterns/page.tsx
+- frontend/app/blog/phone-shooting/page.tsx
+- frontend/app/blog/free-editing-apps/page.tsx
+- frontend/app/blog/chatgpt-script/page.tsx
+- frontend/app/blog/side-job-50/page.tsx
+- frontend/app/blog/camera-anxiety/page.tsx
+- frontend/app/blog/ai-thumbnail/page.tsx
+- frontend/app/blog/revenue-calc/page.tsx
+- frontend/app/blog/channel-concept/page.tsx
+
+★ 다른 파일 변경 X (이전 적용한 모든 파일 그대로 보존)
