@@ -1477,9 +1477,17 @@ function PublishWorkthrough() {
               />
             )}
 
-            {/* v11.0: STEP 5 (publish) - 영상 제작 추후 공개 */}
+            {/* v11.1: STEP 5 (publish) - 영상 제작 단순 배너만 */}
             {currentStep === 4 && (
               <ProductionComingSoonPanel />
+            )}
+
+            {/* v11.1: 영상 제작 배너 - 모든 단계에 자동 노출 (마지막 제외) */}
+            {/* 박 대표님 v11.1: 영상 제작이 본질, 모든 단계에서 인지 */}
+            {currentStep < 4 && (
+              <div style={{ marginTop: 18 }}>
+                <ProductionComingSoonPanel />
+              </div>
             )}
 
             {/* 다시 만들기 버튼 (모든 STEP에 표시) */}
@@ -1855,36 +1863,24 @@ function PromptPanel({
 }: any) {
   return (
     <>
-      <div
-        className={`wt-toggle ${proPromptMode ? 'on' : ''}`}
-        onClick={() => setProPromptMode((m: boolean) => !m)}
-      >
-        <div className="wt-toggle-switch">
-          <div className="wt-toggle-knob" />
-        </div>
-        <div className="wt-toggle-text">
-          <div className="wt-toggle-name">
-            전문가급 프롬프트 모드 {proPromptMode ? '(켜짐)' : '(꺼짐)'}
-          </div>
-          <div className="wt-toggle-desc">
-            {proPromptMode 
-              ? 'Midjourney v7 + Sora 2 + VEO 3 카메라/조명/색감까지' 
-              : '클릭하면 카메라·렌즈·조명·색감 전문가급으로 전환됩니다'}
-          </div>
+      {/* v11.1: 전문가급 토글 제거, 항상 표시 */}
+      {/* 박 대표님 v11.1: */}
+      {/*   "영상제작 전문가급 프롬프트도 복잡. 단순화" */}
+      {/*   "프롬프트/시나리오 통째로 초이스" */}
+      
+      <div className="wt-script-head">
+        <div className="wt-script-head-label">
+          <span className="wt-script-head-num">▍ AI 영상 프롬프트</span>
+          <span className="wt-script-head-tip">Midjourney + Sora 2 + VEO 3 + Flow + NotebookLM 5종 통합</span>
         </div>
       </div>
 
-      {proPromptMode && v650Data && (
+      {v650Data ? (
         <CinematicPromptDisplay prompts={v650Data.prompts} />
-      )}
-
-      {!proPromptMode && (
+      ) : (
         <div className="wt-card">
-          <div className="wt-card-label">기본 프롬프트</div>
-          <p className="wt-card-body">
-            전문가급 프롬프트 모드를 켜시면 Midjourney · Sora 2 · VEO 3 ·
-            Flow · NotebookLM 5종의 AI 도구별 상세 프롬프트를 보실 수 있습니다.
-          </p>
+          <div className="wt-card-label">프롬프트 준비중</div>
+          <p className="wt-card-body">잠시만 기다려주세요.</p>
         </div>
       )}
       
@@ -1915,349 +1911,100 @@ function PromptPanel({
 }
 
 // ============================================================
-// v11.0 NEW: STEP 5 - 영상 제작 (추후 공개)
-// 박 대표님 v11.0 의도:
-//   "이 사이트의 본질은 영상 프롬프트로 영상 제작하러 가는 것"
-//   "영상 제작은 추후 공개 + 개발 중 홍보"
+// v11.1 NEW: 영상 제작 배너 (단순화)
+// 박 대표님 v11.1 지적:
+//   "영상제작 마무리는 예고편은 삭제. 그냥 배너 형태로만 홍보"
 // ============================================================
 function ProductionComingSoonPanel() {
   return (
     <>
-      <div className="prod-card">
-        <div className="prod-kicker">
-          <span className="prod-kicker-arrow">▍</span>
-          영상 제작 · 개발 중
-        </div>
-        
-        <h2 className="prod-title">
-          영상 프롬프트로<br />
-          <span className="prod-title-accent">실제 영상까지</span> 만들기
-        </h2>
-        
-        <p className="prod-sub">
-          AlgoMaker가 만들어드린 프롬프트를 바로 영상으로 변환하는 기능을 개발 중입니다.
-          Sora, VEO, Midjourney 등 최신 AI 도구를 한 번에 연동하여
-          버튼 한 번 클릭만으로 실제 영상을 만들 수 있습니다.
-        </p>
-
-        {/* 개발 중 프로그레스 바 */}
-        <div className="prod-progress-section">
-          <div className="prod-progress-row">
-            <span className="prod-progress-label">개발 진행률</span>
-            <span className="prod-progress-pct">68%</span>
-          </div>
-          <div className="prod-progress-bar">
-            <div className="prod-progress-fill" />
-          </div>
-          <div className="prod-progress-eta">
-            🚀 2026년 6월 중순 베타 오픈 예정
+      <div className="prod-banner">
+        <div className="prod-banner-icon">🚀</div>
+        <div className="prod-banner-text">
+          <div className="prod-banner-title">영상 자동 제작 기능 — 곧 출시</div>
+          <div className="prod-banner-sub">
+            지금 만든 프롬프트를 바로 영상으로 변환하는 기능을 개발 중입니다 ·
+            현재는 프롬프트를 복사하여 Sora, VEO, Midjourney 등에서 직접 사용
           </div>
         </div>
-
-        {/* 기능 소개 */}
-        <div className="prod-features">
-          <div className="prod-features-title">곧 출시될 기능</div>
-          <div className="prod-feature-list">
-            <div className="prod-feature">
-              <div className="prod-feature-icon">🎬</div>
-              <div>
-                <div className="prod-feature-name">원클릭 영상 생성</div>
-                <div className="prod-feature-desc">프롬프트 → 실제 영상 자동 변환</div>
-              </div>
-            </div>
-            <div className="prod-feature">
-              <div className="prod-feature-icon">🤖</div>
-              <div>
-                <div className="prod-feature-name">5개 AI 엔진 동시 연동</div>
-                <div className="prod-feature-desc">Sora, VEO, Midjourney, Flow, NotebookLM</div>
-              </div>
-            </div>
-            <div className="prod-feature">
-              <div className="prod-feature-icon">⚡</div>
-              <div>
-                <div className="prod-feature-name">5분 내 영상 완성</div>
-                <div className="prod-feature-desc">키워드 입력부터 완성된 영상까지</div>
-              </div>
-            </div>
-            <div className="prod-feature">
-              <div className="prod-feature-icon">💰</div>
-              <div>
-                <div className="prod-feature-name">베타 기간 무료</div>
-                <div className="prod-feature-desc">초기 사용자에게 한정 무료 제공</div>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        {/* 알림 신청 */}
-        <div className="prod-notify">
-          <div className="prod-notify-title">📬 출시 알림 받기</div>
-          <p className="prod-notify-desc">
-            영상 제작 기능이 오픈되면 가장 먼저 알려드립니다.
-            아래 이메일로 문의·신청 주세요.
-          </p>
-          <a 
-            href="mailto:apark12321@gmail.com?subject=AlgoMaker 영상 제작 베타 알림 신청&body=베타 오픈 시 알림 부탁드립니다."
-            className="prod-notify-btn"
-          >
-            ✉️ 알림 신청하기
-          </a>
-        </div>
-
-        {/* 안내 메시지 */}
-        <div className="prod-info">
-          <div className="prod-info-icon">💡</div>
-          <div>
-            <strong>지금 만들어드린 프롬프트로 직접 영상 만드시려면:</strong><br />
-            현재는 STEP 4 영상 프롬프트를 복사하여 Sora, VEO, Midjourney 등의
-            공식 사이트에서 직접 사용하실 수 있습니다.
-          </div>
-        </div>
+        <a 
+          href="mailto:apark12321@gmail.com?subject=AlgoMaker 영상 제작 베타 알림 신청"
+          className="prod-banner-btn"
+        >
+          알림 받기
+        </a>
       </div>
 
       <style jsx>{`
-        .prod-card {
-          padding: 28px 24px;
-          background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
-          border: 1px solid #e5e5e5;
-          border-radius: 0;
-        }
-        @media (max-width: 600px) {
-          .prod-card { padding: 22px 18px; }
-        }
-
-        .prod-kicker {
-          display: inline-flex;
+        .prod-banner {
+          display: flex;
           align-items: center;
-          gap: 6px;
-          padding: 5px 11px;
-          background: rgba(194, 65, 12, 0.08);
-          color: #c2410c;
-          font-family: 'SF Mono', 'Consolas', monospace;
-          font-size: 11.5px;
-          font-weight: 700;
-          letter-spacing: 0.1em;
-          margin-bottom: 16px;
-          text-transform: uppercase;
+          gap: 14px;
+          padding: 16px 20px;
+          background: linear-gradient(135deg, #fff7ed 0%, #fef3e7 100%);
+          border: 1px solid rgba(194, 65, 12, 0.15);
+          border-left: 4px solid #c2410c;
         }
-        .prod-kicker-arrow {
-          color: #c2410c;
-          font-weight: 800;
+        @media (max-width: 600px) {
+          .prod-banner {
+            padding: 14px 16px;
+            gap: 10px;
+            flex-wrap: wrap;
+          }
         }
 
-        .prod-title {
+        .prod-banner-icon {
           font-size: 28px;
-          font-weight: 800;
-          color: #0a0a0a;
-          letter-spacing: -0.025em;
-          line-height: 1.25;
-          margin: 0 0 12px;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) {
-          .prod-title { font-size: 22px; }
-        }
-        .prod-title-accent {
-          background: linear-gradient(135deg, #c2410c, #ea580c);
-          -webkit-background-clip: text;
-          -webkit-text-fill-color: transparent;
-          background-clip: text;
-        }
-
-        .prod-sub {
-          font-size: 15px;
-          color: #525252;
-          line-height: 1.65;
-          margin: 0 0 24px;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) {
-          .prod-sub { font-size: 14px; margin-bottom: 20px; }
-        }
-
-        /* 프로그레스 바 */
-        .prod-progress-section {
-          padding: 18px 18px;
-          background: #0a0a0a;
-          color: #ffffff;
-          margin-bottom: 24px;
-          border-radius: 8px;
-        }
-        @media (max-width: 600px) {
-          .prod-progress-section { padding: 14px 14px; margin-bottom: 20px; }
-        }
-
-        .prod-progress-row {
-          display: flex;
-          justify-content: space-between;
-          align-items: baseline;
-          margin-bottom: 8px;
-        }
-        .prod-progress-label {
-          font-size: 12px;
-          font-family: 'SF Mono', monospace;
-          letter-spacing: 0.08em;
-          color: #a3a3a3;
-          text-transform: uppercase;
-        }
-        .prod-progress-pct {
-          font-size: 28px;
-          font-weight: 800;
-          color: #fbbf24;
-          font-family: 'SF Mono', monospace;
-          letter-spacing: -0.02em;
-        }
-        @media (max-width: 600px) {
-          .prod-progress-pct { font-size: 24px; }
-        }
-
-        .prod-progress-bar {
-          height: 6px;
-          background: rgba(255, 255, 255, 0.1);
-          margin-bottom: 10px;
-          overflow: hidden;
-          position: relative;
-        }
-        .prod-progress-fill {
-          height: 100%;
-          width: 68%;
-          background: linear-gradient(90deg, #c2410c, #fbbf24);
-          animation: progressShine 2s ease-in-out infinite;
-          position: relative;
-        }
-        .prod-progress-fill::after {
-          content: '';
-          position: absolute;
-          top: 0; left: -100%;
-          width: 100%; height: 100%;
-          background: linear-gradient(90deg, transparent, rgba(255,255,255,0.4), transparent);
-          animation: progressBarShine 2s ease-in-out infinite;
-        }
-        @keyframes progressBarShine {
-          0%, 100% { left: -100%; }
-          50% { left: 100%; }
-        }
-        @keyframes progressShine {
-          0%, 100% { opacity: 1; }
-          50% { opacity: 0.85; }
-        }
-
-        .prod-progress-eta {
-          font-size: 13px;
-          color: #fbbf24;
-          font-weight: 700;
-          letter-spacing: -0.01em;
-        }
-
-        /* 기능 소개 */
-        .prod-features {
-          margin-bottom: 24px;
-        }
-        .prod-features-title {
-          font-size: 11.5px;
-          font-weight: 800;
-          color: #737373;
-          letter-spacing: 0.1em;
-          text-transform: uppercase;
-          margin-bottom: 12px;
-          font-family: 'SF Mono', monospace;
-        }
-        .prod-feature-list {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 10px;
-        }
-        @media (max-width: 600px) {
-          .prod-feature-list { grid-template-columns: 1fr; gap: 8px; }
-        }
-
-        .prod-feature {
-          display: flex;
-          gap: 12px;
-          padding: 12px 12px;
-          background: #ffffff;
-          border: 1px solid #e5e5e5;
-          align-items: flex-start;
-        }
-        .prod-feature-icon {
-          font-size: 22px;
           line-height: 1;
           flex-shrink: 0;
         }
-        .prod-feature-name {
-          font-size: 13.5px;
-          font-weight: 700;
-          color: #0a0a0a;
-          letter-spacing: -0.015em;
-          margin-bottom: 2px;
-          word-break: keep-all;
-        }
-        .prod-feature-desc {
-          font-size: 11.5px;
-          color: #737373;
-          line-height: 1.4;
-          word-break: keep-all;
+        @media (max-width: 600px) { .prod-banner-icon { font-size: 24px; } }
+
+        .prod-banner-text {
+          flex: 1;
+          min-width: 0;
         }
 
-        /* 알림 신청 */
-        .prod-notify {
-          padding: 18px 18px;
-          background: linear-gradient(135deg, #fff7ed 0%, #fef3e7 100%);
-          border: 1px solid rgba(194, 65, 12, 0.15);
-          margin-bottom: 18px;
-          text-align: center;
-        }
-        .prod-notify-title {
+        .prod-banner-title {
           font-size: 15px;
           font-weight: 800;
           color: #c2410c;
-          margin-bottom: 6px;
           letter-spacing: -0.018em;
-        }
-        .prod-notify-desc {
-          font-size: 13px;
-          color: #78350f;
-          line-height: 1.55;
-          margin: 0 0 14px;
+          margin-bottom: 3px;
           word-break: keep-all;
         }
-        .prod-notify-btn {
-          display: inline-block;
-          padding: 11px 22px;
-          background: linear-gradient(135deg, #c2410c 0%, #ea580c 100%);
+        @media (max-width: 600px) { .prod-banner-title { font-size: 14px; } }
+
+        .prod-banner-sub {
+          font-size: 12.5px;
+          color: #78350f;
+          line-height: 1.55;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .prod-banner-sub { font-size: 12px; } }
+
+        .prod-banner-btn {
+          flex-shrink: 0;
+          padding: 9px 16px;
+          background: #c2410c;
           color: #ffffff;
-          font-size: 14px;
+          font-size: 12.5px;
           font-weight: 700;
           text-decoration: none;
           letter-spacing: -0.015em;
-          transition: all 0.2s;
-          box-shadow: 0 2px 4px rgba(194, 65, 12, 0.2);
+          transition: background 0.15s;
+          white-space: nowrap;
         }
-        .prod-notify-btn:hover {
-          transform: translateY(-2px);
-          box-shadow: 0 4px 8px rgba(194, 65, 12, 0.3);
+        .prod-banner-btn:hover {
+          background: #9a3208;
         }
-
-        /* 안내 메시지 */
-        .prod-info {
-          display: flex;
-          gap: 10px;
-          padding: 14px 14px;
-          background: #f0f9ff;
-          border-left: 3px solid #0284c7;
-          font-size: 13px;
-          line-height: 1.6;
-          color: #0c4a6e;
-          word-break: keep-all;
-        }
-        .prod-info-icon {
-          font-size: 16px;
-          flex-shrink: 0;
-        }
-        .prod-info strong {
-          color: #075985;
-          display: block;
-          margin-bottom: 4px;
+        @media (max-width: 600px) {
+          .prod-banner-btn {
+            font-size: 12px;
+            padding: 8px 14px;
+            width: 100%;
+            text-align: center;
+          }
         }
       `}</style>
     </>

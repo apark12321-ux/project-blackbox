@@ -649,6 +649,31 @@ export default function HomePage() {
           .engineSub { font-size: 15.5px; margin-bottom: 18px; }
         }
 
+        /* v11.1 NEW: 노하우 11공식 배지 (팩트 = 홍보) */
+        .formulaBadges {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 6px;
+          margin: 0 0 18px;
+        }
+        @media (max-width: 600px) {
+          .formulaBadges { grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 14px; }
+        }
+
+        .formulaBadge {
+          padding: 8px 11px;
+          background: rgba(194, 65, 12, 0.06);
+          border-left: 2px solid #c2410c;
+          font-size: 12.5px;
+          font-weight: 700;
+          color: #c2410c;
+          letter-spacing: -0.012em;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .formulaBadge { font-size: 11.5px; padding: 6px 9px; }
+        }
+
         /* v11.0 NEW: Hero CTA 버튼 (사용자 행동 명확화) */
         .heroCta {
           display: inline-flex;
@@ -1352,6 +1377,87 @@ export default function HomePage() {
           text-transform: uppercase;
         }
 
+        /* v11.1 NEW: 영상 제작 배너 (메인 페이지) */
+        .prodBannerSection {
+          padding: 0 24px 24px;
+        }
+        @media (max-width: 600px) {
+          .prodBannerSection { padding: 0 16px 18px; }
+        }
+
+        .prodBannerInner {
+          max-width: 1200px;
+          margin: 0 auto;
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          padding: 16px 20px;
+          background: linear-gradient(135deg, #fff7ed 0%, #fef3e7 100%);
+          border: 1px solid rgba(194, 65, 12, 0.15);
+          border-left: 4px solid #c2410c;
+        }
+        @media (max-width: 600px) {
+          .prodBannerInner {
+            padding: 14px 16px;
+            gap: 10px;
+            flex-wrap: wrap;
+          }
+        }
+
+        .prodBannerIcon {
+          font-size: 28px;
+          line-height: 1;
+          flex-shrink: 0;
+        }
+        @media (max-width: 600px) { .prodBannerIcon { font-size: 24px; } }
+
+        .prodBannerText {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .prodBannerTitle {
+          font-size: 15px;
+          font-weight: 800;
+          color: #c2410c;
+          letter-spacing: -0.018em;
+          margin-bottom: 3px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .prodBannerTitle { font-size: 14px; } }
+
+        .prodBannerSub {
+          font-size: 12.5px;
+          color: #78350f;
+          line-height: 1.55;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .prodBannerSub { font-size: 12px; } }
+
+        .prodBannerBtn {
+          flex-shrink: 0;
+          padding: 9px 16px;
+          background: #c2410c;
+          color: #ffffff;
+          font-size: 12.5px;
+          font-weight: 700;
+          text-decoration: none;
+          letter-spacing: -0.015em;
+          transition: background 0.15s;
+          white-space: nowrap;
+        }
+        .prodBannerBtn:hover {
+          background: #9a3208;
+        }
+        @media (max-width: 600px) {
+          .prodBannerBtn {
+            font-size: 12px;
+            padding: 8px 14px;
+            width: 100%;
+            text-align: center;
+          }
+        }
+
         /* ============================================ */
         /* 4. FAQ */
         /* ============================================ */
@@ -1441,11 +1547,11 @@ export default function HomePage() {
 
           {/* 패널 본문 */}
           <div className="engineBody">
-            {/* 좌측: 사용자 가치 제안 (v11.0 의미 강화) */}
+            {/* 좌측: 사용자 가치 제안 (v11.1 노하우 홍보 강화) */}
             <div className="engineLeft">
               <div className="engineKicker">
                 <span className="engineKickerArrow">▍</span>
-                완전 무료 · 회원가입 X
+                알고리즘 11공식 자동 적용 · 무료
               </div>
 
               <h1 className="engineTitle">
@@ -1454,12 +1560,22 @@ export default function HomePage() {
               </h1>
 
               <p className="engineSub">
-                영상 만들기에서 가장 시간이 많이 드는 자료 준비.
-                AlgoMaker가 분야 선택만 하시면 제목·시나리오·썸네일·SNS 자료를
-                AI로 5초 만에 만들어드립니다.
+                <strong>실제 검증된 11가지 업로드 공식</strong>이 자동 적용된
+                제목·시나리오·썸네일·프롬프트를 만들어드립니다.
+                ChatGPT 같은 일반 AI 도구와 다른 점입니다.
               </p>
 
-              {/* v11.0 NEW: 큰 CTA 버튼 (사용자 행동 명확화) */}
+              {/* v11.1 NEW: 노하우 11공식 배지 (팩트 = 홍보) */}
+              <div className="formulaBadges">
+                <div className="formulaBadge">✓ 제목 8:2 법칙</div>
+                <div className="formulaBadge">✓ 음성 SEO</div>
+                <div className="formulaBadge">✓ 챕터 5~7개</div>
+                <div className="formulaBadge">✓ 해시태그 함정 회피</div>
+                <div className="formulaBadge">✓ 첫 30초 후크</div>
+                <div className="formulaBadge">✓ 댓글 유도</div>
+              </div>
+
+              {/* 큰 CTA 버튼 */}
               <button
                 className="heroCta"
                 onClick={() => {
@@ -1645,6 +1761,26 @@ export default function HomePage() {
                 </div>
               </Link>
             ))}
+          </div>
+        </section>
+
+        {/* v11.1 NEW: 영상 제작 배너 (홍보) */}
+        <section className="prodBannerSection">
+          <div className="prodBannerInner">
+            <div className="prodBannerIcon">🚀</div>
+            <div className="prodBannerText">
+              <div className="prodBannerTitle">영상 자동 제작 기능 — 곧 출시</div>
+              <div className="prodBannerSub">
+                지금 만든 프롬프트를 바로 영상으로 변환하는 기능을 개발 중입니다 ·
+                현재는 프롬프트를 복사하여 Sora, VEO, Midjourney 등에서 직접 사용
+              </div>
+            </div>
+            <a 
+              href="mailto:apark12321@gmail.com?subject=AlgoMaker 영상 제작 베타 알림 신청"
+              className="prodBannerBtn"
+            >
+              알림 받기
+            </a>
           </div>
         </section>
 
