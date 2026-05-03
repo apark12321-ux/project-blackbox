@@ -1,11 +1,38 @@
 'use client';
 /**
- * AlgoMaker 메인 페이지 v11.0 - 사용자 가치 제안 명확화
+ * AlgoMaker 메인 페이지 v11.2 - 시나리오 패턴 선택 STEP 추가
  *
- * 박 대표님 v11.0 지적:
- *   "메인 페이지는 도대체 뭔 의미가 있는지 잘 모르겠음"
- *   → 사용자가 5초 안에 "이게 뭐 하는 사이트구나" 이해
- *   → 다음 행동 (자료 만들기) 명확
+ * 박 대표님 v11.2 지적:
+ *   "이건 아닌거 같아. 차라리 예전에 6가지 시나리오 패턴이 더 많이 나왔던
+ *    버전이 있거든 그게 낫겠어"
+ *   답: C + 더 많은 패턴
+ *
+ * v11.2 변경 (v11.1 → v11.2):
+ *  ✅ STEP 3: 시나리오 패턴 선택 (8가지 - 박 대표님 자산 호환 + 확장)
+ *    🤔 호기심 자극형 (curiosity)
+ *    📋 단계별 가이드 (tutorial)
+ *    ⚖️ 리뷰·비교 (review)
+ *    📖 스토리텔링 (storytelling)
+ *    🔢 리스트형 (list)
+ *    💬 Q&A형 (qna)
+ *    ⚠️ 실수·후회형 (mistake) ← 박 대표님 6가지 + 추가 2개
+ *    📊 데이터·분석형 (data)  ← 박 대표님 6가지 + 추가 2개
+ *  ✅ 흐름:
+ *    Step 1 분야 → Step 2 주제 → Step 3 시나리오 → /publish 이동
+ *  ✅ URL 구조: ?keyword=○○&category=○○&scenario=○○
+ *    (박 대표님 자산 platforms.ts SCENARIOS 호환)
+ *  ✅ topicChip 활성 상태 표시 (선택된 주제)
+ *  ✅ 시나리오 영역으로 자동 스크롤
+ *
+ * v11.1 보존:
+ *  - "알고리즘 11공식 자동 적용" 키커
+ *  - 6개 노하우 배지
+ *  - 영상 제작 배너 (FAQ 위)
+ *
+ * 박 대표님 자산 100% 보존:
+ *  - publish/page.tsx 그대로 (URL ?scenario= 받음)
+ *  - contentEngine, v650Adapter 그대로
+ *  - Cinematic 두 파일 그대로
  *
  * v11.0 변경 (v10.9 v3 → v11.0):
  *  ✅ kicker: "ALGORITHM ENGINE" → "완전 무료 · 회원가입 X"
@@ -439,8 +466,94 @@ export default function HomePage() {
     return () => clearInterval(t);
   }, []);
 
+  // v11.2: 시나리오 패턴 8가지 (박 대표님 자산 platforms.ts SCENARIOS와 호환)
+  // 박 대표님 의도: "더 많은 패턴 (이전 버전 복원)"
+  const SCENARIO_PATTERNS = [
+    {
+      id: 'curiosity',
+      emoji: '🤔',
+      name: '호기심 자극형',
+      desc: '시청자의 궁금증을 유발하는 구조',
+      flow: '문제 제기 → 단서 제공 → 핵심 공개',
+      hint: '“이거 모르고 ○○하면 후회합니다” 식 후크',
+    },
+    {
+      id: 'tutorial',
+      emoji: '📋',
+      name: '단계별 가이드',
+      desc: '따라하기 쉬운 단계별 설명',
+      flow: '도입 → 1단계 → 2단계 → 마무리',
+      hint: '“5단계만 따라하면 됩니다” 식 구조',
+    },
+    {
+      id: 'review',
+      emoji: '⚖️',
+      name: '리뷰·비교',
+      desc: '제품·서비스 비교 분석',
+      flow: '소개 → 장점 → 단점 → 결론',
+      hint: '“○○ vs ○○ 솔직 비교” 식 구조',
+    },
+    {
+      id: 'storytelling',
+      emoji: '📖',
+      name: '스토리텔링',
+      desc: '경험담 기반 자연스러운 흐름',
+      flow: '시작 → 갈등 → 해결 → 교훈',
+      hint: '“평범한 직장인이 ○○ 한 진짜 이야기”',
+    },
+    {
+      id: 'list',
+      emoji: '🔢',
+      name: '리스트형',
+      desc: 'BEST/TOP 형식 모음',
+      flow: '인트로 → 1위 → 2위 → 3위 → 정리',
+      hint: '“○○ TOP 5” 저장률 가장 높은 형식',
+    },
+    {
+      id: 'qna',
+      emoji: '💬',
+      name: 'Q&A형',
+      desc: '질문-답변 형식',
+      flow: '질문 → 답변 → 부연 설명',
+      hint: '시청자 댓글에서 자주 묻는 질문 답변',
+    },
+    {
+      id: 'mistake',
+      emoji: '⚠️',
+      name: '실수·후회형',
+      desc: '경험자의 후회담은 가장 강력한 신호',
+      flow: '실수 공개 → 원인 → 해결책 → 교훈',
+      hint: '“○○ 시작하기 전 알았으면 좋았을 5가지”',
+    },
+    {
+      id: 'data',
+      emoji: '📊',
+      name: '데이터·분석형',
+      desc: '데이터 기반 신뢰감 + 검색 강함',
+      flow: '주제 → 데이터 제시 → 인사이트 → 결론',
+      hint: '“실거래가/통계로 본 ○○의 진실”',
+    },
+  ];
+
+  // v11.2: 선택된 주제 (시나리오 STEP 노출 트리거)
+  const [selectedTopic, setSelectedTopic] = useState<string | null>(null);
+
   const handleTopicClick = (categoryId: string, topic: string) => {
-    const url = `/publish?keyword=${encodeURIComponent(topic)}&category=${encodeURIComponent(categoryId)}`;
+    // v11.2: 주제 선택 시 시나리오 STEP 노출 (즉시 이동 X)
+    setSelectedTopic(topic);
+    // 시나리오 영역으로 자동 스크롤
+    setTimeout(() => {
+      document.querySelector('.scenarioSection')?.scrollIntoView({
+        behavior: 'smooth',
+        block: 'start',
+      });
+    }, 100);
+  };
+
+  // v11.2: 시나리오 패턴 선택 시 → publish 페이지 이동
+  const handleScenarioClick = (scenarioId: string) => {
+    if (!selectedCat || !selectedTopic) return;
+    const url = `/publish?keyword=${encodeURIComponent(selectedTopic)}&category=${encodeURIComponent(selectedCat)}&scenario=${encodeURIComponent(scenarioId)}`;
     router.push(url);
   };
 
@@ -1230,6 +1343,116 @@ export default function HomePage() {
         }
         @media (max-width: 600px) { .topicHint { font-size: 10px; margin-top: 8px; } }
 
+        /* topicChip 활성 (선택됨) */
+        .topicChip.active {
+          background: #c2410c;
+          border-color: #c2410c;
+          color: #ffffff;
+          transform: translateY(-1px);
+        }
+        .topicChip.active .topicChipArrow {
+          color: #fbbf24;
+        }
+
+        /* ============================================ */
+        /* v11.2 NEW: 시나리오 패턴 선택 */
+        /* 박 대표님 v11.2: "이전 버전 시나리오 패턴 복원 + 더 많이" */
+        /* ============================================ */
+        .scenarioSection {
+          padding: 14px 16px;
+          background: #ffffff;
+          border: 2px solid #0a0a0a;
+          margin-top: -6px;
+          animation: slideDown 0.25s ease-out;
+        }
+        @media (max-width: 600px) {
+          .scenarioSection { padding: 12px 12px; }
+        }
+
+        .scenarioGrid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+          gap: 8px;
+        }
+        @media (max-width: 600px) {
+          .scenarioGrid {
+            grid-template-columns: repeat(2, 1fr);
+            gap: 6px;
+          }
+        }
+
+        .scenarioCard {
+          padding: 14px 12px;
+          background: #ffffff;
+          border: 1.5px solid #e5e5e5;
+          cursor: pointer;
+          transition: all 0.15s;
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          text-align: left;
+          font-family: inherit;
+          color: inherit;
+        }
+        .scenarioCard:hover {
+          background: #fafafa;
+          border-color: #c2410c;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 8px rgba(194, 65, 12, 0.08);
+        }
+        @media (max-width: 600px) {
+          .scenarioCard { padding: 11px 10px; }
+        }
+
+        .scenarioEmoji {
+          font-size: 24px;
+          line-height: 1;
+          margin-bottom: 4px;
+        }
+        @media (max-width: 600px) { .scenarioEmoji { font-size: 22px; } }
+
+        .scenarioName {
+          font-size: 14px;
+          font-weight: 800;
+          color: #0a0a0a;
+          letter-spacing: -0.018em;
+          line-height: 1.3;
+        }
+        @media (max-width: 600px) { .scenarioName { font-size: 12.5px; } }
+
+        .scenarioDesc {
+          font-size: 11.5px;
+          color: #737373;
+          line-height: 1.45;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .scenarioDesc { font-size: 11px; } }
+
+        .scenarioFlow {
+          font-size: 11px;
+          color: #c2410c;
+          font-weight: 700;
+          line-height: 1.45;
+          margin-top: 4px;
+          padding-top: 6px;
+          border-top: 1px dashed #e5e5e5;
+          font-family: 'SF Mono', monospace;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .scenarioFlow { font-size: 10px; } }
+
+        .scenarioHint {
+          font-size: 11.5px;
+          color: #525252;
+          margin-top: 12px;
+          text-align: center;
+          letter-spacing: 0.02em;
+          padding: 8px 12px;
+          background: #fff7ed;
+          border-left: 3px solid #fbbf24;
+        }
+        @media (max-width: 600px) { .scenarioHint { font-size: 10.5px; padding: 6px 10px; } }
+
         /* ============================================ */
         /* 3. 추천 가이드 */
         /* ============================================ */
@@ -1671,6 +1894,8 @@ export default function HomePage() {
                 onClick={() => {
                   const isNew = c.id !== selectedCat;
                   setSelectedCat(isNew ? c.id : null);
+                  // v11.2: 분야 변경 시 주제·시나리오 초기화
+                  setSelectedTopic(null);
                   // v11.0: 분야 선택 시 자동 스크롤 (주제 영역으로)
                   if (isNew) {
                     setTimeout(() => {
@@ -1713,7 +1938,7 @@ export default function HomePage() {
                     <button
                       key={topic}
                       type="button"
-                      className="topicChip"
+                      className={`topicChip ${selectedTopic === topic ? 'active' : ''}`}
                       onClick={() => handleTopicClick(selectedCategory.id, topic)}
                     >
                       <span>{topic}</span>
@@ -1724,6 +1949,42 @@ export default function HomePage() {
 
                 <div className="topicHint">
                   💡 원하는 주제가 없으시면 비슷한 것을 선택하셔도 좋습니다.
+                </div>
+              </div>
+            </>
+          )}
+
+          {/* v11.2 NEW: STEP 3 시나리오 패턴 선택 */}
+          {/* 박 대표님 v11.2: "이전 버전 시나리오 패턴이 더 좋다 + 더 많은 패턴" */}
+          {selectedCat && selectedTopic && (
+            <>
+              <div className="selectStep" style={{ marginTop: 18 }}>
+                <div className="selectStepNum">03</div>
+                <div className="selectStepTitle">어떤 시나리오 형식으로 만들까요?</div>
+              </div>
+              <div className="selectStepSub">
+                선택한 주제: <strong>{selectedTopic}</strong> · 8가지 검증된 시나리오 패턴
+              </div>
+
+              <div className="scenarioSection">
+                <div className="scenarioGrid">
+                  {SCENARIO_PATTERNS.map((s) => (
+                    <button
+                      key={s.id}
+                      type="button"
+                      className="scenarioCard"
+                      onClick={() => handleScenarioClick(s.id)}
+                    >
+                      <div className="scenarioEmoji">{s.emoji}</div>
+                      <div className="scenarioName">{s.name}</div>
+                      <div className="scenarioDesc">{s.desc}</div>
+                      <div className="scenarioFlow">{s.flow}</div>
+                    </button>
+                  ))}
+                </div>
+
+                <div className="scenarioHint">
+                  💡 시나리오를 선택하시면 즉시 AI 분석이 시작됩니다.
                 </div>
               </div>
             </>
