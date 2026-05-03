@@ -1,338 +1,230 @@
 'use client';
+
 /**
- * AlgoMaker 결과 페이지 v10.7 - 자동 이동 + 4개 플랫폼 진짜 디자인
+ * AlgoMaker 자료 만들기 v13.0 - 영상 구조 시각화 + 노하우 스며든 디자인
  *
- * 박예준 대표 비전:
- * "SNS 초보자가 사이트에 딱 왔을 때 뭔가 필이 팍 꽂혀야 한다"
- * "100명이 같은 키워드 입력해도 100가지 결과"
- * "AlgoMaker 자체 = 완전 무료"
+ * 박 대표님 v13.0 큰 그림:
+ *   "단계별 다 없애고 다시 리모델링"
+ *   "영상 구조를 시각화 잘해서 다양한 구성으로"
+ *   "알고메이커의 특별한 부분, 알고리즘 반영, 노하우가 스며들어있구나"
+ *   "반할 정도로"
  *
- * v10.7 변경사항 (2026.04.30):
- * - 🔄 클릭 → 자동 이동 + 자동 스크롤
- *   STEP 1 (사례): 카드 클릭 → 자동으로 STEP 2 이동
- *   STEP 2 (제목): 제목 카드 클릭 → 자동으로 STEP 3 이동 (300ms 딜레이로 선택 효과 보임)
- *   STEP 3 (시나리오): "다음 단계로 →" 큰 검정 버튼
- *   STEP 4 (프롬프트): "다음 단계로 →" 큰 검정 버튼
- *   STEP 5 (메타): "SNS 업로드 자료 보기 →" 큰 주황 버튼
- *   STEP 6 (SNS): 마지막 (이동 X)
- *   각 STEP 진입 시 window.scrollTo({top: 0, behavior: 'smooth'})
- * - 💡 STEP 1, 2 상단에 안내 박스 추가 (클릭 시 자동 이동 알림)
- * - 🎨 4개 플랫폼 진짜 SNS 아이덴티티:
- *   YouTube: 빨강 그라디언트 배너 (#ff0000)
- *   Shorts: 핑크 그라디언트 배너 + 9:16 모바일 미리보기 박스
- *   Instagram: 옐로/핑크/보라 그라디언트 배너
- *   TikTok: 검정 배너 + 시안 라인
- * - ✅ 박 대표님 v650Adapter 데이터 그대로 활용
- * - ✅ AdSense 정책 안전 (가짜 데이터 0)
+ * 핵심 변화 (v12 → v13):
+ *   ✅ 1️⃣2️⃣3️⃣4️⃣ 단계 번호 모두 제거
+ *   ✅ 영상 타임라인 시각화 (00:00 → 8:00 까지 비트 흐름)
+ *   ✅ 각 비트에 노하우가 자연스럽게 스며듦 (별도 박스 X)
+ *   ✅ 시나리오 패턴별 다른 구성 (호기심형 4구간 / 단계별 5구간 등)
+ *   ✅ 시각적 영상 미리보기 느낌 (썸네일 영역, 타임코드, 비트 카드)
+ *   ✅ 노하우 적용 인디케이터 (각 비트 옆에 스티커형)
  *
- * v10.6 변경사항 유지:
- * - 컴팩트 모드 (39개 영역)
- *
- * v10.5 변경사항 유지:
- * - SNS 4개 플랫폼 자체 UI 구현 (Tailwind 미사용)
- *
- * v10.4 변경사항 유지:
- * - generateV650Data 시그니처 수정
- *
- * v10.3 변경사항 유지:
- * - diversifyTags 무한 로딩 해결
- *
- * v10.2 변경사항 유지:
- * - contentEngine 정확한 시그니처 적용
+ * 박 대표님 자산 100% 활용:
+ *   - contentEngine.ts 그대로 호출
+ *   - v650Adapter.ts → generateV650Data 호출
+ *   - CinematicScenarioDisplay, CinematicPromptDisplay 그대로
+ *   - V11Shell, algorithmInsights 그대로
  */
 
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { V11Shell } from '../_shared/V11Shell';
-import { CATEGORIES, SCENARIOS } from '../_shared/platforms';
 import {
   generateTitles,
-  generateDescription,
-  generateTags,
   generateVideoSequences,
-  generateThumbnailConcepts,
-  generateShortsScript,
-  getViralCases,
   bumpSeed,
 } from '../_shared/contentEngine';
-import AdSlot from '../_shared/AdSlot';
-
-// ============================================================
-// v6.5.0 추가 모듈 (작가급 시나리오 + SNS 4종 + 전문가 프롬프트)
-// ============================================================
 import { generateV650Data, type V650DataPackage } from '../_shared/v650Adapter';
 import { CinematicScenarioDisplay } from '../_shared/CinematicScenarioDisplay_v6_5_0';
 import { CinematicPromptDisplay } from '../_shared/CinematicPromptDisplay_v6_5_0';
-
-// v11.0: 알고리즘 노하우 인사이트 (박 대표님 docx 자산 기반)
 import { getAlgorithmInsights } from '../_shared/algorithmInsights';
 
-// Safe wrapper - getAlgorithmInsights 시그니처 변동 대응
-function getAlgorithmInsightsSafe(keyword: string) {
-  try {
-    // 함수가 (keyword) 만 받든 (keyword, categoryId) 받든 모두 대응
-    const result = (getAlgorithmInsights as any)(keyword, '');
-    return result || null;
-  } catch {
-    return null;
-  }
-}
-// v10.5: SNSUploadPanel 대신 자체 SNS UI 구현 (Tailwind 미사용 환경 호환)
-// 박 대표님 SNSUploadPanel_v6_5_0.tsx 파일은 그대로 보존
-
 // ============================================================
-// v8.2: 태그 다양화 시스템
-// 도메인별 연관 키워드 풀 → 시드 기반으로 다양하게 선택
-// "2026년 부동산 전망 추천/방법/입문..." 식 중복 제거
+// 시나리오 패턴 8가지
 // ============================================================
-
-type TagDomain = 
-  | 'realestate'     // 부동산/청약
-  | 'economy'        // 경제/재테크
-  | 'health'         // 건강/운동
-  | 'food'           // 요리/맛집
-  | 'travel'         // 여행/취미
-  | 'aitech'         // AI/디지털
-  | 'family'         // 가족/사연
-  | 'language'       // 외국어
-  | 'senior'         // 시니어 라이프
-  | 'review'         // 리뷰/비교
-  | 'tutorial'       // 가이드/방법
-  | 'general';       // 일반
-
-// 도메인별 연관 키워드 풀 (각 20-30개)
-const DOMAIN_KEYWORD_POOL: Record<TagDomain, string[]> = {
-  realestate: [
-    '부동산 시장', '주택 시장', '청약 전략', '부동산 투자',
-    '아파트 매매', '전세 시장', '내집 마련', '주거 트렌드',
-    '재개발', '재건축', '신축 분양', '입지 분석',
-    '매매가', '전세가', '시세 분석', '부동산 정보',
-    '주택 정책', '분양가 상한제', '청약 가점', '주택 자금',
-    '집값', '주택 시세', '부동산 흐름', '투자 정보',
-  ],
-  economy: [
-    '재테크', '자산 관리', '노후 자금', '연금', 
-    '경제 전망', '금리', '환율', '주식 투자',
-    '펀드', 'ETF', '예금 적금', '재무 설계',
-    '은퇴 준비', '경제 흐름', '시장 분석', '돈 관리',
-    '월 100만원', '현금 흐름', '안전 자산', '분산 투자',
-    '재무 점검', '소득 관리', '지출 관리', '노후 대비',
-  ],
-  health: [
-    '건강 관리', '홈트레이닝', '시니어 건강', '식단 관리',
-    '근력 운동', '유산소 운동', '스트레칭', '걷기 운동',
-    '다이어트', '체중 감량', '건강 식단', '영양 관리',
-    '관절 건강', '허리 건강', '면역력', '수면 관리',
-    '5060 건강', '시니어 운동', '집에서 운동', '실내 운동',
-    '건강 정보', '의료 정보', '병원 정보', '건강 검진',
-  ],
-  food: [
-    '집밥', '한식 레시피', '간단 요리', '저녁 메뉴',
-    '아침 메뉴', '도시락', '반찬', '국 요리',
-    '한그릇 요리', '면 요리', '밥 요리', '디저트',
-    '동네 맛집', '가성비 맛집', '맛집 후기', '맛집 추천',
-    '요리 비법', '요리 팁', '주방 살림', '식재료',
-    '제철 음식', '계절 메뉴', '집들이 요리', '명절 요리',
-  ],
-  travel: [
-    '국내 여행', '해외 여행', '가성비 여행', '주말 여행',
-    '당일치기', '1박 2일', '여행 코스', '여행 후기',
-    '제주도', '강원도', '경상도', '전라도',
-    '동남아', '유럽', '일본', '중국',
-    '여행 팁', '여행 준비물', '여행 예산', '패키지 여행',
-    '자유 여행', '시니어 여행', '효도 여행', '가족 여행',
-  ],
-  aitech: [
-    'ChatGPT', 'AI 도구', '디지털 도구', '핸드폰 사용법',
-    '스마트폰', '인공지능', '챗봇', '생성형 AI',
-    'AI 활용법', '시니어 디지털', '디지털 입문', '컴퓨터 기초',
-    '카카오톡', '유튜브', '네이버', '구글',
-    '온라인 쇼핑', '인터넷 뱅킹', '디지털 시대', '4차 산업',
-    'IT 트렌드', '기술 변화', '미래 기술', '신기술',
-  ],
-  family: [
-    '가족 사연', '부부 이야기', '부모 자식', '가족 관계',
-    '시댁 이야기', '친정 이야기', '며느리', '사위',
-    '손주', '자녀 교육', '결혼 이야기', '이혼 사연',
-    '가족 갈등', '화해', '용서', '진심',
-    '일상 이야기', '평범한 하루', '소소한 행복', '가족 모임',
-    '명절 이야기', '추억', '그리움', '사랑',
-  ],
-  language: [
-    '영어 회화', '영어 공부', '시니어 영어', '기초 영어',
-    '일본어', '중국어', '독일어', '프랑스어',
-    '외국어 학습', '회화 연습', '문법', '단어 암기',
-    '발음', '듣기', '읽기', '쓰기',
-    '학습법', '공부 비법', '언어 교환', '독학',
-    '온라인 강의', '학원 후기', '교재 추천', '앱 추천',
-  ],
-  senior: [
-    '5060', '6070', '시니어', '50대 이야기',
-    '60대 일상', '70대 활기', '은퇴 후', '인생 2막',
-    '노후 생활', '시니어 라이프', '액티브 시니어', '실버 세대',
-    '50대 부업', '시니어 직업', '평생 직업', '취미 활동',
-    '시니어 모임', '동호회', '봉사 활동', '여가 생활',
-    '인생 후반', '황혼기', '경험담', '인생 조언',
-  ],
-  review: [
-    '리뷰', '솔직 후기', '비교 분석', '추천',
-    '장단점', '실제 사용', '구매 후기', '체험기',
-    '제품 비교', '서비스 비교', '브랜드 비교', '가성비',
-    '꿀팁', '노하우', '주의사항', '경험 공유',
-  ],
-  tutorial: [
-    '방법', '가이드', '입문', '기초',
-    '시작하기', '단계별', '쉬운', '간단한',
-    '꿀팁', '노하우', '비결', '비법',
-    '실전', '실습', '예제', '예시',
-  ],
-  general: [
-    '정보', '분석', '꿀팁', '노하우',
-    '실전', '경험담', '추천', '인기',
-    '트렌드', '이슈', '화제', '주목',
-  ],
+const SCENARIO_PATTERNS: Record<string, {
+  emoji: string;
+  name: string;
+  desc: string;
+  flow: string;
+  // 시나리오 패턴별 영상 구간 (시각화용)
+  structure: Array<{ time: string; label: string; algoTags: string[] }>;
+}> = {
+  curiosity: {
+    emoji: '🤔', name: '호기심 자극형',
+    desc: '시청자의 궁금증을 유발하는 구조',
+    flow: '문제 제기 → 단서 제공 → 핵심 공개',
+    structure: [
+      { time: '0:00', label: '문제 제기', algoTags: ['후크', '음성SEO', '챕터'] },
+      { time: '0:30', label: '단서 제공', algoTags: ['몰입 강화'] },
+      { time: '2:00', label: '추가 단서', algoTags: ['긴장 유지'] },
+      { time: '5:00', label: '핵심 공개', algoTags: ['만족도', '댓글유도'] },
+      { time: '7:00', label: '마무리·CTA', algoTags: ['최종화면', '재생목록'] },
+    ],
+  },
+  tutorial: {
+    emoji: '📋', name: '단계별 가이드',
+    desc: '따라하기 쉬운 단계별 설명',
+    flow: '도입 → 1단계 → 2단계 → 마무리',
+    structure: [
+      { time: '0:00', label: '도입·결과 미리보기', algoTags: ['후크', '음성SEO', '챕터'] },
+      { time: '0:30', label: '1단계: 준비', algoTags: ['시각화'] },
+      { time: '2:00', label: '2단계: 실행', algoTags: ['디테일'] },
+      { time: '4:30', label: '3단계: 마무리', algoTags: ['검증'] },
+      { time: '7:00', label: '요약·CTA', algoTags: ['댓글유도', '최종화면'] },
+    ],
+  },
+  review: {
+    emoji: '⚖️', name: '리뷰·비교',
+    desc: '제품·서비스 비교 분석',
+    flow: '소개 → 장점 → 단점 → 결론',
+    structure: [
+      { time: '0:00', label: '대상 소개', algoTags: ['후크', '음성SEO', '챕터'] },
+      { time: '1:00', label: '장점 분석', algoTags: ['데이터'] },
+      { time: '3:30', label: '단점·아쉬움', algoTags: ['솔직함'] },
+      { time: '5:30', label: '비교 정리', algoTags: ['시각화'] },
+      { time: '7:30', label: '결론·추천', algoTags: ['댓글유도'] },
+    ],
+  },
+  storytelling: {
+    emoji: '📖', name: '스토리텔링',
+    desc: '경험담 기반 자연스러운 흐름',
+    flow: '시작 → 갈등 → 해결 → 교훈',
+    structure: [
+      { time: '0:00', label: '시작·배경', algoTags: ['후크', '음성SEO', '챕터'] },
+      { time: '1:00', label: '갈등·문제', algoTags: ['공감'] },
+      { time: '3:30', label: '시도·실패', algoTags: ['솔직함'] },
+      { time: '5:30', label: '해결·전환점', algoTags: ['감동'] },
+      { time: '7:00', label: '교훈·CTA', algoTags: ['댓글유도'] },
+    ],
+  },
+  list: {
+    emoji: '🔢', name: '리스트형',
+    desc: 'BEST/TOP 형식 모음',
+    flow: '인트로 → 1위 → 2위 → 3위 → 정리',
+    structure: [
+      { time: '0:00', label: '인트로·미리보기', algoTags: ['후크', '음성SEO', '챕터'] },
+      { time: '0:30', label: '5위 → 4위', algoTags: ['긴장'] },
+      { time: '2:30', label: '3위 → 2위', algoTags: ['몰입'] },
+      { time: '5:00', label: '1위 공개', algoTags: ['클라이맥스', '저장유도'] },
+      { time: '7:00', label: '정리·CTA', algoTags: ['댓글유도'] },
+    ],
+  },
+  qna: {
+    emoji: '💬', name: 'Q&A형',
+    desc: '질문-답변 형식',
+    flow: '질문 → 답변 → 부연 설명',
+    structure: [
+      { time: '0:00', label: '질문 1 + 답변', algoTags: ['후크', '음성SEO', '챕터'] },
+      { time: '1:30', label: '질문 2 + 답변', algoTags: ['검색최적화'] },
+      { time: '3:30', label: '질문 3 + 답변', algoTags: ['디테일'] },
+      { time: '5:30', label: '심화 질문', algoTags: ['전문성'] },
+      { time: '7:30', label: '추가 질문 받기·CTA', algoTags: ['댓글유도'] },
+    ],
+  },
+  mistake: {
+    emoji: '⚠️', name: '실수·후회형',
+    desc: '경험자의 후회담은 가장 강력한 신호',
+    flow: '실수 공개 → 원인 → 해결책 → 교훈',
+    structure: [
+      { time: '0:00', label: '실수 공개·후회', algoTags: ['후크', '음성SEO', '챕터'] },
+      { time: '1:00', label: '실수의 원인', algoTags: ['공감'] },
+      { time: '3:00', label: '잘못된 정보 정정', algoTags: ['신뢰'] },
+      { time: '5:00', label: '올바른 방법', algoTags: ['해결책', '저장유도'] },
+      { time: '7:00', label: '교훈·CTA', algoTags: ['댓글유도'] },
+    ],
+  },
+  data: {
+    emoji: '📊', name: '데이터·분석형',
+    desc: '데이터 기반 신뢰감 + 검색 강함',
+    flow: '주제 → 데이터 → 인사이트 → 결론',
+    structure: [
+      { time: '0:00', label: '주제·문제 제기', algoTags: ['후크', '음성SEO', '챕터'] },
+      { time: '1:00', label: '데이터 1', algoTags: ['시각화'] },
+      { time: '3:00', label: '데이터 2', algoTags: ['검증'] },
+      { time: '5:00', label: '인사이트 도출', algoTags: ['분석'] },
+      { time: '7:00', label: '결론·예측·CTA', algoTags: ['댓글유도'] },
+    ],
+  },
 };
 
-// 도메인 자동 감지 (키워드 + 카테고리 기반)
-function detectTagDomain(keyword: string, categoryId: string): TagDomain {
-  const k = keyword.toLowerCase();
-  
-  // 카테고리 ID 우선 매칭
-  if (categoryId === 'realestate') return 'realestate';
-  if (categoryId === 'economy') return 'economy';
-  if (categoryId === 'health') return 'health';
-  if (categoryId === 'food') return 'food';
-  if (categoryId === 'travel') return 'travel';
-  if (categoryId === 'aitech') return 'aitech';
-  if (categoryId === 'family') return 'family';
-  if (categoryId === 'language') return 'language';
-  if (categoryId === 'senior') return 'senior';
-  
-  // 카테고리 매칭 안 되면 키워드 기반
-  if (/부동산|청약|아파트|주택|전세/i.test(k)) return 'realestate';
-  if (/투자|재테크|연금|돈|자산|경제/i.test(k)) return 'economy';
-  if (/건강|운동|다이어트|식단|병원/i.test(k)) return 'health';
-  if (/요리|레시피|음식|맛집|밥/i.test(k)) return 'food';
-  if (/여행|관광|호텔|항공|리조트/i.test(k)) return 'travel';
-  if (/AI|ChatGPT|핸드폰|스마트폰|디지털/i.test(k)) return 'aitech';
-  if (/가족|부부|부모|자식|결혼|이혼/i.test(k)) return 'family';
-  if (/영어|일본어|중국어|외국어|회화/i.test(k)) return 'language';
-  if (/시니어|5060|6070|50대|60대|70대|은퇴|노후/i.test(k)) return 'senior';
-  if (/리뷰|비교|후기|추천|솔직/i.test(k)) return 'review';
-  if (/방법|how|가이드|배우|시작|입문/i.test(k)) return 'tutorial';
-  
-  return 'general';
+// ============================================================
+// 분야 라벨
+// ============================================================
+const CATEGORY_LABELS: Record<string, { name: string; emoji: string }> = {
+  food:        { name: '음식·요리',     emoji: '🍳' },
+  realestate:  { name: '부동산',        emoji: '🏠' },
+  economy:     { name: '경제·재테크',   emoji: '💰' },
+  health:      { name: '건강',          emoji: '💪' },
+  fitness:     { name: '운동·다이어트', emoji: '🏃' },
+  language:    { name: '외국어 학습',   emoji: '🌐' },
+  selfdev:     { name: '자기계발',      emoji: '📚' },
+  aitech:      { name: 'AI·기술',       emoji: '🤖' },
+  senior:      { name: '시니어',        emoji: '👔' },
+  travel:      { name: '여행',          emoji: '✈️' },
+  family:      { name: '가족·관계',     emoji: '👨‍👩‍👧' },
+  general:     { name: '일반',          emoji: '📌' },
+};
+
+// 노하우 태그 → 색상/툴팁
+const ALGO_TAG_INFO: Record<string, { color: string; bg: string; tooltip: string }> = {
+  '후크':        { color: '#c2410c', bg: '#fff7ed', tooltip: '첫 30초 후크 패턴' },
+  '음성SEO':     { color: '#0369a1', bg: '#f0f9ff', tooltip: '키워드 직접 발음 (음성 검색 데이터)' },
+  '챕터':        { color: '#15803d', bg: '#f0fdf4', tooltip: '00:00 시작 + 5~7개 챕터' },
+  '댓글유도':    { color: '#9f1239', bg: '#fff1f2', tooltip: '참여 지표 ↑ 알고리즘 추천 ↑' },
+  '저장유도':    { color: '#7c3aed', bg: '#faf5ff', tooltip: '저장률 = 가치 신호' },
+  '최종화면':    { color: '#0d9488', bg: '#f0fdfa', tooltip: '관련 영상 + 구독 버튼' },
+  '재생목록':    { color: '#0891b2', bg: '#ecfeff', tooltip: '연쇄 시청 유도' },
+  '시각화':      { color: '#ca8a04', bg: '#fefce8', tooltip: '이미지·그래프로 이해 ↑' },
+  '몰입 강화':   { color: '#7e22ce', bg: '#faf5ff', tooltip: '시청 지속률 ↑' },
+  '긴장 유지':   { color: '#a21caf', bg: '#fdf4ff', tooltip: '이탈률 ↓' },
+  '클라이맥스':  { color: '#dc2626', bg: '#fef2f2', tooltip: '최고 시청 구간' },
+  '만족도':      { color: '#16a34a', bg: '#f0fdf4', tooltip: '시청 후 만족도 = 추천 ↑' },
+  '솔직함':      { color: '#65a30d', bg: '#f7fee7', tooltip: '경험담 = 신뢰' },
+  '데이터':      { color: '#0891b2', bg: '#ecfeff', tooltip: '데이터 기반 = 신뢰' },
+  '검증':        { color: '#0d9488', bg: '#f0fdfa', tooltip: '출처·근거 명시' },
+  '디테일':      { color: '#a16207', bg: '#fefce8', tooltip: '구체성 = 가치' },
+  '공감':        { color: '#be185d', bg: '#fdf2f8', tooltip: '시청자 공감 → 댓글 ↑' },
+  '감동':        { color: '#be123c', bg: '#fff1f2', tooltip: '감정 자극 = 공유 ↑' },
+  '검색최적화':  { color: '#1d4ed8', bg: '#eff6ff', tooltip: 'SEO 키워드 배치' },
+  '전문성':      { color: '#4338ca', bg: '#eef2ff', tooltip: '권위·신뢰' },
+  '신뢰':        { color: '#0e7490', bg: '#ecfeff', tooltip: '진정성 = 구독 ↑' },
+  '해결책':      { color: '#15803d', bg: '#f0fdf4', tooltip: '실행 가능한 답' },
+  '분석':        { color: '#1d4ed8', bg: '#eff6ff', tooltip: '논리적 흐름' },
+};
+
+function getInsightsSafe(keyword: string, categoryId: string) {
+  try {
+    return (getAlgorithmInsights as any)(keyword, categoryId) || null;
+  } catch { return null; }
 }
 
-// 시드 기반 셔플 (같은 키워드도 매번 다른 결과)
-function seededShuffle<T>(arr: T[], seed: number): T[] {
-  const result = [...arr];
-  let s = seed;
-  for (let i = result.length - 1; i > 0; i--) {
-    s = (s * 9301 + 49297) % 233280;
-    const j = Math.floor((s / 233280) * (i + 1));
-    [result[i], result[j]] = [result[j], result[i]];
-  }
-  return result;
-}
-
-// 메인 다양화 함수: 기존 generateTags 결과를 받아서 다양한 태그 13개 생성
-// v10.3: 시그니처를 (keyword, rawTags, domain, seed) 순서로 정렬 — 호출부와 일치
-function diversifyTags(
-  keyword: string,
-  originalTags: any[],
-  domain: TagDomain,
-  seed: number
-): { tag: string }[] {
-  const pool = DOMAIN_KEYWORD_POOL[domain] || DOMAIN_KEYWORD_POOL.general;
-  const generalPool = DOMAIN_KEYWORD_POOL.general;
-  
-  // 메인 키워드는 항상 첫 번째
-  const mainTag = (keyword || '').trim();
-  
-  // 도메인 풀에서 시드 기반으로 11개 선택
-  const shuffledDomain = seededShuffle(pool, seed);
-  const domainTags = shuffledDomain.slice(0, 11);
-  
-  // 일반 풀에서 1개 추가 (다양성 보장)
-  const shuffledGeneral = seededShuffle(generalPool, seed + 1);
-  const generalTag = shuffledGeneral[0];
-  
-  // 13개 조합: 메인 + 도메인 11 + 일반 1
-  const allTags = [mainTag, ...domainTags, generalTag].filter(Boolean);
-  
-  // 중복 제거 (혹시 모를 케이스)
-  const uniqueTags = Array.from(new Set(allTags)).slice(0, 13);
-  
-  // 기존 generateTags 와 호환되는 형식으로 반환
-  return uniqueTags.map(t => ({ tag: t }));
-}
-
-type StepId = 'cases' | 'title' | 'script' | 'video' | 'publish';
-
-
 // ============================================================
-// v11.0: 워크스루 STEP 재정의
-// 박 대표님 v11.0 지적:
-//   "SNS 업로드는 부수적, 영상 제작이 본질"
-//   "영상 제작은 추후 공개"
-//   → SNS 제거, "영상 제작 (추후 공개)" 페이지 추가
-//   → meta 단계도 제거 (시나리오/프롬프트로 통합)
-// ============================================================
-type StepKey = 'cases' | 'title' | 'script' | 'video' | 'publish';
-
-const STEPS_V10: { 
-  key: StepKey; 
-  num: string; 
-  ko: string;       // 한글 메인 라벨
-  en: string;       // 영문 보조
-  desc: string;     // 한 줄 설명
-}[] = [
-  { key: 'cases',   num: '1', ko: '비슷한 사례',     en: 'Reference',   desc: '이 키워드로 잘 된 영상들 살펴보기' },
-  { key: 'title',   num: '2', ko: '제목 후보',       en: 'Title',       desc: '클릭률 높은 제목 3가지' },
-  { key: 'script',  num: '3', ko: '시나리오',        en: 'Scenario',    desc: '6단계 영상 구조와 흐름' },
-  { key: 'video',   num: '4', ko: '영상 프롬프트',   en: 'Prompt',      desc: 'AI 도구별 프롬프트' },
-  { key: 'publish', num: '5', ko: '영상 제작',       en: 'Production',  desc: '프롬프트로 실제 영상 만들기 (추후 공개)' },
-];
-
-// ============================================================
-// 메인 컴포넌트
+// 메인 페이지 컴포넌트
 // ============================================================
 export default function PublishPage() {
   return (
-    <Suspense fallback={<LoadingScreen />}>
-      <PublishWorkthrough />
+    <Suspense fallback={<LoadingState />}>
+      <PublishContent />
     </Suspense>
   );
 }
 
-function LoadingScreen() {
+function LoadingState() {
   return (
     <V11Shell>
-      <div style={{
-        minHeight: '60vh',
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        fontFamily: "'Pretendard', -apple-system, system-ui, sans-serif",
-        fontSize: 15,
-        color: '#525252',
-      }}>
-        영상 자료를 만들고 있습니다...
+      <div style={{ padding: 60, textAlign: 'center', color: '#737373' }}>
+        영상 자료 만드는 중...
       </div>
     </V11Shell>
   );
 }
 
-// ============================================================
-// 워크스루 본체
-// ============================================================
-function PublishWorkthrough() {
+function PublishContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const keyword = searchParams.get('keyword') || '';
   const categoryId = searchParams.get('category') || 'general';
+  const scenarioId = searchParams.get('scenario') || 'tutorial';
   const seedParam = searchParams.get('seed');
 
   const [seed, setSeed] = useState<number>(() => {
@@ -340,1603 +232,895 @@ function PublishWorkthrough() {
     return Math.floor(Math.random() * 1000000);
   });
 
-  const [currentStep, setCurrentStep] = useState<number>(0); // 0~5
-
-  // 작가급/전문가/SNS 모드
-  const [cinematicMode, setCinematicMode] = useState(false);
-  const [proPromptMode, setProPromptMode] = useState(false);
-  const [proSnsMode, setProSnsMode] = useState(true);
-
+  const [activeBeat, setActiveBeat] = useState<number>(0);
   const [copied, setCopied] = useState<string | null>(null);
-  const [selectedTitleIdx, setSelectedTitleIdx] = useState(0);
+  const [section, setSection] = useState<'structure' | 'titles' | 'prompts'>('structure');
 
-  // 키워드가 없으면 메인으로
   useEffect(() => {
-    if (!keyword.trim()) {
-      router.replace('/');
-    }
+    if (!keyword.trim()) router.replace('/');
   }, [keyword, router]);
 
-  // ============================================================
-  // 콘텐츠 생성 (박 대표님 contentEngine 정확한 시그니처)
-  // ============================================================
-  // contentEngine 시그니처:
-  //   generateTitles(keyword, scenarioId, categoryName)
-  //   generateDescription(keyword, categoryName, scenarioId)
-  //   generateTags(keyword, categoryName)
-  //   generateVideoSequences(keyword, scenarioId)
-  //   generateThumbnailConcepts(keyword, categoryName)
-  //   generateShortsScript(keyword, scenarioId)
-  //   getViralCases(categoryId, count?)
-  // categoryId가 곧 scenarioId 역할을 하고, categoryName도 이를 사용
+  const scenario = SCENARIO_PATTERNS[scenarioId] || SCENARIO_PATTERNS.tutorial;
+  const category = CATEGORY_LABELS[categoryId] || CATEGORY_LABELS.general;
+
   const data = useMemo(() => {
     if (!keyword.trim()) return null;
     try {
-      const titles = generateTitles(keyword, categoryId, categoryId);
-      const description = generateDescription(keyword, categoryId, categoryId);
-      
-      // 박 대표님 contentEngine.generateTags(keyword, categoryName) - 2 args
-      const rawTags = generateTags(keyword, categoryId);
-      
-      // v8.2 다양화 처리: 도메인 감지 + 시드 기반 다양화
-      const domain = detectTagDomain(keyword, categoryId);
-      const tags = diversifyTags(keyword, rawTags, domain, seed);
-      
-      const sequences = generateVideoSequences(keyword, categoryId);
-      const thumbnails = generateThumbnailConcepts(keyword, categoryId);
-      const shortsScript = generateShortsScript(keyword, categoryId);
-      
-      // getViralCases(categoryId, count) - 2 args
-      const cases = getViralCases(categoryId, 3);
-
-      return { titles, description, tags, sequences, thumbnails, shortsScript, cases };
-    } catch (err) {
-      console.error('[publish] contentEngine error:', err);
+      const titles = generateTitles(keyword, scenarioId, categoryId);
+      const sequences = generateVideoSequences(keyword, scenarioId);
+      return { titles, sequences };
+    } catch (e) {
+      console.error(e);
       return null;
     }
-  }, [keyword, categoryId, seed]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keyword, categoryId, scenarioId, seed]);
 
-  // v6.5.0 작가급 시나리오 + 전문가 프롬프트 + SNS 4종
-  // v10.4: 박 대표님 v650Adapter.ts 정확한 시그니처에 맞춤
-  //        generateV650Data(keyword, selectedTitle, category) - 3 args
-  const v650Data = useMemo<V650DataPackage | null>(() => {
-    if (!data) return null;
+  const v650Data: V650DataPackage | null = useMemo(() => {
+    if (!keyword.trim()) return null;
     try {
-      // 첫 번째 제목을 selectedTitle 로 사용 (사용자가 다른 제목 선택해도 시나리오는 첫 번째 기반)
-      const firstTitle = Array.isArray(data.titles) && data.titles.length > 0
-        ? (typeof data.titles[0] === 'string' ? data.titles[0] : (data.titles[0]?.title || keyword))
-        : keyword;
-      
-      return generateV650Data(keyword, firstTitle, categoryId);
-    } catch (err) {
-      console.error('[v650] generateV650Data error:', err);
+      return generateV650Data(keyword, scenarioId, categoryId);
+    } catch (e) {
+      console.error(e);
       return null;
     }
-  }, [keyword, categoryId, seed, data]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [keyword, categoryId, scenarioId, seed]);
 
-  if (!data) {
-    return <LoadingScreen />;
-  }
+  const insights = useMemo(() => getInsightsSafe(keyword, categoryId), [keyword, categoryId]);
 
   const copy = (text: string, key: string) => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
         setCopied(key);
-        setTimeout(() => setCopied(null), 1800);
+        setTimeout(() => setCopied(null), 1500);
       });
     }
   };
 
-  const goPrev = () => {
-    if (currentStep > 0) {
-      setCurrentStep(currentStep - 1);
-      // 페이지 상단으로 부드럽게
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
+  const regenerateAll = () => setSeed(bumpSeed(seed));
 
-  const goNext = () => {
-    if (currentStep < STEPS_V10.length - 1) {
-      setCurrentStep(currentStep + 1);
-      window.scrollTo({ top: 0, behavior: 'smooth' });
-    }
-  };
+  if (!keyword.trim()) return null;
 
-  const goStep = (idx: number) => {
-    setCurrentStep(idx);
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const regenerate = () => {
-    bumpSeed();  // void 반환 - 인자 없음
-    setSeed(Math.floor(Math.random() * 1000000));  // 시드는 별도로 새로 생성
-    window.scrollTo({ top: 0, behavior: 'smooth' });
-  };
-
-  const stepDef = STEPS_V10[currentStep];
+  // 활성 비트 정보
+  const activeBeatInfo = scenario.structure[activeBeat] || scenario.structure[0];
+  const activeSequence = data?.sequences?.[activeBeat] || null;
 
   return (
     <V11Shell>
-      <style jsx global>{`
-        /* ============================================ */
-        /* v10.0 - 워크스루 + 모바일 우선 + Pretendard 통일 */
-        /* ============================================ */
-        .wt {
-          --c-fg: #0a0a0a;
-          --c-fg-2: #404040;
-          --c-fg-3: #737373;
-          --c-bg: #ffffff;
-          --c-bg-2: #fafafa;
-          --c-bg-3: #f5f5f5;
-          --c-line: #e5e5e5;
-          --c-accent: #c2410c;
-          --c-accent-2: #fbbf24;
-          --c-success: #16a34a;
-
-          font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
-          color: var(--c-fg);
-          line-height: 1.55;
-          letter-spacing: -0.01em;
-          background: var(--c-bg);
-          min-height: 100vh;
-        }
-
-        .wt * {
-          box-sizing: border-box;
-        }
-
-        .wt-container {
-          max-width: 880px;
-          margin: 0 auto;
-          padding: 0;
-        }
-
-        /* ============================================ */
-        /* 키워드 헤더 (고정) */
-        /* ============================================ */
-        .wt-header {
-          padding: 18px 20px 14px;
-          background: var(--c-bg);
-          border-bottom: 1px solid var(--c-line);
-        }
-        @media (max-width: 600px) {
-          .wt-header { padding: 18px 16px 14px; }
-        }
-
-        .wt-kicker {
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.12em;
-          color: var(--c-accent);
-          margin-bottom: 6px;
-          text-transform: uppercase;
-        }
-
-        .wt-keyword {
-          font-size: 22px;
-          font-weight: 800;
-          color: var(--c-fg);
-          letter-spacing: -0.025em;
-          line-height: 1.35;
-          margin: 0 0 6px;
-        }
-        @media (max-width: 600px) {
-          .wt-keyword { font-size: 18px; }
-        }
-
-        .wt-subtitle {
-          font-size: 14px;
-          color: var(--c-fg-3);
-          line-height: 1.55;
-          margin: 0;
-        }
-        @media (max-width: 600px) {
-          .wt-subtitle { font-size: 13px; }
-        }
-
-        /* ============================================ */
-        /* 진행 표시줄 (Progress Bar) */
-        /* ============================================ */
-        .wt-progress {
-          padding: 16px 20px;
-          background: var(--c-bg);
-          border-bottom: 1px solid var(--c-line);
-          position: sticky;
-          top: 0;
-          z-index: 50;
-          backdrop-filter: blur(8px);
-          -webkit-backdrop-filter: blur(8px);
-          background: rgba(255, 255, 255, 0.95);
-        }
-        @media (max-width: 600px) {
-          .wt-progress { padding: 12px 16px; }
-        }
-
-        .wt-progress-track {
-          display: flex;
-          align-items: center;
-          gap: 0;
-          position: relative;
-        }
-
-        .wt-progress-step {
-          flex: 1;
-          display: flex;
-          flex-direction: column;
-          align-items: center;
-          gap: 6px;
-          background: transparent;
-          border: none;
-          padding: 4px 2px;
-          cursor: pointer;
-          font-family: inherit;
-          position: relative;
-          min-height: 44px;
-          justify-content: center;
-        }
-
-        /* 점 */
-        .wt-progress-dot {
-          width: 28px;
-          height: 28px;
-          border-radius: 50%;
-          background: var(--c-bg);
-          border: 2px solid var(--c-line);
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 12px;
-          font-weight: 700;
-          color: var(--c-fg-3);
-          transition: all 0.2s;
-        }
-        @media (max-width: 600px) {
-          .wt-progress-dot { width: 24px; height: 24px; font-size: 11px; }
-        }
-
-        .wt-progress-step.done .wt-progress-dot {
-          background: var(--c-fg);
-          border-color: var(--c-fg);
-          color: var(--c-bg);
-        }
-
-        .wt-progress-step.current .wt-progress-dot {
-          background: var(--c-accent);
-          border-color: var(--c-accent);
-          color: var(--c-bg);
-          box-shadow: 0 0 0 4px rgba(194, 65, 12, 0.15);
-        }
-
-        /* 라벨 */
-        .wt-progress-label {
-          font-size: 10.5px;
-          font-weight: 600;
-          color: var(--c-fg-3);
-          letter-spacing: -0.005em;
-          text-align: center;
-          line-height: 1.2;
-          white-space: nowrap;
-        }
-        @media (max-width: 600px) {
-          .wt-progress-label { 
-            font-size: 9.5px;
-            display: none;
-          }
-        }
-
-        .wt-progress-step.current .wt-progress-label {
-          color: var(--c-accent);
-          font-weight: 700;
-        }
-
-        .wt-progress-step.done .wt-progress-label {
-          color: var(--c-fg);
-        }
-
-        /* 점들 사이 연결선 */
-        .wt-progress-step:not(:last-child)::after {
-          content: '';
-          position: absolute;
-          top: 18px;
-          left: calc(50% + 14px);
-          right: calc(-50% + 14px);
-          height: 2px;
-          background: var(--c-line);
-          z-index: -1;
-        }
-        @media (max-width: 600px) {
-          .wt-progress-step:not(:last-child)::after {
-            top: 16px;
-            left: calc(50% + 12px);
-            right: calc(-50% + 12px);
-          }
-        }
-
-        .wt-progress-step.done:not(:last-child)::after {
-          background: var(--c-fg);
-        }
-
-        /* ============================================ */
-        /* STEP 본문 (한 번에 1개) */
-        /* ============================================ */
-        .wt-step {
-          padding: 18px 20px 90px;
-          min-height: 60vh;
-        }
-        @media (max-width: 600px) {
-          .wt-step { padding: 14px 16px 90px; }
-        }
-
-        .wt-step-head {
-          margin-bottom: 16px;
-          padding-bottom: 12px;
-          border-bottom: 2px solid var(--c-fg);
-        }
-        @media (max-width: 600px) {
-          .wt-step-head { margin-bottom: 14px; padding-bottom: 10px; }
-        }
-
-        .wt-step-num {
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.18em;
-          color: var(--c-accent);
-          margin-bottom: 6px;
-          text-transform: uppercase;
-        }
-
-        .wt-step-title {
-          font-size: 24px;
-          font-weight: 800;
-          color: var(--c-fg);
-          letter-spacing: -0.025em;
-          line-height: 1.3;
-          margin: 0 0 6px;
-        }
-        @media (max-width: 600px) {
-          .wt-step-title { font-size: 20px; }
-        }
-
-        .wt-step-en {
-          font-size: 12px;
-          color: var(--c-fg-3);
-          font-weight: 500;
-          letter-spacing: 0.02em;
-          margin-left: 4px;
-        }
-
-        .wt-step-desc {
-          font-size: 14px;
-          color: var(--c-fg-2);
-          line-height: 1.55;
-          margin: 6px 0 0;
-        }
-        @media (max-width: 600px) {
-          .wt-step-desc { font-size: 13.5px; }
-        }
-
-        /* ============================================ */
-        /* 콘텐츠 카드 - 통일된 박스 */
-        /* ============================================ */
-        .wt-card {
-          background: var(--c-bg);
-          border: 1px solid var(--c-line);
-          padding: 14px 16px;
-          margin-bottom: 10px;
-          border-radius: 0;
-        }
-        @media (max-width: 600px) {
-          .wt-card { padding: 12px 14px; margin-bottom: 8px; }
-        }
-
-        .wt-card.selected {
-          border-color: var(--c-accent);
-          background: #fffbf7;
-          border-left-width: 4px;
-          padding-left: 17px;
-        }
-
-        .wt-card-label {
-          font-size: 10.5px;
-          font-weight: 700;
-          letter-spacing: 0.12em;
-          color: var(--c-fg-3);
-          text-transform: uppercase;
-          margin-bottom: 8px;
-        }
-
-        .wt-card-title {
-          font-size: 16px;
-          font-weight: 700;
-          color: var(--c-fg);
-          letter-spacing: -0.02em;
-          line-height: 1.5;
-          margin: 0 0 4px;
-        }
-        @media (max-width: 600px) {
-          .wt-card-title { font-size: 15px; }
-        }
-
-        .wt-card-body {
-          font-size: 15px;
-          color: var(--c-fg);
-          line-height: 1.55;
-          margin: 0;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) {
-          .wt-card-body { font-size: 14px; line-height: 1.55; }
-        }
-
-        .wt-card-meta {
-          font-size: 12.5px;
-          color: var(--c-fg-3);
-          margin-top: 8px;
-          line-height: 1.55;
-        }
-
-        /* ============================================ */
-        /* 모드 토글 (작가급/전문가/SNS) */
-        /* ============================================ */
-        .wt-toggle {
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          padding: 11px 14px;
-          background: var(--c-bg-2);
-          border: 1px solid var(--c-line);
-          margin-bottom: 14px;
-          cursor: pointer;
-          transition: background 0.15s;
-        }
-        @media (max-width: 600px) {
-          .wt-toggle { padding: 10px 12px; gap: 10px; }
-        }
-
-        .wt-toggle.on {
-          background: var(--c-fg);
-          color: var(--c-bg);
-          border-color: var(--c-fg);
-        }
-
-        .wt-toggle-switch {
-          width: 36px;
-          height: 22px;
-          background: #d4d4d4;
-          position: relative;
-          flex-shrink: 0;
-          border-radius: 22px;
-          transition: background 0.2s;
-        }
-
-        .wt-toggle.on .wt-toggle-switch {
-          background: var(--c-accent);
-        }
-
-        .wt-toggle-knob {
-          width: 16px;
-          height: 16px;
-          background: #ffffff;
-          border-radius: 50%;
-          position: absolute;
-          top: 3px;
-          left: 3px;
-          transition: left 0.2s;
-        }
-
-        .wt-toggle.on .wt-toggle-knob {
-          left: 17px;
-        }
-
-        .wt-toggle-text {
-          flex: 1;
-          min-width: 0;
-        }
-
-        .wt-toggle-name {
-          font-size: 13px;
-          font-weight: 700;
-          color: var(--c-fg);
-          margin-bottom: 2px;
-          letter-spacing: -0.01em;
-        }
-        .wt-toggle.on .wt-toggle-name {
-          color: var(--c-accent-2);
-        }
-
-        .wt-toggle-desc {
-          font-size: 12px;
-          color: var(--c-fg-3);
-          line-height: 1.5;
-        }
-        .wt-toggle.on .wt-toggle-desc {
-          color: rgba(255, 255, 255, 0.75);
-        }
-
-        /* ============================================ */
-        /* 버튼 통일 */
-        /* ============================================ */
-        .wt-btn {
-          display: inline-flex;
-          align-items: center;
-          justify-content: center;
-          gap: 6px;
-          min-height: 44px;
-          padding: 10px 18px;
-          background: transparent;
-          border: 1.5px solid var(--c-fg);
-          color: var(--c-fg);
-          font-family: inherit;
-          font-size: 13px;
-          font-weight: 700;
-          letter-spacing: -0.01em;
-          cursor: pointer;
-          transition: all 0.15s;
-          text-decoration: none;
-          white-space: nowrap;
-        }
-        @media (max-width: 600px) {
-          .wt-btn { font-size: 12.5px; padding: 9px 14px; }
-        }
-
-        .wt-btn:hover {
-          background: var(--c-fg);
-          color: var(--c-bg);
-        }
-
-        .wt-btn-primary {
-          background: var(--c-fg);
-          color: var(--c-bg);
-        }
-        .wt-btn-primary:hover {
-          background: var(--c-accent);
-          border-color: var(--c-accent);
-        }
-
-        .wt-btn-sm {
-          min-height: 36px;
-          padding: 8px 14px;
-          font-size: 12px;
-        }
-        @media (max-width: 600px) {
-          .wt-btn-sm { font-size: 11.5px; padding: 7px 12px; }
-        }
-
-        .wt-btn.copied {
-          background: var(--c-success);
-          border-color: var(--c-success);
-          color: #ffffff;
-        }
-
-        /* ============================================ */
-        /* v11.0 NEW: 시나리오 헤더 + 다른 버전 버튼 */
-        /* ============================================ */
-        .wt-script-head {
-          display: flex;
-          justify-content: space-between;
-          align-items: center;
-          padding: 12px 14px;
-          background: #fafafa;
-          border: 1px solid #e5e5e5;
-          margin-bottom: 12px;
-          flex-wrap: wrap;
-          gap: 10px;
-        }
-        @media (max-width: 600px) {
-          .wt-script-head { padding: 10px 12px; }
-        }
-        .wt-script-head-label {
-          flex: 1;
-          min-width: 0;
-        }
-        .wt-script-head-num {
-          display: block;
-          font-size: 14px;
-          font-weight: 800;
-          color: #0a0a0a;
-          letter-spacing: -0.018em;
-        }
-        .wt-script-head-tip {
-          display: block;
-          font-size: 11.5px;
-          color: #737373;
-          margin-top: 2px;
-        }
-
-        .wt-btn-regen {
-          padding: 8px 14px;
-          background: #ffffff;
-          border: 1.5px solid #c2410c;
-          color: #c2410c;
-          font-family: inherit;
-          font-size: 12.5px;
-          font-weight: 700;
-          letter-spacing: -0.01em;
-          cursor: pointer;
-          transition: all 0.15s;
-          flex-shrink: 0;
-        }
-        .wt-btn-regen:hover {
-          background: #c2410c;
-          color: #ffffff;
-        }
-
-        /* ============================================ */
-        /* v11.0 NEW: 알고리즘 노하우 박스 (알맹이) */
-        /* 박 대표님 v11.0: "시나리오 결과물에 알맹이 추가" */
-        /* ============================================ */
-        .wt-insights {
-          margin-top: 16px;
-          padding: 18px 18px 14px;
-          background: linear-gradient(135deg, #fff7ed 0%, #fef3e7 100%);
-          border: 1px solid rgba(194, 65, 12, 0.12);
-        }
-        @media (max-width: 600px) {
-          .wt-insights { padding: 14px 14px 12px; }
-        }
-
-        .wt-insights-head {
-          display: flex;
-          align-items: center;
-          gap: 8px;
-          padding-bottom: 10px;
-          margin-bottom: 12px;
-          border-bottom: 1px dashed rgba(194, 65, 12, 0.2);
-        }
-        .wt-insights-icon {
-          font-size: 18px;
-        }
-        .wt-insights-title {
-          font-size: 14px;
-          font-weight: 800;
-          color: #c2410c;
-          letter-spacing: -0.018em;
-        }
-        @media (max-width: 600px) {
-          .wt-insights-title { font-size: 13px; }
-        }
-
-        .wt-insights-grid {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 10px;
-        }
-        @media (max-width: 600px) {
-          .wt-insights-grid { grid-template-columns: 1fr; gap: 8px; }
-        }
-
-        .wt-insight {
-          padding: 12px 12px;
-          background: #ffffff;
-          border: 1px solid rgba(194, 65, 12, 0.08);
-        }
-
-        .wt-insight-label {
-          font-size: 12px;
-          font-weight: 800;
-          color: #c2410c;
-          margin-bottom: 6px;
-          letter-spacing: -0.01em;
-          font-family: 'Pretendard', sans-serif;
-        }
-
-        .wt-insight-body {
-          font-size: 13px;
-          color: #404040;
-          line-height: 1.55;
-          margin: 0 0 6px;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) {
-          .wt-insight-body { font-size: 12.5px; }
-        }
-        .wt-insight-body strong {
-          color: #c2410c;
-          font-weight: 700;
-        }
-
-        .wt-insight-example {
-          padding: 8px 10px;
-          background: #fafafa;
-          border-left: 2px solid #fbbf24;
-          font-size: 12px;
-          line-height: 1.55;
-          color: #525252;
-          word-break: keep-all;
-          margin-top: 6px;
-        }
-        .wt-insight-example strong {
-          color: #0a0a0a;
-        }
-
-        .wt-insight-list {
-          margin: 0;
-          padding-left: 18px;
-        }
-        .wt-insight-list li {
-          font-size: 12.5px;
-          color: #404040;
-          line-height: 1.6;
-          margin-bottom: 4px;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) {
-          .wt-insight-list li { font-size: 12px; }
-        }
-
-        /* ============================================ */
-        /* 하단 네비게이션 (고정) */
-        /* ============================================ */
-        .wt-nav {
-          position: fixed;
-          bottom: 0;
-          left: 0;
-          right: 0;
-          background: var(--c-bg);
-          border-top: 1px solid var(--c-fg);
-          padding: 12px 20px;
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          z-index: 100;
-          padding-bottom: calc(12px + env(safe-area-inset-bottom, 0));
-        }
-        @media (max-width: 600px) {
-          .wt-nav { padding: 10px 16px; gap: 8px; }
-        }
-
-        .wt-nav-counter {
-          flex: 1;
-          text-align: center;
-          font-size: 13px;
-          font-weight: 600;
-          color: var(--c-fg-3);
-          letter-spacing: 0.05em;
-        }
-        @media (max-width: 600px) {
-          .wt-nav-counter { font-size: 12px; }
-        }
-
-        .wt-nav-counter strong {
-          color: var(--c-fg);
-          font-weight: 800;
-        }
-
-        .wt-nav-btn {
-          flex-shrink: 0;
-          min-width: 90px;
-        }
-        @media (max-width: 600px) {
-          .wt-nav-btn { min-width: 76px; }
-        }
-
-        .wt-nav-btn:disabled {
-          opacity: 0.3;
-          cursor: not-allowed;
-        }
-        .wt-nav-btn:disabled:hover {
-          background: transparent;
-          color: var(--c-fg);
-        }
-
-        /* ============================================ */
-        /* 사례 카드 그리드 */
-        /* ============================================ */
-        .wt-case-list {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-
-        /* ============================================ */
-        /* 제목 카드 */
-        /* ============================================ */
-        .wt-title-card {
-          padding: 12px 14px;
-          background: var(--c-bg);
-          border: 1.5px solid var(--c-line);
-          margin-bottom: 8px;
-          cursor: pointer;
-          transition: all 0.15s;
-        }
-        .wt-title-card:hover {
-          border-color: var(--c-fg);
-          background: var(--c-bg-2);
-        }
-        .wt-title-card.selected {
-          border-color: var(--c-accent);
-          background: #fffbf7;
-        }
-        @media (max-width: 600px) {
-          .wt-title-card { padding: 11px 13px; }
-        }
-
-        .wt-title-num {
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.12em;
-          color: var(--c-accent);
-          margin-bottom: 6px;
-          text-transform: uppercase;
-        }
-
-        .wt-title-text {
-          font-size: 16px;
-          font-weight: 700;
-          color: var(--c-fg);
-          line-height: 1.5;
-          letter-spacing: -0.02em;
-          margin-bottom: 8px;
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) {
-          .wt-title-text { font-size: 14.5px; }
-        }
-
-        .wt-title-meta {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 10px;
-          font-size: 12px;
-          color: var(--c-fg-3);
-        }
-
-        .wt-title-meta-item {
-          display: inline-flex;
-          align-items: center;
-          gap: 3px;
-        }
-
-        /* ============================================ */
-        /* 메타데이터 (STEP 5) - 평탄화 */
-        /* ============================================ */
-        .wt-meta-section {
-          margin-bottom: 16px;
-          padding-bottom: 14px;
-          border-bottom: 1px solid var(--c-line);
-        }
-        .wt-meta-section:last-child {
-          border-bottom: none;
-          margin-bottom: 0;
-          padding-bottom: 0;
-        }
-
-        .wt-meta-head {
-          display: flex;
-          justify-content: space-between;
-          align-items: baseline;
-          margin-bottom: 12px;
-          gap: 12px;
-        }
-
-        .wt-meta-label-block {
-          flex: 1;
-          min-width: 0;
-        }
-
-        .wt-meta-label {
-          font-size: 11px;
-          font-weight: 700;
-          letter-spacing: 0.18em;
-          color: var(--c-accent);
-          text-transform: uppercase;
-          margin-bottom: 4px;
-        }
-
-        .wt-meta-name {
-          font-size: 16px;
-          font-weight: 800;
-          color: var(--c-fg);
-          letter-spacing: -0.02em;
-        }
-
-        .wt-meta-desc-text {
-          font-size: 14.5px;
-          color: var(--c-fg);
-          line-height: 1.55;
-          margin: 0;
-          padding: 14px 16px;
-          background: var(--c-bg-2);
-          word-break: keep-all;
-          white-space: pre-wrap;
-        }
-        @media (max-width: 600px) {
-          .wt-meta-desc-text { font-size: 13.5px; line-height: 1.55; }
-        }
-
-        /* 태그 칩 */
-        .wt-tag-flow {
-          display: flex;
-          flex-wrap: wrap;
-          gap: 6px;
-          padding: 12px 14px;
-          background: var(--c-bg-2);
-        }
-        .wt-tag-chip {
-          font-size: 12.5px;
-          color: var(--c-fg);
-          padding: 4px 10px;
-          background: var(--c-bg);
-          border: 1px solid var(--c-line);
-          letter-spacing: -0.01em;
-        }
-        @media (max-width: 600px) {
-          .wt-tag-chip { font-size: 12px; padding: 4px 8px; }
-        }
-
-        /* 썸네일 컨셉 */
-        .wt-thumb-list {
-          display: flex;
-          flex-direction: column;
-          gap: 12px;
-        }
-        .wt-thumb-card {
-          padding: 12px 14px;
-          background: var(--c-bg-2);
-          border: 1px solid var(--c-line);
-        }
-        .wt-thumb-card-head {
-          display: flex;
-          align-items: center;
-          gap: 10px;
-          margin-bottom: 10px;
-        }
-        .wt-thumb-card-idx {
-          width: 28px;
-          height: 28px;
-          background: var(--c-fg);
-          color: var(--c-bg);
-          font-size: 13px;
-          font-weight: 800;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          flex-shrink: 0;
-        }
-        .wt-thumb-card-name {
-          font-size: 14.5px;
-          font-weight: 700;
-          color: var(--c-fg);
-          letter-spacing: -0.015em;
-          flex: 1;
-          min-width: 0;
-          line-height: 1.4;
-        }
-        @media (max-width: 600px) {
-          .wt-thumb-card-name { font-size: 13.5px; }
-        }
-        .wt-thumb-card-rating {
-          font-size: 11px;
-          color: var(--c-accent);
-          font-weight: 700;
-          letter-spacing: 0.05em;
-        }
-        .wt-thumb-card-grid {
-          display: grid;
-          grid-template-columns: 60px 1fr;
-          gap: 6px 12px;
-          margin-bottom: 12px;
-          font-size: 13px;
-          line-height: 1.55;
-          color: var(--c-fg);
-        }
-        @media (max-width: 600px) {
-          .wt-thumb-card-grid { font-size: 12.5px; grid-template-columns: 52px 1fr; }
-        }
-        .wt-thumb-card-key {
-          font-size: 11px;
-          font-weight: 700;
-          color: var(--c-fg-3);
-          letter-spacing: 0.05em;
-          text-transform: uppercase;
-        }
-        .wt-thumb-card-actions {
-          display: flex;
-          gap: 8px;
-          flex-wrap: wrap;
-        }
-
-        /* ============================================ */
-        /* 시나리오 비트 */
-        /* ============================================ */
-        .wt-beats {
-          display: flex;
-          flex-direction: column;
-          gap: 0;
-        }
-        .wt-beat {
-          padding: 12px 0;
-          border-bottom: 1px solid var(--c-line);
-        }
-        .wt-beat:last-child {
-          border-bottom: none;
-        }
-        .wt-beat-head {
-          display: flex;
-          gap: 12px;
-          margin-bottom: 8px;
-        }
-        .wt-beat-num {
-          font-size: 11px;
-          font-weight: 700;
-          color: var(--c-accent);
-          letter-spacing: 0.1em;
-          flex-shrink: 0;
-          padding-top: 2px;
-        }
-        .wt-beat-info {
-          flex: 1;
-          min-width: 0;
-        }
-        .wt-beat-name {
-          font-size: 15.5px;
-          font-weight: 800;
-          color: var(--c-fg);
-          letter-spacing: -0.02em;
-          margin-bottom: 2px;
-        }
-        @media (max-width: 600px) {
-          .wt-beat-name { font-size: 14.5px; }
-        }
-        .wt-beat-time {
-          font-size: 11.5px;
-          color: var(--c-fg-3);
-          letter-spacing: 0.05em;
-        }
-        .wt-beat-text {
-          font-size: 14.5px;
-          color: var(--c-fg);
-          line-height: 1.55;
-          margin: 6px 0 0;
-          padding: 10px 12px;
-          background: var(--c-bg-2);
-          word-break: keep-all;
-        }
-        @media (max-width: 600px) {
-          .wt-beat-text { font-size: 13.5px; line-height: 1.55; }
-        }
-      `}</style>
-
-      <div className="wt">
-        <div className="wt-container">
-          {/* 키워드 헤더 */}
-          <div className="wt-header">
-            <div className="wt-kicker">▍ 영상 자료 준비 완료 · v10.7</div>
-            <h1 className="wt-keyword">"{keyword}"</h1>
-            <p className="wt-subtitle">
-              영상 만들기에 필요한 자료가 준비됐습니다. 6단계로 차근차근 살펴보세요.
-            </p>
+      <div className="v13-page">
+        {/* ============================================ */}
+        {/* 헤더: 영상 메타 정보 */}
+        {/* ============================================ */}
+        <header className="v13-header">
+          <Link href="/" className="v13-back">← 메인으로</Link>
+
+          <div className="v13-kicker">
+            <span className="v13-kicker-arrow">▍</span>
+            알고리즘 노하우 자동 적용 영상 자료
           </div>
 
-          {/* 진행 표시줄 (고정) */}
-          <div className="wt-progress">
-            <div className="wt-progress-track">
-              {STEPS_V10.map((s, i) => (
+          <h1 className="v13-title">
+            <span className="v13-title-emoji">{scenario.emoji}</span>
+            <span className="v13-title-text">{scenario.name}</span>
+          </h1>
+
+          <div className="v13-meta">
+            <div className="v13-meta-row">
+              <div className="v13-meta-item">
+                <div className="v13-meta-label">키워드</div>
+                <div className="v13-meta-value">{keyword}</div>
+              </div>
+              <div className="v13-meta-item">
+                <div className="v13-meta-label">분야</div>
+                <div className="v13-meta-value">{category.emoji} {category.name}</div>
+              </div>
+              <div className="v13-meta-item">
+                <div className="v13-meta-label">영상 흐름</div>
+                <div className="v13-meta-value">{scenario.flow}</div>
+              </div>
+            </div>
+          </div>
+
+          <button type="button" className="v13-regen-btn" onClick={regenerateAll}>
+            ↻ 다른 버전 만들기
+          </button>
+        </header>
+
+        {/* ============================================ */}
+        {/* 영상 타임라인 시각화 (HERO) */}
+        {/* ============================================ */}
+        <section className="v13-timeline-section">
+          <div className="v13-timeline-head">
+            <div className="v13-timeline-title">
+              <span className="v13-tl-icon">🎬</span>
+              <span>영상 구조</span>
+              <span className="v13-tl-sub">— 클릭하여 각 구간의 시나리오와 적용된 노하우 확인</span>
+            </div>
+          </div>
+
+          {/* 타임라인 비트 */}
+          <div className="v13-timeline">
+            <div className="v13-timeline-bar">
+              <div
+                className="v13-timeline-bar-fill"
+                style={{ width: `${((activeBeat + 1) / scenario.structure.length) * 100}%` }}
+              />
+            </div>
+
+            <div className="v13-beats">
+              {scenario.structure.map((beat, idx) => (
                 <button
-                  key={s.key}
-                  className={`wt-progress-step ${
-                    i < currentStep ? 'done' : i === currentStep ? 'current' : ''
-                  }`}
-                  onClick={() => goStep(i)}
+                  key={idx}
                   type="button"
-                  aria-label={`${s.num}단계: ${s.ko}`}
+                  className={`v13-beat ${activeBeat === idx ? 'active' : ''}`}
+                  onClick={() => setActiveBeat(idx)}
                 >
-                  <div className="wt-progress-dot">{s.num}</div>
-                  <div className="wt-progress-label">{s.ko}</div>
+                  <div className="v13-beat-time">{beat.time}</div>
+                  <div className="v13-beat-dot">
+                    <div className="v13-beat-dot-inner" />
+                  </div>
+                  <div className="v13-beat-label">{beat.label}</div>
                 </button>
               ))}
             </div>
           </div>
 
-          {/* STEP 본문 */}
-          <div className="wt-step">
-            <div className="wt-step-head">
-              <div className="wt-step-num">STEP {stepDef.num} OF 5 · {stepDef.en}</div>
-              <h2 className="wt-step-title">
-                {stepDef.ko}
-              </h2>
-              <p className="wt-step-desc">{stepDef.desc}</p>
+          {/* 활성 비트 상세 */}
+          <div className="v13-beat-detail">
+            <div className="v13-beat-detail-head">
+              <div className="v13-beat-detail-time">{activeBeatInfo.time}</div>
+              <div className="v13-beat-detail-label">{activeBeatInfo.label}</div>
             </div>
 
-            {/* STEP 콘텐츠 */}
-            {currentStep === 0 && (
-              <CasesPanel cases={data.cases} goNext={goNext} />
-            )}
+            {/* 적용된 노하우 태그 (스며드는 형태) */}
+            <div className="v13-algo-tags">
+              {activeBeatInfo.algoTags.map((tag, i) => {
+                const info = ALGO_TAG_INFO[tag] || { color: '#525252', bg: '#fafafa', tooltip: '' };
+                return (
+                  <div
+                    key={i}
+                    className="v13-algo-tag"
+                    style={{ color: info.color, background: info.bg, borderColor: info.color }}
+                    title={info.tooltip}
+                  >
+                    <span className="v13-algo-tag-check">✓</span>
+                    {tag}
+                  </div>
+                );
+              })}
+            </div>
 
-            {currentStep === 1 && (
-              <TitlePanel
-                titles={data.titles}
-                selectedIdx={selectedTitleIdx}
-                onSelect={setSelectedTitleIdx}
-                copy={copy}
-                copied={copied}
-                goNext={goNext}
-              />
-            )}
+            {/* 비트 시나리오 (contentEngine 결과) */}
+            {activeSequence && (
+              <div className="v13-beat-script">
+                <div className="v13-beat-script-label">시나리오 멘트</div>
+                <p className="v13-beat-script-text">{activeSequence.script || ''}</p>
 
-            {currentStep === 2 && (
-              <ScriptPanel
-                v650Data={v650Data}
-                cinematicMode={cinematicMode}
-                setCinematicMode={setCinematicMode}
-                sequences={data.sequences}
-                copy={copy}
-                copied={copied}
-                goNext={goNext}
-                regenerate={regenerate}
-                keyword={keyword}
-              />
-            )}
+                {activeSequence.purpose && (
+                  <div className="v13-beat-purpose">
+                    <span className="v13-beat-purpose-label">목적</span>
+                    {activeSequence.purpose}
+                  </div>
+                )}
 
-            {currentStep === 3 && (
-              <PromptPanel
-                v650Data={v650Data}
-                proPromptMode={proPromptMode}
-                setProPromptMode={setProPromptMode}
-                goNext={goNext}
-              />
-            )}
+                {activeSequence.tip && (
+                  <div className="v13-beat-tip">
+                    {activeSequence.tip}
+                  </div>
+                )}
 
-            {/* v11.1: STEP 5 (publish) - 영상 제작 단순 배너만 */}
-            {currentStep === 4 && (
-              <ProductionComingSoonPanel />
-            )}
-
-            {/* v11.1: 영상 제작 배너 - 모든 단계에 자동 노출 (마지막 제외) */}
-            {/* 박 대표님 v11.1: 영상 제작이 본질, 모든 단계에서 인지 */}
-            {currentStep < 4 && (
-              <div style={{ marginTop: 18 }}>
-                <ProductionComingSoonPanel />
+                <button
+                  type="button"
+                  className={`v13-copy-btn ${copied === `seq-${activeBeat}` ? 'copied' : ''}`}
+                  onClick={() => copy(activeSequence.script || '', `seq-${activeBeat}`)}
+                >
+                  {copied === `seq-${activeBeat}` ? '✓ 복사됨' : '📋 이 구간 멘트 복사'}
+                </button>
               </div>
             )}
 
-            {/* 다시 만들기 버튼 (모든 STEP에 표시) */}
-            <div style={{ 
-              marginTop: 12, 
-              padding: '12px 14px', 
-              background: '#fafafa',
-              border: '1px solid #e5e5e5',
-              textAlign: 'center',
-            }}>
-              <p style={{ 
-                fontSize: 13, 
-                color: '#525252', 
-                marginBottom: 10,
-                lineHeight: 1.6,
-              }}>
-                같은 키워드로 다른 결과를 보고 싶으시면
-              </p>
-              <button
-                type="button"
-                onClick={regenerate}
-                className="wt-btn wt-btn-sm"
-              >
-                ↻ 새로 만들기
-              </button>
-            </div>
-
-            {/* 광고 (선택적) */}
-            {(currentStep === 1 || currentStep === 3) && (
-              <div style={{ marginTop: 18 }}>
-                <AdSlot slot={`publish-step-${currentStep}`} variant="horizontal" />
-              </div>
-            )}
-          </div>
-
-          {/* 하단 네비게이션 (고정) */}
-          <div className="wt-nav">
-            <button
-              type="button"
-              onClick={goPrev}
-              className="wt-btn wt-nav-btn"
-              disabled={currentStep === 0}
-            >
-              ← 이전
-            </button>
-            <div className="wt-nav-counter">
-              <strong>{currentStep + 1}</strong> / 5
-            </div>
-            <button
-              type="button"
-              onClick={goNext}
-              className="wt-btn wt-btn-primary wt-nav-btn"
-              disabled={currentStep === STEPS_V10.length - 1}
-            >
-              다음 →
-            </button>
-          </div>
-        </div>
-      </div>
-    </V11Shell>
-  );
-}
-
-// ============================================================
-// STEP 1: 비슷한 사례 (ViralCase: pattern, hook, why, example, emoji)
-// v10.7: 카드 클릭 시 자동으로 다음 STEP 이동
-// ============================================================
-function CasesPanel({ cases, goNext }: { cases: any[]; goNext?: () => void }) {
-  if (!cases || !Array.isArray(cases) || cases.length === 0) {
-    return (
-      <div className="wt-card">
-        <div className="wt-card-label">사례 데이터 준비중</div>
-        <p className="wt-card-body">잠시만 기다려주세요.</p>
-      </div>
-    );
-  }
-  return (
-    <>
-      <div style={{ 
-        padding: '8px 12px',
-        background: '#fffbeb',
-        borderLeft: '3px solid #fbbf24',
-        marginBottom: 12,
-        fontSize: 12.5,
-        color: '#78350f',
-        lineHeight: 1.5,
-      }}>
-        💡 마음에 드는 사례를 클릭하면 다음 단계로 자동 이동합니다
-      </div>
-      <div className="wt-case-list">
-        {cases.map((c: any, i: number) => (
-          <div 
-            key={i} 
-            className="wt-card" 
-            style={{ cursor: goNext ? 'pointer' : 'default' }}
-            onClick={() => { if (goNext) goNext(); }}
-          >
-            <div className="wt-card-label">
-              {c?.emoji || '📌'} {c?.pattern || `사례 ${i + 1}`}
-            </div>
-            <h3 className="wt-card-title" style={{ marginTop: 8 }}>
-              {c?.hook || ''}
-            </h3>
-            <div className="wt-card-meta">
-              {c?.videoLength && <span>⏱ 영상 길이 {c.videoLength}</span>}
-            </div>
-            {c?.why && (
-              <div style={{ 
-                marginTop: 12, 
-                padding: 12, 
-                background: '#fafafa', 
-                borderLeft: '2px solid #c2410c',
-              }}>
-                <div style={{ fontSize: 11, fontWeight: 700, color: '#c2410c', marginBottom: 4, letterSpacing: '0.1em' }}>
-                  떡상 이유
+            {/* 첫 번째 비트일 경우 음성 SEO 가이드 자연스럽게 */}
+            {activeBeat === 0 && (
+              <div className="v13-beat-hint">
+                <div className="v13-beat-hint-icon">💡</div>
+                <div>
+                  <strong>음성 SEO 적용 중:</strong>
+                  이 구간 30초 안에 "{keyword}" 키워드를 직접 발음하시면
+                  유튜브 자동 자막이 검색 데이터로 인식해 노출이 ↑ 됩니다.
                 </div>
-                <p style={{ fontSize: 14, color: '#0a0a0a', lineHeight: 1.65, margin: 0, wordBreak: 'keep-all' }}>
-                  {c.why}
-                </p>
               </div>
             )}
-            {c?.example && (
-              <div style={{ marginTop: 10, fontSize: 13, color: '#525252', lineHeight: 1.6 }}>
-                💡 <strong>예시 키워드:</strong> {c.example}
-              </div>
-            )}
-            {c?.keyElement && (
-              <div style={{ marginTop: 6, fontSize: 13, color: '#525252', lineHeight: 1.6 }}>
-                ✨ <strong>핵심 요소:</strong> {c.keyElement}
-              </div>
-            )}
-          </div>
-        ))}
-      </div>
-    </>
-  );
-}
 
-// ============================================================
-// STEP 2: 제목 후보
-// v10.7: 제목 카드 클릭 시 선택 + 자동 이동 (복사 버튼은 이벤트 분리)
-// ============================================================
-function TitlePanel({ 
-  titles, 
-  selectedIdx, 
-  onSelect, 
-  copy, 
-  copied,
-  goNext,
-}: any) {
-  if (!titles || !Array.isArray(titles) || titles.length === 0) {
-    return (
-      <div className="wt-card">
-        <div className="wt-card-label">제목 후보 준비중</div>
-        <p className="wt-card-body">잠시만 기다려주세요.</p>
-      </div>
-    );
-  }
-  return (
-    <>
-      <div style={{ 
-        padding: '8px 12px',
-        background: '#fffbeb',
-        borderLeft: '3px solid #fbbf24',
-        marginBottom: 12,
-        fontSize: 12.5,
-        color: '#78350f',
-        lineHeight: 1.5,
-      }}>
-        💡 마음에 드는 제목을 클릭하면 다음 단계로 자동 이동합니다
-      </div>
-      {titles.map((t: any, i: number) => {
-        const titleText = typeof t === 'string' ? t : (t?.title || '');
-        return (
-          <div
-            key={i}
-            className={`wt-title-card ${selectedIdx === i ? 'selected' : ''}`}
-            onClick={() => {
-              onSelect(i);
-              if (goNext) {
-                // 카드 시각적 선택 효과 후 자동 이동 (300ms 딜레이)
-                setTimeout(() => goNext(), 300);
-              }
-            }}
-            style={{ cursor: 'pointer' }}
-          >
-            <div className="wt-title-num">
-              제목 후보 {i + 1}{t?.pattern ? ` · ${t.pattern}` : ''}
-            </div>
-            <div className="wt-title-text">{titleText}</div>
-            <div className="wt-title-meta">
-              {t?.ctr_estimate && <span className="wt-title-meta-item">📈 예상 CTR {t.ctr_estimate}</span>}
-            </div>
-            {t?.reasoning && (
-              <p style={{ fontSize: 12, color: '#737373', lineHeight: 1.55, margin: '8px 0 0', wordBreak: 'keep-all' }}>
-                {t.reasoning}
-              </p>
-            )}
-            <button
-              type="button"
-              className={`wt-btn wt-btn-sm ${copied === `title-${i}` ? 'copied' : ''}`}
-              style={{ marginTop: 12 }}
-              onClick={(e) => {
-                e.stopPropagation(); // 카드 클릭 이벤트 막기 (복사만 실행)
-                copy(titleText, `title-${i}`);
-              }}
-            >
-              {copied === `title-${i}` ? '✓ 복사됨' : '📋 복사만'}
-            </button>
-          </div>
-        );
-      })}
-    </>
-  );
-}
-
-// ============================================================
-// STEP 3: 시나리오
-// v10.7: 마지막에 "다음 단계로" 큰 버튼 추가
-// ============================================================
-function ScriptPanel({ 
-  v650Data, 
-  cinematicMode, 
-  setCinematicMode, 
-  sequences,
-  copy,
-  copied,
-  goNext,
-  regenerate,  // v11.0: 새로 만들기
-  keyword,     // v11.0: 노하우 박스용
-}: any) {
-  const insights = (v650Data && keyword) ? getAlgorithmInsightsSafe(keyword) : null;
-  
-  return (
-    <>
-      {/* v11.0: 작가급 시나리오 항상 ON (토글 제거) */}
-      {/* 박 대표님 v11.0 지적: */}
-      {/*   "작가급 시나리오 변환키 X, 한 번에 보여주기" */}
-      {/*   "마음에 안 들면 새로운 전체 시나리오" */}
-      
-      <div className="wt-script-head">
-        <div className="wt-script-head-label">
-          <span className="wt-script-head-num">▍ 작가급 시나리오</span>
-          <span className="wt-script-head-tip">알고리즘 후킹 6단계 비트 구조</span>
-        </div>
-        <button
-          type="button"
-          onClick={regenerate}
-          className="wt-btn-regen"
-          title="다른 시나리오 만들기"
-        >
-          ↻ 다른 버전
-        </button>
-      </div>
-
-      {v650Data ? (
-        <CinematicScenarioDisplay scenario={v650Data.scenario} />
-      ) : (
-        <div className="wt-card">
-          <div className="wt-card-label">시나리오 준비중</div>
-          <p className="wt-card-body">잠시만 기다려주세요.</p>
-        </div>
-      )}
-
-      {/* v11.0 NEW: 박 대표님 노하우 박스 (알맹이) */}
-      {insights && (
-        <div className="wt-insights">
-          <div className="wt-insights-head">
-            <span className="wt-insights-icon">💡</span>
-            <span className="wt-insights-title">이 시나리오에 적용된 알고리즘 노하우</span>
-          </div>
-          
-          <div className="wt-insights-grid">
-            {/* SEO 제목 8:2 법칙 */}
-            <div className="wt-insight">
-              <div className="wt-insight-label">📌 제목 8:2 법칙</div>
-              <p className="wt-insight-body">
-                제목 앞 80%에 검색 키워드, 뒤 20%에 호기심 유발 문구.
-              </p>
-              {insights.seoTitle?.examples?.[0] && (
-                <div className="wt-insight-example">
-                  ✗ {insights.seoTitle.examples[0].bad}<br />
-                  ✓ <strong>{insights.seoTitle.examples[0].good}</strong>
+            {/* 마지막 비트일 경우 댓글 유도 가이드 */}
+            {activeBeat === scenario.structure.length - 1 && insights?.questions && (
+              <div className="v13-beat-hint">
+                <div className="v13-beat-hint-icon">💬</div>
+                <div>
+                  <strong>댓글 유도 질문 추천:</strong>
+                  <ul style={{ margin: '4px 0 0', paddingLeft: 18 }}>
+                    {insights.questions.slice(0, 2).map((q: string, i: number) => (
+                      <li key={i} style={{ fontSize: 12.5, lineHeight: 1.55 }}>{q}</li>
+                    ))}
+                  </ul>
                 </div>
-              )}
-            </div>
-            
-            {/* 음성 SEO */}
-            <div className="wt-insight">
-              <div className="wt-insight-label">🎤 음성 SEO</div>
-              <p className="wt-insight-body">
-                영상 시작 30초 안에 "{keyword}" 키워드를 직접 발음하세요.
-                유튜브가 음성을 텍스트로 변환해 검색 데이터로 사용합니다.
-              </p>
-            </div>
+              </div>
+            )}
+          </div>
+        </section>
 
-            {/* 첫 30초 후크 */}
-            <div className="wt-insight">
-              <div className="wt-insight-label">🎯 첫 30초 후크 (검증된 패턴)</div>
-              <ul className="wt-insight-list">
-                {insights.hooks?.slice(0, 3).map((h: string, i: number) => (
-                  <li key={i}>{h}</li>
-                ))}
-              </ul>
-            </div>
+        {/* ============================================ */}
+        {/* 섹션 전환 탭 */}
+        {/* ============================================ */}
+        <div className="v13-tabs">
+          <button
+            type="button"
+            className={`v13-tab ${section === 'structure' ? 'active' : ''}`}
+            onClick={() => setSection('structure')}
+          >
+            <span className="v13-tab-emoji">🎬</span>
+            <span className="v13-tab-label">전체 시나리오</span>
+          </button>
+          <button
+            type="button"
+            className={`v13-tab ${section === 'titles' ? 'active' : ''}`}
+            onClick={() => setSection('titles')}
+          >
+            <span className="v13-tab-emoji">📝</span>
+            <span className="v13-tab-label">제목 후보</span>
+          </button>
+          <button
+            type="button"
+            className={`v13-tab ${section === 'prompts' ? 'active' : ''}`}
+            onClick={() => setSection('prompts')}
+          >
+            <span className="v13-tab-emoji">🎨</span>
+            <span className="v13-tab-label">AI 영상 프롬프트</span>
+          </button>
+        </div>
 
-            {/* 댓글 유도 */}
-            <div className="wt-insight">
-              <div className="wt-insight-label">💬 댓글 유도 질문 (참여 ↑)</div>
-              <ul className="wt-insight-list">
-                {insights.questions?.slice(0, 2).map((q: string, i: number) => (
-                  <li key={i}>{q}</li>
-                ))}
-              </ul>
-            </div>
+        {/* ============================================ */}
+        {/* 섹션별 콘텐츠 */}
+        {/* ============================================ */}
+        {section === 'structure' && v650Data && (
+          <div className="v13-section">
+            <CinematicScenarioDisplay scenario={v650Data.scenario} />
+          </div>
+        )}
 
-            {/* 챕터 규칙 */}
-            <div className="wt-insight">
-              <div className="wt-insight-label">⏱ 챕터 = 시청 시간 2배</div>
-              <p className="wt-insight-body">
-                첫 챕터 <strong>00:00에서 시작</strong> (필수). 5~7개 챕터,
-                챕터명에 "{keyword}" 자연스럽게 포함.
-              </p>
+        {section === 'titles' && data?.titles && (
+          <div className="v13-section">
+            <div className="v13-titles-head">
+              <div className="v13-titles-title">제목 후보 3개</div>
+              <div className="v13-titles-tip">
+                ✓ 8:2 법칙 적용 · 검색 키워드 80% + 후킹 문구 20%
+              </div>
             </div>
-
-            {/* 해시태그 */}
-            <div className="wt-insight">
-              <div className="wt-insight-label">🏷 해시태그 (3~5개만!)</div>
-              <p className="wt-insight-body">
-                딱 3~5개. <strong>15개 초과 시 모두 무효</strong>.<br />
-                추천: #{keyword.replace(/\s/g, '')} + 연관 2~3개
-              </p>
+            <div className="v13-titles">
+              {data.titles.map((t: any, i: number) => {
+                const titleText = typeof t === 'string' ? t : (t?.title || '');
+                return (
+                  <div key={i} className="v13-title-card">
+                    <div className="v13-title-head">
+                      <div className="v13-title-num">제목 {i + 1}</div>
+                      {t?.pattern && (
+                        <div className="v13-title-pattern">{t.pattern}</div>
+                      )}
+                      {t?.ctr_estimate && (
+                        <div className="v13-title-ctr">📈 CTR {t.ctr_estimate}</div>
+                      )}
+                    </div>
+                    <div className="v13-title-text">{titleText}</div>
+                    {t?.reasoning && (
+                      <div className="v13-title-reason">{t.reasoning}</div>
+                    )}
+                    <button
+                      type="button"
+                      className={`v13-copy-btn ${copied === `t-${i}` ? 'copied' : ''}`}
+                      onClick={() => copy(titleText, `t-${i}`)}
+                    >
+                      {copied === `t-${i}` ? '✓ 복사됨' : '📋 복사'}
+                    </button>
+                  </div>
+                );
+              })}
             </div>
           </div>
-        </div>
-      )}
-      
-      {/* 다음 단계로 큰 버튼 */}
-      {goNext && (
-        <button
-          type="button"
-          onClick={goNext}
-          style={{
-            marginTop: 18,
-            width: '100%',
-            padding: '14px 18px',
-            background: '#0a0a0a',
-            color: '#ffffff',
-            border: 'none',
-            fontSize: 14.5,
-            fontWeight: 700,
-            cursor: 'pointer',
-            letterSpacing: '-0.01em',
-            fontFamily: 'inherit',
-          }}
-        >
-          시나리오 확인 완료 · 다음 단계로 →
-        </button>
-      )}
-    </>
-  );
-}
+        )}
 
-// ============================================================
-// STEP 4: 영상 제작 프롬프트
-// v10.7: "다음 단계로" 큰 버튼 추가
-// ============================================================
-function PromptPanel({ 
-  v650Data, 
-  proPromptMode, 
-  setProPromptMode,
-  goNext,
-}: any) {
-  return (
-    <>
-      {/* v11.1: 전문가급 토글 제거, 항상 표시 */}
-      {/* 박 대표님 v11.1: */}
-      {/*   "영상제작 전문가급 프롬프트도 복잡. 단순화" */}
-      {/*   "프롬프트/시나리오 통째로 초이스" */}
-      
-      <div className="wt-script-head">
-        <div className="wt-script-head-label">
-          <span className="wt-script-head-num">▍ AI 영상 프롬프트</span>
-          <span className="wt-script-head-tip">Midjourney + Sora 2 + VEO 3 + Flow + NotebookLM 5종 통합</span>
-        </div>
-      </div>
+        {section === 'prompts' && v650Data && (
+          <div className="v13-section">
+            <CinematicPromptDisplay prompts={v650Data.prompts} />
+          </div>
+        )}
 
-      {v650Data ? (
-        <CinematicPromptDisplay prompts={v650Data.prompts} />
-      ) : (
-        <div className="wt-card">
-          <div className="wt-card-label">프롬프트 준비중</div>
-          <p className="wt-card-body">잠시만 기다려주세요.</p>
+        {/* ============================================ */}
+        {/* 영상 제작 배너 */}
+        {/* ============================================ */}
+        <div className="v13-prod-banner">
+          <div className="v13-prod-icon">🚀</div>
+          <div className="v13-prod-text">
+            <div className="v13-prod-title">영상 자동 제작 기능 — 곧 출시</div>
+            <div className="v13-prod-sub">
+              지금 만든 프롬프트를 바로 영상으로 변환하는 기능 개발 중 ·
+              현재는 Sora, VEO, Midjourney 등에서 직접 사용
+            </div>
+          </div>
+          <a
+            href="mailto:apark12321@gmail.com?subject=AlgoMaker 영상 제작 베타 알림 신청"
+            className="v13-prod-btn"
+          >
+            알림 받기
+          </a>
         </div>
-      )}
-      
-      {/* 다음 단계로 큰 버튼 */}
-      {goNext && (
-        <button
-          type="button"
-          onClick={goNext}
-          style={{
-            marginTop: 18,
-            width: '100%',
-            padding: '14px 18px',
-            background: '#0a0a0a',
-            color: '#ffffff',
-            border: 'none',
-            fontSize: 14.5,
-            fontWeight: 700,
-            cursor: 'pointer',
-            letterSpacing: '-0.01em',
-            fontFamily: 'inherit',
-          }}
-        >
-          프롬프트 확인 완료 · 다음 단계로 →
-        </button>
-      )}
-    </>
-  );
-}
 
-// ============================================================
-// v11.1 NEW: 영상 제작 배너 (단순화)
-// 박 대표님 v11.1 지적:
-//   "영상제작 마무리는 예고편은 삭제. 그냥 배너 형태로만 홍보"
-// ============================================================
-function ProductionComingSoonPanel() {
-  return (
-    <>
-      <div className="prod-banner">
-        <div className="prod-banner-icon">🚀</div>
-        <div className="prod-banner-text">
-          <div className="prod-banner-title">영상 자동 제작 기능 — 곧 출시</div>
-          <div className="prod-banner-sub">
-            지금 만든 프롬프트를 바로 영상으로 변환하는 기능을 개발 중입니다 ·
-            현재는 프롬프트를 복사하여 Sora, VEO, Midjourney 등에서 직접 사용
+        {/* ============================================ */}
+        {/* 다른 시나리오 패턴 전환 */}
+        {/* ============================================ */}
+        <div className="v13-other">
+          <div className="v13-other-title">💡 같은 키워드 · 다른 시나리오 패턴으로 만들기</div>
+          <div className="v13-other-grid">
+            {Object.entries(SCENARIO_PATTERNS)
+              .filter(([id]) => id !== scenarioId)
+              .map(([id, s]) => (
+                <Link
+                  key={id}
+                  href={`/publish?keyword=${encodeURIComponent(keyword)}&category=${encodeURIComponent(categoryId)}&scenario=${encodeURIComponent(id)}`}
+                  className="v13-other-card"
+                >
+                  <span className="v13-other-emoji">{s.emoji}</span>
+                  <div>
+                    <div className="v13-other-name">{s.name}</div>
+                    <div className="v13-other-desc">{s.flow}</div>
+                  </div>
+                </Link>
+              ))}
           </div>
         </div>
-        <a 
-          href="mailto:apark12321@gmail.com?subject=AlgoMaker 영상 제작 베타 알림 신청"
-          className="prod-banner-btn"
-        >
-          알림 받기
-        </a>
       </div>
 
       <style jsx>{`
-        .prod-banner {
+        /* ============================================ */
+        /* v13.0 - 영상 구조 시각화 */
+        /* ============================================ */
+        .v13-page {
+          max-width: 1100px;
+          margin: 0 auto;
+          padding: 24px 24px 60px;
+        }
+        @media (max-width: 600px) {
+          .v13-page { padding: 14px 12px 40px; }
+        }
+
+        /* ============================================ */
+        /* 헤더 */
+        /* ============================================ */
+        .v13-header {
+          padding: 24px 24px;
+          background: linear-gradient(135deg, #ffffff 0%, #fafafa 100%);
+          border: 1px solid #e5e5e5;
+          margin-bottom: 16px;
+        }
+        @media (max-width: 600px) {
+          .v13-header { padding: 18px 16px; margin-bottom: 14px; }
+        }
+
+        .v13-back {
+          display: inline-block;
+          font-size: 12px;
+          color: #737373;
+          text-decoration: none;
+          margin-bottom: 12px;
+          letter-spacing: -0.01em;
+        }
+        .v13-back:hover { color: #0a0a0a; }
+
+        .v13-kicker {
+          display: inline-flex;
+          align-items: center;
+          gap: 6px;
+          padding: 5px 11px;
+          background: rgba(194, 65, 12, 0.08);
+          color: #c2410c;
+          font-family: 'SF Mono', monospace;
+          font-size: 11.5px;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          margin-bottom: 14px;
+          text-transform: uppercase;
+        }
+        @media (max-width: 600px) {
+          .v13-kicker { font-size: 10.5px; padding: 4px 9px; }
+        }
+        .v13-kicker-arrow { color: #c2410c; font-weight: 800; }
+
+        .v13-title {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          margin: 0 0 16px;
+          font-size: 32px;
+          font-weight: 800;
+          color: #0a0a0a;
+          letter-spacing: -0.025em;
+          line-height: 1.15;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .v13-title { font-size: 24px; gap: 8px; }
+        }
+        .v13-title-emoji { font-size: 1.1em; line-height: 1; }
+        .v13-title-text {
+          background: linear-gradient(135deg, #0a0a0a 0%, #525252 100%);
+          -webkit-background-clip: text;
+          -webkit-text-fill-color: transparent;
+          background-clip: text;
+        }
+
+        /* 메타 그리드 */
+        .v13-meta { margin-bottom: 16px; }
+        .v13-meta-row {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 10px;
+        }
+        @media (max-width: 600px) {
+          .v13-meta-row { grid-template-columns: 1fr; gap: 8px; }
+        }
+        .v13-meta-item {
+          padding: 10px 12px;
+          background: #ffffff;
+          border-left: 3px solid #c2410c;
+        }
+        .v13-meta-label {
+          font-size: 10.5px;
+          color: #a3a3a3;
+          font-weight: 700;
+          letter-spacing: 0.08em;
+          text-transform: uppercase;
+          margin-bottom: 3px;
+        }
+        .v13-meta-value {
+          font-size: 13.5px;
+          font-weight: 700;
+          color: #0a0a0a;
+          letter-spacing: -0.012em;
+          line-height: 1.4;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .v13-meta-value { font-size: 12.5px; } }
+
+        .v13-regen-btn {
+          width: 100%;
+          padding: 11px 18px;
+          background: #ffffff;
+          border: 1.5px solid #c2410c;
+          color: #c2410c;
+          font-family: inherit;
+          font-size: 13.5px;
+          font-weight: 700;
+          letter-spacing: -0.015em;
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+        .v13-regen-btn:hover { background: #c2410c; color: #ffffff; }
+
+        /* ============================================ */
+        /* 타임라인 (HERO 시각화) */
+        /* ============================================ */
+        .v13-timeline-section {
+          padding: 24px 24px 28px;
+          background: #0a0a0a;
+          color: #ffffff;
+          margin-bottom: 16px;
+        }
+        @media (max-width: 600px) {
+          .v13-timeline-section { padding: 18px 14px 22px; margin-bottom: 12px; }
+        }
+
+        .v13-timeline-head { margin-bottom: 18px; }
+        .v13-timeline-title {
+          display: flex;
+          align-items: baseline;
+          gap: 8px;
+          flex-wrap: wrap;
+          font-size: 16px;
+          font-weight: 800;
+          letter-spacing: -0.02em;
+        }
+        @media (max-width: 600px) { .v13-timeline-title { font-size: 14.5px; } }
+        .v13-tl-icon { font-size: 18px; line-height: 1; }
+        .v13-tl-sub {
+          font-size: 11.5px;
+          color: #a3a3a3;
+          font-weight: 600;
+          letter-spacing: -0.005em;
+          flex-basis: 100%;
+        }
+        @media (max-width: 600px) { .v13-tl-sub { font-size: 11px; } }
+
+        /* 타임라인 바 + 비트 */
+        .v13-timeline { position: relative; margin-bottom: 18px; }
+        .v13-timeline-bar {
+          position: absolute;
+          top: 36px;
+          left: 0;
+          right: 0;
+          height: 2px;
+          background: rgba(255, 255, 255, 0.12);
+        }
+        .v13-timeline-bar-fill {
+          height: 100%;
+          background: linear-gradient(90deg, #c2410c, #fbbf24);
+          transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        .v13-beats {
+          display: grid;
+          grid-template-columns: repeat(5, 1fr);
+          position: relative;
+          gap: 4px;
+        }
+        @media (max-width: 600px) {
+          .v13-beats { grid-template-columns: repeat(5, 1fr); gap: 2px; }
+        }
+
+        .v13-beat {
+          background: transparent;
+          border: none;
+          padding: 0;
+          cursor: pointer;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 8px;
+          font-family: inherit;
+          color: rgba(255, 255, 255, 0.5);
+          transition: color 0.2s;
+        }
+        .v13-beat:hover, .v13-beat.active {
+          color: #ffffff;
+        }
+        .v13-beat-time {
+          font-family: 'SF Mono', monospace;
+          font-size: 12px;
+          font-weight: 700;
+          letter-spacing: -0.01em;
+          height: 20px;
+        }
+        @media (max-width: 600px) {
+          .v13-beat-time { font-size: 10.5px; }
+        }
+
+        .v13-beat-dot {
+          width: 16px;
+          height: 16px;
+          border-radius: 50%;
+          background: #0a0a0a;
+          border: 2px solid rgba(255, 255, 255, 0.3);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          transition: all 0.2s;
+        }
+        .v13-beat:hover .v13-beat-dot {
+          border-color: rgba(255, 255, 255, 0.8);
+        }
+        .v13-beat.active .v13-beat-dot {
+          border-color: #c2410c;
+          background: #c2410c;
+          box-shadow: 0 0 0 4px rgba(194, 65, 12, 0.25);
+        }
+        .v13-beat-dot-inner {
+          width: 6px;
+          height: 6px;
+          border-radius: 50%;
+          background: rgba(255, 255, 255, 0);
+          transition: background 0.2s;
+        }
+        .v13-beat.active .v13-beat-dot-inner { background: #ffffff; }
+
+        .v13-beat-label {
+          font-size: 11.5px;
+          font-weight: 700;
+          letter-spacing: -0.012em;
+          text-align: center;
+          line-height: 1.3;
+          word-break: keep-all;
+          padding: 0 2px;
+        }
+        @media (max-width: 600px) {
+          .v13-beat-label { font-size: 9.5px; }
+        }
+
+        /* 활성 비트 상세 */
+        .v13-beat-detail {
+          padding: 18px 18px;
+          background: rgba(255, 255, 255, 0.04);
+          border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        @media (max-width: 600px) {
+          .v13-beat-detail { padding: 14px 14px; }
+        }
+
+        .v13-beat-detail-head {
+          display: flex;
+          align-items: baseline;
+          gap: 12px;
+          margin-bottom: 14px;
+          padding-bottom: 12px;
+          border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .v13-beat-detail-time {
+          font-family: 'SF Mono', monospace;
+          font-size: 14px;
+          font-weight: 700;
+          color: #fbbf24;
+          letter-spacing: -0.015em;
+        }
+        .v13-beat-detail-label {
+          font-size: 16px;
+          font-weight: 800;
+          color: #ffffff;
+          letter-spacing: -0.02em;
+        }
+        @media (max-width: 600px) {
+          .v13-beat-detail-label { font-size: 14.5px; }
+          .v13-beat-detail-time { font-size: 12.5px; }
+        }
+
+        /* 노하우 태그 (스며드는 형태) */
+        .v13-algo-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 6px;
+          margin-bottom: 14px;
+        }
+        .v13-algo-tag {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+          padding: 4px 10px;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: -0.005em;
+          border: 1px solid;
+          border-radius: 100px;
+        }
+        @media (max-width: 600px) {
+          .v13-algo-tag { font-size: 10.5px; padding: 3px 8px; }
+        }
+        .v13-algo-tag-check { font-weight: 800; }
+
+        /* 비트 시나리오 */
+        .v13-beat-script {
+          padding: 14px 14px;
+          background: rgba(255, 255, 255, 0.06);
+          border-left: 3px solid #fbbf24;
+          margin-bottom: 12px;
+        }
+        .v13-beat-script-label {
+          font-size: 10.5px;
+          color: #fbbf24;
+          font-weight: 700;
+          letter-spacing: 0.1em;
+          text-transform: uppercase;
+          margin-bottom: 6px;
+        }
+        .v13-beat-script-text {
+          font-size: 13.5px;
+          line-height: 1.65;
+          color: #f5f5f5;
+          margin: 0 0 10px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .v13-beat-script-text { font-size: 12.5px; }
+        }
+
+        .v13-beat-purpose {
+          font-size: 12px;
+          color: #a3a3a3;
+          margin-bottom: 8px;
+          line-height: 1.55;
+        }
+        .v13-beat-purpose-label {
+          color: #fbbf24;
+          font-weight: 700;
+          margin-right: 5px;
+        }
+
+        .v13-beat-tip {
+          padding: 8px 10px;
+          background: rgba(251, 191, 36, 0.08);
+          border-left: 2px solid #fbbf24;
+          font-size: 11.5px;
+          line-height: 1.55;
+          color: #fbbf24;
+          margin-bottom: 10px;
+          word-break: keep-all;
+        }
+
+        /* 힌트 박스 */
+        .v13-beat-hint {
+          margin-top: 12px;
+          padding: 12px 12px;
+          background: rgba(96, 165, 250, 0.08);
+          border-left: 2px solid #60a5fa;
+          font-size: 12px;
+          line-height: 1.6;
+          color: #cbd5e1;
+          display: flex;
+          gap: 8px;
+          align-items: flex-start;
+          word-break: keep-all;
+        }
+        .v13-beat-hint-icon { font-size: 16px; flex-shrink: 0; line-height: 1; }
+        .v13-beat-hint strong {
+          color: #93c5fd;
+          font-weight: 700;
+          display: block;
+          margin-bottom: 3px;
+        }
+
+        /* 복사 버튼 */
+        .v13-copy-btn {
+          padding: 6px 12px;
+          background: transparent;
+          border: 1px solid rgba(255, 255, 255, 0.2);
+          color: #cbd5e1;
+          font-family: inherit;
+          font-size: 11.5px;
+          font-weight: 700;
+          cursor: pointer;
+          transition: all 0.15s;
+        }
+        .v13-copy-btn:hover {
+          background: rgba(255, 255, 255, 0.08);
+          border-color: rgba(255, 255, 255, 0.4);
+          color: #ffffff;
+        }
+        .v13-copy-btn.copied {
+          background: #16a34a;
+          border-color: #16a34a;
+          color: #ffffff;
+        }
+
+        /* ============================================ */
+        /* 탭 */
+        /* ============================================ */
+        .v13-tabs {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 6px;
+          margin-bottom: 14px;
+        }
+        @media (max-width: 600px) {
+          .v13-tabs { gap: 4px; }
+        }
+        .v13-tab {
+          padding: 12px 12px;
+          background: #ffffff;
+          border: 1px solid #e5e5e5;
+          font-family: inherit;
+          font-weight: 700;
+          color: #525252;
+          cursor: pointer;
+          transition: all 0.15s;
+          display: flex;
+          flex-direction: column;
+          align-items: center;
+          gap: 4px;
+          letter-spacing: -0.012em;
+        }
+        @media (max-width: 600px) {
+          .v13-tab { padding: 10px 6px; gap: 3px; }
+        }
+        .v13-tab:hover {
+          background: #fafafa;
+          border-color: #0a0a0a;
+        }
+        .v13-tab.active {
+          background: #0a0a0a;
+          color: #ffffff;
+          border-color: #0a0a0a;
+        }
+        .v13-tab-emoji { font-size: 18px; line-height: 1; }
+        @media (max-width: 600px) { .v13-tab-emoji { font-size: 16px; } }
+        .v13-tab-label { font-size: 12.5px; }
+        @media (max-width: 600px) { .v13-tab-label { font-size: 11px; } }
+
+        /* ============================================ */
+        /* 섹션 */
+        /* ============================================ */
+        .v13-section { margin-bottom: 18px; }
+
+        /* 제목 섹션 */
+        .v13-titles-head {
+          padding: 14px 16px;
+          background: #fafafa;
+          border-bottom: 1px solid #e5e5e5;
+        }
+        .v13-titles-title {
+          font-size: 14px;
+          font-weight: 800;
+          color: #0a0a0a;
+          letter-spacing: -0.018em;
+          margin-bottom: 3px;
+        }
+        .v13-titles-tip {
+          font-size: 11.5px;
+          color: #c2410c;
+          font-weight: 700;
+        }
+
+        .v13-titles {
+          display: flex;
+          flex-direction: column;
+        }
+        .v13-title-card {
+          padding: 16px 16px;
+          background: #ffffff;
+          border: 1px solid #e5e5e5;
+          border-top: none;
+        }
+        .v13-title-card:first-child { border-top: 1px solid #e5e5e5; }
+        @media (max-width: 600px) {
+          .v13-title-card { padding: 14px 14px; }
+        }
+
+        .v13-title-head {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          margin-bottom: 8px;
+          flex-wrap: wrap;
+        }
+        .v13-title-num {
+          font-size: 11px;
+          color: #737373;
+          font-weight: 700;
+          letter-spacing: 0.05em;
+          text-transform: uppercase;
+        }
+        .v13-title-pattern {
+          font-size: 11px;
+          padding: 2px 7px;
+          background: #fafafa;
+          color: #525252;
+          font-weight: 700;
+          letter-spacing: -0.01em;
+        }
+        .v13-title-ctr {
+          margin-left: auto;
+          font-size: 11px;
+          color: #c2410c;
+          font-weight: 700;
+        }
+
+        .v13-title-text {
+          font-size: 16px;
+          font-weight: 700;
+          color: #0a0a0a;
+          letter-spacing: -0.015em;
+          line-height: 1.4;
+          margin-bottom: 6px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .v13-title-text { font-size: 14.5px; } }
+
+        .v13-title-reason {
+          font-size: 12px;
+          color: #737373;
+          line-height: 1.55;
+          margin-bottom: 10px;
+          word-break: keep-all;
+        }
+
+        /* ============================================ */
+        /* 영상 제작 배너 */
+        /* ============================================ */
+        .v13-prod-banner {
           display: flex;
           align-items: center;
           gap: 14px;
@@ -1944,46 +1128,27 @@ function ProductionComingSoonPanel() {
           background: linear-gradient(135deg, #fff7ed 0%, #fef3e7 100%);
           border: 1px solid rgba(194, 65, 12, 0.15);
           border-left: 4px solid #c2410c;
+          margin-bottom: 16px;
         }
         @media (max-width: 600px) {
-          .prod-banner {
-            padding: 14px 16px;
-            gap: 10px;
-            flex-wrap: wrap;
-          }
+          .v13-prod-banner { padding: 14px 16px; gap: 10px; flex-wrap: wrap; }
         }
-
-        .prod-banner-icon {
-          font-size: 28px;
-          line-height: 1;
-          flex-shrink: 0;
-        }
-        @media (max-width: 600px) { .prod-banner-icon { font-size: 24px; } }
-
-        .prod-banner-text {
-          flex: 1;
-          min-width: 0;
-        }
-
-        .prod-banner-title {
-          font-size: 15px;
+        .v13-prod-icon { font-size: 28px; line-height: 1; flex-shrink: 0; }
+        .v13-prod-text { flex: 1; min-width: 0; }
+        .v13-prod-title {
+          font-size: 14.5px;
           font-weight: 800;
           color: #c2410c;
           letter-spacing: -0.018em;
           margin-bottom: 3px;
-          word-break: keep-all;
         }
-        @media (max-width: 600px) { .prod-banner-title { font-size: 14px; } }
-
-        .prod-banner-sub {
-          font-size: 12.5px;
+        .v13-prod-sub {
+          font-size: 12px;
           color: #78350f;
-          line-height: 1.55;
+          line-height: 1.5;
           word-break: keep-all;
         }
-        @media (max-width: 600px) { .prod-banner-sub { font-size: 12px; } }
-
-        .prod-banner-btn {
+        .v13-prod-btn {
           flex-shrink: 0;
           padding: 9px 16px;
           background: #c2410c;
@@ -1995,1172 +1160,74 @@ function ProductionComingSoonPanel() {
           transition: background 0.15s;
           white-space: nowrap;
         }
-        .prod-banner-btn:hover {
-          background: #9a3208;
+        .v13-prod-btn:hover { background: #9a3208; }
+        @media (max-width: 600px) {
+          .v13-prod-btn { width: 100%; text-align: center; }
+        }
+
+        /* ============================================ */
+        /* 다른 시나리오 */
+        /* ============================================ */
+        .v13-other {
+          padding: 20px 20px;
+          background: #fafafa;
+          border: 1px dashed #d4d4d4;
         }
         @media (max-width: 600px) {
-          .prod-banner-btn {
-            font-size: 12px;
-            padding: 8px 14px;
-            width: 100%;
-            text-align: center;
-          }
+          .v13-other { padding: 14px 14px; }
+        }
+        .v13-other-title {
+          font-size: 13.5px;
+          font-weight: 700;
+          color: #525252;
+          margin-bottom: 14px;
+          letter-spacing: -0.015em;
+        }
+        .v13-other-grid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+          gap: 8px;
+        }
+        @media (max-width: 600px) {
+          .v13-other-grid { grid-template-columns: 1fr 1fr; gap: 6px; }
+        }
+        .v13-other-card {
+          padding: 12px 12px;
+          background: #ffffff;
+          border: 1px solid #e5e5e5;
+          text-decoration: none;
+          color: #404040;
+          display: flex;
+          align-items: flex-start;
+          gap: 8px;
+          transition: all 0.15s;
+        }
+        .v13-other-card:hover {
+          border-color: #c2410c;
+          color: #c2410c;
+          transform: translateY(-1px);
+          box-shadow: 0 3px 8px rgba(0, 0, 0, 0.04);
+        }
+        .v13-other-emoji { font-size: 20px; line-height: 1; flex-shrink: 0; }
+        .v13-other-name {
+          font-size: 13px;
+          font-weight: 800;
+          letter-spacing: -0.015em;
+          margin-bottom: 2px;
+        }
+        .v13-other-desc {
+          font-size: 11px;
+          color: #737373;
+          line-height: 1.4;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .v13-other-card { padding: 10px 10px; gap: 6px; }
+          .v13-other-emoji { font-size: 18px; }
+          .v13-other-name { font-size: 12px; }
+          .v13-other-desc { font-size: 10px; }
         }
       `}</style>
-    </>
-  );
-}
-
-// ============================================================
-// STEP 5: 메타데이터 (v11.0: 사용 X, 박 대표님 자산 보존용 유지)
-// ============================================================
-function MetaPanel({ 
-  description, 
-  tags, 
-  thumbnails, 
-  copy, 
-  copied,
-  goNext,
-}: any) {
-  return (
-    <>
-      {/* DESCRIPTION */}
-      <div className="wt-meta-section">
-        <div className="wt-meta-head">
-          <div className="wt-meta-label-block">
-            <div className="wt-meta-label">설명문</div>
-            <div className="wt-meta-name">영상 설명</div>
-          </div>
-          <button
-            type="button"
-            className={`wt-btn wt-btn-sm ${copied === 'desc' ? 'copied' : ''}`}
-            onClick={() => copy(description, 'desc')}
-          >
-            {copied === 'desc' ? '✓ 복사됨' : '📋 복사'}
-          </button>
-        </div>
-        <div className="wt-meta-desc-text">{description}</div>
-      </div>
-
-      {/* TAGS */}
-      <div className="wt-meta-section">
-        <div className="wt-meta-head">
-          <div className="wt-meta-label-block">
-            <div className="wt-meta-label">태그</div>
-            <div className="wt-meta-name">YouTube 태그</div>
-          </div>
-          <button
-            type="button"
-            className={`wt-btn wt-btn-sm ${copied === 'tags' ? 'copied' : ''}`}
-            onClick={() => copy(
-              (tags || []).map((t: any) => typeof t === 'string' ? t : (t?.tag || '')).filter(Boolean).join(', '), 
-              'tags'
-            )}
-          >
-            {copied === 'tags' ? '✓ 복사됨' : '📋 모두 복사'}
-          </button>
-        </div>
-        <div className="wt-tag-flow">
-          {(tags && Array.isArray(tags) ? tags : []).map((t: any, i: number) => {
-            const tagText = typeof t === 'string' ? t : (t?.tag || '');
-            return tagText ? <span key={i} className="wt-tag-chip">{tagText}</span> : null;
-          })}
-        </div>
-      </div>
-
-      {/* THUMBNAILS */}
-      <div className="wt-meta-section">
-        <div className="wt-meta-head">
-          <div className="wt-meta-label-block">
-            <div className="wt-meta-label">썸네일</div>
-            <div className="wt-meta-name">3가지 컨셉</div>
-          </div>
-        </div>
-        <div className="wt-thumb-list">
-          {(thumbnails && Array.isArray(thumbnails) ? thumbnails : []).map((t: any, i: number) => (
-            <div key={i} className="wt-thumb-card">
-              <div className="wt-thumb-card-head">
-                <div className="wt-thumb-card-idx">{String.fromCharCode(65 + i)}</div>
-                <div className="wt-thumb-card-name">{t?.type || `컨셉 ${i + 1}`}</div>
-                <div className="wt-thumb-card-rating">{t?.ctr_estimate || ''}</div>
-              </div>
-              <div className="wt-thumb-card-grid">
-                <div className="wt-thumb-card-key">배경</div>
-                <div>{t?.background || '-'}</div>
-                <div className="wt-thumb-card-key">메인</div>
-                <div>{t?.mainText || '-'}</div>
-                {t?.subText && (
-                  <>
-                    <div className="wt-thumb-card-key">서브</div>
-                    <div>{t.subText}</div>
-                  </>
-                )}
-                <div className="wt-thumb-card-key">표정</div>
-                <div>{t?.expression || '-'}</div>
-                <div className="wt-thumb-card-key">색상</div>
-                <div>{t?.colors || '-'}</div>
-              </div>
-              <div className="wt-thumb-card-actions">
-                {t?.imagePromptKr && (
-                  <button
-                    type="button"
-                    className={`wt-btn wt-btn-sm ${copied === `thumb-${i}` ? 'copied' : ''}`}
-                    onClick={() => copy(t.imagePromptKr, `thumb-${i}`)}
-                  >
-                    {copied === `thumb-${i}` ? '✓ 복사됨' : '📋 한글 프롬프트'}
-                  </button>
-                )}
-                {t?.imagePromptEn && (
-                  <Link
-                    href={`/imagegen?prompt=${encodeURIComponent(t.imagePromptEn)}&ar=16:9`}
-                    className="wt-btn wt-btn-sm wt-btn-primary"
-                  >
-                    🎨 이미지 만들기
-                  </Link>
-                )}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
-      
-      {/* 다음 단계로 큰 버튼 */}
-      {goNext && (
-        <button
-          type="button"
-          onClick={goNext}
-          style={{
-            marginTop: 18,
-            width: '100%',
-            padding: '14px 18px',
-            background: '#c2410c',
-            color: '#ffffff',
-            border: 'none',
-            fontSize: 14.5,
-            fontWeight: 700,
-            cursor: 'pointer',
-            letterSpacing: '-0.01em',
-            fontFamily: 'inherit',
-          }}
-        >
-          메타데이터 확인 완료 · SNS 업로드 자료 보기 →
-        </button>
-      )}
-    </>
-  );
-}
-
-// ============================================================
-// STEP 6: SNS 업로드 (v10.5 - 자체 구현, Tailwind 미사용)
-// 박 대표님 SNSUploadPanel은 보존, 여기서 v650Data.sns 데이터 직접 사용
-// ============================================================
-function SnsPanel({ 
-  v650Data, 
-  proSnsMode, 
-  setProSnsMode,
-  shortsScript,
-}: any) {
-  const [activeTab, setActiveTab] = useState<'youtube' | 'shorts' | 'instagram' | 'tiktok'>('youtube');
-  const [snsCopied, setSnsCopied] = useState<string | null>(null);
-  
-  const snsCopy = (text: string, key: string) => {
-    if (typeof navigator !== 'undefined' && navigator.clipboard) {
-      navigator.clipboard.writeText(text).then(() => {
-        setSnsCopied(key);
-        setTimeout(() => setSnsCopied(null), 1800);
-      });
-    }
-  };
-
-  return (
-    <>
-      <div
-        className={`wt-toggle ${proSnsMode ? 'on' : ''}`}
-        onClick={() => setProSnsMode((m: boolean) => !m)}
-      >
-        <div className="wt-toggle-switch">
-          <div className="wt-toggle-knob" />
-        </div>
-        <div className="wt-toggle-text">
-          <div className="wt-toggle-name">
-            SNS 실제 화면 모드 {proSnsMode ? '(켜짐)' : '(꺼짐)'}
-          </div>
-          <div className="wt-toggle-desc">
-            {proSnsMode 
-              ? 'YouTube · Shorts · Instagram · TikTok 실제 업로드 화면' 
-              : '클릭하면 4개 플랫폼 실제 업로드 화면으로 전환됩니다'}
-          </div>
-        </div>
-      </div>
-
-      {proSnsMode && v650Data?.sns ? (
-        <div className="sns-container">
-          <style jsx global>{`
-            .sns-container {
-              border: 1px solid #e5e5e5;
-              background: #ffffff;
-              overflow: hidden;
-            }
-            .sns-tabs {
-              display: grid;
-              grid-template-columns: repeat(4, 1fr);
-              border-bottom: 1px solid #e5e5e5;
-              background: #fafafa;
-            }
-            .sns-tab {
-              padding: 14px 8px;
-              background: transparent;
-              border: none;
-              border-bottom: 3px solid transparent;
-              cursor: pointer;
-              font-family: inherit;
-              transition: all 0.15s;
-              text-align: center;
-              min-height: 64px;
-              display: flex;
-              flex-direction: column;
-              align-items: center;
-              justify-content: center;
-              gap: 2px;
-            }
-            .sns-tab:hover {
-              background: #f5f5f5;
-            }
-            .sns-tab.active {
-              background: #ffffff;
-              border-bottom-color: #c2410c;
-            }
-            .sns-tab-icon { font-size: 20px; line-height: 1; }
-            .sns-tab-label {
-              font-size: 12px;
-              font-weight: 700;
-              color: #404040;
-              letter-spacing: -0.01em;
-            }
-            .sns-tab.active .sns-tab-label { color: #0a0a0a; }
-            .sns-tab-sub {
-              font-size: 10px;
-              color: #737373;
-              font-weight: 500;
-            }
-            @media (max-width: 600px) {
-              .sns-tab { padding: 10px 4px; min-height: 58px; }
-              .sns-tab-icon { font-size: 18px; }
-              .sns-tab-label { font-size: 11px; }
-              .sns-tab-sub { font-size: 9px; }
-            }
-            
-            .sns-body {
-              padding: 16px 18px;
-            }
-            @media (max-width: 600px) {
-              .sns-body { padding: 12px 14px; }
-            }
-            
-            .sns-platform-head {
-              display: flex;
-              align-items: center;
-              gap: 12px;
-              padding-bottom: 10px;
-              margin-bottom: 14px;
-              border-bottom: 1px solid #e5e5e5;
-            }
-            .sns-platform-icon {
-              width: 38px;
-              height: 38px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              border-radius: 8px;
-              color: #ffffff;
-              font-size: 18px;
-              font-weight: 800;
-              flex-shrink: 0;
-            }
-            .sns-platform-icon.yt { background: #ff0000; }
-            .sns-platform-icon.shorts { background: linear-gradient(135deg, #ff4458, #c2185b); }
-            .sns-platform-icon.ig { background: linear-gradient(45deg, #f9ce34, #ee2a7b, #6228d7); }
-            .sns-platform-icon.tt { background: #000000; }
-            
-            /* 플랫폼별 고유 아이덴티티 (v10.7) */
-            .sns-platform-banner {
-              padding: 14px 18px;
-              margin: -22px -20px 18px -20px;
-              display: flex;
-              align-items: center;
-              gap: 12px;
-              color: #ffffff;
-              font-size: 14px;
-              font-weight: 700;
-              letter-spacing: -0.01em;
-            }
-            @media (max-width: 600px) {
-              .sns-platform-banner { 
-                padding: 12px 14px;
-                margin: -16px -18px 14px -18px;
-                font-size: 13px;
-              }
-            }
-            .sns-platform-banner.yt {
-              background: linear-gradient(180deg, #ff0000 0%, #cc0000 100%);
-            }
-            .sns-platform-banner.shorts {
-              background: linear-gradient(135deg, #ff4458 0%, #ec407a 50%, #c2185b 100%);
-            }
-            .sns-platform-banner.ig {
-              background: linear-gradient(45deg, #f9ce34, #ee2a7b 50%, #6228d7);
-            }
-            .sns-platform-banner.tt {
-              background: #000000;
-              border-bottom: 2px solid #25f4ee;
-            }
-            .sns-platform-banner-logo {
-              width: 28px;
-              height: 28px;
-              background: rgba(255,255,255,0.2);
-              border-radius: 6px;
-              display: flex;
-              align-items: center;
-              justify-content: center;
-              font-size: 16px;
-              flex-shrink: 0;
-            }
-            .sns-platform-banner.tt .sns-platform-banner-logo {
-              background: linear-gradient(45deg, #25f4ee, #fe2c55);
-            }
-            .sns-platform-banner-info { flex: 1; min-width: 0; }
-            .sns-platform-banner-title {
-              font-size: 14px;
-              font-weight: 800;
-              line-height: 1.3;
-              margin: 0;
-            }
-            .sns-platform-banner-sub {
-              font-size: 11px;
-              opacity: 0.85;
-              margin-top: 1px;
-              font-weight: 500;
-            }
-            
-            /* 9:16 모바일 미리보기 (Shorts/Instagram/TikTok) */
-            .sns-mobile-preview {
-              max-width: 220px;
-              aspect-ratio: 9/16;
-              background: #0a0a0a;
-              border-radius: 16px;
-              margin: 0 auto 16px;
-              padding: 10px;
-              position: relative;
-              overflow: hidden;
-            }
-            .sns-mobile-screen {
-              width: 100%;
-              height: 100%;
-              background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
-              border-radius: 10px;
-              padding: 12px;
-              display: flex;
-              flex-direction: column;
-              justify-content: flex-end;
-              position: relative;
-            }
-            .sns-mobile-top {
-              position: absolute;
-              top: 10px;
-              left: 12px;
-              right: 12px;
-              display: flex;
-              justify-content: space-between;
-              align-items: center;
-              color: #ffffff;
-              font-size: 11px;
-              font-weight: 700;
-            }
-            .sns-mobile-bottom {
-              color: #ffffff;
-              font-size: 12px;
-              line-height: 1.45;
-              word-break: keep-all;
-            }
-            .sns-mobile-bottom-title {
-              font-weight: 700;
-              margin-bottom: 6px;
-              display: -webkit-box;
-              -webkit-line-clamp: 3;
-              -webkit-box-orient: vertical;
-              overflow: hidden;
-            }
-            .sns-mobile-bottom-tags {
-              color: #88aaff;
-              font-size: 11px;
-              line-height: 1.5;
-            }
-            .sns-mobile-side-icons {
-              position: absolute;
-              right: 18px;
-              bottom: 70px;
-              display: flex;
-              flex-direction: column;
-              gap: 14px;
-              color: #ffffff;
-              font-size: 18px;
-            }
-            .sns-mobile-side-icon { text-align: center; }
-            .sns-mobile-side-icon-num {
-              font-size: 9px;
-              font-weight: 700;
-              margin-top: 1px;
-            }
-            .sns-platform-name {
-              font-size: 15px;
-              font-weight: 800;
-              color: #0a0a0a;
-              letter-spacing: -0.02em;
-              line-height: 1.3;
-            }
-            .sns-platform-sub {
-              font-size: 11.5px;
-              color: #737373;
-              margin-top: 2px;
-            }
-            
-            .sns-field {
-              margin-bottom: 14px;
-            }
-            .sns-field-label {
-              font-size: 12px;
-              font-weight: 700;
-              color: #0a0a0a;
-              margin-bottom: 3px;
-              letter-spacing: -0.01em;
-            }
-            .sns-field-sub {
-              font-size: 11.5px;
-              color: #737373;
-              margin-bottom: 8px;
-              line-height: 1.5;
-              word-break: keep-all;
-            }
-            .sns-field-input {
-              border: 1px solid #d4d4d4;
-              background: #ffffff;
-              padding: 10px 12px;
-              border-radius: 6px;
-              position: relative;
-            }
-            .sns-field-text {
-              font-size: 14px;
-              color: #0a0a0a;
-              line-height: 1.55;
-              word-break: keep-all;
-              white-space: pre-wrap;
-              margin: 0;
-            }
-            @media (max-width: 600px) {
-              .sns-field-text { font-size: 13.5px; }
-            }
-            .sns-field-counter {
-              font-size: 11px;
-              color: #a3a3a3;
-              text-align: right;
-              margin-top: 4px;
-            }
-            .sns-field-scroll {
-              max-height: 280px;
-              overflow-y: auto;
-            }
-            
-            .sns-copy-btn {
-              display: inline-flex;
-              align-items: center;
-              gap: 4px;
-              margin-top: 8px;
-              padding: 6px 12px;
-              background: #f5f5f5;
-              border: 1px solid #d4d4d4;
-              color: #0a0a0a;
-              font-family: inherit;
-              font-size: 12px;
-              font-weight: 600;
-              cursor: pointer;
-              border-radius: 4px;
-              transition: all 0.15s;
-              min-height: 32px;
-            }
-            .sns-copy-btn:hover {
-              background: #e5e5e5;
-            }
-            .sns-copy-btn.copied {
-              background: #16a34a;
-              color: #ffffff;
-              border-color: #16a34a;
-            }
-            
-            .sns-tag-list {
-              display: flex;
-              flex-wrap: wrap;
-              gap: 6px;
-            }
-            .sns-tag-chip {
-              padding: 4px 10px;
-              background: #f5f5f5;
-              color: #404040;
-              border-radius: 4px;
-              font-size: 12px;
-              letter-spacing: -0.01em;
-            }
-            .sns-tag-chip.ig {
-              background: #fdf2f8;
-              color: #be185d;
-              border-radius: 999px;
-            }
-            .sns-tag-chip.tt {
-              background: #0a0a0a;
-              color: #ffffff;
-              border-radius: 4px;
-              font-weight: 600;
-            }
-            
-            .sns-info-box {
-              padding: 10px 12px;
-              background: #fffbeb;
-              border-left: 3px solid #fbbf24;
-              border-radius: 4px;
-              font-size: 13px;
-              line-height: 1.55;
-              color: #78350f;
-              word-break: keep-all;
-            }
-            .sns-info-box.ig {
-              background: linear-gradient(135deg, #fdf2f8, #f3e8ff);
-              border-left-color: #ec4899;
-              color: #831843;
-            }
-            .sns-info-box.tt {
-              background: #0a0a0a;
-              color: #ffffff;
-              border-left-color: #ec4899;
-            }
-            
-            .sns-chapter-list {
-              display: flex;
-              flex-direction: column;
-              gap: 6px;
-            }
-            .sns-chapter-row {
-              display: grid;
-              grid-template-columns: 56px 1fr;
-              gap: 10px;
-              font-size: 13px;
-              line-height: 1.5;
-              padding: 4px 0;
-            }
-            .sns-chapter-time {
-              font-weight: 700;
-              color: #c2410c;
-              letter-spacing: 0;
-            }
-            .sns-chapter-label {
-              color: #0a0a0a;
-              word-break: keep-all;
-            }
-            
-            .sns-options {
-              display: flex;
-              flex-direction: column;
-              gap: 8px;
-            }
-            .sns-option-row {
-              display: flex;
-              justify-content: space-between;
-              align-items: flex-start;
-              padding: 8px 10px;
-              border: 1px solid #e5e5e5;
-              border-radius: 6px;
-              background: #fafafa;
-              gap: 12px;
-            }
-            .sns-option-info { flex: 1; min-width: 0; }
-            .sns-option-name {
-              font-size: 13px;
-              font-weight: 600;
-              color: #0a0a0a;
-              margin-bottom: 2px;
-            }
-            .sns-option-desc {
-              font-size: 12px;
-              color: #737373;
-              line-height: 1.5;
-              word-break: keep-all;
-            }
-            .sns-option-state {
-              font-size: 18px;
-              flex-shrink: 0;
-            }
-            .sns-option-state.on { color: #16a34a; }
-            .sns-option-state.off { color: #a3a3a3; }
-            
-            .sns-permissions {
-              display: grid;
-              grid-template-columns: repeat(3, 1fr);
-              gap: 8px;
-              margin-top: 8px;
-            }
-            .sns-perm {
-              padding: 10px;
-              border: 1px solid #e5e5e5;
-              border-radius: 6px;
-              text-align: center;
-              background: #fafafa;
-            }
-            .sns-perm.allow {
-              border-color: #86efac;
-              background: #f0fdf4;
-            }
-            .sns-perm-label {
-              font-size: 12px;
-              font-weight: 700;
-              color: #0a0a0a;
-              margin-bottom: 2px;
-            }
-            .sns-perm.allow .sns-perm-label { color: #166534; }
-            .sns-perm-state {
-              font-size: 11px;
-              color: #737373;
-              font-weight: 500;
-            }
-            .sns-perm.allow .sns-perm-state { color: #15803d; }
-          `}</style>
-
-          {/* 4개 플랫폼 탭 */}
-          <div className="sns-tabs">
-            <button
-              type="button"
-              className={`sns-tab ${activeTab === 'youtube' ? 'active' : ''}`}
-              onClick={() => setActiveTab('youtube')}
-            >
-              <span className="sns-tab-icon">📺</span>
-              <span className="sns-tab-label">YouTube</span>
-              <span className="sns-tab-sub">긴 영상</span>
-            </button>
-            <button
-              type="button"
-              className={`sns-tab ${activeTab === 'shorts' ? 'active' : ''}`}
-              onClick={() => setActiveTab('shorts')}
-            >
-              <span className="sns-tab-icon">🩳</span>
-              <span className="sns-tab-label">Shorts</span>
-              <span className="sns-tab-sub">60초</span>
-            </button>
-            <button
-              type="button"
-              className={`sns-tab ${activeTab === 'instagram' ? 'active' : ''}`}
-              onClick={() => setActiveTab('instagram')}
-            >
-              <span className="sns-tab-icon">📸</span>
-              <span className="sns-tab-label">Instagram</span>
-              <span className="sns-tab-sub">Reels</span>
-            </button>
-            <button
-              type="button"
-              className={`sns-tab ${activeTab === 'tiktok' ? 'active' : ''}`}
-              onClick={() => setActiveTab('tiktok')}
-            >
-              <span className="sns-tab-icon">🎵</span>
-              <span className="sns-tab-label">TikTok</span>
-              <span className="sns-tab-sub">For You</span>
-            </button>
-          </div>
-
-          {/* 플랫폼별 본문 */}
-          <div className="sns-body">
-            {activeTab === 'youtube' && (
-              <YoutubeUI data={v650Data.sns.youtube} copy={snsCopy} copied={snsCopied} />
-            )}
-            {activeTab === 'shorts' && (
-              <ShortsUI data={v650Data.sns.shorts} copy={snsCopy} copied={snsCopied} />
-            )}
-            {activeTab === 'instagram' && (
-              <InstagramUI data={v650Data.sns.instagram} copy={snsCopy} copied={snsCopied} />
-            )}
-            {activeTab === 'tiktok' && (
-              <TiktokUI data={v650Data.sns.tiktok} copy={snsCopy} copied={snsCopied} />
-            )}
-          </div>
-        </div>
-      ) : (
-        <div className="wt-card">
-          <div className="wt-card-label">
-            쇼츠/릴스용 대본
-            {shortsScript?.totalDuration && (
-              <span style={{ marginLeft: 8, fontSize: 10, color: '#737373', fontWeight: 500 }}>
-                · {shortsScript.totalDuration}
-              </span>
-            )}
-          </div>
-          <p className="wt-card-body" style={{ whiteSpace: 'pre-line' }}>
-            {shortsScript?.fullScript || shortsScript?.body || ''}
-          </p>
-        </div>
-      )}
-    </>
-  );
-}
-
-// ============================================================
-// YouTube UI
-// ============================================================
-function YoutubeUI({ data, copy, copied }: any) {
-  if (!data) return <div style={{padding:20, color:'#737373'}}>데이터 준비중</div>;
-  return (
-    <div>
-      <div className="sns-platform-banner yt">
-        <div className="sns-platform-banner-logo">▶</div>
-        <div className="sns-platform-banner-info">
-          <div className="sns-platform-banner-title">YouTube Studio</div>
-          <div className="sns-platform-banner-sub">동영상 세부정보 · 실제 업로드 페이지 형식</div>
-        </div>
-      </div>
-
-      <div className="sns-field">
-        <div className="sns-field-label">제목 (필수)</div>
-        <div className="sns-field-sub">시청자에게 동영상 콘텐츠를 알릴 수 있는 제목</div>
-        <div className="sns-field-input">
-          <p className="sns-field-text">{data.title || ''}</p>
-          <div className="sns-field-counter">{data.titleCharCount || 0}/100</div>
-        </div>
-        <button
-          type="button"
-          className={`sns-copy-btn ${copied === 'yt-title' ? 'copied' : ''}`}
-          onClick={() => copy(data.title || '', 'yt-title')}
-        >
-          {copied === 'yt-title' ? '✓ 복사됨' : '📋 복사'}
-        </button>
-      </div>
-
-      <div className="sns-field">
-        <div className="sns-field-label">설명</div>
-        <div className="sns-field-sub">시청자에게 동영상에 대해 설명해 주세요</div>
-        <div className="sns-field-input sns-field-scroll">
-          <p className="sns-field-text">{data.description || ''}</p>
-          <div className="sns-field-counter">{data.descriptionCharCount || 0}/5000</div>
-        </div>
-        <button
-          type="button"
-          className={`sns-copy-btn ${copied === 'yt-desc' ? 'copied' : ''}`}
-          onClick={() => copy(data.description || '', 'yt-desc')}
-        >
-          {copied === 'yt-desc' ? '✓ 복사됨' : '📋 복사'}
-        </button>
-      </div>
-
-      {data.thumbnailGuide && (
-        <div className="sns-field">
-          <div className="sns-field-label">썸네일</div>
-          <div className="sns-info-box">💡 {data.thumbnailGuide}</div>
-        </div>
-      )}
-
-      {data.tags && data.tags.length > 0 && (
-        <div className="sns-field">
-          <div className="sns-field-label">태그 ({data.tags.length}개)</div>
-          <div className="sns-field-sub">잘못 쓰이는 단어가 있을 경우 태그가 유용합니다</div>
-          <div className="sns-field-input">
-            <div className="sns-tag-list">
-              {data.tags.map((tag: string, i: number) => (
-                <span key={i} className="sns-tag-chip">{tag}</span>
-              ))}
-            </div>
-            <div className="sns-field-counter">{data.tagsCharCount || 0}/500</div>
-          </div>
-          <button
-            type="button"
-            className={`sns-copy-btn ${copied === 'yt-tags' ? 'copied' : ''}`}
-            onClick={() => copy((data.tags || []).join(', '), 'yt-tags')}
-          >
-            {copied === 'yt-tags' ? '✓ 복사됨' : '📋 복사'}
-          </button>
-        </div>
-      )}
-
-      {data.category && (
-        <div className="sns-field">
-          <div className="sns-field-label">카테고리</div>
-          <div className="sns-field-input">
-            <p className="sns-field-text">{data.category}</p>
-          </div>
-        </div>
-      )}
-
-      {data.chapters && data.chapters.length > 0 && (
-        <div className="sns-field">
-          <div className="sns-field-label">챕터 (자동 생성)</div>
-          <div className="sns-field-sub">시청자가 원하는 부분으로 바로 이동 가능</div>
-          <div className="sns-field-input">
-            <div className="sns-chapter-list">
-              {data.chapters.map((ch: any, i: number) => (
-                <div key={i} className="sns-chapter-row">
-                  <span className="sns-chapter-time">{ch.time}</span>
-                  <span className="sns-chapter-label">{ch.label}</span>
-                </div>
-              ))}
-            </div>
-          </div>
-        </div>
-      )}
-
-      {(data.endScreenSuggestion || data.cardSuggestion) && (
-        <div className="sns-field">
-          <div className="sns-field-label">최종화면 + 카드 추천</div>
-          <div className="sns-field-sub">알고리즘 우호적인 배치</div>
-          <div className="sns-info-box">
-            {data.endScreenSuggestion && (
-              <div style={{ marginBottom: 6 }}>
-                <strong>📍 최종화면:</strong> {data.endScreenSuggestion}
-              </div>
-            )}
-            {data.cardSuggestion && (
-              <div>
-                <strong>📍 카드:</strong> {data.cardSuggestion}
-              </div>
-            )}
-          </div>
-        </div>
-      )}
-    </div>
-  );
-}
-
-// ============================================================
-// Shorts UI
-// ============================================================
-function ShortsUI({ data, copy, copied }: any) {
-  if (!data) return <div style={{padding:20, color:'#737373'}}>데이터 준비중</div>;
-  return (
-    <div>
-      <div className="sns-platform-banner shorts">
-        <div className="sns-platform-banner-logo">🩳</div>
-        <div className="sns-platform-banner-info">
-          <div className="sns-platform-banner-title">YouTube Shorts</div>
-          <div className="sns-platform-banner-sub">60초 이하 세로 영상 · 9:16</div>
-        </div>
-      </div>
-
-      {/* 모바일 미리보기 */}
-      <div className="sns-mobile-preview">
-        <div className="sns-mobile-screen">
-          <div className="sns-mobile-top">
-            <span>Shorts</span>
-            <span>⋯</span>
-          </div>
-          <div className="sns-mobile-side-icons">
-            <div className="sns-mobile-side-icon">❤️<div className="sns-mobile-side-icon-num">좋아요</div></div>
-            <div className="sns-mobile-side-icon">💬<div className="sns-mobile-side-icon-num">댓글</div></div>
-            <div className="sns-mobile-side-icon">↗<div className="sns-mobile-side-icon-num">공유</div></div>
-            <div className="sns-mobile-side-icon">🎵<div className="sns-mobile-side-icon-num">사운드</div></div>
-          </div>
-          <div className="sns-mobile-bottom">
-            <div className="sns-mobile-bottom-title">{data.title || ''}</div>
-            {data.hashtags && data.hashtags.length > 0 && (
-              <div className="sns-mobile-bottom-tags">
-                {data.hashtags.slice(0, 4).join(' ')}
-              </div>
-            )}
-          </div>
-        </div>
-      </div>
-
-      <div className="sns-field">
-        <div className="sns-field-label">제목 (#Shorts 필수)</div>
-        <div className="sns-field-input">
-          <p className="sns-field-text">{data.title || ''}</p>
-          <div className="sns-field-counter">{data.titleCharCount || 0}/100</div>
-        </div>
-        <button
-          type="button"
-          className={`sns-copy-btn ${copied === 'sh-title' ? 'copied' : ''}`}
-          onClick={() => copy(data.title || '', 'sh-title')}
-        >
-          {copied === 'sh-title' ? '✓ 복사됨' : '📋 복사'}
-        </button>
-      </div>
-
-      <div className="sns-field">
-        <div className="sns-field-label">설명</div>
-        <div className="sns-field-input sns-field-scroll">
-          <p className="sns-field-text">{data.description || ''}</p>
-        </div>
-        <button
-          type="button"
-          className={`sns-copy-btn ${copied === 'sh-desc' ? 'copied' : ''}`}
-          onClick={() => copy(data.description || '', 'sh-desc')}
-        >
-          {copied === 'sh-desc' ? '✓ 복사됨' : '📋 복사'}
-        </button>
-      </div>
-
-      {data.hashtags && data.hashtags.length > 0 && (
-        <div className="sns-field">
-          <div className="sns-field-label">해시태그 ({data.hashtags.length}개)</div>
-          <div className="sns-field-sub">트렌드 + 니치 조합</div>
-          <div className="sns-field-input">
-            <div className="sns-tag-list">
-              {data.hashtags.map((tag: string, i: number) => (
-                <span key={i} className="sns-tag-chip">{tag}</span>
-              ))}
-            </div>
-          </div>
-          <button
-            type="button"
-            className={`sns-copy-btn ${copied === 'sh-tags' ? 'copied' : ''}`}
-            onClick={() => copy((data.hashtags || []).join(' '), 'sh-tags')}
-          >
-            {copied === 'sh-tags' ? '✓ 복사됨' : '📋 복사'}
-          </button>
-        </div>
-      )}
-
-      <div className="sns-field">
-        <div className="sns-field-label">추가 설정</div>
-        <div className="sns-options">
-          {data.thumbnailFrame && (
-            <div className="sns-option-row">
-              <div className="sns-option-info">
-                <div className="sns-option-name">썸네일</div>
-                <div className="sns-option-desc">{data.thumbnailFrame}</div>
-              </div>
-            </div>
-          )}
-          <div className="sns-option-row">
-            <div className="sns-option-info">
-              <div className="sns-option-name">리믹스 허용</div>
-              <div className="sns-option-desc">허용 시 도달 범위 ↑</div>
-            </div>
-            <span className={`sns-option-state ${data.remixAllow ? 'on' : 'off'}`}>
-              {data.remixAllow ? '✓' : '○'}
-            </span>
-          </div>
-          {data.soundCredit && (
-            <div className="sns-option-row">
-              <div className="sns-option-info">
-                <div className="sns-option-name">사운드</div>
-                <div className="sns-option-desc">{data.soundCredit}</div>
-              </div>
-            </div>
-          )}
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ============================================================
-// Instagram UI
-// ============================================================
-function InstagramUI({ data, copy, copied }: any) {
-  if (!data) return <div style={{padding:20, color:'#737373'}}>데이터 준비중</div>;
-  return (
-    <div>
-      <div className="sns-platform-banner ig">
-        <div className="sns-platform-banner-logo">📸</div>
-        <div className="sns-platform-banner-info">
-          <div className="sns-platform-banner-title">Instagram - 새 릴스</div>
-          <div className="sns-platform-banner-sub">9:16 세로 영상</div>
-        </div>
-      </div>
-
-      <div className="sns-field">
-        <div className="sns-field-label">문구 작성</div>
-        <div className="sns-field-sub">첫 125자가 미리보기에 표시됩니다</div>
-        <div className="sns-field-input sns-field-scroll">
-          <p className="sns-field-text">{data.caption || ''}</p>
-          <div className="sns-field-counter">{data.captionCharCount || 0}/2200</div>
-        </div>
-        <button
-          type="button"
-          className={`sns-copy-btn ${copied === 'ig-cap' ? 'copied' : ''}`}
-          onClick={() => copy(data.caption || '', 'ig-cap')}
-        >
-          {copied === 'ig-cap' ? '✓ 복사됨' : '📋 복사'}
-        </button>
-      </div>
-
-      {data.hashtags && data.hashtags.length > 0 && (
-        <div className="sns-field">
-          <div className="sns-field-label">해시태그 ({data.hashtagsCount || data.hashtags.length}/30)</div>
-          <div className="sns-field-sub">첫 댓글에 추가하면 캡션이 깔끔합니다</div>
-          <div className="sns-field-input">
-            <div className="sns-tag-list">
-              {data.hashtags.map((tag: string, i: number) => (
-                <span key={i} className="sns-tag-chip ig">{tag}</span>
-              ))}
-            </div>
-          </div>
-          <button
-            type="button"
-            className={`sns-copy-btn ${copied === 'ig-tags' ? 'copied' : ''}`}
-            onClick={() => copy((data.hashtags || []).join(' '), 'ig-tags')}
-          >
-            {copied === 'ig-tags' ? '✓ 복사됨' : '📋 복사'}
-          </button>
-        </div>
-      )}
-
-      {data.coverFrame && (
-        <div className="sns-field">
-          <div className="sns-field-label">커버 선택</div>
-          <div className="sns-field-sub">피드 그리드에 보여질 이미지</div>
-          <div className="sns-info-box ig">🎨 {data.coverFrame}</div>
-        </div>
-      )}
-
-      {data.audioName && (
-        <div className="sns-field">
-          <div className="sns-field-label">오디오</div>
-          <div className="sns-field-sub">트렌드 음원 사용 시 알고리즘 우호적</div>
-          <div className="sns-info-box">🎵 {data.audioName}</div>
-        </div>
-      )}
-
-      <div className="sns-field">
-        <div className="sns-field-label">추가 옵션</div>
-        <div className="sns-options">
-          {data.location && (
-            <div className="sns-option-row">
-              <div className="sns-option-info">
-                <div className="sns-option-name">위치 추가</div>
-                <div className="sns-option-desc">{data.location}</div>
-              </div>
-              <span className="sns-option-state on">✓</span>
-            </div>
-          )}
-          <div className="sns-option-row">
-            <div className="sns-option-info">
-              <div className="sns-option-name">피드에도 공유</div>
-              <div className="sns-option-desc">메인 피드 노출 → 도달 범위 확장</div>
-            </div>
-            <span className={`sns-option-state ${data.shareToFeed ? 'on' : 'off'}`}>
-              {data.shareToFeed ? '✓' : '○'}
-            </span>
-          </div>
-          <div className="sns-option-row">
-            <div className="sns-option-info">
-              <div className="sns-option-name">스토리에도 공유</div>
-              <div className="sns-option-desc">초기 24시간 노출 ↑</div>
-            </div>
-            <span className={`sns-option-state ${data.shareToStory ? 'on' : 'off'}`}>
-              {data.shareToStory ? '✓' : '○'}
-            </span>
-          </div>
-        </div>
-      </div>
-    </div>
-  );
-}
-
-// ============================================================
-// TikTok UI
-// ============================================================
-function TiktokUI({ data, copy, copied }: any) {
-  if (!data) return <div style={{padding:20, color:'#737373'}}>데이터 준비중</div>;
-  return (
-    <div>
-      <div className="sns-platform-banner tt">
-        <div className="sns-platform-banner-logo">🎵</div>
-        <div className="sns-platform-banner-info">
-          <div className="sns-platform-banner-title">TikTok - 동영상 게시</div>
-          <div className="sns-platform-banner-sub">9:16 세로 · For You 페이지 최적화</div>
-        </div>
-      </div>
-
-      <div className="sns-field">
-        <div className="sns-field-label">설명</div>
-        <div className="sns-field-sub">2200자 이내. 첫 줄이 가장 중요합니다</div>
-        <div className="sns-field-input sns-field-scroll">
-          <p className="sns-field-text">{data.caption || ''}</p>
-          <div className="sns-field-counter">{data.captionCharCount || 0}/2200</div>
-        </div>
-        <button
-          type="button"
-          className={`sns-copy-btn ${copied === 'tt-cap' ? 'copied' : ''}`}
-          onClick={() => copy(data.caption || '', 'tt-cap')}
-        >
-          {copied === 'tt-cap' ? '✓ 복사됨' : '📋 복사'}
-        </button>
-      </div>
-
-      {data.hashtags && data.hashtags.length > 0 && (
-        <div className="sns-field">
-          <div className="sns-field-label">해시태그 ({data.hashtagsCount || data.hashtags.length}개)</div>
-          <div className="sns-field-sub">#fyp 와 니치 태그 조합이 핵심</div>
-          <div className="sns-field-input">
-            <div className="sns-tag-list">
-              {data.hashtags.map((tag: string, i: number) => (
-                <span key={i} className="sns-tag-chip tt">{tag}</span>
-              ))}
-            </div>
-          </div>
-          <button
-            type="button"
-            className={`sns-copy-btn ${copied === 'tt-tags' ? 'copied' : ''}`}
-            onClick={() => copy((data.hashtags || []).join(' '), 'tt-tags')}
-          >
-            {copied === 'tt-tags' ? '✓ 복사됨' : '📋 복사'}
-          </button>
-        </div>
-      )}
-
-      {data.soundChoice && (
-        <div className="sns-field">
-          <div className="sns-field-label">사운드 추가</div>
-          <div className="sns-field-sub">For You 페이지 노출의 핵심 요소</div>
-          <div className="sns-info-box tt">🎵 {data.soundChoice}</div>
-        </div>
-      )}
-
-      {data.coverImage && (
-        <div className="sns-field">
-          <div className="sns-field-label">커버 선택</div>
-          <div className="sns-info-box">🖼 {data.coverImage}</div>
-        </div>
-      )}
-
-      {data.whoCanWatch && (
-        <div className="sns-field">
-          <div className="sns-field-label">누가 볼 수 있나요</div>
-          <div className="sns-options">
-            <div className="sns-option-row">
-              <div className="sns-option-info">
-                <div className="sns-option-name">{data.whoCanWatch}</div>
-                <div className="sns-option-desc">For You 페이지 진입 가능</div>
-              </div>
-              <span className="sns-option-state on">✓</span>
-            </div>
-          </div>
-          <div className="sns-permissions">
-            <div className={`sns-perm ${data.allowComments ? 'allow' : ''}`}>
-              <div className="sns-perm-label">댓글</div>
-              <div className="sns-perm-state">{data.allowComments ? '허용' : '차단'}</div>
-            </div>
-            <div className={`sns-perm ${data.allowDuet ? 'allow' : ''}`}>
-              <div className="sns-perm-label">듀엣</div>
-              <div className="sns-perm-state">{data.allowDuet ? '허용' : '차단'}</div>
-            </div>
-            <div className={`sns-perm ${data.allowStitch ? 'allow' : ''}`}>
-              <div className="sns-perm-label">이어찍기</div>
-              <div className="sns-perm-state">{data.allowStitch ? '허용' : '차단'}</div>
-            </div>
-          </div>
-        </div>
-      )}
-
-      {data.scheduledTime && (
-        <div className="sns-field">
-          <div className="sns-field-label">발행 시간 추천</div>
-          <div className="sns-field-sub">알고리즘이 가장 활성화되는 시간대</div>
-          <div className="sns-info-box ig">⏰ {data.scheduledTime}</div>
-        </div>
-      )}
-    </div>
+    </V11Shell>
   );
 }
