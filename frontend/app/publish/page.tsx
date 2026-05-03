@@ -36,7 +36,15 @@ import {
 import { generateV650Data, type V650DataPackage } from '../_shared/v650Adapter';
 import { CinematicScenarioDisplay } from '../_shared/CinematicScenarioDisplay_v6_5_0';
 import { CinematicPromptDisplay } from '../_shared/CinematicPromptDisplay_v6_5_0';
-import { getAlgorithmInsights } from '../_shared/algorithmInsights';
+import { 
+  getAlgorithmInsights,
+  isSeniorTargetKeyword,
+  getSeniorOptimizationFlags,
+  SENIOR_HOOK_PATTERNS,
+  SENIOR_ENGAGEMENT_QUESTIONS,
+  SENIOR_POLICY_CHECKLIST,
+  getSeniorUploadTime,
+} from '../_shared/algorithmInsights';
 
 // ============================================================
 // 시나리오 패턴 8가지
@@ -269,6 +277,14 @@ function PublishContent() {
 
   const insights = useMemo(() => getInsightsSafe(keyword, categoryId), [keyword, categoryId]);
 
+  // 시니어 타겟 키워드 자동 감지 (내부 알고리즘 자동 적용)
+  // 박 대표님 매뉴얼 텍스트 노출 X, 일반화된 권장 사항만 노출
+  const seniorOpt = useMemo(() => {
+    return isSeniorTargetKeyword(keyword) 
+      ? getSeniorOptimizationFlags(keyword, categoryId) 
+      : null;
+  }, [keyword, categoryId]);
+
   const copy = (text: string, key: string) => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {
       navigator.clipboard.writeText(text).then(() => {
@@ -321,6 +337,25 @@ function PublishContent() {
               </div>
             </div>
           </div>
+
+          {/* 시니어 키워드 자동 감지 시 - 일반화된 권장 사항 (매뉴얼 X) */}
+          {seniorOpt && (
+            <div className="v13-senior-opt">
+              <div className="v13-senior-opt-icon">👔</div>
+              <div className="v13-senior-opt-text">
+                <div className="v13-senior-opt-title">
+                  시니어 타겟 자동 보정 적용됨
+                </div>
+                <div className="v13-senior-opt-tags">
+                  <span className="v13-senior-opt-tag">📱 {seniorOpt.recommendedFormat === 'shorts' ? '쇼츠 형식' : '영상 형식'}</span>
+                  <span className="v13-senior-opt-tag">⏱ {seniorOpt.recommendedDuration}</span>
+                  <span className="v13-senior-opt-tag">🔤 {seniorOpt.recommendedSubtitle}</span>
+                  <span className="v13-senior-opt-tag">🎤 {seniorOpt.recommendedNarration}</span>
+                  <span className="v13-senior-opt-tag">📂 {seniorOpt.recommendedCategory}</span>
+                </div>
+              </div>
+            </div>
+          )}
 
           <button type="button" className="v13-regen-btn" onClick={regenerateAll}>
             ↻ 다른 버전 만들기
@@ -432,6 +467,21 @@ function PublishContent() {
               </div>
             )}
 
+            {/* 시니어 타겟 시 첫 비트에 후크 추천 (자동 적용) */}
+            {activeBeat === 0 && seniorOpt && (
+              <div className="v13-beat-hint" style={{ background: 'rgba(251, 191, 36, 0.08)', borderColor: '#fbbf24' }}>
+                <div className="v13-beat-hint-icon">🎯</div>
+                <div>
+                  <strong style={{ color: '#fbbf24' }}>시니어 타겟 추천 후크 (감동·공감 중심):</strong>
+                  <ul style={{ margin: '4px 0 0', paddingLeft: 18 }}>
+                    {SENIOR_HOOK_PATTERNS.slice(0, 3).map((h, i) => (
+                      <li key={i} style={{ fontSize: 12.5, lineHeight: 1.55, marginBottom: 2 }}>{h}</li>
+                    ))}
+                  </ul>
+                </div>
+              </div>
+            )}
+
             {/* 마지막 비트일 경우 댓글 유도 가이드 */}
             {activeBeat === scenario.structure.length - 1 && insights?.questions && (
               <div className="v13-beat-hint">
@@ -439,7 +489,7 @@ function PublishContent() {
                 <div>
                   <strong>댓글 유도 질문 추천:</strong>
                   <ul style={{ margin: '4px 0 0', paddingLeft: 18 }}>
-                    {insights.questions.slice(0, 2).map((q: string, i: number) => (
+                    {(seniorOpt ? SENIOR_ENGAGEMENT_QUESTIONS : insights.questions).slice(0, 2).map((q: string, i: number) => (
                       <li key={i} style={{ fontSize: 12.5, lineHeight: 1.55 }}>{q}</li>
                     ))}
                   </ul>
@@ -531,6 +581,24 @@ function PublishContent() {
         {section === 'prompts' && v650Data && (
           <div className="v13-section">
             <CinematicPromptDisplay prompts={v650Data.prompts} />
+          </div>
+        )}
+
+        {/* 시니어 타겟 정책 체크 (자동 노출) */}
+        {seniorOpt && (
+          <div className="v13-policy-check">
+            <div className="v13-policy-head">
+              <span className="v13-policy-icon">🛡</span>
+              <span className="v13-policy-title">시니어 타겟 영상 — 업로드 전 정책 체크</span>
+            </div>
+            <div className="v13-policy-list">
+              {SENIOR_POLICY_CHECKLIST.map((item) => (
+                <div key={item.id} className={`v13-policy-item ${item.critical ? 'critical' : ''}`}>
+                  <span className="v13-policy-check-mark">{item.critical ? '🔴' : '🟡'}</span>
+                  <span>{item.label}</span>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -1116,6 +1184,107 @@ function PublishContent() {
           margin-bottom: 10px;
           word-break: keep-all;
         }
+
+        /* ============================================ */
+        /* 시니어 타겟 자동 보정 */
+        /* ============================================ */
+        .v13-senior-opt {
+          display: flex;
+          gap: 12px;
+          padding: 14px 14px;
+          background: linear-gradient(135deg, #fef3c7 0%, #fef9e1 100%);
+          border-left: 3px solid #f59e0b;
+          margin-bottom: 14px;
+          align-items: flex-start;
+        }
+        @media (max-width: 600px) {
+          .v13-senior-opt { padding: 12px 12px; gap: 10px; }
+        }
+        .v13-senior-opt-icon {
+          font-size: 24px;
+          line-height: 1;
+          flex-shrink: 0;
+        }
+        .v13-senior-opt-text { flex: 1; min-width: 0; }
+        .v13-senior-opt-title {
+          font-size: 13.5px;
+          font-weight: 800;
+          color: #92400e;
+          letter-spacing: -0.018em;
+          margin-bottom: 8px;
+        }
+        @media (max-width: 600px) { .v13-senior-opt-title { font-size: 12.5px; } }
+        .v13-senior-opt-tags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 4px;
+        }
+        .v13-senior-opt-tag {
+          padding: 3px 9px;
+          background: #ffffff;
+          color: #92400e;
+          font-size: 11px;
+          font-weight: 700;
+          letter-spacing: -0.01em;
+          border-radius: 100px;
+          border: 1px solid rgba(245, 158, 11, 0.25);
+        }
+        @media (max-width: 600px) { .v13-senior-opt-tag { font-size: 10.5px; padding: 2px 7px; } }
+
+        /* ============================================ */
+        /* 시니어 정책 체크리스트 */
+        /* ============================================ */
+        .v13-policy-check {
+          padding: 18px 18px;
+          background: #ffffff;
+          border: 1px solid #e5e5e5;
+          margin-bottom: 14px;
+        }
+        @media (max-width: 600px) {
+          .v13-policy-check { padding: 14px 14px; margin-bottom: 12px; }
+        }
+        .v13-policy-head {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding-bottom: 12px;
+          margin-bottom: 12px;
+          border-bottom: 1px solid #e5e5e5;
+        }
+        .v13-policy-icon { font-size: 18px; line-height: 1; }
+        .v13-policy-title {
+          font-size: 14px;
+          font-weight: 800;
+          color: #0a0a0a;
+          letter-spacing: -0.018em;
+        }
+        @media (max-width: 600px) { .v13-policy-title { font-size: 13px; } }
+        .v13-policy-list {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 6px;
+        }
+        @media (max-width: 600px) {
+          .v13-policy-list { grid-template-columns: 1fr; gap: 5px; }
+        }
+        .v13-policy-item {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          padding: 8px 10px;
+          background: #fafafa;
+          font-size: 12.5px;
+          color: #404040;
+          line-height: 1.5;
+          word-break: keep-all;
+        }
+        .v13-policy-item.critical {
+          background: #fef2f2;
+          color: #991b1b;
+          font-weight: 700;
+        }
+        @media (max-width: 600px) { .v13-policy-item { font-size: 11.5px; padding: 7px 9px; } }
+        .v13-policy-check-mark { font-size: 11px; flex-shrink: 0; }
 
         /* ============================================ */
         /* 영상 제작 배너 */

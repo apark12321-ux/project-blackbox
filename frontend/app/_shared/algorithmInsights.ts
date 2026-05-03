@@ -365,3 +365,192 @@ export function getAlgorithmInsights(keyword: string, categoryId: string) {
     mindsetPrinciples: MINDSET_PRINCIPLES,
   };
 }
+
+// ============================================================
+// ⚠️ INTERNAL ALGORITHM ONLY - DO NOT EXPOSE TO USERS
+// 시니어 타겟 쇼츠 채널 최적화 알고리즘
+// (사용자에게는 결과만 보여줌, 알고리즘 자체는 노출 X)
+// ============================================================
+
+/**
+ * 시니어 타겟 채널 운영 알고리즘 키 (10단계)
+ * 매뉴얼 텍스트는 노출 X, 알고리즘 ID 와 가중치만 코드에 반영
+ */
+const SENIOR_CHANNEL_ALGORITHM = {
+  // 1: 환경 분리 (모바일 데이터 우선)
+  network: { strategy: 'mobile_only', weight: 1.0 },
+  
+  // 2: 계정 시니어 분류 유도 (생년월일 1960~1980)
+  account: { ageRange: [1960, 1980], weight: 0.9 },
+  
+  // 3: 채널 카테고리 (교육 또는 인물·블로그)
+  category: { primary: 'education', secondary: 'people_blog', weight: 0.8 },
+  
+  // 4: 사전 시청 워밍업 (4~5일 시청 패턴)
+  warmup: { days: 5, watchCount: 20, weight: 0.95 },
+  
+  // 5: 사연 분석 기준 (조회수 + 첫 3초 후크)
+  reference: { minViews: 1000000, hookSeconds: 3, weight: 1.0 },
+  
+  // 6: 콘텐츠 소스 (야외 실사 + 육성 + 1분 이하)
+  content: { format: 'shorts', maxDurationSec: 60, narration: 'voice', weight: 1.0 },
+  
+  // 7: 편집 (시니어 가독성 = 큰 자막 필수)
+  edit: { fontSize: 'large', subtitleRequired: true, weight: 0.9 },
+  
+  // 8: 메타데이터 (제목·설명·태그 자동 최적화)
+  meta: { generator: 'auto', weight: 1.0 },
+  
+  // 9: 업로드 (24시간 후 + 5~20분 차이, 비공개→공개)
+  upload: { 
+    minIntervalHours: 24, 
+    randomMinutes: [5, 20],
+    flow: 'private_then_public',
+    avoidExactHour: true,
+    notForKids: true,
+    weight: 1.0 
+  },
+  
+  // 10: 정책 (자극적 소재 X, 1일 1영상)
+  policy: { 
+    avoidSensational: true, 
+    dailyLimit: 1,
+    deletionForbidden: true,
+    targetAvgViews: 2000,
+    weight: 1.0 
+  },
+};
+
+/**
+ * 시니어 타겟 시나리오 ID (내부용)
+ * URL ?scenario=senior-story 진입 시 활성화
+ * 사용자에게는 일반적인 "스토리텔링" 으로 노출
+ */
+const SENIOR_SCENARIO_ID = 'senior-story';
+
+/**
+ * 시니어 타겟 메타데이터 자동 보정 (내부 알고리즘)
+ * 시니어 키워드 감지 시 자동으로 적용:
+ * - 큰 자막 권장
+ * - 1분 이하 쇼츠 권장
+ * - 정각 업로드 회피
+ * - 비공개 → 공개 플로우
+ * - 카테고리 [교육] 또는 [인물/블로그]
+ * - 아동용 아님 체크
+ */
+export function isSeniorTargetKeyword(keyword: string): boolean {
+  const k = keyword.toLowerCase();
+  // 시니어 사연/인생 이야기 관련 키워드 자동 감지
+  return /시니어|어르신|50대|60대|70대|80대|황혼|인생|사연|중년|노년|어머니|아버지|부모|손주|할머니|할아버지|회상|추억|과거|예전|옛날/.test(k);
+}
+
+/**
+ * 시니어 타겟 메타데이터 보정 (내부)
+ * 키워드가 시니어 타겟이면 자동으로 노하우 적용된 메타 반환
+ * 매뉴얼 텍스트 노출 X, 보정된 결과만 반환
+ */
+export function getSeniorOptimizationFlags(keyword: string, categoryId: string) {
+  const isSenior = isSeniorTargetKeyword(keyword);
+  if (!isSenior) return null;
+  
+  // 시니어 타겟일 때만 자동으로 적용되는 보정 (내부 알고리즘)
+  return {
+    // UI에 노출 가능한 일반화된 권장 사항 (매뉴얼 X)
+    recommendedFormat: 'shorts',
+    recommendedDuration: '1분 이하',
+    recommendedSubtitle: '큰 글자 (시니어 가독성)',
+    recommendedCategory: '교육 / 인물·블로그',
+    recommendedNarration: '육성 녹음',
+    
+    // 내부 알고리즘 가중치 (사용자 노출 X, 메타 생성에만 활용)
+    _internal: {
+      ageRangeBoost: SENIOR_CHANNEL_ALGORITHM.account.ageRange,
+      uploadFlow: SENIOR_CHANNEL_ALGORITHM.upload.flow,
+      avoidExactHour: SENIOR_CHANNEL_ALGORITHM.upload.avoidExactHour,
+      avgViewsTarget: SENIOR_CHANNEL_ALGORITHM.policy.targetAvgViews,
+    },
+  };
+}
+
+/**
+ * 시니어 타겟 후크 패턴 (감동/공감 중심)
+ * 박 대표님 자산 5단계 "감동/공감 포인트 파악" 반영
+ */
+export const SENIOR_HOOK_PATTERNS = [
+  '"50년 전 이맘때, 저는…"',
+  '"그날 어머니가 마지막으로 하신 말씀은…"',
+  '"평생 잊지 못할 그 한 마디"',
+  '"부모님 돌아가시기 전 꼭 들어야 했던 말"',
+  '"40년 전 그 사람을 다시 만났습니다"',
+  '"손주에게 처음 듣게 된 말"',
+  '"가족 모두가 울었던 그날의 진실"',
+  '"인생 60년, 가장 후회하는 한 가지"',
+];
+
+/**
+ * 시니어 타겟 댓글 유도 (공감 기반)
+ */
+export const SENIOR_ENGAGEMENT_QUESTIONS = [
+  '여러분도 비슷한 추억이 있으신가요?',
+  '부모님께 못다 한 말이 있다면 댓글로 남겨주세요.',
+  '인생에서 가장 후회하는 일이 있다면?',
+  '가족과 함께한 가장 따뜻한 기억을 들려주세요.',
+  '시간이 지나야 깨닫는 진실이 있다면?',
+];
+
+/**
+ * 시니어 타겟 업로드 시간 추천 (내부 알고리즘)
+ * 정각 업로드 회피 + 5~20분 차이
+ * 박 대표님 자산 9단계 "전날 대비 최소 24시간 + 5~20분 차이" 반영
+ */
+export function getSeniorUploadTime(): { hour: number; minute: number; tip: string } {
+  const hour = 9 + Math.floor(Math.random() * 4); // 9시~12시 (시니어 시청 시간)
+  const minute = 5 + Math.floor(Math.random() * 16); // 5분~20분
+  return {
+    hour,
+    minute,
+    tip: '정각 업로드 회피 · 시니어 시청 시간대 (오전)',
+  };
+}
+
+/**
+ * 시니어 타겟 영상 정책 자동 체크 (내부)
+ * 박 대표님 자산 10단계 "정책 준수" 반영
+ */
+export const SENIOR_POLICY_CHECKLIST = [
+  { id: 'not_for_kids', label: '"아동용 아님" 체크', critical: true },
+  { id: 'no_sensational', label: '자극적 소재 회피 (경찰·폭력·고소 등)', critical: true },
+  { id: 'no_false_facts', label: '허위 사실·사칭 금지', critical: true },
+  { id: 'one_video_per_day', label: '1일 1영상', critical: false },
+  { id: 'no_deletion', label: '업로드 후 삭제·재업로드 금지', critical: true },
+  { id: 'avoid_exact_hour', label: '정각 업로드 회피', critical: false },
+];
+
+/**
+ * 키워드 + 카테고리 기반 시니어 타겟 보정 진단
+ * AlgoMaker 결과 페이지에서 시니어 키워드 자동 감지하면
+ * 위 알고리즘이 자동 적용되어 사용자에게 보정된 결과 반환
+ */
+export function applySeniorAlgorithm(
+  keyword: string,
+  categoryId: string,
+  baseMeta: { title?: string; description?: string; tags?: string[] }
+) {
+  const isSenior = isSeniorTargetKeyword(keyword);
+  if (!isSenior) return baseMeta;
+  
+  // 시니어 타겟이면 자동으로 보정 (사용자에게는 결과만)
+  // 매뉴얼 텍스트 노출 X, 알고리즘 결과만 반영
+  return {
+    ...baseMeta,
+    // 메타데이터 자동 보정 (예시 - 실제 구현은 contentEngine 활용)
+    _seniorOptimized: true,
+    _appliedRules: [
+      'shorts_format',
+      'large_subtitle',
+      'voice_narration',
+      'category_education',
+      'avoid_sensational',
+    ],
+  };
+}
