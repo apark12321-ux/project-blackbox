@@ -222,14 +222,33 @@ export default function PhoneShootingGuide() {
           그때 업그레이드하세요. 처음부터 비싼 장비 사면 후회합니다.
         </div>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎬 영상 자료 5초 만에 자동 생성</div>
-          <div className="guide-cta-desc">
-            촬영 잘해도 자료 준비가 어렵죠. AlgoMaker가 자료를 5초 만에 만들어드립니다.
-          </div>
-          <Link href="/" className="guide-cta-btn">
-            지금 바로 만들기 →
-          </Link>
+
+        <h2>핸드폰 촬영 시 자주 묻는 질문</h2>
+        <p>
+          많은 분이 묻는 것이 "비싼 카메라가 정말 필요 없나요?" 입니다. 답은 "네"입니다.
+          유튜브에 올라오는 영상의 70% 이상이 핸드폰으로 촬영됩니다. 핸드폰만으로도
+          충분히 좋은 화질이 나오고, 시청자는 화질보다 내용과 진정성을 봅니다.
+        </p>
+        <p>
+          또 다른 질문은 "어두운 곳에서 어떻게 찍나요?" 입니다. 가장 좋은 방법은
+          밝은 곳을 찾는 것입니다. 창가, 햇빛, 책상 스탠드 옆 등을 활용하시면 됩니다.
+          어두운 곳에서 찍으면 화질이 거칠어집니다.
+        </p>
+
+        <p>
+          핸드폰 촬영의 장점은 <strong>즉시 시작할 수 있다</strong>는 점입니다.
+          비싼 장비 사느라 시간을 보내지 마시고, 지금 갖고 계신 핸드폰으로 바로 첫 영상을
+          찍어보세요. 한 달 동안 핸드폰으로 영상을 찍어보면 본인에게 어떤 장비가
+          필요한지 자연스럽게 알게 됩니다.
+        </p>
+
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/camera-anxiety" style={{ color: "#c2410c" }}>카메라 울렁증 극복</Link></li>
+            <li><Link href="/blog/free-editing-apps" style={{ color: "#c2410c" }}>무료 영상 편집 앱</Link></li>
+            <li><Link href="/blog/youtube-start" style={{ color: "#c2410c" }}>유튜브 시작 가이드</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

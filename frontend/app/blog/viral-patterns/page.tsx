@@ -214,14 +214,36 @@ export default function ViralPatternsGuide() {
           한 번에 다 맞추실 필요는 없고, 매주 1가지씩 개선하세요.
         </p>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎬 떡상 패턴 적용된 자료 자동 생성</div>
-          <div className="guide-cta-desc">
-            AlgoMaker가 5가지 패턴 모두 적용된 영상 자료를 5초 만에 만들어드립니다.
-          </div>
-          <Link href="/" className="guide-cta-btn">
-            지금 바로 만들기 →
-          </Link>
+
+        <h2>떡상 채널들의 공통된 마인드</h2>
+        <p>
+          조회수 100만 채널들의 공통점은 단순히 알고리즘을 잘 아는 것이 아닙니다.
+          그들은 시청자가 정말 원하는 것을 끊임없이 고민합니다. 한 영상이 반응이 좋으면
+          왜 그랬는지 분석하고, 그 패턴을 다음 영상에 적용합니다.
+        </p>
+        <p>
+          또한 떡상 채널들은 빠른 실험을 두려워하지 않습니다. 새로운 형식, 새로운 길이,
+          새로운 톤을 시도하면서 시청자 반응을 살핍니다. 실패해도 다시 시도하는 마인드가
+          결국 떡상으로 이어집니다.
+        </p>
+
+        <p>
+          떡상은 한 영상으로 끝나지 않습니다. 한 번 떡상한 채널은 그 영상의 후속편을
+          빠르게 올려서 시청자를 끌어들여야 합니다. 같은 주제, 같은 패턴으로 5~10개를
+          연달아 올리면 알고리즘이 본인 채널을 인정하기 시작합니다.
+        </p>
+        <p>
+          그리고 떡상 영상은 분석할 가치가 있습니다. 어느 구간에서 시청자가 몰렸고,
+          어느 댓글이 가장 많았는지 살펴보세요. 그 패턴이 본인 채널의 무기가 됩니다.
+        </p>
+
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/algorithm-seo" style={{ color: "#c2410c" }}>SEO 전략</Link></li>
+            <li><Link href="/blog/algorithm-retention" style={{ color: "#c2410c" }}>시청 지속률</Link></li>
+            <li><Link href="/blog/algorithm-mistakes" style={{ color: "#c2410c" }}>치명적 실수 7가지</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

@@ -393,30 +393,14 @@ export default function YouTubeMonetizationGuide() {
           각 채널마다 별도로 YPP 가입해야 합니다.
         </p>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎬 수익 창출까지 가는 가장 빠른 길</div>
-          <div className="guide-cta-desc">
-            매주 꾸준히 양질의 영상을 만들기 어려우시다면 AlgoMaker가 도와드립니다.
-            제목 · 시나리오 · 썸네일까지 5초 안에.
-          </div>
-          <Link href="/" className="guide-cta-btn">
-            영상 자료 만들러 가기 →
-          </Link>
-        </div>
 
-        <div className="guide-related">
-          <div className="guide-related-title">▍ 함께 보시면 좋은 가이드</div>
-          <div className="guide-related-list">
-            <Link href="/blog/youtube-start" className="guide-related-item">
-              🎬 유튜브 처음 시작하기
-            </Link>
-            <Link href="/blog/youtube-algorithm" className="guide-related-item">
-              📊 유튜브 알고리즘 쉽게 이해하기
-            </Link>
-            <Link href="/blog/thumbnail-tips" className="guide-related-item">
-              🎨 썸네일 잘 만드는 5가지 비법
-            </Link>
-          </div>
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/revenue-calc" style={{ color: "#c2410c" }}>광고 수익 계산법</Link></li>
+            <li><Link href="/blog/first-100-subs" style={{ color: "#c2410c" }}>첫 100명 구독자</Link></li>
+            <li><Link href="/blog/algorithm-seo" style={{ color: "#c2410c" }}>SEO 전략</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

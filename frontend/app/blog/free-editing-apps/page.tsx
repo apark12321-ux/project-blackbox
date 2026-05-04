@@ -221,14 +221,52 @@ export default function FreeEditingAppsGuide() {
           30분에 끝낸 영상을 매주 1편씩 올리세요.
         </div>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎬 자료 만드는 시간 절약</div>
-          <div className="guide-cta-desc">
-            편집 시간 줄이려면 자료 준비도 빨라야죠. AlgoMaker가 5초 만에 만들어드립니다.
-          </div>
-          <Link href="/" className="guide-cta-btn">
-            지금 바로 만들기 →
-          </Link>
+        <h2>처음 한 달, 편집보다 중요한 것</h2>
+
+        <p>
+          유튜브를 시작하시는 분들이 가장 많이 하는 실수가 편집에 너무 많은 시간을
+          쓰는 일입니다. 화려한 효과, 정교한 자막, 멋진 인트로에 집착하다가
+          한 달에 영상 1개 올리고 지쳐서 포기하시는 분이 많습니다.
+        </p>
+
+        <p>
+          알고리즘은 <strong>꾸준한 업로드</strong>를 가장 중요하게 봅니다.
+          편집이 어설퍼도 매주 1~2편씩 꾸준히 올리는 채널이,
+          완벽한 영상을 한 달에 1편 올리는 채널보다 훨씬 빨리 성장합니다.
+        </p>
+
+        <p>
+          처음 3개월은 편집 시간을 30분 안에 끝내는 것을 목표로 하세요.
+          영상 1편당 30분이면 일주일에 3~4편도 만들 수 있습니다.
+          그렇게 영상이 쌓이면 알고리즘이 채널을 인식하기 시작합니다.
+        </p>
+
+        <h2>편집 도구별 강점 정리</h2>
+
+        <p>
+          위 4가지 앱은 모두 무료로 시작하실 수 있고, 핸드폰에서 바로 편집 가능합니다.
+          처음에는 CapCut으로 시작하시되, 채널이 어느 정도 성장하면
+          본인의 편집 스타일에 맞는 도구로 옮기시면 됩니다. 영상 만들기에 익숙해지면
+          어떤 도구를 써도 비슷하게 결과물이 나옵니다.
+        </p>
+
+        <h2>마치며</h2>
+
+        <p>
+          편집 도구는 무기일 뿐 본질이 아닙니다. 시청자가 보는 것은
+          편집의 화려함이 아니라 <strong>영상의 내용과 진정성</strong>입니다.
+          무료 도구로도 충분히 좋은 영상을 만들 수 있습니다.
+          처음에는 가장 쉬운 CapCut으로 시작해서, 매주 1~2편씩 꾸준히 올려보세요.
+          편집 실력은 자연스럽게 늘어납니다.
+        </p>
+
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/phone-shooting" style={{ color: '#c2410c' }}>핸드폰만으로 영상 잘 찍는 법</Link></li>
+            <li><Link href="/blog/camera-anxiety" style={{ color: '#c2410c' }}>카메라 울렁증 극복하기</Link></li>
+            <li><Link href="/blog/algorithm-mindset" style={{ color: '#c2410c' }}>6개월간 떡상이 안 와도 버티는 멘탈 관리</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

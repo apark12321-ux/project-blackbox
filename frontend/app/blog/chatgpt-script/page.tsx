@@ -237,15 +237,32 @@ export default function ChatGPTScriptGuide() {
           <li><strong>완전 복붙 X:</strong> 모든 채널이 비슷한 영상 → 차별점 없어짐.</li>
         </ul>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🤖 ChatGPT 보다 더 빠른 자료 생성</div>
-          <div className="guide-cta-desc">
-            AlgoMaker는 ChatGPT 처럼 매번 프롬프트 안 적어도 됩니다.
-            클릭만으로 영상 자료가 5초 만에 완성.
-          </div>
-          <Link href="/" className="guide-cta-btn">
-            지금 바로 만들기 →
-          </Link>
+
+        <h2>AI 대본 사용 시 주의할 점</h2>
+        <p>
+          ChatGPT가 만든 대본을 그대로 사용하면 시청자가 어색함을 느낍니다.
+          본인의 말투로 다시 쓰거나 핵심 키워드만 가져오는 식으로 사용하세요.
+          AI는 보조 도구입니다. 영상의 본질은 본인의 진짜 이야기여야 합니다.
+        </p>
+        <p>
+          또한 같은 프롬프트만 계속 사용하면 비슷한 패턴의 영상이 많이 나옵니다.
+          시청자가 식상해하지 않도록 주제마다 다른 프롬프트를 사용하세요.
+          본인만의 프롬프트 5~10개를 정리해두시면 작업 효율이 올라갑니다.
+        </p>
+
+        <p>
+          ChatGPT를 사용하실 때 가장 중요한 것은 <strong>구체적인 프롬프트</strong>입니다.
+          "유튜브 대본 써줘" 보다는 "60대 시청자 대상으로 5분 분량의 추억 회상 영상 대본,
+          첫 30초에 강한 후크 포함" 처럼 구체적으로 요청해야 좋은 결과가 나옵니다.
+        </p>
+
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/ai-tools" style={{ color: "#c2410c" }}>AI 영상 만들기 도구 모음</Link></li>
+            <li><Link href="/blog/ai-thumbnail" style={{ color: "#c2410c" }}>AI 썸네일 만드는 법</Link></li>
+            <li><Link href="/blog/human-warmth" style={{ color: "#c2410c" }}>AI 시대 인간의 온도</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

@@ -322,30 +322,37 @@ export default function YouTubeStartGuide() {
           하시면 됩니다.
         </p>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎬 영상 자료가 필요하신가요?</div>
-          <div className="guide-cta-desc">
-            AlgoMaker에서 키워드만 입력하시면 제목 · 시나리오 · 썸네일까지
-            5초 안에 만들어드립니다. 완전 무료입니다.
-          </div>
-          <Link href="/" className="guide-cta-btn">
-            영상 자료 만들러 가기 →
-          </Link>
-        </div>
 
-        <div className="guide-related">
-          <div className="guide-related-title">▍ 함께 보시면 좋은 가이드</div>
-          <div className="guide-related-list">
-            <Link href="/blog/youtube-algorithm" className="guide-related-item">
-              📊 유튜브 알고리즘 쉽게 이해하기
-            </Link>
-            <Link href="/blog/youtube-monetization" className="guide-related-item">
-              💰 유튜브 수익 창출 조건 (2026년 기준)
-            </Link>
-            <Link href="/blog/thumbnail-tips" className="guide-related-item">
-              🎨 썸네일 잘 만드는 5가지 비법
-            </Link>
-          </div>
+        <h2>유튜브 시작 첫 한 달 체크리스트</h2>
+        <p>
+          첫 한 달은 채널의 기초를 다지는 시기입니다. 영상 5~10편을 꾸준히 올리고,
+          댓글에 답글 달고, 채널 아트와 소개글을 정성스럽게 작성하세요. 이 시기에 쌓은
+          기초가 그 다음 6개월의 성장을 결정합니다.
+        </p>
+        <p>
+          처음에는 조회수가 잘 안 나옵니다. 하지만 유튜브는 100% 인내의 게임입니다.
+          꾸준히 올리면 알고리즘이 어느 순간 채널을 발견합니다. 그 순간이 오기 전까지
+          포기하지 마세요.
+        </p>
+
+        <p>
+          유튜브 시작에 완벽한 타이밍은 없습니다. 지금 시작하는 것이 가장 좋은 타이밍입니다.
+          많은 분이 "준비가 더 필요해" 라며 미루다가 결국 못 시작합니다. 첫 영상은 어설퍼도
+          괜찮습니다. 시작하지 않는 것보다 어설프게 시작하는 것이 100배 낫습니다.
+        </p>
+        <p>
+          첫 영상 업로드까지 1주일을 목표로 하세요. 컨셉 정하고, 핸드폰으로 찍고,
+          무료 앱으로 편집하고, 업로드. 이 과정을 일주일 안에 끝내시면 됩니다.
+          완벽함을 좇다가 시작도 못하는 분이 너무 많습니다.
+        </p>
+
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/channel-concept" style={{ color: "#c2410c" }}>채널 컨셉</Link></li>
+            <li><Link href="/blog/first-100-subs" style={{ color: "#c2410c" }}>첫 100명 구독자</Link></li>
+            <li><Link href="/blog/phone-shooting" style={{ color: "#c2410c" }}>핸드폰 촬영</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

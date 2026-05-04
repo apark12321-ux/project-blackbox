@@ -250,15 +250,20 @@ export default function First100SubsGuide() {
           비교적 쉽습니다. 알고리즘이 채널을 추천하기 시작하기 때문입니다.
         </p>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎬 영상 자료를 5초 만에</div>
-          <div className="guide-cta-desc">
-            매주 영상 만드시려면 자료 준비가 가장 시간이 많이 듭니다.
-            AlgoMaker가 5초 만에 자료 만들어드립니다.
-          </div>
-          <Link href="/" className="guide-cta-btn">
-            지금 바로 만들기 →
-          </Link>
+
+        <h2>첫 100명까지의 진짜 의미</h2>
+        <p>
+          첫 100명 구독자는 단순한 숫자가 아닙니다. 그 100명이 본인 채널의 핵심 팬이 됩니다.
+          댓글, 좋아요, 공유로 채널을 알고리즘에게 알려주는 사람들입니다.
+          그래서 처음 100명까지는 모든 댓글에 답글 달고 진심으로 소통하세요.
+        </p>
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/algorithm-mindset" style={{ color: "#c2410c" }}>멘탈 관리</Link></li>
+            <li><Link href="/blog/algorithm-seo" style={{ color: "#c2410c" }}>SEO 전략</Link></li>
+            <li><Link href="/blog/youtube-start" style={{ color: "#c2410c" }}>유튜브 시작 가이드</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

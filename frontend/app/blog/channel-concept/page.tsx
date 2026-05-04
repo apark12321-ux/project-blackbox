@@ -229,12 +229,20 @@ export default function ChannelConceptGuide() {
           "이 영상이 컨셉에 맞나?" 확인하는 기준이 됩니다.
         </p>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎯 컨셉에 맞는 영상 자료</div>
-          <div className="guide-cta-desc">
-            컨셉 정해지셨다면 자료 준비는 AlgoMaker 에 맡기세요. 5초 만에 완성.
-          </div>
-          <Link href="/" className="guide-cta-btn">지금 바로 만들기 →</Link>
+
+        <h2>처음 한 달간 컨셉 점검</h2>
+        <p>
+          처음 정한 컨셉이 잘 맞는지 한 달 후에 다시 점검하세요. 영상 5~10편 올려보고
+          어떤 영상이 반응이 좋았는지 분석합니다. 반응이 좋은 방향으로 컨셉을 살짝
+          조정하시면 채널이 빠르게 성장합니다.
+        </p>
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/algorithm-branding" style={{ color: "#c2410c" }}>클릭을 부르는 브랜딩</Link></li>
+            <li><Link href="/blog/youtube-start" style={{ color: "#c2410c" }}>유튜브 시작 가이드</Link></li>
+            <li><Link href="/blog/first-100-subs" style={{ color: "#c2410c" }}>첫 100명 구독자</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

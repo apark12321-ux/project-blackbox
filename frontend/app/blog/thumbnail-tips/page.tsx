@@ -383,30 +383,31 @@ export default function ThumbnailTipsGuide() {
           비교해줍니다. 어느 정도 데이터 쌓이면 적극 활용해보세요.
         </p>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎨 썸네일 컨셉 5초 만에</div>
-          <div className="guide-cta-desc">
-            AlgoMaker가 키워드만 받아서 클릭률 높은 썸네일 컨셉 3가지 + 한글/영문 프롬프트까지
-            만들어드립니다. AI 이미지 생성 도구에 그대로 넣으시면 끝.
-          </div>
-          <Link href="/" className="guide-cta-btn">
-            썸네일 만들러 가기 →
-          </Link>
-        </div>
 
-        <div className="guide-related">
-          <div className="guide-related-title">▍ 함께 보시면 좋은 가이드</div>
-          <div className="guide-related-list">
-            <Link href="/blog/youtube-start" className="guide-related-item">
-              🎬 유튜브 처음 시작하기
-            </Link>
-            <Link href="/blog/youtube-algorithm" className="guide-related-item">
-              📊 유튜브 알고리즘 쉽게 이해하기
-            </Link>
-            <Link href="/blog/ai-tools" className="guide-related-item">
-              🤖 영상 제작 AI 도구 정리
-            </Link>
-          </div>
+        <h2>썸네일 A/B 테스트 활용법</h2>
+        <p>
+          유튜브 스튜디오의 썸네일 A/B 테스트 기능을 활용하시면 어떤 썸네일이 더 잘
+          클릭되는지 자동으로 비교할 수 있습니다. 처음 한 달은 매 영상마다 두 가지 버전을
+          만들어 테스트해보시면 본인 채널에 맞는 썸네일 스타일을 찾으실 수 있습니다.
+        </p>
+
+        <p>
+          썸네일 디자인은 본인 채널의 정체성을 만드는 핵심 요소입니다.
+          글자 색, 배경 톤, 폰트 스타일을 일관되게 유지하시면 시청자가 한 눈에
+          본인 채널 영상을 알아봅니다. 그 일관성이 채널 브랜드가 됩니다.
+        </p>
+        <p>
+          처음에는 무료 도구인 미리캔버스나 캔바를 활용하세요. 한국어 폰트가
+          충분하고 템플릿도 많아서 빠르게 썸네일을 만들 수 있습니다.
+        </p>
+
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/ai-thumbnail" style={{ color: "#c2410c" }}>AI 썸네일 만드는 법</Link></li>
+            <li><Link href="/blog/algorithm-branding" style={{ color: "#c2410c" }}>클릭을 부르는 브랜딩</Link></li>
+            <li><Link href="/blog/algorithm-seo" style={{ color: "#c2410c" }}>SEO 전략</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

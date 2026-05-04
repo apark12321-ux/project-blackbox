@@ -250,30 +250,20 @@ export default function AlgorithmRetentionGuide() {
           "사람들이 오래 머무는 우량 채널"로 인식하기 시작합니다.
         </p>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎬 시청 지속률 높은 시나리오 자동 생성</div>
-          <div className="guide-cta-desc">
-            AlgoMaker가 6단계 시나리오 구조로 시청자가 끝까지 보게 만드는
-            영상 흐름을 자동으로 짜드립니다.
-          </div>
-          <Link href="/" className="guide-cta-btn">
-            영상 자료 만들러 가기 →
-          </Link>
-        </div>
 
-        <div className="guide-related">
-          <div className="guide-related-title">▍ 함께 보시면 좋은 가이드</div>
-          <div className="guide-related-list">
-            <Link href="/blog/algorithm-seo" className="guide-related-item">
-              🔍 알고리즘 SEO 검색 최적화 전략
-            </Link>
-            <Link href="/blog/algorithm-branding" className="guide-related-item">
-              🎨 클릭을 부르는 브랜딩과 디테일
-            </Link>
-            <Link href="/blog/algorithm-mistakes" className="guide-related-item">
-              ⚠️ 치명적 실수 방어하기
-            </Link>
-          </div>
+        <h2>시청 지속률 높이는 작은 습관</h2>
+        <p>
+          매 영상마다 시청 지속률 그래프를 확인하는 습관을 들이세요.
+          유튜브 스튜디오에서 어느 구간에서 시청자가 이탈하는지 한 눈에 보입니다.
+          그 구간을 짧게 줄이거나 다른 방식으로 바꾸면 다음 영상의 지속률이 올라갑니다.
+        </p>
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/algorithm-seo" style={{ color: "#c2410c" }}>SEO 전략</Link></li>
+            <li><Link href="/blog/algorithm-mistakes" style={{ color: "#c2410c" }}>치명적 실수 7가지</Link></li>
+            <li><Link href="/blog/viral-patterns" style={{ color: "#c2410c" }}>떡상 채널 패턴 분석</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

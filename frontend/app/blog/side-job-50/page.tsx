@@ -238,12 +238,20 @@ export default function SideJob50Guide() {
           <li>"AI 자동 채널" 사기 X (구글 정책 위반)</li>
         </ul>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎬 영상 자료 5초 만에</div>
-          <div className="guide-cta-desc">
-            매주 영상 만드는 데 자료 준비가 가장 시간 많이 듭니다. AlgoMaker가 도와드립니다.
-          </div>
-          <Link href="/" className="guide-cta-btn">지금 바로 만들기 →</Link>
+
+        <h2>50대가 유튜브에서 강한 진짜 이유</h2>
+        <p>
+          50대는 50년의 인생 경험을 갖고 계십니다. 그 경험 자체가 콘텐츠입니다.
+          20대 유튜버가 절대 만들 수 없는 깊이의 이야기를 자연스럽게 만드실 수 있습니다.
+          시청자는 인생 경험에서 우러나오는 진짜 이야기를 가장 좋아합니다.
+        </p>
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/senior-channel-start" style={{ color: "#c2410c" }}>50대부터 시작하는 시니어 사연 쇼츠 채널</Link></li>
+            <li><Link href="/blog/senior-content-ideas" style={{ color: "#c2410c" }}>시니어 채널 콘텐츠 아이디어 30가지</Link></li>
+            <li><Link href="/blog/camera-anxiety" style={{ color: "#c2410c" }}>카메라 울렁증 극복</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

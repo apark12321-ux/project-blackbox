@@ -242,12 +242,36 @@ export default function RevenueCalcGuide() {
           <li><strong>현금영수증·세금계산서:</strong> 유튜브 관련 지출 모두 받기</li>
         </ul>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">💰 매주 영상으로 수익화</div>
-          <div className="guide-cta-desc">
-            매주 영상 만드는 데 자료 준비가 가장 어렵죠. AlgoMaker가 5초 만에 만들어드립니다.
-          </div>
-          <Link href="/" className="guide-cta-btn">지금 바로 만들기 →</Link>
+
+        <h2>수익 계산 실전 예시</h2>
+        <p>
+          예를 들어 구독자 1만 명 채널이 한 달에 평균 10만 회 조회수를 얻는다고 가정하면,
+          RPM이 2달러라고 했을 때 한 달 광고 수익은 약 200달러 (한화 약 27만 원) 입니다.
+          물론 분야와 시청자에 따라 RPM은 1~10달러까지 다양합니다.
+        </p>
+        <p>
+          처음에는 수익이 적어도 실망하지 마세요. 채널이 성장하면서 RPM도 같이 올라갑니다.
+          유튜브 수익은 복리처럼 시간이 지날수록 커집니다.
+        </p>
+
+        <p>
+          유튜브 수익은 단순히 광고 수익만이 아닙니다. 채널이 성장하면 협찬, 멤버십,
+          슈퍼챗, 강의 판매 등 다양한 수익 채널이 열립니다. 처음에는 광고 수익에 집중하시되,
+          구독자 1만 명이 넘으면 다른 수익 모델도 함께 고민하세요.
+        </p>
+        <p>
+          중요한 것은 처음부터 수익에 집착하지 않는 것입니다. 시청자에게 가치 있는
+          콘텐츠를 만드는 데 집중하면 수익은 자연스럽게 따라옵니다. 수익만 노리고
+          광고성 콘텐츠를 만들면 시청자가 떠나갑니다.
+        </p>
+
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/youtube-monetization" style={{ color: "#c2410c" }}>유튜브 수익화</Link></li>
+            <li><Link href="/blog/first-100-subs" style={{ color: "#c2410c" }}>첫 100명 구독자</Link></li>
+            <li><Link href="/blog/algorithm-mindset" style={{ color: "#c2410c" }}>멘탈 관리</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

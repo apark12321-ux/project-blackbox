@@ -260,30 +260,14 @@ export default function AlgorithmBrandingGuide() {
           표지판을 잘 세워두는 것입니다.
         </p>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎨 일관된 썸네일 컨셉 자동 생성</div>
-          <div className="guide-cta-desc">
-            AlgoMaker가 채널 톤앤매너에 맞는 썸네일 컨셉 3가지 +
-            한글/영문 프롬프트까지 만들어드립니다.
-          </div>
-          <Link href="/" className="guide-cta-btn">
-            영상 자료 만들러 가기 →
-          </Link>
-        </div>
 
-        <div className="guide-related">
-          <div className="guide-related-title">▍ 함께 보시면 좋은 가이드</div>
-          <div className="guide-related-list">
-            <Link href="/blog/algorithm-seo" className="guide-related-item">
-              🔍 알고리즘 SEO 검색 최적화 전략
-            </Link>
-            <Link href="/blog/algorithm-retention" className="guide-related-item">
-              ⏱ 시청자를 채널에 가두는 무한 루프 세팅
-            </Link>
-            <Link href="/blog/algorithm-mistakes" className="guide-related-item">
-              ⚠️ 치명적 실수 방어하기
-            </Link>
-          </div>
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/thumbnail-tips" style={{ color: "#c2410c" }}>눈길을 사로잡는 썸네일 글자 디자인</Link></li>
+            <li><Link href="/blog/channel-concept" style={{ color: "#c2410c" }}>채널 컨셉 5가지 카테고리 정리</Link></li>
+            <li><Link href="/blog/algorithm-seo" style={{ color: "#c2410c" }}>알고리즘이 내 영상을 알아보게 하는 SEO 전략</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

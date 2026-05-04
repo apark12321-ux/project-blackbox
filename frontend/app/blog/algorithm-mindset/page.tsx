@@ -289,33 +289,14 @@ export default function AlgorithmMindsetGuide() {
           이 5%에 들기만 해도 이미 상위권입니다.
         </div>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎬 매주 꾸준한 업로드, AlgoMaker가 도와드립니다</div>
-          <div className="guide-cta-desc">
-            영상 자료 만드는 시간을 1/10로 줄여드립니다.
-            아낀 시간으로 더 많이 만드세요.
-          </div>
-          <Link href="/" className="guide-cta-btn">
-            영상 자료 만들러 가기 →
-          </Link>
-        </div>
 
-        <div className="guide-related">
-          <div className="guide-related-title">▍ 함께 보시면 좋은 가이드</div>
-          <div className="guide-related-list">
-            <Link href="/blog/algorithm-seo" className="guide-related-item">
-              🔍 알고리즘 SEO 검색 최적화 전략
-            </Link>
-            <Link href="/blog/algorithm-retention" className="guide-related-item">
-              ⏱ 무한 루프 세팅
-            </Link>
-            <Link href="/blog/algorithm-branding" className="guide-related-item">
-              🎨 클릭을 부르는 브랜딩
-            </Link>
-            <Link href="/blog/algorithm-mistakes" className="guide-related-item">
-              ⚠️ 치명적 실수 방어
-            </Link>
-          </div>
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/first-100-subs" style={{ color: "#c2410c" }}>첫 100명 구독자 모으는 방법</Link></li>
+            <li><Link href="/blog/algorithm-mistakes" style={{ color: "#c2410c" }}>치명적 실수 7가지</Link></li>
+            <li><Link href="/blog/viral-patterns" style={{ color: "#c2410c" }}>떡상 채널 패턴 분석</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

@@ -363,30 +363,28 @@ export default function YouTubeAlgorithmGuide() {
 
         <p>이 세 가지만 챙기시면 알고리즘은 자연스럽게 따라옵니다.</p>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎬 알고리즘 친화적 영상 자료 만들기</div>
-          <div className="guide-cta-desc">
-            AlgoMaker가 클릭률 높은 제목과 시청 지속율을 잡아주는 시나리오 구조까지
-            한 번에 만들어드립니다.
-          </div>
-          <Link href="/" className="guide-cta-btn">
-            영상 자료 만들러 가기 →
-          </Link>
-        </div>
 
-        <div className="guide-related">
-          <div className="guide-related-title">▍ 함께 보시면 좋은 가이드</div>
-          <div className="guide-related-list">
-            <Link href="/blog/youtube-start" className="guide-related-item">
-              🎬 유튜브 처음 시작하기
-            </Link>
-            <Link href="/blog/youtube-monetization" className="guide-related-item">
-              💰 유튜브 수익 창출 조건
-            </Link>
-            <Link href="/blog/thumbnail-tips" className="guide-related-item">
-              🎨 썸네일 잘 만드는 5가지 비법
-            </Link>
-          </div>
+        <h2>알고리즘 변화에 대처하는 자세</h2>
+        <p>
+          유튜브 알고리즘은 매년 조금씩 바뀝니다. 가장 안전한 대처법은 "시청자가 원하는
+          것" 에 집중하는 것입니다. 트렌드를 따라가는 것보다 시청자에게 진짜 가치를
+          제공하는 채널이 어떤 알고리즘 변화에서도 살아남습니다.
+        </p>
+
+        <p>
+          알고리즘은 결국 <strong>시청자를 위한 도구</strong>입니다. 시청자가 좋아하는
+          영상을 더 많이 보여주는 것이 알고리즘의 목표입니다. 그래서 알고리즘을
+          이기려면 시청자를 이해하면 됩니다. 시청자가 어떤 영상을 끝까지 보고,
+          어떤 영상에 댓글을 달고, 어떤 영상을 공유하는지 관찰하세요.
+        </p>
+
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/algorithm-seo" style={{ color: "#c2410c" }}>SEO 전략</Link></li>
+            <li><Link href="/blog/algorithm-mistakes" style={{ color: "#c2410c" }}>치명적 실수 7가지</Link></li>
+            <li><Link href="/blog/viral-patterns" style={{ color: "#c2410c" }}>떡상 패턴</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

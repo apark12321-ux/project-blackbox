@@ -234,12 +234,33 @@ export default function AIThumbnailGuide() {
           AB 테스트를 통해 본인 채널에 맞는 썸네일 스타일 찾으세요.
         </div>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎨 썸네일 컨셉 자동 생성</div>
-          <div className="guide-cta-desc">
-            AlgoMaker가 영상 주제 + 키워드로 썸네일 컨셉을 자동 추천해드립니다.
-          </div>
-          <Link href="/" className="guide-cta-btn">지금 바로 만들기 →</Link>
+
+        <h2>썸네일 만들 때 마지막 점검</h2>
+        <p>
+          썸네일을 다 만들었다면 업로드 전에 한 번 더 점검하세요.
+          핸드폰 작은 화면에서 썸네일을 봤을 때 글자가 읽히는지, 무엇을 말하는지
+          한 눈에 보이는지 확인하세요. 시청자는 모바일에서 썸네일을 1초 안에 판단합니다.
+        </p>
+        <p>
+          AI 썸네일은 강력한 도구지만 만능이 아닙니다. 본인 채널의 톤과 시청자 취향에
+          맞춰서 조금씩 다듬어 가세요. 처음에는 5개 만들어 보고 가장 클릭율이 좋은
+          스타일을 본인 채널의 표준으로 만드시면 됩니다.
+        </p>
+
+        <p>
+          마지막으로 한 가지 더 기억하실 점은 썸네일은 <strong>한 번 만들고 끝</strong>이 아니라는 것입니다.
+          채널이 성장하면서 시청자 취향이 바뀌고, 알고리즘 트렌드도 변합니다.
+          매월 한 번씩 본인 채널의 썸네일들을 점검하고, 클릭율이 좋은 패턴을 분석하세요.
+          그 분석 결과를 다음 영상 썸네일에 반영하시면 채널이 점점 성장합니다.
+        </p>
+
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/thumbnail-tips" style={{ color: "#c2410c" }}>눈길을 사로잡는 썸네일 글자 디자인</Link></li>
+            <li><Link href="/blog/chatgpt-script" style={{ color: "#c2410c" }}>ChatGPT로 영상 대본 빠르게 쓰는 법</Link></li>
+            <li><Link href="/blog/algorithm-seo" style={{ color: "#c2410c" }}>알고리즘이 내 영상을 알아보게 하는 SEO 전략</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

@@ -262,30 +262,14 @@ export default function AlgorithmMistakesGuide() {
           가이드 페이지에서 다운로드 받으실 수 있습니다.
         </div>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎬 실수 방어된 자료 자동 생성</div>
-          <div className="guide-cta-desc">
-            AlgoMaker가 알고리즘 친화적인 제목, 카테고리, 메타데이터를
-            자동으로 만들어 실수 방어까지 해드립니다.
-          </div>
-          <Link href="/" className="guide-cta-btn">
-            영상 자료 만들러 가기 →
-          </Link>
-        </div>
 
-        <div className="guide-related">
-          <div className="guide-related-title">▍ 함께 보시면 좋은 가이드</div>
-          <div className="guide-related-list">
-            <Link href="/blog/algorithm-seo" className="guide-related-item">
-              🔍 알고리즘 SEO 검색 최적화 전략
-            </Link>
-            <Link href="/blog/algorithm-retention" className="guide-related-item">
-              ⏱ 무한 루프 세팅
-            </Link>
-            <Link href="/blog/algorithm-mindset" className="guide-related-item">
-              💪 유튜버 멘탈 서바이벌 + 복리 성장
-            </Link>
-          </div>
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/algorithm-seo" style={{ color: "#c2410c" }}>SEO 전략</Link></li>
+            <li><Link href="/blog/senior-policy-safe" style={{ color: "#c2410c" }}>시니어 채널 정책 위반 피하는 6가지 규칙</Link></li>
+            <li><Link href="/blog/algorithm-mindset" style={{ color: "#c2410c" }}>멘탈 관리</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

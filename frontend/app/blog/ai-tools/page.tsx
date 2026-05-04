@@ -441,30 +441,14 @@ export default function AIToolsGuide() {
           <li>월 사용량 적으면 정기 구독 X, 사용량 기반 결제로</li>
         </ul>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎬 AI 도구 통합 활용하기</div>
-          <div className="guide-cta-desc">
-            AlgoMaker가 시나리오 + 썸네일 + 이미지 프롬프트 + 메타데이터까지
-            한 번에 만들어드립니다. 다른 AI 도구에 그대로 넣어 쓰시면 끝.
-          </div>
-          <Link href="/" className="guide-cta-btn">
-            영상 자료 만들러 가기 →
-          </Link>
-        </div>
 
-        <div className="guide-related">
-          <div className="guide-related-title">▍ 함께 보시면 좋은 가이드</div>
-          <div className="guide-related-list">
-            <Link href="/blog/youtube-start" className="guide-related-item">
-              🎬 유튜브 처음 시작하기
-            </Link>
-            <Link href="/blog/youtube-algorithm" className="guide-related-item">
-              📊 유튜브 알고리즘 쉽게 이해하기
-            </Link>
-            <Link href="/blog/thumbnail-tips" className="guide-related-item">
-              🎨 썸네일 잘 만드는 5가지 비법
-            </Link>
-          </div>
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/chatgpt-script" style={{ color: "#c2410c" }}>ChatGPT로 영상 대본 빠르게 쓰는 법</Link></li>
+            <li><Link href="/blog/ai-thumbnail" style={{ color: "#c2410c" }}>AI 썸네일 만드는 법</Link></li>
+            <li><Link href="/blog/human-warmth" style={{ color: "#c2410c" }}>AI 시대, 유튜버가 잃지 말아야 할 인간의 온도</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

@@ -211,12 +211,28 @@ export default function CameraAnxietyGuide() {
           </li>
         </ol>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎬 자료부터 준비하세요</div>
-          <div className="guide-cta-desc">
-            카메라 울렁증 극복하면서 자료 준비까지는 부담입니다. AlgoMaker가 5초 만에 만들어드립니다.
-          </div>
-          <Link href="/" className="guide-cta-btn">지금 바로 만들기 →</Link>
+
+        <h2>얼굴 안 나오는 채널의 강점</h2>
+        <p>
+          얼굴이 안 나와도 충분히 성공하는 채널이 많습니다. 오히려 익명성 덕분에
+          시청자가 본인 이야기처럼 받아들이는 경우도 많습니다. 손, 풍경, 자료 화면만으로도
+          멋진 영상을 만들 수 있으니 부담 갖지 마세요.
+        </p>
+
+        <p>
+          카메라 울렁증은 시간이 해결해줍니다. 처음 5번은 정말 어색하지만,
+          10번째 영상부터는 자연스러워지고, 30번째 영상이 되면 카메라 앞에서
+          편안해지십니다. 처음 어색함을 두려워하지 마시고 일단 시작하세요.
+          시청자도 처음 시작하시는 분의 어색함을 따뜻하게 받아줍니다.
+        </p>
+
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/phone-shooting" style={{ color: "#c2410c" }}>핸드폰만으로 영상 잘 찍는 법</Link></li>
+            <li><Link href="/blog/channel-concept" style={{ color: "#c2410c" }}>채널 컨셉 5가지</Link></li>
+            <li><Link href="/blog/algorithm-mindset" style={{ color: "#c2410c" }}>멘탈 관리</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>

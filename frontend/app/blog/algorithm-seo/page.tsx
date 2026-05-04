@@ -260,30 +260,14 @@ export default function AlgorithmSEOGuide() {
           그러면 노출이 자연스럽게 따라옵니다.
         </p>
 
-        <div className="guide-cta">
-          <div className="guide-cta-title">🎬 SEO 최적화된 자료 자동 생성</div>
-          <div className="guide-cta-desc">
-            AlgoMaker가 키워드 1개로 SEO 친화적 제목, 설명문, 태그, 해시태그까지
-            한 번에 만들어드립니다. 10분 일을 5초에.
-          </div>
-          <Link href="/" className="guide-cta-btn">
-            영상 자료 만들러 가기 →
-          </Link>
-        </div>
 
-        <div className="guide-related">
-          <div className="guide-related-title">▍ 함께 보시면 좋은 가이드</div>
-          <div className="guide-related-list">
-            <Link href="/blog/algorithm-retention" className="guide-related-item">
-              ⏱ 시청자를 채널에 가두는 무한 루프 세팅
-            </Link>
-            <Link href="/blog/algorithm-branding" className="guide-related-item">
-              🎨 클릭을 부르는 브랜딩과 디테일의 힘
-            </Link>
-            <Link href="/blog/algorithm-mistakes" className="guide-related-item">
-              ⚠️ 떡상을 가로막는 치명적 실수 방어
-            </Link>
-          </div>
+        <div className="guide-section" style={{ marginTop: 32, padding: '16px 20px', background: '#fff7ed', borderLeft: '3px solid #c2410c' }}>
+          <h3 style={{ marginTop: 0 }}>✨ 함께 보면 좋은 가이드</h3>
+          <ul style={{ marginBottom: 0 }}>
+            <li><Link href="/blog/algorithm-retention" style={{ color: "#c2410c" }}>시청자를 채널에 가두는 무한 루프 세팅</Link></li>
+            <li><Link href="/blog/algorithm-mistakes" style={{ color: "#c2410c" }}>치명적 실수 7가지</Link></li>
+            <li><Link href="/blog/viral-patterns" style={{ color: "#c2410c" }}>떡상 채널 패턴 분석</Link></li>
+          </ul>
         </div>
       </article>
     </V11Shell>
