@@ -43,7 +43,7 @@ const CATEGORIES = [
     emoji: '📊',
     name: '유튜브 알고리즘 · 노하우',
     desc: '업로드 공식 11가지, SEO 최적화, 추천 알고리즘 분석',
-    count: 9,
+    count: 10,
     color: '#c2410c',
     bgColor: '#fff7ed',
   },
@@ -82,6 +82,16 @@ const CATEGORIES = [
 // ============================================================
 const FEATURED_GUIDES = [
   {
+    slug: 'human-warmth',
+    category: '채널 운영 · NEW',
+    title: 'AI 시대, 유튜버가 잃지 말아야 할 인간의 온도',
+    subtitle: 'AI가 절대 못 만드는 콘텐츠 3가지와 실천법 5가지',
+    readTime: '7분',
+    badge: 'NEW',
+    emoji: '💝',
+    color: '#be185d',
+  },
+  {
     slug: 'algorithm-seo',
     category: '알고리즘',
     title: '알고리즘이 내 영상을 알아보게 하는 SEO 전략',
@@ -100,15 +110,6 @@ const FEATURED_GUIDES = [
     badge: '인기',
     emoji: '⏱',
     color: '#0284c7',
-  },
-  {
-    slug: 'algorithm-branding',
-    category: '브랜딩',
-    title: '클릭을 부르는 브랜딩과 디테일의 힘',
-    subtitle: '60-30-10 컬러 법칙과 채널 아트 3요소 공식',
-    readTime: '7분',
-    emoji: '🎨',
-    color: '#7c3aed',
   },
   {
     slug: 'algorithm-mistakes',
@@ -217,7 +218,7 @@ export default function HomePage() {
 
             <div className="heroStats">
               <div className="heroStat">
-                <div className="heroStatNum">20+</div>
+                <div className="heroStatNum">21+</div>
                 <div className="heroStatLabel">가이드</div>
               </div>
               <div className="heroStat">
@@ -274,7 +275,7 @@ export default function HomePage() {
         <section className="latestGuides">
           <div className="sectionHead">
             <h2 className="sectionTitle">📚 최신 가이드</h2>
-            <Link href="/blog" className="sectionMore">전체 20편 보기 →</Link>
+            <Link href="/blog" className="sectionMore">전체 21편 보기 →</Link>
           </div>
 
           <div className="guideGrid">

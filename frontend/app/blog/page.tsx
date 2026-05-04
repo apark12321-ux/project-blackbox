@@ -308,6 +308,19 @@ const GUIDES: Guide[] = [
     publishedAt: '2026-04-28',
     updatedAt: '2026-05-01',
   },
+  // 신규 v4.1: AI 시대 인간의 가치 (영상 인사이트 기반)
+  {
+    slug: 'human-warmth',
+    blogPath: true,
+    title: 'AI 시대, 유튜버가 잃지 말아야 할 인간의 온도',
+    subtitle: 'AI는 빠르고 유창하지만 흉내 낼 수 없는 것이 있습니다. AI가 절대 못 만드는 콘텐츠 3가지와 실천법 5가지.',
+    category: 'channel',
+    categoryLabel: '채널 운영',
+    emoji: '💝',
+    readTime: '7분',
+    publishedAt: '2026-05-04',
+    updatedAt: '2026-05-04',
+  },
 ];
 
 // 카테고리 필터 옵션 (박 대표님 4개 시주제)
