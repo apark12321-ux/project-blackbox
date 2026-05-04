@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { V17Shell } from '../../_shared/V17Shell';
+import { V18Shell } from '../../_shared/V18Shell';
 
 export default function SeniorContentIdeasGuide() {
   return (
-    <V17Shell>
+    <V18Shell>
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;
@@ -216,6 +216,6 @@ export default function SeniorContentIdeasGuide() {
           </ul>
         </div>
       </article>
-    </V17Shell>
+    </V18Shell>
   );
 }

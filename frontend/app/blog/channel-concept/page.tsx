@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { V17Shell } from '../../_shared/V17Shell';
+import { V18Shell } from '../../_shared/V18Shell';
 
 const articleSchema = {
   '@context': 'https://schema.org',
@@ -17,7 +17,7 @@ const articleSchema = {
 
 export default function ChannelConceptGuide() {
   return (
-    <V17Shell>
+    <V18Shell>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       <style jsx>{`
         .guide { max-width: 760px; margin: 0 auto; padding: 24px 20px 60px; font-family: 'Pretendard', -apple-system, system-ui, sans-serif; color: #0a0a0a; line-height: 1.75; letter-spacing: -0.01em; }
@@ -245,6 +245,6 @@ export default function ChannelConceptGuide() {
           </ul>
         </div>
       </article>
-    </V17Shell>
+    </V18Shell>
   );
 }

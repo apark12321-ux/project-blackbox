@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { V17Shell } from '../../_shared/V17Shell';
+import { V18Shell } from '../../_shared/V18Shell';
 
 const articleSchema = {
   '@context': 'https://schema.org',
@@ -21,7 +21,7 @@ const articleSchema = {
 
 export default function First100SubsGuide() {
   return (
-    <V17Shell>
+    <V18Shell>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
@@ -266,6 +266,6 @@ export default function First100SubsGuide() {
           </ul>
         </div>
       </article>
-    </V17Shell>
+    </V18Shell>
   );
 }

@@ -1,29 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { V17Shell } from '../../_shared/V17Shell';
-import { GuideTOC, GuideChecklist, GuideQuiz } from '../../_shared/GuideEnhancements';
-
-const TOC = [
-  { id: 'sec-1', label: 'AI가 절대 못 만드는 콘텐츠 3가지' },
-  { id: 'sec-2', label: 'AI를 도구로 쓰되 인간성 잃지 않는 법' },
-  { id: 'sec-3', label: '시니어 사연 쇼츠가 강한 진짜 이유' },
-  { id: 'sec-4', label: '차가운 기술 시대, 따뜻한 채널의 가치' },
-  { id: 'sec-5', label: '실천 방법 5가지' },
-  { id: 'sec-6', label: '마치며 - 망설임이 강력한 무기' },
-];
-
-const CHECKLIST = [
-  { id: 'c1', label: '본인 얼굴 또는 목소리 노출하기 결정' },
-  { id: 'c2', label: '댓글에 직접 답글 다는 시간 확보' },
-  { id: 'c3', label: '실수 영상도 올리기 (완벽 X)' },
-  { id: 'c4', label: '시청자 이름 부르는 영상 1편 만들기' },
-  { id: 'c5', label: '오늘 날씨/시즌 언급하는 인트로 시도' },
-];
+import { V18Shell } from '../../_shared/V18Shell';
 
 export default function HumanWarmthGuide() {
   return (
-    <V17Shell>
+    <V18Shell>
       <style jsx>{`
         .guide-layout {
           max-width: 1080px;
@@ -184,10 +166,7 @@ export default function HumanWarmthGuide() {
         .guide-back:hover { color: #0a0a0a; }
       `}</style>
 
-      <div className="guide-layout">
-        <div className="toc-wrapper">
-          <GuideTOC items={TOC} />
-        </div>
+      <div className="post-wrapper">
 
         <article className="guide">
           <Link href="/blog" className="guide-back">← BACK TO GUIDES</Link>
@@ -316,11 +295,7 @@ export default function HumanWarmthGuide() {
             하나씩 체크하면 진행률이 표시됩니다.
           </p>
 
-          <GuideChecklist
-            title="따라하기 체크리스트"
-            items={CHECKLIST}
-            storageKey="checklist:human-warmth"
-          />
+          
 
           <ol>
             <li>
@@ -372,16 +347,7 @@ export default function HumanWarmthGuide() {
             AI 시대일수록 진정성은 가장 비싼 자산입니다.
           </p>
 
-          <GuideQuiz
-            question="AI 시대 인간 유튜버의 가장 큰 차별점은 무엇일까요?"
-            options={[
-              { label: 'A', text: '더 정교한 편집 기술과 화려한 효과' },
-              { label: 'B', text: '직접 살아낸 경험과 망설임이 담긴 진정성' },
-              { label: 'C', text: '더 빠른 영상 제작 속도와 다작' },
-            ]}
-            answerIdx={1}
-            explanation="정답은 B입니다. AI는 데이터로 학습하지만, 인간만이 직접 살아낸 경험과 망설임을 담을 수 있습니다. 이것이 AI 시대 인간 유튜버의 가장 큰 무기입니다."
-          />
+          
 
           <div className="guide-section" style={{ marginTop: 32 }}>
             <h3>✨ 함께 보면 좋은 가이드</h3>
@@ -393,6 +359,6 @@ export default function HumanWarmthGuide() {
           </div>
         </article>
       </div>
-    </V17Shell>
+    </V18Shell>
   );
 }

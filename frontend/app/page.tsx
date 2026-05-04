@@ -1,629 +1,356 @@
 'use client';
 
 /**
- * AlgoMaker 메인 페이지 v17.0 - 도구 + 매거진 하이브리드
+ * AlgoMaker 메인 페이지 v18.0 - 애드센스 친화 표준 블로그
  *
- * 박 대표님 v17.0 결정:
- *   "매거진이 아닌 영상 만드는 툴이라는 직관적인 느낌이 필요"
- *   = 두 가지 모두 살리기
+ * 박 대표님 v18 결정:
+ *   "구글이 애드센스 승인 위한 사람들을 위해서 만든 샘플 사이트처럼"
+ *   "오류 없이 깔끔하게"
+ *   "내가 하고 싶은 내용은 다 들어가게"
  *
- * 구조:
- *   1. 통일 헤더 (V17Shell)
- *   2. 도구 영역 (상단) - 영상 만드는 툴 직관성
- *      - 키워드 입력란 (메인 CTA)
- *      - "5초 안에" 약속
- *      - 행동 유도 (자료 만들기 버튼)
- *   3. 매거진 영역 (하단) - 가이드 깊이
- *      - EDITOR'S PICK (큰 영역)
- *      - FEATURED STORIES (번호 매긴 리스트)
- *      - 카테고리 섹션 통계
- *      - 전체 26편 보기
+ * 박 대표님 콘텐츠 자산 (모두 포함):
+ *   1. 알고리즘 노하우 (11공식)
+ *   2. 시니어 사연 쇼츠
+ *   3. AI 도구 활용
+ *   4. 영상 채널 수익화
  *
- * 박 대표님 자산 보존:
- *   - /publish 도구 페이지 그대로
- *   - 가이드 26편 콘텐츠 그대로
+ * 설계 원칙:
+ *   ✅ 표준 블로그 구조
+ *   ✅ 단일 컬럼, 큰 글씨
+ *   ✅ H1-H2-H3 명확
+ *   ✅ 카테고리 + 최신 글 + 추천 글
+ *   ✅ 모바일 최적화
+ *   ✅ 인터랙션 / 카드 / 매거진 / 도구 중심 X
  */
 
 import Link from 'next/link';
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
-import { V17Shell } from './_shared/V17Shell';
+import { V18Shell } from './_shared/V18Shell';
 
-const FEATURED_PICK = {
-  slug: 'human-warmth',
-  category: 'CHANNEL',
-  title: 'AI 시대, 유튜버가 잃지 말아야 할 인간의 온도',
-  subtitle: 'AI는 빠르고 유창하지만 흉내 낼 수 없는 것이 있습니다. 시청자가 진짜 원하는 것은 완벽한 정보가 아닐지도 모릅니다.',
-  readTime: '7 MIN',
-  date: '2026.05.04',
-};
-
-const STORIES = [
-  { slug: 'algorithm-seo', num: '01', cat: 'ALGORITHM', title: '알고리즘이 내 영상을 알아보게 하는 SEO 전략', meta: '8 MIN · 12.3K' },
-  { slug: 'senior-channel-start', num: '02', cat: 'SENIOR', title: '50대부터 시작하는 시니어 사연 쇼츠 채널', meta: '8 MIN · NEW' },
-  { slug: 'algorithm-mistakes', num: '03', cat: 'MISTAKE', title: '치명적 실수 7가지 - 알고 피하면 떡상', meta: '8 MIN · 8.7K' },
-  { slug: 'algorithm-retention', num: '04', cat: 'RETENTION', title: '시청자를 채널에 가두는 무한 루프 세팅', meta: '7 MIN · 7.2K' },
-  { slug: 'senior-hook-patterns', num: '05', cat: 'HOOK', title: '시청자를 사로잡는 시니어 영상 후크 8가지', meta: '7 MIN · NEW' },
-  { slug: 'voice-seo', num: '06', cat: 'AI TOOL', title: '음성 SEO 완전 정복 - 검색 노출 200%', meta: '6 MIN · 5.4K' },
+const CATEGORIES = [
+  {
+    id: 'algorithm',
+    name: '유튜브 알고리즘',
+    desc: '검색 노출, 시청 지속률, 떡상 패턴까지. 박 실장 11공식 기반 알고리즘 노하우.',
+    count: 10,
+  },
+  {
+    id: 'senior',
+    name: '시니어 사연 쇼츠',
+    desc: '50~80대 타겟 채널 운영법. 후크 패턴, 콘텐츠 아이디어 30가지, 정책 안전 운영.',
+    count: 5,
+  },
+  {
+    id: 'aitools',
+    name: 'AI 도구 활용',
+    desc: '클로드, ChatGPT, Sora 등을 영상 제작에 활용하는 실전 가이드.',
+    count: 9,
+  },
+  {
+    id: 'monetization',
+    name: '영상 채널 수익화',
+    desc: '광고 수익 계산법, 첫 100명 구독자, 멘탈 관리까지.',
+    count: 3,
+  },
 ];
 
-const SECTIONS = [
-  { id: 'algorithm', label: '알고리즘', count: 10 },
-  { id: 'senior', label: '시니어', count: 5 },
-  { id: 'aitools', label: 'AI 도구', count: 8 },
-  { id: 'monetization', label: '수익화', count: 3 },
+const LATEST = [
+  { slug: 'claude-youtube-workflow', cat: 'AI 도구', title: '클로드로 유튜브 콘텐츠 자동화 - 4단계 프로세스', date: '2026.05.04', readTime: '9분' },
+  { slug: 'human-warmth', cat: '채널 운영', title: 'AI 시대, 유튜버가 잃지 말아야 할 인간의 온도', date: '2026.05.04', readTime: '7분' },
+  { slug: 'senior-channel-start', cat: '시니어', title: '50대부터 시작하는 시니어 사연 쇼츠 채널', date: '2026.05.04', readTime: '8분' },
+  { slug: 'senior-content-ideas', cat: '시니어', title: '시니어 채널 콘텐츠 아이디어 30가지', date: '2026.05.04', readTime: '9분' },
+  { slug: 'senior-hook-patterns', cat: '시니어', title: '시청자를 사로잡는 시니어 영상 후크 8가지', date: '2026.05.04', readTime: '7분' },
+];
+
+const POPULAR = [
+  { slug: 'algorithm-seo', cat: '알고리즘', title: '알고리즘이 내 영상을 알아보게 하는 SEO 전략', readTime: '8분' },
+  { slug: 'algorithm-mistakes', cat: '실수 방어', title: '치명적 실수 7가지 - 알고 피하면 떡상', readTime: '8분' },
+  { slug: 'algorithm-retention', cat: '시청 지속', title: '시청자를 채널에 가두는 무한 루프 세팅', readTime: '7분' },
+  { slug: 'algorithm-mindset', cat: '멘탈', title: '6개월간 떡상이 안 와도 버티는 멘탈 관리', readTime: '7분' },
+  { slug: 'first-100-subs', cat: '구독자', title: '첫 100명 구독자 모으는 방법', readTime: '7분' },
 ];
 
 export default function HomePage() {
-  const router = useRouter();
-  const [keyword, setKeyword] = useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!keyword.trim()) return;
-    router.push(`/publish?keyword=${encodeURIComponent(keyword.trim())}`);
-  };
-
   return (
-    <V17Shell>
-      <div className="home-v17">
-        <section className="tool-hero">
-          <div className="tool-hero-inner">
-            <div className="tool-kicker">
-              <span className="tool-kicker-arrow">▶</span>
-              영상 자료 만들기
-            </div>
-
-            <h1 className="tool-title">
-              키워드만 입력하면<br />
-              <span className="tool-title-accent">제목·시나리오·해시태그까지</span>
-            </h1>
-
-            <p className="tool-sub">
-              알고리즘 11공식이 자동 적용된 영상 자료를 5초 안에 받아보세요.
-              유튜브 시작하시는 분들을 위한 무료 도구입니다.
-            </p>
-
-            <form onSubmit={handleSubmit} className="tool-form">
-              <input
-                type="text"
-                value={keyword}
-                onChange={(e) => setKeyword(e.target.value)}
-                placeholder="예: 50대 부업 유튜브"
-                className="tool-input"
-                aria-label="영상 키워드"
-              />
-              <button type="submit" className="tool-btn">
-                <span>자료 만들기</span>
-                <span className="tool-btn-arrow">→</span>
-              </button>
-            </form>
-
-            <div className="tool-features">
-              <div className="tool-feature"><span className="tool-check">✓</span> 5초 안에</div>
-              <div className="tool-feature"><span className="tool-check">✓</span> 무료</div>
-              <div className="tool-feature"><span className="tool-check">✓</span> 알고리즘 11공식 자동 적용</div>
-            </div>
-          </div>
+    <V18Shell>
+      <div className="container">
+        <section className="hero">
+          <h1 className="hero-title">유튜브 채널 운영 노하우 가이드</h1>
+          <p className="hero-sub">
+            알고리즘, 시니어 사연 쇼츠, AI 도구 활용, 채널 수익화까지.<br />
+            유튜브 시작하시는 분들을 위한 실전 가이드 27편을 무료로 정리했습니다.
+          </p>
         </section>
 
-        <section className="mag-section">
-          <div className="mag-section-head">
-            <div className="mag-section-kicker-row">
-              <div className="mag-section-kicker">GUIDES · 따라하면 성공</div>
-              <Link href="/blog" className="mag-section-more">전체 26편 보기 →</Link>
-            </div>
-            <h2 className="mag-section-title">유튜브 운영 가이드 26편</h2>
-            <p className="mag-section-sub">
-              알고리즘부터 시니어 사연 쇼츠까지, 영상 채널 운영의 모든 노하우를 정리했습니다.
-            </p>
-          </div>
-
-          <Link href={`/blog/${FEATURED_PICK.slug}`} className="editor-pick">
-            <div className="editor-pick-kicker">EDITOR'S PICK</div>
-            <h3 className="editor-pick-title">{FEATURED_PICK.title}</h3>
-            <p className="editor-pick-sub">{FEATURED_PICK.subtitle}</p>
-            <div className="editor-pick-meta">
-              <span>{FEATURED_PICK.category}</span>
-              <span className="editor-pick-dot">·</span>
-              <span>{FEATURED_PICK.readTime}</span>
-              <span className="editor-pick-dot">·</span>
-              <span>{FEATURED_PICK.date}</span>
-            </div>
-          </Link>
-
-          <div className="stories-kicker">FEATURED STORIES</div>
-
-          <div className="stories">
-            {STORIES.map((s) => (
-              <Link key={s.slug} href={`/blog/${s.slug}`} className="story">
-                <div className="story-num-col">
-                  <div className="story-num">{s.num}</div>
-                  <div className="story-cat">{s.cat}</div>
-                </div>
-                <div className="story-content">
-                  <div className="story-title">{s.title}</div>
-                  <div className="story-meta">{s.meta}</div>
-                </div>
-                <div className="story-arrow">→</div>
+        <section className="section">
+          <h2 className="section-title">카테고리</h2>
+          <div className="cat-list">
+            {CATEGORIES.map((c) => (
+              <Link key={c.id} href={`/blog?cat=${c.id}`} className="cat-item">
+                <h3 className="cat-name">{c.name}</h3>
+                <p className="cat-desc">{c.desc}</p>
+                <div className="cat-count">가이드 {c.count}편 →</div>
               </Link>
             ))}
           </div>
+        </section>
 
-          <div className="sections-grid">
-            <div className="sections-kicker">SECTIONS · 26 GUIDES</div>
-            <div className="sections-row">
-              {SECTIONS.map((s) => (
-                <Link key={s.id} href={`/blog?cat=${s.id}`} className="section-card">
-                  <div className="section-count">{s.count}</div>
-                  <div className="section-label">{s.label}</div>
+        <section className="section">
+          <h2 className="section-title">최신 가이드</h2>
+          <ul className="post-list">
+            {LATEST.map((p) => (
+              <li key={p.slug} className="post-item">
+                <Link href={`/blog/${p.slug}`} className="post-link">
+                  <div className="post-meta">
+                    <span className="post-cat">{p.cat}</span>
+                    <span className="post-dot">·</span>
+                    <span className="post-date">{p.date}</span>
+                    <span className="post-dot">·</span>
+                    <span className="post-time">{p.readTime}</span>
+                  </div>
+                  <h3 className="post-title">{p.title}</h3>
                 </Link>
-              ))}
-            </div>
+              </li>
+            ))}
+          </ul>
+          <div className="more-row">
+            <Link href="/blog" className="more-link">전체 27편 보기 →</Link>
           </div>
         </section>
 
-        <style jsx>{`
-          .home-v17 {
-            max-width: 1080px;
-            margin: 0 auto;
-            padding: 0;
-          }
+        <section className="section">
+          <h2 className="section-title">인기 가이드</h2>
+          <ul className="post-list">
+            {POPULAR.map((p) => (
+              <li key={p.slug} className="post-item">
+                <Link href={`/blog/${p.slug}`} className="post-link">
+                  <div className="post-meta">
+                    <span className="post-cat">{p.cat}</span>
+                    <span className="post-dot">·</span>
+                    <span className="post-time">{p.readTime}</span>
+                  </div>
+                  <h3 className="post-title">{p.title}</h3>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
 
-          .tool-hero {
-            padding: 56px 24px 64px;
-            background: linear-gradient(180deg, #fafafa 0%, #ffffff 100%);
-            border-bottom: 0.5px solid #e5e5e5;
-          }
-          @media (max-width: 600px) {
-            .tool-hero { padding: 40px 16px 44px; }
-          }
-
-          .tool-hero-inner {
-            max-width: 760px;
-            margin: 0 auto;
-          }
-
-          .tool-kicker {
-            display: inline-flex;
-            align-items: center;
-            gap: 6px;
-            padding: 6px 12px;
-            background: #fff7ed;
-            color: #c2410c;
-            font-family: 'SF Mono', 'Roboto Mono', monospace;
-            font-size: 11px;
-            font-weight: 700;
-            letter-spacing: 0.1em;
-            margin-bottom: 20px;
-            text-transform: uppercase;
-          }
-          .tool-kicker-arrow { font-size: 10px; }
-
-          .tool-title {
-            font-size: 44px;
-            font-weight: 700;
-            color: #0a0a0a;
-            letter-spacing: -0.03em;
-            line-height: 1.15;
-            margin: 0 0 18px;
-            word-break: keep-all;
-          }
-          @media (max-width: 800px) {
-            .tool-title { font-size: 32px; margin-bottom: 14px; }
-          }
-          @media (max-width: 600px) {
-            .tool-title { font-size: 26px; line-height: 1.2; }
-          }
-
-          .tool-title-accent {
-            color: #c2410c;
-          }
-
-          .tool-sub {
-            font-size: 15px;
-            color: #525252;
-            line-height: 1.7;
-            margin: 0 0 28px;
-            word-break: keep-all;
-            max-width: 600px;
-          }
-          @media (max-width: 600px) {
-            .tool-sub { font-size: 13.5px; line-height: 1.65; margin-bottom: 22px; }
-          }
-
-          .tool-form {
-            display: flex;
-            gap: 8px;
-            margin-bottom: 18px;
-            max-width: 600px;
-          }
-          @media (max-width: 600px) {
-            .tool-form { flex-direction: column; gap: 10px; }
-          }
-
-          .tool-input {
-            flex: 1;
-            padding: 14px 16px;
-            font-size: 15px;
-            font-family: inherit;
-            font-weight: 500;
-            color: #0a0a0a;
-            background: #ffffff;
-            border: 1.5px solid #d4d4d4;
-            border-radius: 0;
-            outline: none;
-            transition: border-color 0.15s;
-            letter-spacing: -0.012em;
-          }
-          .tool-input:focus {
-            border-color: #0a0a0a;
-          }
-          .tool-input::placeholder {
-            color: #a3a3a3;
-            font-weight: 400;
-          }
-          @media (max-width: 600px) {
-            .tool-input { font-size: 14px; padding: 12px 14px; }
-          }
-
-          .tool-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            padding: 14px 28px;
-            font-family: inherit;
-            font-size: 15px;
-            font-weight: 700;
-            letter-spacing: -0.015em;
-            color: #ffffff;
-            background: #0a0a0a;
-            border: 1.5px solid #0a0a0a;
-            cursor: pointer;
-            transition: all 0.15s;
-            white-space: nowrap;
-          }
-          .tool-btn:hover {
-            background: #c2410c;
-            border-color: #c2410c;
-          }
-          @media (max-width: 600px) {
-            .tool-btn { padding: 13px 22px; font-size: 14px; }
-          }
-          .tool-btn-arrow {
-            font-size: 18px;
-            font-weight: 700;
-          }
-
-          .tool-features {
-            display: flex;
-            gap: 18px;
-            flex-wrap: wrap;
-          }
-          @media (max-width: 600px) {
-            .tool-features { gap: 12px; }
-          }
-
-          .tool-feature {
-            display: inline-flex;
-            align-items: center;
-            gap: 5px;
-            font-size: 12.5px;
-            color: #737373;
-            font-weight: 600;
-            letter-spacing: -0.01em;
-          }
-          @media (max-width: 600px) {
-            .tool-feature { font-size: 11.5px; }
-          }
-          .tool-check {
-            color: #16a34a;
-            font-weight: 800;
-            font-size: 13px;
-          }
-
-          .mag-section {
-            padding: 56px 24px 60px;
-          }
-          @media (max-width: 600px) {
-            .mag-section { padding: 36px 16px 40px; }
-          }
-
-          .mag-section-head {
-            margin-bottom: 28px;
-          }
-          @media (max-width: 600px) {
-            .mag-section-head { margin-bottom: 22px; }
-          }
-
-          .mag-section-kicker-row {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 12px;
-            flex-wrap: wrap;
-            margin-bottom: 10px;
-          }
-
-          .mag-section-kicker {
-            font-family: 'SF Mono', 'Roboto Mono', monospace;
-            font-size: 11px;
-            font-weight: 700;
-            color: #a3a3a3;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-          }
-
-          .mag-section-more {
-            font-size: 12.5px;
-            color: #c2410c;
-            font-weight: 700;
-            letter-spacing: -0.012em;
-            text-decoration: none;
-          }
-          .mag-section-more:hover { color: #0a0a0a; }
-
-          .mag-section-title {
-            font-size: 32px;
-            font-weight: 700;
-            color: #0a0a0a;
-            letter-spacing: -0.028em;
-            margin: 0 0 6px;
-            line-height: 1.2;
-            word-break: keep-all;
-          }
-          @media (max-width: 600px) {
-            .mag-section-title { font-size: 24px; margin-bottom: 4px; }
-          }
-
-          .mag-section-sub {
-            font-size: 14px;
-            color: #737373;
-            line-height: 1.6;
-            margin: 0;
-            letter-spacing: -0.012em;
-            word-break: keep-all;
-          }
-          @media (max-width: 600px) {
-            .mag-section-sub { font-size: 12.5px; }
-          }
-
-          .editor-pick {
-            display: block;
-            padding: 28px 28px;
-            background: #fafafa;
-            border-left: 4px solid #0a0a0a;
-            margin-bottom: 36px;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-          }
-          @media (max-width: 600px) {
-            .editor-pick { padding: 22px 20px; margin-bottom: 28px; }
-          }
-          .editor-pick:hover {
-            background: #f0f0f0;
-            border-left-color: #c2410c;
-          }
-
-          .editor-pick-kicker {
-            font-family: 'SF Mono', 'Roboto Mono', monospace;
-            font-size: 10.5px;
-            font-weight: 700;
-            color: #a3a3a3;
-            letter-spacing: 0.14em;
-            margin-bottom: 10px;
-            text-transform: uppercase;
-          }
-
-          .editor-pick-title {
-            font-size: 24px;
-            font-weight: 700;
-            color: #0a0a0a;
-            letter-spacing: -0.024em;
-            line-height: 1.3;
-            margin: 0 0 10px;
-            word-break: keep-all;
-          }
-          @media (max-width: 600px) {
-            .editor-pick-title { font-size: 19px; line-height: 1.35; margin-bottom: 8px; }
-          }
-
-          .editor-pick-sub {
-            font-size: 14px;
-            color: #525252;
-            line-height: 1.7;
-            margin: 0 0 14px;
-            word-break: keep-all;
-          }
-          @media (max-width: 600px) {
-            .editor-pick-sub { font-size: 13px; line-height: 1.65; margin-bottom: 12px; }
-          }
-
-          .editor-pick-meta {
-            display: flex;
-            align-items: center;
-            gap: 8px;
-            font-family: 'SF Mono', 'Roboto Mono', monospace;
-            font-size: 10.5px;
-            color: #a3a3a3;
-            font-weight: 700;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-          }
-          .editor-pick-dot { color: #d4d4d4; }
-
-          .stories-kicker {
-            font-family: 'SF Mono', 'Roboto Mono', monospace;
-            font-size: 11px;
-            font-weight: 700;
-            color: #a3a3a3;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            margin-bottom: 6px;
-          }
-
-          .stories {
-            display: flex;
-            flex-direction: column;
-            margin-bottom: 40px;
-          }
-          @media (max-width: 600px) {
-            .stories { margin-bottom: 32px; }
-          }
-
-          .story {
-            display: grid;
-            grid-template-columns: 90px 1fr 30px;
-            gap: 18px;
-            align-items: center;
-            padding: 20px 0;
-            border-top: 0.5px solid #e5e5e5;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.15s;
-          }
-          .story:last-child { border-bottom: 0.5px solid #e5e5e5; }
-          .story:hover {
-            background: #fafafa;
-            padding-left: 12px;
-          }
-          @media (max-width: 600px) {
-            .story { grid-template-columns: 60px 1fr 20px; gap: 12px; padding: 16px 0; }
-          }
-
-          .story-num-col {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-          }
-
-          .story-num {
-            font-family: 'SF Mono', 'Roboto Mono', monospace;
-            font-size: 28px;
-            font-weight: 600;
-            color: #d4d4d4;
-            line-height: 1;
-            letter-spacing: -0.02em;
-          }
-          @media (max-width: 600px) {
-            .story-num { font-size: 22px; }
-          }
-
-          .story-cat {
-            font-family: 'SF Mono', 'Roboto Mono', monospace;
-            font-size: 9.5px;
-            font-weight: 700;
-            color: #737373;
-            letter-spacing: 0.1em;
-            text-transform: uppercase;
-          }
-          @media (max-width: 600px) {
-            .story-cat { font-size: 9px; }
-          }
-
-          .story-content {
-            min-width: 0;
-          }
-
-          .story-title {
-            font-size: 16px;
-            font-weight: 600;
-            color: #0a0a0a;
-            letter-spacing: -0.018em;
-            line-height: 1.45;
-            margin-bottom: 5px;
-            word-break: keep-all;
-          }
-          @media (max-width: 600px) {
-            .story-title { font-size: 14px; line-height: 1.4; }
-          }
-
-          .story-meta {
-            font-family: 'SF Mono', 'Roboto Mono', monospace;
-            font-size: 10.5px;
-            font-weight: 600;
-            color: #a3a3a3;
-            letter-spacing: 0.08em;
-            text-transform: uppercase;
-          }
-          @media (max-width: 600px) {
-            .story-meta { font-size: 10px; }
-          }
-
-          .story-arrow {
-            font-size: 16px;
-            font-weight: 700;
-            color: #d4d4d4;
-            text-align: right;
-            transition: color 0.15s;
-          }
-          .story:hover .story-arrow { color: #c2410c; }
-
-          .sections-grid {
-            background: #fafafa;
-            padding: 22px 24px;
-          }
-          @media (max-width: 600px) {
-            .sections-grid { padding: 18px 18px; }
-          }
-
-          .sections-kicker {
-            font-family: 'SF Mono', 'Roboto Mono', monospace;
-            font-size: 11px;
-            font-weight: 700;
-            color: #737373;
-            letter-spacing: 0.12em;
-            text-transform: uppercase;
-            margin-bottom: 14px;
-          }
-
-          .sections-row {
-            display: grid;
-            grid-template-columns: repeat(4, 1fr);
-            gap: 10px;
-          }
-          @media (max-width: 600px) {
-            .sections-row { grid-template-columns: repeat(2, 1fr); gap: 8px; }
-          }
-
-          .section-card {
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-            padding: 16px 14px;
-            background: #ffffff;
-            text-decoration: none;
-            color: inherit;
-            transition: all 0.15s;
-          }
-          .section-card:hover {
-            background: #0a0a0a;
-            color: #ffffff;
-          }
-
-          .section-count {
-            font-family: 'SF Mono', 'Roboto Mono', monospace;
-            font-size: 24px;
-            font-weight: 700;
-            letter-spacing: -0.02em;
-            line-height: 1;
-          }
-          @media (max-width: 600px) {
-            .section-count { font-size: 20px; }
-          }
-
-          .section-label {
-            font-size: 12.5px;
-            font-weight: 600;
-            letter-spacing: -0.01em;
-          }
-          @media (max-width: 600px) {
-            .section-label { font-size: 11.5px; }
-          }
-        `}</style>
+        <section className="section about-section">
+          <h2 className="section-title">사이트 소개</h2>
+          <p className="about-p">
+            AlgoMaker는 유튜브 채널을 시작하거나 키우고 싶으신 분들을 위한 정보 사이트입니다.
+            구글 알고리즘 분석, 시니어 사연 쇼츠 채널 운영법, 클로드와 ChatGPT 같은 AI 도구 활용법,
+            채널 수익화 전략까지 영상 채널 운영의 모든 노하우를 한 곳에 정리했습니다.
+          </p>
+          <p className="about-p">
+            모든 가이드는 무료이며 회원가입이 필요하지 않습니다. 50대 이상 시니어 분들이
+            보시기 편하도록 큰 글씨와 단계별 설명으로 작성했습니다. 추가로 영상 자료
+            (제목·시나리오·해시태그) 를 자동으로 만들어주는 도구도 무료로 제공하고 있습니다.
+          </p>
+          <p className="about-p">
+            궁금하신 점이 있으시면 <Link href="/contact" className="link">문의 페이지</Link>를
+            통해 연락 주세요. 매주 새로운 가이드가 추가됩니다.
+          </p>
+        </section>
       </div>
-    </V17Shell>
+
+      <style jsx>{`
+        .hero {
+          padding: 56px 0 48px;
+          border-bottom: 1px solid #e5e5e5;
+          margin-bottom: 48px;
+        }
+        @media (max-width: 600px) {
+          .hero { padding: 36px 0 32px; margin-bottom: 36px; }
+        }
+
+        .hero-title {
+          font-size: 36px;
+          font-weight: 800;
+          color: #1a1a1a;
+          letter-spacing: -0.025em;
+          line-height: 1.25;
+          margin: 0 0 16px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .hero-title { font-size: 26px; line-height: 1.3; margin-bottom: 12px; }
+        }
+
+        .hero-sub {
+          font-size: 17px;
+          color: #525252;
+          line-height: 1.7;
+          margin: 0;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .hero-sub { font-size: 15px; line-height: 1.65; }
+        }
+
+        .section {
+          margin-bottom: 56px;
+        }
+        @media (max-width: 600px) {
+          .section { margin-bottom: 40px; }
+        }
+
+        .section-title {
+          font-size: 24px;
+          font-weight: 700;
+          color: #1a1a1a;
+          letter-spacing: -0.02em;
+          margin: 0 0 20px;
+          padding-bottom: 12px;
+          border-bottom: 2px solid #1a1a1a;
+        }
+        @media (max-width: 600px) {
+          .section-title { font-size: 20px; margin-bottom: 16px; padding-bottom: 10px; }
+        }
+
+        .cat-list {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 600px) {
+          .cat-list { grid-template-columns: 1fr; gap: 12px; }
+        }
+
+        .cat-item {
+          display: block;
+          padding: 20px 22px;
+          background: #f8f8f8;
+          border: 1px solid #e5e5e5;
+          transition: all 0.15s;
+        }
+        .cat-item:hover {
+          background: #ffffff;
+          border-color: #1a1a1a;
+        }
+
+        .cat-name {
+          font-size: 18px;
+          font-weight: 700;
+          color: #1a1a1a;
+          margin: 0 0 8px;
+          letter-spacing: -0.018em;
+        }
+        @media (max-width: 600px) {
+          .cat-name { font-size: 16.5px; }
+        }
+
+        .cat-desc {
+          font-size: 14.5px;
+          color: #525252;
+          line-height: 1.6;
+          margin: 0 0 12px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .cat-desc { font-size: 13.5px; }
+        }
+
+        .cat-count {
+          font-size: 13px;
+          color: #1a1a1a;
+          font-weight: 600;
+        }
+
+        .post-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+        }
+
+        .post-item {
+          border-bottom: 1px solid #e5e5e5;
+        }
+        .post-item:first-child { border-top: 1px solid #e5e5e5; }
+
+        .post-link {
+          display: block;
+          padding: 18px 0;
+          transition: opacity 0.15s;
+        }
+        .post-link:hover { opacity: 0.7; }
+
+        .post-meta {
+          display: flex;
+          gap: 8px;
+          font-size: 12.5px;
+          color: #737373;
+          margin-bottom: 6px;
+          flex-wrap: wrap;
+        }
+
+        .post-cat {
+          font-weight: 700;
+          color: #1a1a1a;
+        }
+        .post-dot { color: #d4d4d4; }
+
+        .post-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #1a1a1a;
+          margin: 0;
+          line-height: 1.5;
+          letter-spacing: -0.015em;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .post-title { font-size: 16px; line-height: 1.45; }
+        }
+
+        .more-row {
+          padding: 16px 0;
+          text-align: center;
+        }
+
+        .more-link {
+          font-size: 14.5px;
+          color: #1a1a1a;
+          font-weight: 700;
+          padding: 10px 22px;
+          border: 1px solid #1a1a1a;
+          display: inline-block;
+          transition: all 0.15s;
+        }
+        .more-link:hover {
+          background: #1a1a1a;
+          color: #ffffff;
+        }
+
+        .about-section {
+          background: #f8f8f8;
+          padding: 32px 28px;
+        }
+        @media (max-width: 600px) {
+          .about-section { padding: 24px 20px; }
+        }
+        .about-section .section-title {
+          margin-bottom: 16px;
+        }
+
+        .about-p {
+          font-size: 15.5px;
+          color: #404040;
+          line-height: 1.8;
+          margin: 0 0 14px;
+          word-break: keep-all;
+        }
+        .about-p:last-child { margin-bottom: 0; }
+        @media (max-width: 600px) {
+          .about-p { font-size: 14.5px; line-height: 1.75; }
+        }
+
+        .link {
+          color: #1a1a1a;
+          font-weight: 600;
+          text-decoration: underline;
+        }
+      `}</style>
+    </V18Shell>
   );
 }

@@ -1,114 +1,177 @@
 'use client';
-import Link from 'next/link';
-import { V11Shell } from '../_shared/V11Shell';
-import AdSlot from '../_shared/AdSlot';
 
-export default function Page() {
+import { V18Shell } from '../_shared/V18Shell';
+
+export default function ContactPage() {
   return (
-    <V11Shell>
-      <style jsx>{`
-        .page { max-width: 920px; margin: 0 auto; padding: 56px 24px 60px; }
-        .breadcrumb {
-          display: flex; gap: 8px; font-size: 13px;
-          color: #888; margin-bottom: 24px;
-        }
-        .breadcrumb a:hover { color: #c65f3b; }
-        .breadcrumb .sep { color: #ccc; }
-        .pageBadge {
-          display: inline-block; padding: 6px 14px;
-          background: #fdf1e7; color: #c65f3b;
-          border-radius: 100px; font-size: 12px; font-weight: 700;
-          margin-bottom: 16px;
-        }
-        .header { text-align: center; margin-bottom: 40px; }
-        .title {
-          font-size: 32px; font-weight: 800;
-          color: #1a1a1a; letter-spacing: -0.025em;
-          margin: 0 0 12px;
-        }
-        .sub { font-size: 15px; color: #666; line-height: 1.7; }
-        @media (max-width: 600px) { .title { font-size: 24px; } }
-        .content {
-          background: #fff; border: 1px solid #e5e5e5;
-          border-radius: 14px; padding: 32px;
-          line-height: 1.8; color: #333;
-        }
-        .content h2 {
-          font-size: 19px; font-weight: 800;
-          color: #1a1a1a; margin: 28px 0 12px;
-        }
-        .content h2:first-child { margin-top: 0; }
-        .content h3 {
-          font-size: 15px; font-weight: 700;
-          color: #1a1a1a; margin: 20px 0 8px;
-        }
-        .content p { margin: 0 0 14px; font-size: 14.5px; }
-        .content ul { padding-left: 24px; margin: 12px 0; }
-        .content li {
-          margin-bottom: 8px; font-size: 14px; color: #555;
-          line-height: 1.7;
-        }
-        .content strong { color: #c65f3b; font-weight: 700; }
-        .ctaBtn {
-          display: inline-block; padding: 14px 28px;
-          background: #c65f3b; color: #fff;
-          border-radius: 100px; font-size: 14px; font-weight: 700;
-          text-decoration: none; transition: all 0.2s;
-          margin-top: 20px;
-        }
-        .ctaBtn:hover { background: #a64a2a; }
-        .adArea { margin: 32px 0; }
-      `}</style>
-
-      <div className="page">
-        <nav className="breadcrumb">
-          <Link href="/">홈</Link>
-          <span className="sep">/</span>
-          <span>문의하기</span>
-        </nav>
-
-        <header className="header">
-          <div className="pageBadge">Contact</div>
-          <h1 className="title">문의하기</h1>
-          <p className="sub">궁금한 점이나 제안 사항이 있으시면 언제든 연락주세요</p>
-        </header>
-
-        <div className="content">
-          <h2>📧 이메일 문의</h2>
-          <p>
-            서비스 이용 중 문제가 있거나, 개선 제안이 있으시면 언제든 연락주세요.<br />
-            영업일 기준 1~3일 내에 답변드립니다.
-          </p>
-          <p>
-            <strong>이메일:</strong> apark12321@gmail.com<br />
-            <strong>운영시간:</strong> 평일 09:00 ~ 18:00 (주말·공휴일 제외)
+    <V18Shell>
+      <div className="container">
+        <article className="page">
+          <h1 className="page-h1">문의하기</h1>
+          <p className="page-lede">
+            궁금하신 점이나 제안 사항이 있으시면 아래 이메일로 연락 주세요.
+            영업일 기준 1~3일 내에 답변 드립니다.
           </p>
 
-          <h2>💬 자주 묻는 질문</h2>
-          
-          <h3>1. 정말 무료인가요?</h3>
-          <p>네, 완전 무료입니다. 회원가입도 결제도 필요 없습니다.</p>
+          <h2>연락처 정보</h2>
+          <div className="info-box">
+            <div className="info-row">
+              <div className="info-label">이메일</div>
+              <div className="info-value">
+                <a href="mailto:apark12321@gmail.com" className="email-link">apark12321@gmail.com</a>
+              </div>
+            </div>
+            <div className="info-row">
+              <div className="info-label">운영자</div>
+              <div className="info-value">알고파트너스 (대표 박예준)</div>
+            </div>
+            <div className="info-row">
+              <div className="info-label">웹사이트</div>
+              <div className="info-value">https://nutube.kr</div>
+            </div>
+          </div>
 
-          <h3>2. 어떤 분야의 콘텐츠를 만들 수 있나요?</h3>
-          <p>경제·재테크, 부동산, N잡·창업, 건강, 여행, 요리 등 12개 분야를 지원합니다.</p>
+          <h2>문의 가능한 내용</h2>
+          <ul>
+            <li>가이드 내용에 대한 질문</li>
+            <li>다뤘으면 하는 주제 제안</li>
+            <li>자료 만들기 도구 사용 시 발생하는 오류 신고</li>
+            <li>오타 또는 잘못된 정보 제보</li>
+            <li>광고 또는 협업 제안</li>
+            <li>기타 사이트 관련 문의</li>
+          </ul>
 
-          <h3>3. 정말 조회수가 잘 나오는 제목을 추천해주나요?</h3>
-          <p>AI가 알고리즘 데이터와 트렌드 키워드를 기반으로 클릭률 높은 제목을 추천합니다. 다만 실제 성과는 콘텐츠 품질, 썸네일, 업로드 시간 등 다양한 요소에 영향을 받습니다.</p>
-
-          <h3>4. 비즈니스·광고 문의는 어디로 보내나요?</h3>
-          <p>광고 게재나 비즈니스 제휴 문의는 위 이메일로 보내주세요.</p>
-
-          <h2>🏢 회사 정보</h2>
+          <h2>답변 시간</h2>
           <p>
-            <strong>운영:</strong> 알고파트너스<br />
-            <strong>서비스:</strong> AlgoMaker - AI 콘텐츠 추천 도구
+            모든 문의는 영업일 기준 <strong>1~3일 이내</strong>에 답변 드립니다.
+            주말과 공휴일에는 답변이 늦어질 수 있는 점 양해 부탁드립니다.
           </p>
-        </div>
 
-        <div className="adArea">
-          <AdSlot slot="page-bottom" variant="horizontal" />
-        </div>
+          <h2>자주 묻는 질문</h2>
+
+          <h3>모든 콘텐츠가 정말 무료인가요?</h3>
+          <p>
+            네, AlgoMaker의 모든 가이드와 자료 만들기 도구는 완전 무료입니다.
+            회원가입도 필요하지 않으며, 결제 정보를 요구하지 않습니다.
+            사이트는 광고 수익(Google AdSense)으로 운영됩니다.
+          </p>
+
+          <h3>가이드 내용을 다른 곳에 인용해도 되나요?</h3>
+          <p>
+            출처(AlgoMaker / nutube.kr)를 명확히 표기하시는 조건으로 인용 가능합니다.
+            전체 복사 또는 무단 재배포는 금지됩니다.
+          </p>
+
+          <h3>새로운 가이드는 얼마나 자주 올라오나요?</h3>
+          <p>
+            매주 1~2편의 새로운 가이드가 추가됩니다. 알고리즘, 시니어 사연 쇼츠,
+            AI 도구, 수익화 등 4개 카테고리에서 균형 있게 작성합니다.
+          </p>
+
+          <h3>자료 만들기 도구를 사용하면 정말 5초 안에 만들어지나요?</h3>
+          <p>
+            네, 키워드 입력 후 평균 5초 이내에 영상 제목, 시나리오, 해시태그가
+            자동으로 생성됩니다. 박 실장 알고리즘 11공식이 자동 적용되어 있어
+            바로 사용하실 수 있는 수준의 결과물을 받아보실 수 있습니다.
+          </p>
+        </article>
       </div>
-    </V11Shell>
+
+      <style jsx>{`
+        .page { padding: 48px 0 60px; }
+        @media (max-width: 600px) { .page { padding: 32px 0 50px; } }
+
+        .page-h1 {
+          font-size: 36px;
+          font-weight: 800;
+          color: #1a1a1a;
+          letter-spacing: -0.025em;
+          margin: 0 0 16px;
+        }
+        @media (max-width: 600px) { .page-h1 { font-size: 26px; } }
+
+        .page-lede {
+          font-size: 18px;
+          color: #525252;
+          line-height: 1.7;
+          margin: 0 0 32px;
+          padding-bottom: 24px;
+          border-bottom: 1px solid #e5e5e5;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .page-lede { font-size: 16px; } }
+
+        .page h2 {
+          font-size: 24px;
+          font-weight: 800;
+          color: #1a1a1a;
+          margin: 36px 0 14px;
+        }
+        @media (max-width: 600px) { .page h2 { font-size: 20px; margin: 28px 0 12px; } }
+
+        .page h3 {
+          font-size: 18px;
+          font-weight: 700;
+          color: #1a1a1a;
+          margin: 24px 0 10px;
+        }
+
+        .page p {
+          font-size: 16.5px;
+          line-height: 1.8;
+          color: #1a1a1a;
+          margin: 0 0 16px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .page p { font-size: 15.5px; } }
+
+        .page ul {
+          padding-left: 24px;
+          margin: 12px 0 20px;
+        }
+        .page li {
+          font-size: 16.5px;
+          line-height: 1.8;
+          margin-bottom: 6px;
+        }
+
+        .page strong { font-weight: 700; }
+
+        .info-box {
+          padding: 20px 24px;
+          background: #f8f8f8;
+          margin: 20px 0;
+        }
+
+        .info-row {
+          display: flex;
+          gap: 16px;
+          padding: 10px 0;
+          border-bottom: 1px solid #e5e5e5;
+        }
+        .info-row:last-child { border-bottom: none; }
+
+        .info-label {
+          flex-shrink: 0;
+          width: 80px;
+          font-size: 14.5px;
+          font-weight: 700;
+          color: #1a1a1a;
+        }
+
+        .info-value {
+          flex: 1;
+          font-size: 15.5px;
+          color: #404040;
+        }
+
+        .email-link {
+          color: #c2410c;
+          font-weight: 600;
+          text-decoration: underline;
+        }
+        .email-link:hover { color: #1a1a1a; }
+      `}</style>
+    </V18Shell>
   );
 }
