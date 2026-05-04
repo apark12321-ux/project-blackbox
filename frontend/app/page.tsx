@@ -1,32 +1,41 @@
 'use client';
 /**
- * AlgoMaker 메인 페이지 v12.0 - 정보 사이트 정체성 + 4개 카테고리
+ * AlgoMaker 메인 페이지 v13.0 - 정보 사이트 정체성 (HERO 변경)
  *
- * 박 대표님 v12.0 결정:
- *   1. C+D 하이브리드 (방문 목적별 분기 + 어시스턴트 판단)
- *   2. "영상 자동 제작 곧 출시" 모두 삭제 (거짓 약속 X)
- *   3. 4개 시주제 (애드센스 주제 일관성):
- *      ① 유튜브 알고리즘/노하우 (박 대표님 docx)
- *      ② 시니어 사연 쇼츠 (박 대표님 보안 자산)
- *      ③ AI 도구 활용 (Sora/VEO/ChatGPT)
- *      ④ 영상 채널 수익화 전반
+ * 박 대표님 v13.0 진단:
+ *   "하나도 안 바뀌었는데?" (적용은 됐는데 첫 화면이 여전히 도구 중심)
  *
- * v12 변경:
- *  ✅ 영상 제작 배너 통째로 삭제 (JSX + CSS)
- *  ✅ 4개 카테고리 카드 섹션 추가
- *     /blog?cat=algorithm | senior | aitools | monetization
- *  ✅ 가이드 섹션은 유지 (기존 6편 노출)
- *  ✅ 자료 만들기 도구는 메인 상단 그대로
+ *   원인: HERO + selectSection (분야→주제→시나리오) 가 메인 영역
+ *         카테고리 카드는 페이지 중간이라 안 보임
  *
- * v11.2 보존:
- *  - 알고리즘 11공식 자동 적용 키커
- *  - 6개 노하우 배지
- *  - 분야 9개 + 주제 6개 + 시나리오 패턴 8개
+ * v13.0 변경 (정체성 진짜 변경):
+ *  ✅ HERO 변경:
+ *     이전: "유튜브 영상 자료 5초 만에 자동 생성"
+ *     이후: "유튜브 채널 운영 정보 사이트 / 알고리즘·시니어·AI 채널 수익화"
+ *  ✅ HERO CTA 변경:
+ *     이전: "지금 바로 만들기" (도구 행동)
+ *     이후: "📚 가이드 둘러보기" (정보 사이트 행동)
+ *     보조: "또는 자료 만들기 도구 사용" (작은 보조 버튼)
+ *  ✅ HERO 배지 변경:
+ *     이전: 11공식 6개 (제목 8:2, 음성SEO, 챕터, ...)
+ *     이후: 4개 시주제 (📊 알고리즘 / 👔 시니어 / 🤖 AI / 💰 수익화)
+ *  ✅ 섹션 순서 변경:
+ *     이전: HERO → 분야→주제→시나리오 → 카테고리 → 가이드 → FAQ
+ *     이후: HERO → 카테고리 → 가이드 → 자료 만들기 (보너스) → FAQ
+ *  ✅ selectSection 라벨 변경:
+ *     "✨ 보너스 도구" 배지 추가
+ *     "가이드를 다 보셨다면, 자료 만들기 도구도 사용해 보세요"
  *
  * 박 대표님 자산 100% 보존:
  *  - publish/page.tsx 그대로 (URL ?scenario= 받음)
  *  - contentEngine, v650Adapter 그대로
  *  - Cinematic 두 파일 그대로
+ *  - 분야 9개 + 주제 6개 + 시나리오 8개 (selectSection) 그대로
+ *
+ * 애드센스 승인 효과:
+ *  - 정보 사이트 정체성 명확 (HERO + 첫 영역 = 카테고리/가이드)
+ *  - 자동 생성 도구는 보너스 위치 (애드센스 친화)
+ *  - 4개 카테고리 = 주제 일관성 명시
  *
  * v11.0 변경 (v10.9 v3 → v11.0):
  *  ✅ kicker: "ALGORITHM ENGINE" → "완전 무료 · 회원가입 X"
@@ -782,12 +791,13 @@ export default function HomePage() {
         }
 
         /* v11.0 NEW: Hero CTA 버튼 (사용자 행동 명확화) */
+        /* v13.0: a 태그로 변경 (가이드 둘러보기) */
         .heroCta {
           display: inline-flex;
           align-items: center;
           justify-content: center;
           gap: 10px;
-          margin: 0 0 24px;
+          margin: 0 0 8px;
           padding: 16px 24px;
           background: linear-gradient(135deg, #c2410c 0%, #ea580c 100%);
           color: #ffffff;
@@ -805,6 +815,7 @@ export default function HomePage() {
             inset 0 1px 0 rgba(255, 255, 255, 0.15);
           width: 100%;
           max-width: 320px;
+          text-decoration: none;
         }
         @media (max-width: 600px) {
           .heroCta {
@@ -825,6 +836,35 @@ export default function HomePage() {
         .heroCta:active {
           transform: translateY(0);
         }
+
+        /* v13.0 NEW: 보조 CTA (자료 만들기) */
+        .heroCtaSecondary {
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          gap: 6px;
+          width: 100%;
+          padding: 11px 18px;
+          background: transparent;
+          border: 1.5px solid #d4d4d4;
+          color: #525252;
+          font-family: inherit;
+          font-size: 13.5px;
+          font-weight: 600;
+          letter-spacing: -0.012em;
+          cursor: pointer;
+          margin-top: 8px;
+          margin-bottom: 16px;
+          transition: all 0.15s;
+        }
+        .heroCtaSecondary:hover {
+          border-color: #0a0a0a;
+          color: #0a0a0a;
+        }
+        @media (max-width: 600px) {
+          .heroCtaSecondary { font-size: 12.5px; padding: 10px 14px; }
+        }
+
         .heroCtaArrow {
           font-size: 20px;
           color: #fbbf24;
@@ -1117,6 +1157,39 @@ export default function HomePage() {
         }
         @media (max-width: 600px) {
           .selectSection { padding: 16px 16px; }
+        }
+
+        /* v13.0 NEW: 보너스 도구 배지 (자료 만들기는 보조) */
+        .toolBonusBadge {
+          display: flex;
+          flex-direction: column;
+          gap: 4px;
+          padding: 14px 18px;
+          background: #ffffff;
+          border-left: 4px solid #fbbf24;
+          margin-bottom: 18px;
+          letter-spacing: -0.012em;
+        }
+        @media (max-width: 600px) {
+          .toolBonusBadge { padding: 12px 14px; margin-bottom: 14px; }
+        }
+        .toolBonusBadge > span:first-child {
+          font-size: 14px;
+          font-weight: 800;
+          color: #92400e;
+        }
+        @media (max-width: 600px) {
+          .toolBonusBadge > span:first-child { font-size: 13px; }
+        }
+        .toolBonusBadgeSub {
+          font-size: 12.5px;
+          color: #525252;
+          font-weight: 600;
+          line-height: 1.5;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .toolBonusBadgeSub { font-size: 11.5px; }
         }
 
         .selectStep {
@@ -1789,61 +1862,68 @@ export default function HomePage() {
 
           {/* 패널 본문 */}
           <div className="engineBody">
-            {/* 좌측: 사용자 가치 제안 (v11.1 노하우 홍보 강화) */}
+            {/* v13.0: 정보 사이트 정체성 명시 */}
             <div className="engineLeft">
               <div className="engineKicker">
                 <span className="engineKickerArrow">▍</span>
-                알고리즘 11공식 자동 적용 · 무료
+                유튜브 채널 운영 정보 사이트
               </div>
 
               <h1 className="engineTitle">
-                유튜브 <span className="engineTitleAccent">영상 자료</span><br />
-                5초 만에 자동 생성
+                <span className="engineTitleAccent">알고리즘·시니어·AI</span><br />
+                채널 수익화 가이드
               </h1>
 
               <p className="engineSub">
-                <strong>실제 검증된 11가지 업로드 공식</strong>이 자동 적용된
-                제목·시나리오·썸네일·프롬프트를 만들어드립니다.
-                ChatGPT 같은 일반 AI 도구와 다른 점입니다.
+                <strong>실제 검증된 11가지 업로드 공식</strong>과 시니어 사연 쇼츠,
+                AI 도구 활용까지 — 유튜브 채널 운영에 필요한 모든 노하우를
+                무료로 정리해드립니다.
               </p>
 
-              {/* v11.1 NEW: 노하우 11공식 배지 (팩트 = 홍보) */}
+              {/* v13.0: 4개 시주제 배지 */}
               <div className="formulaBadges">
-                <div className="formulaBadge">✓ 제목 8:2 법칙</div>
-                <div className="formulaBadge">✓ 음성 SEO</div>
-                <div className="formulaBadge">✓ 챕터 5~7개</div>
-                <div className="formulaBadge">✓ 해시태그 함정 회피</div>
-                <div className="formulaBadge">✓ 첫 30초 후크</div>
-                <div className="formulaBadge">✓ 댓글 유도</div>
+                <div className="formulaBadge">📊 알고리즘 11공식</div>
+                <div className="formulaBadge">👔 시니어 사연 쇼츠</div>
+                <div className="formulaBadge">🤖 AI 도구 활용</div>
+                <div className="formulaBadge">💰 채널 수익화</div>
               </div>
 
-              {/* 큰 CTA 버튼 */}
-              <button
+              {/* 큰 CTA 버튼 - 가이드 둘러보기 (정보 사이트) */}
+              <a
                 className="heroCta"
+                href="/blog"
+              >
+                <span className="heroCtaLabel">📚 가이드 둘러보기</span>
+                <span className="heroCtaArrow">→</span>
+              </a>
+
+              {/* 보조 CTA - 자료 만들기 (보너스) */}
+              <button
+                className="heroCtaSecondary"
                 onClick={() => {
                   document.querySelector('.selectSection')?.scrollIntoView({ behavior: 'smooth' });
                 }}
                 type="button"
               >
-                <span className="heroCtaLabel">지금 바로 만들기</span>
+                <span>또는 자료 만들기 도구 사용</span>
                 <span className="heroCtaArrow">↓</span>
               </button>
 
               <div className="engineMetrics">
                 <div className="engineMetric">
-                  <div className="engineMetricLabel">AI 엔진</div>
-                  <div className="engineMetricValue">5</div>
-                  <div className="engineMetricUnit">동시 연동</div>
+                  <div className="engineMetricLabel">가이드</div>
+                  <div className="engineMetricValue">20</div>
+                  <div className="engineMetricUnit">편 작성됨</div>
                 </div>
                 <div className="engineMetric">
-                  <div className="engineMetricLabel">파이프라인</div>
-                  <div className="engineMetricValue">5</div>
-                  <div className="engineMetricUnit">자동 단계</div>
-                </div>
-                <div className="engineMetric">
-                  <div className="engineMetricLabel">SNS 자동</div>
+                  <div className="engineMetricLabel">시주제</div>
                   <div className="engineMetricValue">4</div>
-                  <div className="engineMetricUnit">플랫폼</div>
+                  <div className="engineMetricUnit">분야</div>
+                </div>
+                <div className="engineMetric">
+                  <div className="engineMetricLabel">자료 도구</div>
+                  <div className="engineMetricValue">5</div>
+                  <div className="engineMetricUnit">AI 통합</div>
                 </div>
               </div>
             </div>
@@ -1894,9 +1974,95 @@ export default function HomePage() {
         </section>
 
         {/* ============================================ */}
-        {/* 2. 키워드 선택 UX (NEW) */}
+        {/* 2. 박 대표님 4개 시주제 카테고리 (메인 - 정보 사이트 정체성) */}
         {/* ============================================ */}
-        <section className="selectSection">
+        <section className="categorySection">
+          <div className="sectionHead">
+            <div className="sectionTitle">🎯 무엇을 배우시나요?</div>
+            <div className="sectionSub">관심 분야를 클릭하시면 관련 가이드만 모아보실 수 있습니다</div>
+          </div>
+
+          <div className="categoryGrid">
+            <Link href="/blog?cat=algorithm" className="categoryCard categoryCard-algo">
+              <div className="categoryEmoji">📊</div>
+              <div className="categoryName">유튜브 알고리즘 · 노하우</div>
+              <div className="categoryDesc">
+                업로드 공식 11가지 / SEO 최적화 / 추천 알고리즘
+              </div>
+              <div className="categoryArrow">관련 가이드 보기 →</div>
+            </Link>
+
+            <Link href="/blog?cat=senior" className="categoryCard categoryCard-senior">
+              <div className="categoryEmoji">👔</div>
+              <div className="categoryName">시니어 사연 쇼츠</div>
+              <div className="categoryDesc">
+                50~80대 타겟 채널 / 사연 콘텐츠 / 시니어 친화 영상
+              </div>
+              <div className="categoryArrow">관련 가이드 보기 →</div>
+            </Link>
+
+            <Link href="/blog?cat=aitools" className="categoryCard categoryCard-ai">
+              <div className="categoryEmoji">🤖</div>
+              <div className="categoryName">AI 도구 활용</div>
+              <div className="categoryDesc">
+                Sora / VEO / ChatGPT / Midjourney 영상 제작 활용
+              </div>
+              <div className="categoryArrow">관련 가이드 보기 →</div>
+            </Link>
+
+            <Link href="/blog?cat=monetization" className="categoryCard categoryCard-money">
+              <div className="categoryEmoji">💰</div>
+              <div className="categoryName">영상 채널 수익화</div>
+              <div className="categoryDesc">
+                채널 성장 / 광고 수익 / 구독자 확보 / 떡상 전략
+              </div>
+              <div className="categoryArrow">관련 가이드 보기 →</div>
+            </Link>
+          </div>
+        </section>
+
+        {/* ============================================ */}
+        {/* 3. 추천 가이드 6편 (메인 콘텐츠) */}
+        {/* ============================================ */}
+        <section className="guidesSection">
+          <div className="sectionHead">
+            <div className="sectionTitle">📚 추천 가이드</div>
+            <Link href="/blog" className="sectionMore">전체 17편 보기 →</Link>
+          </div>
+
+          <div className="guideGrid">
+            {FEATURED_GUIDES.map((g) => (
+              <Link
+                key={g.slug}
+                href={(g as any).blogPath ? `/blog/${g.slug}` : `/knowhow/${g.slug}`}
+                className="guideCard"
+              >
+                <div className="guideCardAccent" style={{ background: g.color }} />
+                <div className="guideCardHead">
+                  <span className="guideCardEmoji">{g.emoji}</span>
+                  <div className="guideCardKicker">
+                    {g.category}{g.badge ? ` · ${g.badge}` : ''}
+                  </div>
+                </div>
+                <h3 className="guideCardTitle">{g.title}</h3>
+                <p className="guideCardSub">{g.subtitle}</p>
+                <div className="guideCardMeta">
+                  <span className="guideCardTime">⏱ {g.readTime}</span>
+                  <span className="guideCardArrow">읽어보기 →</span>
+                </div>
+              </Link>
+            ))}
+          </div>
+        </section>
+
+        {/* ============================================ */}
+        {/* 4. 자료 만들기 도구 (보너스) - v13.0 정보 사이트 정체성 */}
+        {/* ============================================ */}
+        <section className="selectSection" id="tool">
+          <div className="toolBonusBadge">
+            <span>✨ 보너스 도구</span>
+            <span className="toolBonusBadgeSub">가이드를 다 보셨다면, 자료 만들기 도구도 사용해 보세요</span>
+          </div>
           {/* Step 1: 분야 선택 */}
           <div className="selectStep">
             <div className="selectStepNum">01</div>
@@ -2011,88 +2177,6 @@ export default function HomePage() {
         </section>
 
         {/* ============================================ */}
-        {/* ============================================ */}
-        {/* 3. 박 대표님 4개 시주제 카테고리 (애드센스 일관성) */}
-        {/* ============================================ */}
-        <section className="categorySection">
-          <div className="sectionHead">
-            <div className="sectionTitle">🎯 무엇을 배우시나요?</div>
-            <div className="sectionSub">관심 분야를 클릭하시면 관련 가이드만 모아보실 수 있습니다</div>
-          </div>
-
-          <div className="categoryGrid">
-            <Link href="/blog?cat=algorithm" className="categoryCard categoryCard-algo">
-              <div className="categoryEmoji">📊</div>
-              <div className="categoryName">유튜브 알고리즘 · 노하우</div>
-              <div className="categoryDesc">
-                업로드 공식 11가지 / SEO 최적화 / 추천 알고리즘
-              </div>
-              <div className="categoryArrow">관련 가이드 보기 →</div>
-            </Link>
-
-            <Link href="/blog?cat=senior" className="categoryCard categoryCard-senior">
-              <div className="categoryEmoji">👔</div>
-              <div className="categoryName">시니어 사연 쇼츠</div>
-              <div className="categoryDesc">
-                50~80대 타겟 채널 / 사연 콘텐츠 / 시니어 친화 영상
-              </div>
-              <div className="categoryArrow">관련 가이드 보기 →</div>
-            </Link>
-
-            <Link href="/blog?cat=aitools" className="categoryCard categoryCard-ai">
-              <div className="categoryEmoji">🤖</div>
-              <div className="categoryName">AI 도구 활용</div>
-              <div className="categoryDesc">
-                Sora / VEO / ChatGPT / Midjourney 영상 제작 활용
-              </div>
-              <div className="categoryArrow">관련 가이드 보기 →</div>
-            </Link>
-
-            <Link href="/blog?cat=monetization" className="categoryCard categoryCard-money">
-              <div className="categoryEmoji">💰</div>
-              <div className="categoryName">영상 채널 수익화</div>
-              <div className="categoryDesc">
-                채널 성장 / 광고 수익 / 구독자 확보 / 떡상 전략
-              </div>
-              <div className="categoryArrow">관련 가이드 보기 →</div>
-            </Link>
-          </div>
-        </section>
-
-        {/* ============================================ */}
-        {/* 4. 추천 가이드 6편 */}
-        {/* ============================================ */}
-        <section className="guidesSection">
-          <div className="sectionHead">
-            <div className="sectionTitle">📚 추천 가이드</div>
-            <Link href="/blog" className="sectionMore">전체 17편 보기 →</Link>
-          </div>
-
-          <div className="guideGrid">
-            {FEATURED_GUIDES.map((g) => (
-              <Link
-                key={g.slug}
-                href={(g as any).blogPath ? `/blog/${g.slug}` : `/knowhow/${g.slug}`}
-                className="guideCard"
-              >
-                <div className="guideCardAccent" style={{ background: g.color }} />
-                <div className="guideCardHead">
-                  <span className="guideCardEmoji">{g.emoji}</span>
-                  <div className="guideCardKicker">
-                    {g.category}{g.badge ? ` · ${g.badge}` : ''}
-                  </div>
-                </div>
-                <h3 className="guideCardTitle">{g.title}</h3>
-                <p className="guideCardSub">{g.subtitle}</p>
-                <div className="guideCardMeta">
-                  <span className="guideCardTime">⏱ {g.readTime}</span>
-                  <span className="guideCardArrow">읽어보기 →</span>
-                </div>
-              </Link>
-            ))}
-          </div>
-        </section>
-
         {/* ============================================ */}
         {/* 4. FAQ */}
         {/* ============================================ */}
