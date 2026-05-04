@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { V11Shell } from '../../_shared/V11Shell';
+import { V17Shell } from '../../_shared/V17Shell';
 
 const articleSchema = {
   '@context': 'https://schema.org',
@@ -21,7 +21,7 @@ const articleSchema = {
 
 export default function FreeEditingAppsGuide() {
   return (
-    <V11Shell>
+    <V17Shell>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}
@@ -269,6 +269,6 @@ export default function FreeEditingAppsGuide() {
           </ul>
         </div>
       </article>
-    </V11Shell>
+    </V17Shell>
   );
 }

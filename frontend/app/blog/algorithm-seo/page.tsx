@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { V11Shell } from '../../_shared/V11Shell';
+import { V17Shell } from '../../_shared/V17Shell';
 
 /**
  * 가이드: 알고리즘 SEO 검색 최적화 전략
@@ -10,7 +10,7 @@ import { V11Shell } from '../../_shared/V11Shell';
  */
 export default function AlgorithmSEOGuide() {
   return (
-    <V11Shell>
+    <V17Shell>
       <style jsx>{`
         .guide {
           max-width: 760px;
@@ -270,6 +270,6 @@ export default function AlgorithmSEOGuide() {
           </ul>
         </div>
       </article>
-    </V11Shell>
+    </V17Shell>
   );
 }

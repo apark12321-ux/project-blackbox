@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { V11Shell } from '../../_shared/V11Shell';
+import { V17Shell } from '../../_shared/V17Shell';
 
 /**
  * 가이드 2편: 유튜브 알고리즘 쉽게 이해하기
@@ -10,7 +10,7 @@ import { V11Shell } from '../../_shared/V11Shell';
  */
 export default function YouTubeAlgorithmGuide() {
   return (
-    <V11Shell>
+    <V17Shell>
       <style jsx>{`
         .guide {
           max-width: 760px;
@@ -387,6 +387,6 @@ export default function YouTubeAlgorithmGuide() {
           </ul>
         </div>
       </article>
-    </V11Shell>
+    </V17Shell>
   );
 }

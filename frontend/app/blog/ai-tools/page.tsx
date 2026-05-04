@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { V11Shell } from '../../_shared/V11Shell';
+import { V17Shell } from '../../_shared/V17Shell';
 
 /**
  * 가이드 5편: 영상 제작 AI 도구 정리
@@ -10,7 +10,7 @@ import { V11Shell } from '../../_shared/V11Shell';
  */
 export default function AIToolsGuide() {
   return (
-    <V11Shell>
+    <V17Shell>
       <style jsx>{`
         .guide {
           max-width: 760px;
@@ -451,6 +451,6 @@ export default function AIToolsGuide() {
           </ul>
         </div>
       </article>
-    </V11Shell>
+    </V17Shell>
   );
 }

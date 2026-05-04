@@ -18,7 +18,7 @@
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
-import { V11Shell } from '../_shared/V11Shell';
+import { V17Shell } from '../_shared/V17Shell';
 import {
   generateTitles,
   generateVideoSequences,
@@ -191,11 +191,11 @@ export default function PublishPage() {
 
 function LoadingState() {
   return (
-    <V11Shell>
+    <V17Shell>
       <div style={{ padding: 60, textAlign: 'center', color: '#737373', fontSize: 17 }}>
         영상 자료 만드는 중...
       </div>
-    </V11Shell>
+    </V17Shell>
   );
 }
 
@@ -275,7 +275,7 @@ function PublishContent() {
   const activeSequence = data?.sequences?.[activeBeat] || null;
 
   return (
-    <V11Shell>
+    <V17Shell>
       <div className="v15-page">
         {/* 헤더 */}
         <header className="v15-header" style={{ borderColor: scenario.color }}>
@@ -1229,6 +1229,6 @@ function PublishContent() {
         }
         @media (max-width: 600px) { .v15-other-desc { font-size: 9.5px; } }
       `}</style>
-    </V11Shell>
+    </V17Shell>
   );
 }

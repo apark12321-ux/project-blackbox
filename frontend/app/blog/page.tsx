@@ -23,7 +23,7 @@
 
 import { useState, useMemo } from 'react';
 import Link from 'next/link';
-import { V11Shell } from '../_shared/V11Shell';
+import { V17Shell } from '../_shared/V17Shell';
 
 // ============================================================
 // 가이드 목록 (17편)
@@ -476,7 +476,7 @@ export default function BlogListPage() {
   };
 
   return (
-    <V11Shell>
+    <V17Shell>
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(collectionSchema) }}
@@ -835,6 +835,6 @@ export default function BlogListPage() {
           )}
         </div>
       </div>
-    </V11Shell>
+    </V17Shell>
   );
 }

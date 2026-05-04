@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { V11Shell } from '../../_shared/V11Shell';
+import { V17Shell } from '../../_shared/V17Shell';
 
 /**
  * 가이드 1편: 유튜브 입문 (시니어 친화)
@@ -10,7 +10,7 @@ import { V11Shell } from '../../_shared/V11Shell';
  */
 export default function YouTubeStartGuide() {
   return (
-    <V11Shell>
+    <V17Shell>
       <style jsx>{`
         .guide {
           max-width: 760px;
@@ -355,6 +355,6 @@ export default function YouTubeStartGuide() {
           </ul>
         </div>
       </article>
-    </V11Shell>
+    </V17Shell>
   );
 }

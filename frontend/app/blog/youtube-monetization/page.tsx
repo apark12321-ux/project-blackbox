@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { V11Shell } from '../../_shared/V11Shell';
+import { V17Shell } from '../../_shared/V17Shell';
 
 /**
  * 가이드 3편: 유튜브 수익 창출 조건 (2026년 기준)
@@ -10,7 +10,7 @@ import { V11Shell } from '../../_shared/V11Shell';
  */
 export default function YouTubeMonetizationGuide() {
   return (
-    <V11Shell>
+    <V17Shell>
       <style jsx>{`
         .guide {
           max-width: 760px;
@@ -403,6 +403,6 @@ export default function YouTubeMonetizationGuide() {
           </ul>
         </div>
       </article>
-    </V11Shell>
+    </V17Shell>
   );
 }

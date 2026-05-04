@@ -1,11 +1,11 @@
 'use client';
 
 import Link from 'next/link';
-import { V11Shell } from '../../_shared/V11Shell';
+import { V17Shell } from '../../_shared/V17Shell';
 
 export default function AlgorithmRetentionGuide() {
   return (
-    <V11Shell>
+    <V17Shell>
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;
@@ -266,6 +266,6 @@ export default function AlgorithmRetentionGuide() {
           </ul>
         </div>
       </article>
-    </V11Shell>
+    </V17Shell>
   );
 }
