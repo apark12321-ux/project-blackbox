@@ -33,7 +33,7 @@ interface Guide {
   slug: string;
   title: string;
   subtitle: string;
-  category: 'algorithm' | 'creation' | 'tools' | 'mindset' | 'channel' | 'monetization';
+  category: 'algorithm' | 'creation' | 'tools' | 'mindset' | 'channel' | 'monetization' | 'senior';
   categoryLabel: string;
   emoji: string;
   readTime: string;
@@ -317,6 +317,67 @@ const GUIDES: Guide[] = [
     category: 'channel',
     categoryLabel: '채널 운영',
     emoji: '💝',
+    readTime: '7분',
+    publishedAt: '2026-05-04',
+    updatedAt: '2026-05-04',
+  },
+  // 신규 v4.2: 시니어 사연 쇼츠 시리즈 5편
+  {
+    slug: 'senior-channel-start',
+    blogPath: true,
+    title: '50대부터 시작하는 시니어 사연 쇼츠 채널',
+    subtitle: '시니어 시청자를 위한 짧은 영상 콘텐츠는 진입 장벽이 낮습니다. 처음 시작하시는 분들을 위한 단계별 안내입니다.',
+    category: 'senior',
+    categoryLabel: '시니어',
+    emoji: '👔',
+    readTime: '8분',
+    publishedAt: '2026-05-04',
+    updatedAt: '2026-05-04',
+  },
+  {
+    slug: 'senior-content-ideas',
+    blogPath: true,
+    title: '시니어 채널 콘텐츠 아이디어 30가지',
+    subtitle: '시니어 시청자의 공감을 부르는 검증된 주제 30가지를 6개 카테고리로 정리했습니다.',
+    category: 'senior',
+    categoryLabel: '시니어',
+    emoji: '💡',
+    readTime: '9분',
+    publishedAt: '2026-05-04',
+    updatedAt: '2026-05-04',
+  },
+  {
+    slug: 'senior-hook-patterns',
+    blogPath: true,
+    title: '시청자를 사로잡는 시니어 영상 후크 8가지',
+    subtitle: '영상의 첫 5초는 시청 완료율을 결정합니다. 시니어 시청자가 끝까지 보게 만드는 강력한 후크 패턴입니다.',
+    category: 'senior',
+    categoryLabel: '시니어',
+    emoji: '🎯',
+    readTime: '7분',
+    publishedAt: '2026-05-04',
+    updatedAt: '2026-05-04',
+  },
+  {
+    slug: 'senior-engagement',
+    blogPath: true,
+    title: '시니어 채널 댓글과 참여 늘리는 5가지 질문',
+    subtitle: '알고리즘은 댓글이 많은 영상을 좋아합니다. 시니어 시청자가 자연스럽게 댓글을 남기게 만드는 검증된 질문 패턴입니다.',
+    category: 'senior',
+    categoryLabel: '시니어',
+    emoji: '💬',
+    readTime: '7분',
+    publishedAt: '2026-05-04',
+    updatedAt: '2026-05-04',
+  },
+  {
+    slug: 'senior-policy-safe',
+    blogPath: true,
+    title: '시니어 채널 정책 위반 피하는 6가지 규칙',
+    subtitle: '힘들게 만든 채널이 정책 위반으로 제한되면 모든 노력이 사라집니다. 처음부터 안전하게 운영하는 6가지 핵심 규칙입니다.',
+    category: 'senior',
+    categoryLabel: '시니어',
+    emoji: '🛡',
     readTime: '7분',
     publishedAt: '2026-05-04',
     updatedAt: '2026-05-04',
