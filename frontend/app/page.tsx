@@ -1,33 +1,27 @@
 'use client';
 /**
- * AlgoMaker 메인 페이지 v11.2 - 시나리오 패턴 선택 STEP 추가
+ * AlgoMaker 메인 페이지 v12.0 - 정보 사이트 정체성 + 4개 카테고리
  *
- * 박 대표님 v11.2 지적:
- *   "이건 아닌거 같아. 차라리 예전에 6가지 시나리오 패턴이 더 많이 나왔던
- *    버전이 있거든 그게 낫겠어"
- *   답: C + 더 많은 패턴
+ * 박 대표님 v12.0 결정:
+ *   1. C+D 하이브리드 (방문 목적별 분기 + 어시스턴트 판단)
+ *   2. "영상 자동 제작 곧 출시" 모두 삭제 (거짓 약속 X)
+ *   3. 4개 시주제 (애드센스 주제 일관성):
+ *      ① 유튜브 알고리즘/노하우 (박 대표님 docx)
+ *      ② 시니어 사연 쇼츠 (박 대표님 보안 자산)
+ *      ③ AI 도구 활용 (Sora/VEO/ChatGPT)
+ *      ④ 영상 채널 수익화 전반
  *
- * v11.2 변경 (v11.1 → v11.2):
- *  ✅ STEP 3: 시나리오 패턴 선택 (8가지 - 박 대표님 자산 호환 + 확장)
- *    🤔 호기심 자극형 (curiosity)
- *    📋 단계별 가이드 (tutorial)
- *    ⚖️ 리뷰·비교 (review)
- *    📖 스토리텔링 (storytelling)
- *    🔢 리스트형 (list)
- *    💬 Q&A형 (qna)
- *    ⚠️ 실수·후회형 (mistake) ← 박 대표님 6가지 + 추가 2개
- *    📊 데이터·분석형 (data)  ← 박 대표님 6가지 + 추가 2개
- *  ✅ 흐름:
- *    Step 1 분야 → Step 2 주제 → Step 3 시나리오 → /publish 이동
- *  ✅ URL 구조: ?keyword=○○&category=○○&scenario=○○
- *    (박 대표님 자산 platforms.ts SCENARIOS 호환)
- *  ✅ topicChip 활성 상태 표시 (선택된 주제)
- *  ✅ 시나리오 영역으로 자동 스크롤
+ * v12 변경:
+ *  ✅ 영상 제작 배너 통째로 삭제 (JSX + CSS)
+ *  ✅ 4개 카테고리 카드 섹션 추가
+ *     /blog?cat=algorithm | senior | aitools | monetization
+ *  ✅ 가이드 섹션은 유지 (기존 6편 노출)
+ *  ✅ 자료 만들기 도구는 메인 상단 그대로
  *
- * v11.1 보존:
- *  - "알고리즘 11공식 자동 적용" 키커
+ * v11.2 보존:
+ *  - 알고리즘 11공식 자동 적용 키커
  *  - 6개 노하우 배지
- *  - 영상 제작 배너 (FAQ 위)
+ *  - 분야 9개 + 주제 6개 + 시나리오 패턴 8개
  *
  * 박 대표님 자산 100% 보존:
  *  - publish/page.tsx 그대로 (URL ?scenario= 받음)
@@ -1600,86 +1594,111 @@ export default function HomePage() {
           text-transform: uppercase;
         }
 
-        /* v11.1 NEW: 영상 제작 배너 (메인 페이지) */
-        .prodBannerSection {
-          padding: 0 24px 24px;
+        /* ============================================ */
+        /* v12 NEW: 박 대표님 4개 시주제 카테고리 */
+        /* 애드센스 주제 일관성 명시 (유튜브/영상 채널) */
+        /* ============================================ */
+        .categorySection {
+          padding: 32px 24px 24px;
+          background: #ffffff;
         }
         @media (max-width: 600px) {
-          .prodBannerSection { padding: 0 16px 18px; }
+          .categorySection { padding: 24px 16px 18px; }
         }
 
-        .prodBannerInner {
-          max-width: 1200px;
-          margin: 0 auto;
-          display: flex;
-          align-items: center;
-          gap: 14px;
-          padding: 16px 20px;
-          background: linear-gradient(135deg, #fff7ed 0%, #fef3e7 100%);
-          border: 1px solid rgba(194, 65, 12, 0.15);
-          border-left: 4px solid #c2410c;
-        }
-        @media (max-width: 600px) {
-          .prodBannerInner {
-            padding: 14px 16px;
-            gap: 10px;
-            flex-wrap: wrap;
-          }
-        }
-
-        .prodBannerIcon {
-          font-size: 28px;
-          line-height: 1;
-          flex-shrink: 0;
-        }
-        @media (max-width: 600px) { .prodBannerIcon { font-size: 24px; } }
-
-        .prodBannerText {
-          flex: 1;
-          min-width: 0;
-        }
-
-        .prodBannerTitle {
-          font-size: 15px;
-          font-weight: 800;
-          color: #c2410c;
-          letter-spacing: -0.018em;
-          margin-bottom: 3px;
+        .sectionSub {
+          font-size: 13px;
+          color: #737373;
+          font-weight: 600;
+          margin-top: 4px;
+          letter-spacing: -0.01em;
           word-break: keep-all;
         }
-        @media (max-width: 600px) { .prodBannerTitle { font-size: 14px; } }
+        @media (max-width: 600px) { .sectionSub { font-size: 12px; } }
 
-        .prodBannerSub {
+        .categoryGrid {
+          display: grid;
+          grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+          gap: 12px;
+          margin-top: 18px;
+        }
+        @media (max-width: 600px) {
+          .categoryGrid { grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 14px; }
+        }
+
+        .categoryCard {
+          padding: 18px 18px 16px;
+          background: #ffffff;
+          border: 2px solid;
+          text-decoration: none;
+          color: inherit;
+          display: flex;
+          flex-direction: column;
+          gap: 6px;
+          transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        @media (max-width: 600px) {
+          .categoryCard { padding: 14px 12px 12px; gap: 4px; }
+        }
+        .categoryCard:hover {
+          transform: translateY(-2px);
+          box-shadow: 0 6px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .categoryCard-algo { border-color: #c2410c; }
+        .categoryCard-algo:hover { background: #fff7ed; }
+        .categoryCard-algo .categoryName { color: #c2410c; }
+        .categoryCard-algo .categoryArrow { color: #c2410c; }
+
+        .categoryCard-senior { border-color: #f59e0b; }
+        .categoryCard-senior:hover { background: #fef3c7; }
+        .categoryCard-senior .categoryName { color: #92400e; }
+        .categoryCard-senior .categoryArrow { color: #92400e; }
+
+        .categoryCard-ai { border-color: #7c3aed; }
+        .categoryCard-ai:hover { background: #faf5ff; }
+        .categoryCard-ai .categoryName { color: #7c3aed; }
+        .categoryCard-ai .categoryArrow { color: #7c3aed; }
+
+        .categoryCard-money { border-color: #16a34a; }
+        .categoryCard-money:hover { background: #f0fdf4; }
+        .categoryCard-money .categoryName { color: #16a34a; }
+        .categoryCard-money .categoryArrow { color: #16a34a; }
+
+        .categoryEmoji {
+          font-size: 36px;
+          line-height: 1;
+          margin-bottom: 4px;
+        }
+        @media (max-width: 600px) { .categoryEmoji { font-size: 28px; } }
+
+        .categoryName {
+          font-size: 17px;
+          font-weight: 800;
+          letter-spacing: -0.022em;
+          line-height: 1.2;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) { .categoryName { font-size: 14px; } }
+
+        .categoryDesc {
           font-size: 12.5px;
-          color: #78350f;
+          color: #525252;
           line-height: 1.55;
           word-break: keep-all;
+          font-weight: 500;
         }
-        @media (max-width: 600px) { .prodBannerSub { font-size: 12px; } }
+        @media (max-width: 600px) { .categoryDesc { font-size: 11.5px; } }
 
-        .prodBannerBtn {
-          flex-shrink: 0;
-          padding: 9px 16px;
-          background: #c2410c;
-          color: #ffffff;
-          font-size: 12.5px;
-          font-weight: 700;
-          text-decoration: none;
-          letter-spacing: -0.015em;
-          transition: background 0.15s;
-          white-space: nowrap;
+        .categoryArrow {
+          font-size: 12px;
+          font-weight: 800;
+          letter-spacing: -0.012em;
+          margin-top: 6px;
+          padding-top: 10px;
+          border-top: 1px dashed currentColor;
         }
-        .prodBannerBtn:hover {
-          background: #9a3208;
-        }
-        @media (max-width: 600px) {
-          .prodBannerBtn {
-            font-size: 12px;
-            padding: 8px 14px;
-            width: 100%;
-            text-align: center;
-          }
-        }
+        @media (max-width: 600px) { .categoryArrow { font-size: 11px; } }
 
         /* ============================================ */
         /* 4. FAQ */
@@ -1992,7 +2011,56 @@ export default function HomePage() {
         </section>
 
         {/* ============================================ */}
-        {/* 3. 추천 가이드 6편 */}
+        {/* ============================================ */}
+        {/* 3. 박 대표님 4개 시주제 카테고리 (애드센스 일관성) */}
+        {/* ============================================ */}
+        <section className="categorySection">
+          <div className="sectionHead">
+            <div className="sectionTitle">🎯 무엇을 배우시나요?</div>
+            <div className="sectionSub">관심 분야를 클릭하시면 관련 가이드만 모아보실 수 있습니다</div>
+          </div>
+
+          <div className="categoryGrid">
+            <Link href="/blog?cat=algorithm" className="categoryCard categoryCard-algo">
+              <div className="categoryEmoji">📊</div>
+              <div className="categoryName">유튜브 알고리즘 · 노하우</div>
+              <div className="categoryDesc">
+                업로드 공식 11가지 / SEO 최적화 / 추천 알고리즘
+              </div>
+              <div className="categoryArrow">관련 가이드 보기 →</div>
+            </Link>
+
+            <Link href="/blog?cat=senior" className="categoryCard categoryCard-senior">
+              <div className="categoryEmoji">👔</div>
+              <div className="categoryName">시니어 사연 쇼츠</div>
+              <div className="categoryDesc">
+                50~80대 타겟 채널 / 사연 콘텐츠 / 시니어 친화 영상
+              </div>
+              <div className="categoryArrow">관련 가이드 보기 →</div>
+            </Link>
+
+            <Link href="/blog?cat=aitools" className="categoryCard categoryCard-ai">
+              <div className="categoryEmoji">🤖</div>
+              <div className="categoryName">AI 도구 활용</div>
+              <div className="categoryDesc">
+                Sora / VEO / ChatGPT / Midjourney 영상 제작 활용
+              </div>
+              <div className="categoryArrow">관련 가이드 보기 →</div>
+            </Link>
+
+            <Link href="/blog?cat=monetization" className="categoryCard categoryCard-money">
+              <div className="categoryEmoji">💰</div>
+              <div className="categoryName">영상 채널 수익화</div>
+              <div className="categoryDesc">
+                채널 성장 / 광고 수익 / 구독자 확보 / 떡상 전략
+              </div>
+              <div className="categoryArrow">관련 가이드 보기 →</div>
+            </Link>
+          </div>
+        </section>
+
+        {/* ============================================ */}
+        {/* 4. 추천 가이드 6편 */}
         {/* ============================================ */}
         <section className="guidesSection">
           <div className="sectionHead">
@@ -2022,26 +2090,6 @@ export default function HomePage() {
                 </div>
               </Link>
             ))}
-          </div>
-        </section>
-
-        {/* v11.1 NEW: 영상 제작 배너 (홍보) */}
-        <section className="prodBannerSection">
-          <div className="prodBannerInner">
-            <div className="prodBannerIcon">🚀</div>
-            <div className="prodBannerText">
-              <div className="prodBannerTitle">영상 자동 제작 기능 — 곧 출시</div>
-              <div className="prodBannerSub">
-                지금 만든 프롬프트를 바로 영상으로 변환하는 기능을 개발 중입니다 ·
-                현재는 프롬프트를 복사하여 Sora, VEO, Midjourney 등에서 직접 사용
-              </div>
-            </div>
-            <a 
-              href="mailto:apark12321@gmail.com?subject=AlgoMaker 영상 제작 베타 알림 신청"
-              className="prodBannerBtn"
-            >
-              알림 받기
-            </a>
           </div>
         </section>
 

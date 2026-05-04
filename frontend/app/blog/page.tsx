@@ -1,17 +1,24 @@
 'use client';
 /**
- * /blog 페이지 - 가이드 목록형
+ * /blog 페이지 v4 - 박 대표님 4개 시주제 카테고리 필터
  *
- * 박 대표님 v10.9 요청:
- *   "목록형으로 업데이트 날짜가 나와야 애드센스 승인받기 쉽지 않나?"
- *   "SEO/AEO/GEO 잘되는 방향"
+ * 박 대표님 v4 결정:
+ *   "애드센스 주제 일관성 = 4개 시주제로 통합"
+ *   1. 알고리즘·노하우 (algorithm + channel)
+ *   2. 시니어 사연 쇼츠 (신규 senior 시리즈)
+ *   3. AI 도구 (creation + tools)
+ *   4. 수익화 (monetization + mindset)
  *
- * 특징:
- * - 모든 가이드 17편 한눈에
- * - 발행일/수정일 표시 (AdSense 친화)
- * - 카테고리 필터
- * - JSON-LD CollectionPage Schema
- * - 박 대표님 자산 100% 보존 (가이드 페이지 그대로)
+ * v4 변경 (v3 → v4):
+ *  ✅ CATEGORIES 6개 → 박 대표님 4개로 통합
+ *  ✅ CATEGORY_MAP 매핑 (UI 4개 → 내부 6개)
+ *  ✅ URL ?cat= 파라미터 받기 (메인 카테고리 카드 호환)
+ *  ✅ 필터 변경 시 URL 자동 업데이트
+ *
+ * 박 대표님 자산 100% 보존:
+ *  - GUIDES 데이터 그대로
+ *  - 기존 카테고리 (algorithm/channel/creation/tools/monetization/mindset) 유지
+ *  - 가이드 글 모두 그대로
  */
 
 import { useState, useMemo } from 'react';
@@ -303,16 +310,24 @@ const GUIDES: Guide[] = [
   },
 ];
 
-// 카테고리 필터 옵션
+// 카테고리 필터 옵션 (박 대표님 4개 시주제)
+// 기존 6개 카테고리는 내부 유지, UI 노출은 4개로 통합 + 시니어 추가
 const CATEGORIES = [
   { id: 'all', label: '전체', icon: '📚' },
-  { id: 'algorithm', label: '알고리즘', icon: '🤖' },
-  { id: 'channel', label: '채널 운영', icon: '🎯' },
-  { id: 'creation', label: '영상 제작', icon: '🎬' },
-  { id: 'tools', label: 'AI 도구', icon: '🛠' },
-  { id: 'monetization', label: '수익화', icon: '💰' },
-  { id: 'mindset', label: '멘탈', icon: '💪' },
+  { id: 'algorithm', label: '알고리즘·노하우', icon: '📊' },  // algorithm + channel
+  { id: 'senior', label: '시니어 사연 쇼츠', icon: '👔' },     // 신규 (시니어 시리즈)
+  { id: 'aitools', label: 'AI 도구', icon: '🤖' },             // creation + tools
+  { id: 'monetization', label: '수익화', icon: '💰' },         // monetization + mindset
 ];
+
+// 박 대표님 4개 시주제 → 기존 카테고리 매핑
+const CATEGORY_MAP: Record<string, string[]> = {
+  all: ['algorithm', 'channel', 'creation', 'tools', 'mindset', 'monetization', 'senior'],
+  algorithm: ['algorithm', 'channel'],          // 알고리즘 + 채널 운영
+  senior: ['senior'],                            // 시니어 시리즈 (앞으로 추가)
+  aitools: ['creation', 'tools'],                // 영상 제작 + AI 도구
+  monetization: ['monetization', 'mindset'],     // 수익화 + 멘탈
+};
 
 // ============================================================
 // JSON-LD: CollectionPage + ItemList (SEO 친화)
@@ -350,12 +365,36 @@ const itemListSchema = {
 // 메인 컴포넌트
 // ============================================================
 export default function BlogListPage() {
-  const [filter, setFilter] = useState<string>('all');
+  // URL ?cat=알고리즘|senior|aitools|monetization 받기
+  const [filter, setFilter] = useState<string>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const cat = params.get('cat') || 'all';
+      // 유효한 카테고리만 적용
+      return CATEGORY_MAP[cat] ? cat : 'all';
+    }
+    return 'all';
+  });
 
   const filteredGuides = useMemo(() => {
     if (filter === 'all') return GUIDES;
-    return GUIDES.filter(g => g.category === filter);
+    const allowedCategories = CATEGORY_MAP[filter] || [filter];
+    return GUIDES.filter(g => allowedCategories.includes(g.category));
   }, [filter]);
+
+  // 필터 변경 시 URL 업데이트
+  const handleFilterChange = (newFilter: string) => {
+    setFilter(newFilter);
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      if (newFilter === 'all') {
+        url.searchParams.delete('cat');
+      } else {
+        url.searchParams.set('cat', newFilter);
+      }
+      window.history.replaceState({}, '', url.toString());
+    }
+  };
 
   const formatDate = (date: string) => {
     const d = new Date(date);
@@ -676,7 +715,7 @@ export default function BlogListPage() {
                 key={c.id}
                 type="button"
                 className={`filterBtn ${filter === c.id ? 'active' : ''}`}
-                onClick={() => setFilter(c.id)}
+                onClick={() => handleFilterChange(c.id)}
               >
                 <span>{c.icon}</span>
                 <span>{c.label}</span>

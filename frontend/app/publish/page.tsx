@@ -591,20 +591,6 @@ function PublishContent() {
               ))}
           </div>
         </section>
-
-        <div className="v15-prod-banner">
-          <div className="v15-prod-icon">🚀</div>
-          <div className="v15-prod-text">
-            <div className="v15-prod-title">영상 자동 제작 — 곧 출시</div>
-            <div className="v15-prod-sub">지금 만든 자료를 바로 영상으로 변환하는 기능 개발 중</div>
-          </div>
-          <a
-            href="mailto:apark12321@gmail.com?subject=AlgoMaker 영상 제작 베타 알림 신청"
-            className="v15-prod-btn"
-          >
-            알림 받기
-          </a>
-        </div>
       </div>
 
       <style jsx global>{`
@@ -1242,49 +1228,6 @@ function PublishContent() {
           letter-spacing: -0.005em;
         }
         @media (max-width: 600px) { .v15-other-desc { font-size: 9.5px; } }
-
-        .v15-prod-banner {
-          display: flex;
-          align-items: center;
-          gap: 12px;
-          padding: 14px 18px;
-          background: linear-gradient(135deg, #fff7ed 0%, #fef3e7 100%);
-          border-left: 4px solid #c2410c;
-        }
-        @media (max-width: 600px) {
-          .v15-prod-banner { padding: 12px 14px; gap: 10px; flex-wrap: wrap; }
-        }
-        .v15-prod-icon { font-size: 24px; line-height: 1; flex-shrink: 0; }
-        .v15-prod-text { flex: 1; min-width: 0; }
-        .v15-prod-title {
-          font-size: 14px;
-          font-weight: 800;
-          color: #c2410c;
-          letter-spacing: -0.018em;
-          margin-bottom: 2px;
-        }
-        .v15-prod-sub {
-          font-size: 12px;
-          color: #78350f;
-          line-height: 1.5;
-          word-break: keep-all;
-        }
-        .v15-prod-btn {
-          flex-shrink: 0;
-          padding: 9px 16px;
-          background: #c2410c;
-          color: #ffffff;
-          font-size: 13px;
-          font-weight: 700;
-          text-decoration: none;
-          letter-spacing: -0.015em;
-          transition: background 0.15s;
-          white-space: nowrap;
-        }
-        .v15-prod-btn:hover { background: #9a3208; }
-        @media (max-width: 600px) {
-          .v15-prod-btn { width: 100%; text-align: center; }
-        }
       `}</style>
     </V11Shell>
   );
