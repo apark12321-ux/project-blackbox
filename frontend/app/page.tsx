@@ -24,6 +24,8 @@
  */
 
 import Link from 'next/link';
+import { useState } from 'react';
+import { useRouter } from 'next/navigation';
 import { V18Shell } from './_shared/V18Shell';
 
 const CATEGORIES = [
@@ -70,6 +72,15 @@ const POPULAR = [
 ];
 
 export default function HomePage() {
+  const router = useRouter();
+  const [keyword, setKeyword] = useState('');
+
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!keyword.trim()) return;
+    router.push(`/publish?keyword=${encodeURIComponent(keyword.trim())}`);
+  };
+
   return (
     <V18Shell>
       <div className="container">
@@ -178,9 +189,23 @@ export default function HomePage() {
             </div>
           </div>
 
+          <form onSubmit={handleSubmit} className="tool-form">
+            <input
+              type="text"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              placeholder="영상 키워드 입력 (예: 50대 부업 유튜브)"
+              className="tool-input"
+              aria-label="영상 키워드"
+            />
+            <button type="submit" className="tool-submit" disabled={!keyword.trim()}>
+              메타데이터 생성 →
+            </button>
+          </form>
+
           <div className="tool-cta-row">
-            <Link href="/publish" className="tool-cta-btn">
-              메타데이터 생성기 사용하기 →
+            <Link href="/publish" className="tool-cta-link">
+              자세한 사용법 보기 →
             </Link>
             <span className="tool-cta-note">완전 무료 · 회원가입 불필요</span>
           </div>
@@ -494,6 +519,72 @@ export default function HomePage() {
           gap: 14px;
           flex-wrap: wrap;
         }
+
+        .tool-form {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 16px;
+          flex-wrap: wrap;
+        }
+        @media (max-width: 600px) {
+          .tool-form { flex-direction: column; gap: 10px; }
+        }
+
+        .tool-input {
+          flex: 1 1 280px;
+          padding: 14px 16px;
+          font-size: 15px;
+          font-family: inherit;
+          color: #1a1a1a;
+          background: #ffffff;
+          border: 1.5px solid #d4d4d4;
+          outline: none;
+          letter-spacing: -0.012em;
+          transition: border-color 0.15s;
+        }
+        .tool-input:focus {
+          border-color: #1a1a1a;
+        }
+        .tool-input::placeholder {
+          color: #a3a3a3;
+        }
+        @media (max-width: 600px) {
+          .tool-input { font-size: 14px; padding: 12px 14px; }
+        }
+
+        .tool-submit {
+          padding: 14px 26px;
+          font-family: inherit;
+          font-size: 15px;
+          font-weight: 700;
+          color: #ffffff;
+          background: #1a1a1a;
+          border: 1.5px solid #1a1a1a;
+          cursor: pointer;
+          letter-spacing: -0.015em;
+          transition: all 0.15s;
+          white-space: nowrap;
+        }
+        .tool-submit:hover:not(:disabled) {
+          background: #c2410c;
+          border-color: #c2410c;
+        }
+        .tool-submit:disabled {
+          background: #a3a3a3;
+          border-color: #a3a3a3;
+          cursor: not-allowed;
+        }
+        @media (max-width: 600px) {
+          .tool-submit { padding: 13px 22px; font-size: 14px; }
+        }
+
+        .tool-cta-link {
+          font-size: 14px;
+          color: #1a1a1a;
+          font-weight: 600;
+          text-decoration: underline;
+        }
+        .tool-cta-link:hover { color: #c2410c; }
 
         .tool-cta-btn {
           display: inline-block;

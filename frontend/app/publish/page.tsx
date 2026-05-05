@@ -184,8 +184,141 @@ const ALGO_TAG_INFO: Record<string, { color: string; label: string }> = {
 export default function PublishPage() {
   return (
     <Suspense fallback={<LoadingState />}>
-      <PublishContent />
+      <PublishWrapper />
     </Suspense>
+  );
+}
+
+function PublishWrapper() {
+  const searchParams = useSearchParams();
+  const keyword = searchParams.get('keyword') || '';
+  
+  // 키워드 없으면 입력 폼 보여주기
+  if (!keyword.trim()) {
+    return <KeywordInputForm />;
+  }
+  
+  return <PublishContent />;
+}
+
+function KeywordInputForm() {
+  const router = useRouter();
+  const [input, setInput] = useState('');
+  
+  const handleSubmit = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!input.trim()) return;
+    router.push(`/publish?keyword=${encodeURIComponent(input.trim())}`);
+  };
+  
+  const examples = ['50대 부업 유튜브', '어머니 추억 사연', '재테크 노하우', '건강 관리 영상'];
+  
+  return (
+    <V18Shell>
+      <div style={{ maxWidth: 760, margin: '0 auto', padding: '40px 20px 60px' }}>
+        <header style={{ marginBottom: 32 }}>
+          <h1 style={{ fontSize: 32, fontWeight: 800, color: '#1a1a1a', letterSpacing: '-0.025em', margin: '0 0 14px', lineHeight: 1.25 }}>
+            영상 메타데이터 생성기
+          </h1>
+          <p style={{ fontSize: 16, color: '#525252', lineHeight: 1.7, margin: 0, wordBreak: 'keep-all' }}>
+            영상 키워드를 입력하시면 박 실장 알고리즘 11공식이 자동 적용된
+            영상 메타데이터(제목·시나리오·해시태그·SEO 태그)를 5초 안에 만들어드립니다.
+          </p>
+        </header>
+        
+        <form onSubmit={handleSubmit} style={{ marginBottom: 32 }}>
+          <label style={{ display: 'block', fontSize: 14, fontWeight: 700, color: '#1a1a1a', marginBottom: 10 }}>
+            영상 키워드
+          </label>
+          <div style={{ display: 'flex', gap: 8, marginBottom: 16, flexWrap: 'wrap' }}>
+            <input
+              type="text"
+              value={input}
+              onChange={(e) => setInput(e.target.value)}
+              placeholder="예: 50대 부업 유튜브"
+              autoFocus
+              style={{
+                flex: '1 1 280px',
+                padding: '14px 16px',
+                fontSize: 16,
+                fontFamily: 'inherit',
+                color: '#1a1a1a',
+                background: '#ffffff',
+                border: '1.5px solid #d4d4d4',
+                outline: 'none',
+                letterSpacing: '-0.012em',
+              }}
+            />
+            <button
+              type="submit"
+              disabled={!input.trim()}
+              style={{
+                padding: '14px 28px',
+                fontSize: 15,
+                fontWeight: 700,
+                color: '#ffffff',
+                background: input.trim() ? '#1a1a1a' : '#a3a3a3',
+                border: 'none',
+                cursor: input.trim() ? 'pointer' : 'not-allowed',
+                letterSpacing: '-0.015em',
+                fontFamily: 'inherit',
+                whiteSpace: 'nowrap',
+              }}
+            >
+              메타데이터 생성 →
+            </button>
+          </div>
+          
+          <div style={{ fontSize: 13, color: '#737373', marginBottom: 12 }}>
+            예시 키워드:
+          </div>
+          <div style={{ display: 'flex', gap: 6, flexWrap: 'wrap' }}>
+            {examples.map((ex) => (
+              <button
+                key={ex}
+                type="button"
+                onClick={() => setInput(ex)}
+                style={{
+                  padding: '8px 14px',
+                  fontSize: 13,
+                  color: '#525252',
+                  background: '#f5f5f5',
+                  border: '1px solid #e5e5e5',
+                  cursor: 'pointer',
+                  fontFamily: 'inherit',
+                }}
+              >
+                {ex}
+              </button>
+            ))}
+          </div>
+        </form>
+
+        <div style={{ padding: '24px 24px', background: '#fffbeb', borderLeft: '3px solid #c2410c', marginBottom: 24 }}>
+          <h2 style={{ fontSize: 18, fontWeight: 700, color: '#1a1a1a', margin: '0 0 12px' }}>
+            받게 되시는 메타데이터
+          </h2>
+          <ul style={{ margin: 0, padding: '0 0 0 22px', fontSize: 15, lineHeight: 1.8, color: '#404040' }}>
+            <li><strong>제목 후보 5개</strong> - 8:2 법칙 적용 (CTR 최적화)</li>
+            <li><strong>영상 시나리오</strong> - 5비트 구조 (도입/전개/절정/해결/마무리)</li>
+            <li><strong>AI 영상 프롬프트</strong> - Sora·VEO 등에서 바로 사용</li>
+            <li><strong>SEO 태그</strong> - 유튜브 입력용 50자 이내 쉼표 구분</li>
+            <li><strong>해시태그</strong> - 검색용 + 트렌드용 10개</li>
+            <li><strong>설명란 초안</strong> - 키워드 자연 반복 적용</li>
+          </ul>
+        </div>
+
+        <div style={{ padding: '20px 24px', background: '#f8f8f8' }}>
+          <h2 style={{ fontSize: 16, fontWeight: 700, color: '#1a1a1a', margin: '0 0 8px' }}>
+            시니어 키워드 자동 인식
+          </h2>
+          <p style={{ fontSize: 14, color: '#525252', lineHeight: 1.7, margin: 0, wordBreak: 'keep-all' }}>
+            "어머니", "추억", "사연", "50대" 등 시니어 관련 키워드를 입력하시면
+            시니어 채널 전용 후크 패턴과 업로드 시간 등이 자동으로 적용됩니다.
+          </p>
+        </div>
+      </div>
+    </V18Shell>
   );
 }
 
@@ -211,9 +344,7 @@ function PublishContent() {
   const [activeBeat, setActiveBeat] = useState<number>(0);
   const [copied, setCopied] = useState<string | null>(null);
 
-  useEffect(() => {
-    if (!keyword.trim()) router.replace('/');
-  }, [keyword, router]);
+  // PublishWrapper에서 이미 keyword 검사 후 분기하므로 여기서 추가 체크 불필요
 
   const category = CATEGORY_LABELS[categoryId] || CATEGORY_LABELS.general;
   const scenario = SCENARIO_PATTERNS[scenarioId] || SCENARIO_PATTERNS.tutorial;
