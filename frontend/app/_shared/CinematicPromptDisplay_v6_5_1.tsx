@@ -647,29 +647,47 @@ export function CinematicPromptDisplay({ prompts }: PromptDisplayProps) {
 // Midjourney 패널 (박 대표님 자산 100% 보존)
 // ============================================================
 function MidjourneyPanel({ data }: { data: any }) {
+  // 모든 spec 필드가 비어있는지 확인
+  const hasAnySpec = !!(
+    (data.subject && data.subject.trim()) ||
+    (data.composition && data.composition.trim()) ||
+    (data.lighting && data.lighting.trim()) ||
+    (data.colorPalette && data.colorPalette.trim()) ||
+    (data.cameraSpec && data.cameraSpec.trim()) ||
+    (data.mood && data.mood.trim()) ||
+    (data.styleReference && data.styleReference.trim()) ||
+    (data.parameters && data.parameters.trim())
+  );
+
   return (
     <>
       <FullPromptBox label="Midjourney v7 — Full Prompt" content={data.fullPrompt} />
       
-      <div className="specsTitle">Composition Spec</div>
-      <div className="specsDivider" />
-      <div className="specsTable">
-        <SpecRow keyName="Subject" value={data.subject} />
-        <SpecRow keyName="Composition" value={data.composition} />
-        <SpecRow keyName="Lighting" value={data.lighting} />
-        <SpecRow keyName="Color" value={data.colorPalette} />
-        <SpecRow keyName="Camera/Lens" value={data.cameraSpec} />
-        <SpecRow keyName="Mood" value={data.mood} />
-        <SpecRow keyName="Style Ref" value={data.styleReference} />
-        <SpecRow keyName="Parameters" value={data.parameters} mono />
-      </div>
+      {hasAnySpec && (
+        <>
+          <div className="specsTitle">Composition Spec</div>
+          <div className="specsDivider" />
+          <div className="specsTable">
+            <SpecRow keyName="Subject" value={data.subject} />
+            <SpecRow keyName="Composition" value={data.composition} />
+            <SpecRow keyName="Lighting" value={data.lighting} />
+            <SpecRow keyName="Color" value={data.colorPalette} />
+            <SpecRow keyName="Camera/Lens" value={data.cameraSpec} />
+            <SpecRow keyName="Mood" value={data.mood} />
+            <SpecRow keyName="Style Ref" value={data.styleReference} />
+            <SpecRow keyName="Parameters" value={data.parameters} mono />
+          </div>
+        </>
+      )}
 
-      <div className="metaBlock tech">
-        <div className="metaInline">
-          <span className="metaInlineKey">Seed</span>
-          <span className="metaInlineVal">{data.seed}</span>
+      {data.seed && (
+        <div className="metaBlock tech">
+          <div className="metaInline">
+            <span className="metaInlineKey">Seed</span>
+            <span className="metaInlineVal">{data.seed}</span>
+          </div>
         </div>
-      </div>
+      )}
 
       {data.negativePrompt && data.negativePrompt.trim() && (
         <div className="metaBlock warning">
@@ -685,20 +703,33 @@ function MidjourneyPanel({ data }: { data: any }) {
 // Sora 패널 (박 대표님 자산 100% 보존)
 // ============================================================
 function SoraPanel({ data }: { data: any }) {
+  const hasAnySpec = !!(
+    (data.scene && data.scene.trim()) ||
+    (data.subject && data.subject.trim()) ||
+    (data.cameraMovement && data.cameraMovement.trim()) ||
+    (data.duration && data.duration.trim()) ||
+    (data.audio && data.audio.trim()) ||
+    (data.atmosphere && data.atmosphere.trim())
+  );
+
   return (
     <>
       <FullPromptBox label="Sora 2 — Full Prompt" content={data.fullPrompt} />
 
-      <div className="specsTitle">Shot Specification</div>
-      <div className="specsDivider" />
-      <div className="specsTable">
-        <SpecRow keyName="Scene" value={data.scene} />
-        <SpecRow keyName="Subject" value={data.subject} />
-        <SpecRow keyName="Camera Move" value={data.cameraMovement} />
-        <SpecRow keyName="Duration" value={data.duration} mono />
-        <SpecRow keyName="Audio" value={data.audio} />
-        <SpecRow keyName="Atmosphere" value={data.atmosphere} />
-      </div>
+      {hasAnySpec && (
+        <>
+          <div className="specsTitle">Shot Specification</div>
+          <div className="specsDivider" />
+          <div className="specsTable">
+            <SpecRow keyName="Scene" value={data.scene} />
+            <SpecRow keyName="Subject" value={data.subject} />
+            <SpecRow keyName="Camera Move" value={data.cameraMovement} />
+            <SpecRow keyName="Duration" value={data.duration} mono />
+            <SpecRow keyName="Audio" value={data.audio} />
+            <SpecRow keyName="Atmosphere" value={data.atmosphere} />
+          </div>
+        </>
+      )}
 
       {data.negativePrompt && data.negativePrompt.trim() && (
         <div className="metaBlock warning">
@@ -714,21 +745,35 @@ function SoraPanel({ data }: { data: any }) {
 // VEO 패널 (박 대표님 자산 100% 보존)
 // ============================================================
 function VeoPanel({ data }: { data: any }) {
+  const hasAnySpec = !!(
+    (data.subject && data.subject.trim()) ||
+    (data.action && data.action.trim()) ||
+    (data.cameraSpec && data.cameraSpec.trim()) ||
+    (data.lighting && data.lighting.trim()) ||
+    (data.cinematicStyle && data.cinematicStyle.trim()) ||
+    (data.soundDesign && data.soundDesign.trim()) ||
+    (data.outputSpec && data.outputSpec.trim())
+  );
+
   return (
     <>
       <FullPromptBox label="VEO 3 — Full Prompt" content={data.fullPrompt} />
 
-      <div className="specsTitle">Production Spec</div>
-      <div className="specsDivider" />
-      <div className="specsTable">
-        <SpecRow keyName="Subject" value={data.subject} />
-        <SpecRow keyName="Action" value={data.action} />
-        <SpecRow keyName="Camera" value={data.cameraSpec} />
-        <SpecRow keyName="Lighting" value={data.lighting} />
-        <SpecRow keyName="Style" value={data.cinematicStyle} />
-        <SpecRow keyName="Sound Design" value={data.soundDesign} />
-        <SpecRow keyName="Output" value={data.outputSpec} mono />
-      </div>
+      {hasAnySpec && (
+        <>
+          <div className="specsTitle">Production Spec</div>
+          <div className="specsDivider" />
+          <div className="specsTable">
+            <SpecRow keyName="Subject" value={data.subject} />
+            <SpecRow keyName="Action" value={data.action} />
+            <SpecRow keyName="Camera" value={data.cameraSpec} />
+            <SpecRow keyName="Lighting" value={data.lighting} />
+            <SpecRow keyName="Style" value={data.cinematicStyle} />
+            <SpecRow keyName="Sound Design" value={data.soundDesign} />
+            <SpecRow keyName="Output" value={data.outputSpec} mono />
+          </div>
+        </>
+      )}
 
       {data.negativePrompt && data.negativePrompt.trim() && (
         <div className="metaBlock warning">
@@ -744,18 +789,29 @@ function VeoPanel({ data }: { data: any }) {
 // Flow 패널 (박 대표님 자산 100% 보존)
 // ============================================================
 function FlowPanel({ data }: { data: any }) {
+  const hasAnySpec = !!(
+    (data.hookShot && data.hookShot.trim()) ||
+    (data.buildShot && data.buildShot.trim()) ||
+    (data.climaxShot && data.climaxShot.trim()) ||
+    (data.resolutionShot && data.resolutionShot.trim())
+  );
+
   return (
     <>
       <FullPromptBox label="Flow — Full Sequence" content={data.fullPrompt} />
 
-      <div className="specsTitle">Sequence Map</div>
-      <div className="specsDivider" />
-      <div className="specsTable">
-        <SpecRow keyName="Hook (0-3s)" value={data.hookShot} />
-        <SpecRow keyName="Build (3-15s)" value={data.buildShot} />
-        <SpecRow keyName="Climax (15-25s)" value={data.climaxShot} />
-        <SpecRow keyName="Resolution (25-30s)" value={data.resolutionShot} />
-      </div>
+      {hasAnySpec && (
+        <>
+          <div className="specsTitle">Sequence Map</div>
+          <div className="specsDivider" />
+          <div className="specsTable">
+            <SpecRow keyName="Hook (0-3s)" value={data.hookShot} />
+            <SpecRow keyName="Build (3-15s)" value={data.buildShot} />
+            <SpecRow keyName="Climax (15-25s)" value={data.climaxShot} />
+            <SpecRow keyName="Resolution (25-30s)" value={data.resolutionShot} />
+          </div>
+        </>
+      )}
 
       {data.continuityNote && data.continuityNote.trim() && (
         <div className="metaBlock tech">
@@ -802,6 +858,9 @@ function SpecRow({ keyName, value, mono }: {
 // ============================================================
 function FullPromptBox({ label, content }: { label: string; content: string }) {
   const [copied, setCopied] = useState(false);
+
+  // 빈 콘텐츠면 박스 자체 표시 안 함 (애드센스 친화)
+  if (!content || !content.trim()) return null;
 
   const handleCopy = () => {
     if (typeof navigator !== 'undefined' && navigator.clipboard) {

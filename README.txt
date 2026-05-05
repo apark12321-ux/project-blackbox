@@ -1,34 +1,72 @@
 ============================================================
-v18 FIX - Cinematic 빈 필드 숨김 (실제 파일에 적용)
+v18 FIX2 - Cinematic 빈 영역 통째로 숨김 (강화)
 ============================================================
 
-이전 v18 FINAL 의 실수:
-  어시스턴트가 작업한 파일: CinematicPromptDisplay.tsx (이름 틀림)
-  박 대표님 publish import: CinematicPromptDisplay_v6_5_0
-  → 박 대표님 사이트는 어시스턴트 수정본 사용 X
-  → 빈 필드 그대로 노출
+박 대표님 결정: "어시스턴트 아는 범위 안에서 해결"
 
-실제 박 대표님 사이트의 컴포넌트:
-  CinematicPromptDisplay_v6_5_1.tsx (Production Spec, Shot Specification 라벨)
+이전 v18 FIX 한계:
+  SpecRow 빈 값만 처리
+  → SpecRow 모두 비어도 "Production Spec" 라벨은 그대로 보임
+  → 박 대표님 이미지처럼 빈 라벨이 노출됨
+
+v18 FIX2 강화 내용:
   
-이번 FIX 의 작업:
-  ✅ v6_5_1 의 SpecRow 에 빈 값 체크 추가
-     → if (!value || !value.trim()) return null
-  ✅ Negative Prompt 3곳 (Midjourney/Sora/VEO) 조건부 표시
-  ✅ Continuity Note (Flow) 조건부 표시
+  [1] SpecRow 빈 값 체크 (이전과 동일)
+      if (!value || !value.trim()) return null;
   
-  결과: 빈 라벨이 화면에 노출되지 않음
+  [2] FullPromptBox 빈 콘텐츠 시 박스 자체 숨김 (NEW)
+      if (!content || !content.trim()) return null;
+      → "Flow — Full Sequence" 같은 빈 박스 사라짐
+  
+  [3] 각 Panel 의 spec 영역 통째로 조건부 (NEW)
+      Midjourney "Composition Spec" + 모든 SpecRow + Divider
+      Sora "Shot Specification" + 모든 SpecRow + Divider  
+      VEO "Production Spec" + 모든 SpecRow + Divider
+      Flow "Sequence Map" + 모든 SpecRow + Divider
+      → 모든 spec 데이터 비어있으면 라벨도 안 보임
+  
+  [4] metaBlock 모든 영역 조건부 (NEW)
+      Midjourney Seed - data.seed 있을 때만
+      Negative Prompt 3곳 - 비어있으면 숨김
+      Continuity Note - 비어있으면 숨김
+
+============================================================
+박 대표님 이미지 → 적용 후 변화
+============================================================
+
+이미지 1 (FLOW 빈 칸):
+  Before: "Flow — Full Sequence" 검은 박스 (빈 칸)
+          SEQUENCE MAP - HOOK/BUILD/CLIMAX/RESOLUTION 라벨만
+          CONTINUITY NOTE 라벨만
+  After:  검은 박스 사라짐
+          SEQUENCE MAP 통째로 사라짐 (빈 데이터)
+          CONTINUITY NOTE 사라짐
+
+이미지 2 (VEO 빈 칸):
+  Before: PRODUCTION SPEC - 7개 라벨 빈 행
+          NEGATIVE PROMPT 라벨만
+  After:  Full Prompt 박스는 채워져 보임 (Cinematic 8-second...)
+          PRODUCTION SPEC 통째로 사라짐
+          NEGATIVE PROMPT 사라짐
+
+이미지 3 (Sora 일부 빈 칸):
+  Before: SHOT SPECIFICATION - SUBJECT, CAMERA MOVE 만 채워짐
+          SCENE/DURATION/AUDIO/ATMOSPHERE 빈 칸
+          NEGATIVE PROMPT 라벨만
+  After:  SHOT SPECIFICATION - 채워진 2개 행만 표시
+          빈 4개 행 사라짐
+          NEGATIVE PROMPT 사라짐
 
 ============================================================
 ZIP 구성 (2개 파일)
 ============================================================
 
 frontend/app/_shared/
-├── CinematicPromptDisplay_v6_5_0.tsx (이름 일치 - 박 대표님 import 경로)
-└── CinematicPromptDisplay_v6_5_1.tsx (이름 일치 - 안전 백업)
+├── CinematicPromptDisplay_v6_5_0.tsx (831 lines → 890 lines)
+└── CinematicPromptDisplay_v6_5_1.tsx (831 lines → 890 lines)
 
-두 파일 내용 동일 (빈 필드 숨김 적용)
-어느 쪽으로 import 해도 작동
+두 파일 동일 내용 (모든 빈 영역 숨김 처리)
+박 대표님 import 경로가 어느 쪽이든 작동
 
 ============================================================
 박 대표님 적용 (30초)
@@ -36,8 +74,7 @@ frontend/app/_shared/
 
 1. ZIP 다운로드 → 압축 풀기
 
-2. github.com/apark12321-ux/project-blackbox/tree/main/frontend
-   → app/_shared 폴더로 이동
+2. github.com/apark12321-ux/project-blackbox/tree/main/frontend/app/_shared
 
 3. "Add file" → "Upload files"
 
@@ -48,50 +85,28 @@ frontend/app/_shared/
 5. "Replace existing file" 모두 선택
 
 6. Commit message:
-   fix: Cinematic 빈 필드 숨김 처리
+   fix: Cinematic 빈 영역 통째로 숨김 (강화)
 
 7. Vercel 빌드 (1~2분)
 
 8. 시크릿 창 → /publish?keyword=tutorial
 
 9. 동작 확인:
-   ✓ Sora 2 SHOT SPECIFICATION
-     - SCENE/DURATION/AUDIO/ATMOSPHERE 빈 칸 사라짐
-     - 채워진 항목만 표시 (SUBJECT, CAMERA MOVE)
-   ✓ VEO 3 PRODUCTION SPEC
-     - 빈 필드 모두 사라짐
-     - NEGATIVE PROMPT 도 비어있으면 사라짐
-   ✓ FLOW SEQUENCE MAP
-     - 빈 항목 사라짐
-     - CONTINUITY NOTE 비어있으면 사라짐
-
-============================================================
-임시 해결 (빈 필드 숨김) vs 진짜 해결 (필드 채우기)
-============================================================
-
-이 FIX = 임시 해결
-  - 빈 라벨이 화면에 안 보임
-  - 박 대표님 자산 안 건드림
-  - 애드센스 검토자에게 깔끔하게 보임
-  - 빈 필드 데이터 자체는 그대로 비어있음
-
-진짜 해결 (선택 사항):
-  - promptEngine_v6_5_0.ts 가 빈 필드를 채우도록 수정
-  - 어시스턴트가 이 파일을 못 봄
-  - 박 대표님이 직접 수정하시거나
-  - 박 대표님이 이 파일을 어시스턴트에게 공유하시면 작업 가능
-
-박 대표님 동결 약속 고려:
-  임시 해결로 충분 (애드센스 통과 목적)
-  승인 후 진짜 해결 진행 추천
+   ✓ MIDJOURNEY V7 - 데이터 있는 SpecRow만 표시
+   ✓ SORA 2 - 데이터 있는 SpecRow만 표시 (빈 SCENE/AUDIO/ATMOSPHERE 사라짐)
+   ✓ VEO 3 - 데이터 다 비면 PRODUCTION SPEC 통째 사라짐
+   ✓ FLOW - 데이터 다 비면 빈 박스 + SEQUENCE MAP 통째 사라짐
+   ✓ NOTEBOOKLM - 정상 표시 (빈 영역 없음)
 
 ============================================================
 박 대표님 자산 100% 보존
 ============================================================
 
-수정된 부분:
-  CinematicPromptDisplay_v6_5_1 의 SpecRow (1줄 추가)
-  + 4개 메타블록 조건부 표시
+수정된 부분 (CinematicPromptDisplay 만):
+  - SpecRow: 빈 값 체크 (1줄)
+  - FullPromptBox: 빈 콘텐츠 체크 (1줄)
+  - Midjourney/Sora/VEO/Flow Panel: hasAnySpec 변수 + 조건부 렌더링
+  - Negative Prompt 3곳, Continuity Note, Seed: 조건부 표시
 
 수정 안 된 부분 (절대 보존):
   ✅ contentEngine.ts (1,723줄)
@@ -100,5 +115,25 @@ frontend/app/_shared/
   ✅ scenarioEngine_v6_5_0.ts (어시스턴트 못 봄)
   ✅ snsFormatGenerator_v6_5_0.ts (어시스턴트 못 봄)
   ✅ algorithmInsights.ts
-  ✅ CinematicScenarioDisplay_v6_5_0.tsx
-  ✅ contentEngine 호출 흐름 그대로
+  ✅ CinematicScenarioDisplay
+  ✅ 박 대표님 11공식 + 시니어 알고리즘 그대로
+
+박 대표님 매뉴얼 보안:
+  ✅ 위영/Wiyoung X
+  ✅ 당근팀/Carrot Team X
+  ✅ 마스터 매뉴얼 X
+  ✅ GEMS X
+
+============================================================
+어시스턴트 동결 약속
+============================================================
+
+이번 FIX2 = 박 대표님 "마무리 작업" 의 진짜 마지막
+박 대표님 적용 후 사이트 빈 칸 사라짐 = 깔끔
+애드센스 검토자에게 완성된 사이트로 보임
+
+승인 받으실 때까지 어시스턴트는 사이트 건드리지 X
+포스팅 업데이트만 박 대표님이 직접 진행
+
+진짜 데이터 채우기 (promptEngine 수정) 는
+승인 받으신 후 박 대표님 자산 공유하시면 작업 가능
