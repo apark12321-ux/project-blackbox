@@ -54,7 +54,7 @@ export default function SideJob50Guide() {
           만드는 부업 유튜브 5단계 실전 가이드.
         </p>
         <div className="guide-meta">
-          <span>📅 2026.05.02</span><span>·</span><span>⏱ 9분</span><span>·</span><span>👔 부업·재취업</span>
+          <span>📅 2026.05.02</span><span>·</span><span>·</span><span>👔 부업·재취업</span>
         </div>
 
         <p>

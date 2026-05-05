@@ -94,9 +94,7 @@ export default function AlgorithmMindsetGuide() {
         </p>
         <div className="guide-meta">
           <span>📅 2026년 5월</span>
-          <span>·</span>
-          <span>⏱ 읽는 시간 6분</span>
-          <span>·</span>
+          <span>·</span><span>·</span>
           <span>💪 멘탈</span>
         </div>
 

@@ -200,9 +200,7 @@ export default function YouTubeAlgorithmGuide() {
         </p>
         <div className="guide-meta">
           <span>📅 2026년 4월</span>
-          <span>·</span>
-          <span>⏱ 읽는 시간 8분</span>
-          <span>·</span>
+          <span>·</span><span>·</span>
           <span>📊 성장</span>
         </div>
 

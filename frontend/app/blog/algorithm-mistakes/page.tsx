@@ -92,9 +92,7 @@ export default function AlgorithmMistakesGuide() {
         </p>
         <div className="guide-meta">
           <span>📅 2026년 5월</span>
-          <span>·</span>
-          <span>⏱ 읽는 시간 6분</span>
-          <span>·</span>
+          <span>·</span><span>·</span>
           <span>⚠️ 실수 방어</span>
         </div>
 

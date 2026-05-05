@@ -54,7 +54,7 @@ export default function RevenueCalcGuide() {
           실수령액 계산법과 분야별 RPM 차이.
         </p>
         <div className="guide-meta">
-          <span>📅 2026.05.02</span><span>·</span><span>⏱ 9분</span><span>·</span><span>💰 수익화</span>
+          <span>📅 2026.05.02</span><span>·</span><span>·</span><span>💰 수익화</span>
         </div>
 
         <p>

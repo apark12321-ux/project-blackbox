@@ -67,9 +67,7 @@ export default function ChatGPTScriptGuide() {
         </p>
         <div className="guide-meta">
           <span>📅 2026.05.02</span>
-          <span>·</span>
-          <span>⏱ 9분</span>
-          <span>·</span>
+          <span>·</span><span>·</span>
           <span>🤖 AI 도구</span>
         </div>
 

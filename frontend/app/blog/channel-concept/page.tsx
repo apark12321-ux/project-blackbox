@@ -54,7 +54,7 @@ export default function ChannelConceptGuide() {
           "왜 내가 다뤄야 하는지" 를 찾는 5단계 워크시트.
         </p>
         <div className="guide-meta">
-          <span>📅 2026.05.02</span><span>·</span><span>⏱ 8분</span><span>·</span><span>🎯 채널 운영</span>
+          <span>📅 2026.05.02</span><span>·</span><span>·</span><span>🎯 채널 운영</span>
         </div>
 
         <p>

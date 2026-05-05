@@ -108,9 +108,7 @@ export default function AlgorithmSEOGuide() {
         </p>
         <div className="guide-meta">
           <span>📅 2026년 5월</span>
-          <span>·</span>
-          <span>⏱ 읽는 시간 8분</span>
-          <span>·</span>
+          <span>·</span><span>·</span>
           <span>🔍 SEO</span>
         </div>
 

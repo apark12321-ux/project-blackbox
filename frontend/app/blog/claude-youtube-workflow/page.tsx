@@ -191,7 +191,6 @@ export default function ClaudeYoutubeWorkflowGuide() {
 
           <div className="guide-meta">
             <span>2026.05.04</span><span>·</span>
-            <span>9 MIN READ</span><span>·</span>
             <span>AI TOOL</span>
           </div>
 

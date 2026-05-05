@@ -1,139 +1,123 @@
 ============================================================
-v18 FIX2 - Cinematic 빈 영역 통째로 숨김 (강화)
+v18 FIX3 - 포스팅 메타 단순화 (애드센스 친화)
 ============================================================
 
-박 대표님 결정: "어시스턴트 아는 범위 안에서 해결"
+박 대표님 지적:
+  "9분, 8분 이런건 뭐야"
+  "포스팅에 업데이트 날짜만 들어가면 되는거 아닌가"
+  "애드센스 최적화"
 
-이전 v18 FIX 한계:
-  SpecRow 빈 값만 처리
-  → SpecRow 모두 비어도 "Production Spec" 라벨은 그대로 보임
-  → 박 대표님 이미지처럼 빈 라벨이 노출됨
-
-v18 FIX2 강화 내용:
-  
-  [1] SpecRow 빈 값 체크 (이전과 동일)
-      if (!value || !value.trim()) return null;
-  
-  [2] FullPromptBox 빈 콘텐츠 시 박스 자체 숨김 (NEW)
-      if (!content || !content.trim()) return null;
-      → "Flow — Full Sequence" 같은 빈 박스 사라짐
-  
-  [3] 각 Panel 의 spec 영역 통째로 조건부 (NEW)
-      Midjourney "Composition Spec" + 모든 SpecRow + Divider
-      Sora "Shot Specification" + 모든 SpecRow + Divider  
-      VEO "Production Spec" + 모든 SpecRow + Divider
-      Flow "Sequence Map" + 모든 SpecRow + Divider
-      → 모든 spec 데이터 비어있으면 라벨도 안 보임
-  
-  [4] metaBlock 모든 영역 조건부 (NEW)
-      Midjourney Seed - data.seed 있을 때만
-      Negative Prompt 3곳 - 비어있으면 숨김
-      Continuity Note - 비어있으면 숨김
+박 대표님 정확함:
+  - 읽기 시간 (9분, 8분) = 매거진 흉내 / 정보 사이트엔 불필요
+  - 시니어 사용자에게 "9분 읽기" = 부담스러운 메타
+  - 애드센스 검토자 관점 = 깔끔한 정보 사이트
+  - 업데이트 날짜만 표시 = 충분
 
 ============================================================
-박 대표님 이미지 → 적용 후 변화
+변경 내용
 ============================================================
 
-이미지 1 (FLOW 빈 칸):
-  Before: "Flow — Full Sequence" 검은 박스 (빈 칸)
-          SEQUENCE MAP - HOOK/BUILD/CLIMAX/RESOLUTION 라벨만
-          CONTINUITY NOTE 라벨만
-  After:  검은 박스 사라짐
-          SEQUENCE MAP 통째로 사라짐 (빈 데이터)
-          CONTINUITY NOTE 사라짐
+[1] 메인 페이지 (page.tsx)
+    Before: [AI 도구 · 2026.05.04 · 9분]
+    After:  [AI 도구 · 2026.05.04]
+    
+    LATEST 5편 - readTime 데이터 자체 제거
+    POPULAR 5편 - readTime → date (업데이트 날짜로 통일)
 
-이미지 2 (VEO 빈 칸):
-  Before: PRODUCTION SPEC - 7개 라벨 빈 행
-          NEGATIVE PROMPT 라벨만
-  After:  Full Prompt 박스는 채워져 보임 (Cinematic 8-second...)
-          PRODUCTION SPEC 통째로 사라짐
-          NEGATIVE PROMPT 사라짐
+[2] 가이드 목록 페이지 (/blog)
+    Before: [알고리즘 · 2026.05.02 · 8분]
+    After:  [알고리즘 · 2026.05.02]
+    
+    27편 모두 readTime 표시 제거
 
-이미지 3 (Sora 일부 빈 칸):
-  Before: SHOT SPECIFICATION - SUBJECT, CAMERA MOVE 만 채워짐
-          SCENE/DURATION/AUDIO/ATMOSPHERE 빈 칸
-          NEGATIVE PROMPT 라벨만
-  After:  SHOT SPECIFICATION - 채워진 2개 행만 표시
-          빈 4개 행 사라짐
-          NEGATIVE PROMPT 사라짐
-
-============================================================
-ZIP 구성 (2개 파일)
-============================================================
-
-frontend/app/_shared/
-├── CinematicPromptDisplay_v6_5_0.tsx (831 lines → 890 lines)
-└── CinematicPromptDisplay_v6_5_1.tsx (831 lines → 890 lines)
-
-두 파일 동일 내용 (모든 빈 영역 숨김 처리)
-박 대표님 import 경로가 어느 쪽이든 작동
+[3] 가이드 상세 페이지 27편
+    Before (한글 패턴):
+      <span>📅 2026.05.04 발행</span>
+      <span>⏱ 읽는 시간 8분</span>  ← 제거
+      <span>📂 시니어</span>
+    
+    Before (영문 패턴):
+      <span>2026.05.04</span>
+      <span>·</span>
+      <span>7 MIN READ</span>  ← 제거
+      <span>·</span>
+      <span>CHANNEL</span>
+    
+    After: 날짜 + 카테고리만 표시
 
 ============================================================
-박 대표님 적용 (30초)
+ZIP 구성 (29개 파일)
+============================================================
+
+frontend/app/
+├── page.tsx (메인 - LATEST/POPULAR 메타 정리)
+└── blog/
+    ├── page.tsx (목록 - 메타 정리)
+    └── [27편]/page.tsx (각 가이드 메타 정리)
+
+============================================================
+박 대표님 적용 (1분)
 ============================================================
 
 1. ZIP 다운로드 → 압축 풀기
 
-2. github.com/apark12321-ux/project-blackbox/tree/main/frontend/app/_shared
+2. github.com/apark12321-ux/project-blackbox/tree/main/frontend
+   접속
 
 3. "Add file" → "Upload files"
 
-4. 압축 푼 _shared/ 안 두 파일 드래그
-   - CinematicPromptDisplay_v6_5_0.tsx
-   - CinematicPromptDisplay_v6_5_1.tsx
+4. 압축 푼 frontend/ 안 내용 통째로 드래그
 
 5. "Replace existing file" 모두 선택
 
 6. Commit message:
-   fix: Cinematic 빈 영역 통째로 숨김 (강화)
+   fix: 포스팅 메타 단순화 (날짜만 표시, 애드센스 최적화)
 
 7. Vercel 빌드 (1~2분)
 
-8. 시크릿 창 → /publish?keyword=tutorial
+8. 시크릿 창 → nutube.kr
 
-9. 동작 확인:
-   ✓ MIDJOURNEY V7 - 데이터 있는 SpecRow만 표시
-   ✓ SORA 2 - 데이터 있는 SpecRow만 표시 (빈 SCENE/AUDIO/ATMOSPHERE 사라짐)
-   ✓ VEO 3 - 데이터 다 비면 PRODUCTION SPEC 통째 사라짐
-   ✓ FLOW - 데이터 다 비면 빈 박스 + SEQUENCE MAP 통째 사라짐
-   ✓ NOTEBOOKLM - 정상 표시 (빈 영역 없음)
+9. 확인:
+   ✓ 메인 페이지 최신 가이드 - 날짜만 표시 (9분 사라짐)
+   ✓ 메인 페이지 인기 가이드 - 날짜만 표시 (8분 사라짐)
+   ✓ /blog 가이드 목록 - 날짜만 표시
+   ✓ 각 가이드 상세 페이지 상단 - 날짜 + 카테고리만 표시
 
 ============================================================
 박 대표님 자산 100% 보존
 ============================================================
 
-수정된 부분 (CinematicPromptDisplay 만):
-  - SpecRow: 빈 값 체크 (1줄)
-  - FullPromptBox: 빈 콘텐츠 체크 (1줄)
-  - Midjourney/Sora/VEO/Flow Panel: hasAnySpec 변수 + 조건부 렌더링
-  - Negative Prompt 3곳, Continuity Note, Seed: 조건부 표시
+수정된 부분 (메타 표시만):
+  - 메인 페이지 LATEST/POPULAR 데이터의 readTime 필드 제거
+  - 메인 페이지 표시 영역에서 post-time 제거
+  - /blog 표시 영역에서 readTime 제거
+  - 27편 가이드 상세 페이지 메타 영역에서 읽기 시간 제거
 
-수정 안 된 부분 (절대 보존):
-  ✅ contentEngine.ts (1,723줄)
+수정 안 된 부분:
+  ✅ contentEngine.ts
   ✅ v650Adapter.ts
   ✅ promptEngine_v6_5_0.ts (어시스턴트 못 봄)
-  ✅ scenarioEngine_v6_5_0.ts (어시스턴트 못 봄)
-  ✅ snsFormatGenerator_v6_5_0.ts (어시스턴트 못 봄)
+  ✅ Cinematic 컴포넌트 (이전 FIX2 적용 상태 그대로)
   ✅ algorithmInsights.ts
-  ✅ CinematicScenarioDisplay
-  ✅ 박 대표님 11공식 + 시니어 알고리즘 그대로
-
-박 대표님 매뉴얼 보안:
-  ✅ 위영/Wiyoung X
-  ✅ 당근팀/Carrot Team X
-  ✅ 마스터 매뉴얼 X
-  ✅ GEMS X
+  ✅ V18Shell, layout, about, contact, sitemap, robots
+  ✅ /publish 도구 페이지 (PublishWrapper + KeywordInputForm)
+  ✅ 박 대표님 매뉴얼 보안 100%
 
 ============================================================
-어시스턴트 동결 약속
+어시스턴트 동결 약속 유지
 ============================================================
 
-이번 FIX2 = 박 대표님 "마무리 작업" 의 진짜 마지막
-박 대표님 적용 후 사이트 빈 칸 사라짐 = 깔끔
-애드센스 검토자에게 완성된 사이트로 보임
+이번 FIX3 = 박 대표님 직접 지적 사항 (메타 정리) 만 처리
+박 대표님 자산은 그대로
 
-승인 받으실 때까지 어시스턴트는 사이트 건드리지 X
-포스팅 업데이트만 박 대표님이 직접 진행
+이전 ZIP들 적용하셨으면 이번 ZIP만 추가 적용:
+- v18 FINAL (전체 사이트 구조)
+- v18 FIX (Cinematic 빈 필드 - 작은 수정)
+- v18 FIX2 (Cinematic 빈 영역 통째로 숨김 - 강화)
+- v18 FIX3 (메타 정리 - 이번 ZIP)
 
-진짜 데이터 채우기 (promptEngine 수정) 는
-승인 받으신 후 박 대표님 자산 공유하시면 작업 가능
+이번 ZIP 적용 후 사이트 동결.
+승인 받으실 때까지 어시스턴트는 사이트 건드리지 X.
+포스팅 추가만 박 대표님 직접 진행.
+
+수고하셨습니다, 박 대표님.

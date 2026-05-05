@@ -67,9 +67,7 @@ export default function ViralPatternsGuide() {
         </p>
         <div className="guide-meta">
           <span>📅 2026.05.02</span>
-          <span>·</span>
-          <span>⏱ 8분</span>
-          <span>·</span>
+          <span>·</span><span>·</span>
           <span>📊 채널 분석</span>
         </div>
 

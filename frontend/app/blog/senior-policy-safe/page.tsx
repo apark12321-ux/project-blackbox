@@ -49,9 +49,7 @@ export default function SeniorPolicySafeGuide() {
         </p>
 
         <div className="guide-meta">
-          <span>📅 2026.05.04 발행</span>
-          <span>⏱ 7분 읽기</span>
-          <span>📂 시니어</span>
+          <span>📅 2026.05.04 발행</span><span>📂 시니어</span>
         </div>
 
         <p>

@@ -94,9 +94,7 @@ export default function AlgorithmRetentionGuide() {
         </p>
         <div className="guide-meta">
           <span>📅 2026년 5월</span>
-          <span>·</span>
-          <span>⏱ 읽는 시간 7분</span>
-          <span>·</span>
+          <span>·</span><span>·</span>
           <span>⏱ 시청 지속</span>
         </div>
 

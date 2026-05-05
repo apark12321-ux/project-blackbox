@@ -56,19 +56,19 @@ const CATEGORIES = [
 ];
 
 const LATEST = [
-  { slug: 'claude-youtube-workflow', cat: 'AI 도구', title: '클로드로 유튜브 콘텐츠 자동화 - 4단계 프로세스', date: '2026.05.04', readTime: '9분' },
-  { slug: 'human-warmth', cat: '채널 운영', title: 'AI 시대, 유튜버가 잃지 말아야 할 인간의 온도', date: '2026.05.04', readTime: '7분' },
-  { slug: 'senior-channel-start', cat: '시니어', title: '50대부터 시작하는 시니어 사연 쇼츠 채널', date: '2026.05.04', readTime: '8분' },
-  { slug: 'senior-content-ideas', cat: '시니어', title: '시니어 채널 콘텐츠 아이디어 30가지', date: '2026.05.04', readTime: '9분' },
-  { slug: 'senior-hook-patterns', cat: '시니어', title: '시청자를 사로잡는 시니어 영상 후크 8가지', date: '2026.05.04', readTime: '7분' },
+  { slug: 'claude-youtube-workflow', cat: 'AI 도구', title: '클로드로 유튜브 콘텐츠 자동화 - 4단계 프로세스', date: '2026.05.04' },
+  { slug: 'human-warmth', cat: '채널 운영', title: 'AI 시대, 유튜버가 잃지 말아야 할 인간의 온도', date: '2026.05.04' },
+  { slug: 'senior-channel-start', cat: '시니어', title: '50대부터 시작하는 시니어 사연 쇼츠 채널', date: '2026.05.04' },
+  { slug: 'senior-content-ideas', cat: '시니어', title: '시니어 채널 콘텐츠 아이디어 30가지', date: '2026.05.04' },
+  { slug: 'senior-hook-patterns', cat: '시니어', title: '시청자를 사로잡는 시니어 영상 후크 8가지', date: '2026.05.04' },
 ];
 
 const POPULAR = [
-  { slug: 'algorithm-seo', cat: '알고리즘', title: '알고리즘이 내 영상을 알아보게 하는 SEO 전략', readTime: '8분' },
-  { slug: 'algorithm-mistakes', cat: '실수 방어', title: '치명적 실수 7가지 - 알고 피하면 떡상', readTime: '8분' },
-  { slug: 'algorithm-retention', cat: '시청 지속', title: '시청자를 채널에 가두는 무한 루프 세팅', readTime: '7분' },
-  { slug: 'algorithm-mindset', cat: '멘탈', title: '6개월간 떡상이 안 와도 버티는 멘탈 관리', readTime: '7분' },
-  { slug: 'first-100-subs', cat: '구독자', title: '첫 100명 구독자 모으는 방법', readTime: '7분' },
+  { slug: 'algorithm-seo', cat: '알고리즘', title: '알고리즘이 내 영상을 알아보게 하는 SEO 전략', date: '2026.05.02' },
+  { slug: 'algorithm-mistakes', cat: '실수 방어', title: '치명적 실수 7가지 - 알고 피하면 떡상', date: '2026.05.02' },
+  { slug: 'algorithm-retention', cat: '시청 지속', title: '시청자를 채널에 가두는 무한 루프 세팅', date: '2026.05.02' },
+  { slug: 'algorithm-mindset', cat: '멘탈', title: '6개월간 떡상이 안 와도 버티는 멘탈 관리', date: '2026.05.02' },
+  { slug: 'first-100-subs', cat: '구독자', title: '첫 100명 구독자 모으는 방법', date: '2026.05.02' },
 ];
 
 export default function HomePage() {
@@ -115,8 +115,6 @@ export default function HomePage() {
                     <span className="post-cat">{p.cat}</span>
                     <span className="post-dot">·</span>
                     <span className="post-date">{p.date}</span>
-                    <span className="post-dot">·</span>
-                    <span className="post-time">{p.readTime}</span>
                   </div>
                   <h3 className="post-title">{p.title}</h3>
                 </Link>
@@ -137,7 +135,7 @@ export default function HomePage() {
                   <div className="post-meta">
                     <span className="post-cat">{p.cat}</span>
                     <span className="post-dot">·</span>
-                    <span className="post-time">{p.readTime}</span>
+                    <span className="post-date">{p.date}</span>
                   </div>
                   <h3 className="post-title">{p.title}</h3>
                 </Link>

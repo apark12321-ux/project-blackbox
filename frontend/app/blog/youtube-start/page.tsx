@@ -188,9 +188,7 @@ export default function YouTubeStartGuide() {
         </p>
         <div className="guide-meta">
           <span>📅 2026년 4월</span>
-          <span>·</span>
-          <span>⏱ 읽는 시간 7분</span>
-          <span>·</span>
+          <span>·</span><span>·</span>
           <span>📚 입문</span>
         </div>
 

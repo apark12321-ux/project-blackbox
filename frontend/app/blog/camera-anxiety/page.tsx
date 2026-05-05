@@ -54,7 +54,7 @@ export default function CameraAnxietyGuide() {
           1주일 안에 자연스럽게 말할 수 있는 실전 5가지 방법.
         </p>
         <div className="guide-meta">
-          <span>📅 2026.05.02</span><span>·</span><span>⏱ 7분</span><span>·</span><span>🎤 영상 제작</span>
+          <span>📅 2026.05.02</span><span>·</span><span>·</span><span>🎤 영상 제작</span>
         </div>
 
         <p>

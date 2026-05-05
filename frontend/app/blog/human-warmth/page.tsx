@@ -180,7 +180,6 @@ export default function HumanWarmthGuide() {
 
           <div className="guide-meta">
             <span>2026.05.04</span><span>·</span>
-            <span>7 MIN READ</span><span>·</span>
             <span>CHANNEL</span>
           </div>
 

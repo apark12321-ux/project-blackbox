@@ -203,9 +203,7 @@ export default function YouTubeMonetizationGuide() {
         </p>
         <div className="guide-meta">
           <span>📅 2026년 4월</span>
-          <span>·</span>
-          <span>⏱ 읽는 시간 9분</span>
-          <span>·</span>
+          <span>·</span><span>·</span>
           <span>💰 수익</span>
         </div>
 

@@ -67,9 +67,7 @@ export default function PhoneShootingGuide() {
         </p>
         <div className="guide-meta">
           <span>📅 2026.05.02</span>
-          <span>·</span>
-          <span>⏱ 7분</span>
-          <span>·</span>
+          <span>·</span><span>·</span>
           <span>📱 영상 제작</span>
         </div>
 

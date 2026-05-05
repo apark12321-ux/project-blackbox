@@ -54,7 +54,7 @@ export default function AIThumbnailGuide() {
           Canva, 미리캔버스, 망고보드, Midjourney, DALL-E 장단점 정리.
         </p>
         <div className="guide-meta">
-          <span>📅 2026.05.02</span><span>·</span><span>⏱ 8분</span><span>·</span><span>🎨 도구</span>
+          <span>📅 2026.05.02</span><span>·</span><span>·</span><span>🎨 도구</span>
         </div>
 
         <p>

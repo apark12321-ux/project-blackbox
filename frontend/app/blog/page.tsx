@@ -109,8 +109,6 @@ export default function BlogPage() {
                   <span className="post-cat">{g.categoryLabel}</span>
                   <span className="post-dot">·</span>
                   <span>{g.publishedAt.replace(/-/g, '.')}</span>
-                  <span className="post-dot">·</span>
-                  <span>{g.readTime}</span>
                 </div>
                 <h2 className="post-title">{g.title}</h2>
                 <p className="post-subtitle">{g.subtitle}</p>
