@@ -42,7 +42,7 @@ export function V18Shell({ children }: V18ShellProps) {
           <nav className="nav-desktop">
             <Link href="/" className={isActive('/') ? 'nav-link active' : 'nav-link'}>홈</Link>
             <Link href="/blog" className={isActive('/blog') ? 'nav-link active' : 'nav-link'}>가이드</Link>
-            <Link href="/publish" className={isActive('/publish') ? 'nav-link active' : 'nav-link'}>자료 만들기</Link>
+            <Link href="/publish" className={isActive('/publish') ? 'nav-link active' : 'nav-link'}>메타데이터 생성기</Link>
             <Link href="/about" className={isActive('/about') ? 'nav-link active' : 'nav-link'}>소개</Link>
             <Link href="/contact" className={isActive('/contact') ? 'nav-link active' : 'nav-link'}>문의</Link>
           </nav>
@@ -58,7 +58,7 @@ export function V18Shell({ children }: V18ShellProps) {
           <nav className="nav-mobile">
             <Link href="/" onClick={() => setMenuOpen(false)}>홈</Link>
             <Link href="/blog" onClick={() => setMenuOpen(false)}>가이드</Link>
-            <Link href="/publish" onClick={() => setMenuOpen(false)}>자료 만들기</Link>
+            <Link href="/publish" onClick={() => setMenuOpen(false)}>메타데이터 생성기</Link>
             <Link href="/about" onClick={() => setMenuOpen(false)}>소개</Link>
             <Link href="/contact" onClick={() => setMenuOpen(false)}>문의</Link>
           </nav>

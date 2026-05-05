@@ -135,19 +135,75 @@ export default function HomePage() {
           </ul>
         </section>
 
+        <section className="section tool-section">
+          <h2 className="section-title">영상 메타데이터 생성기</h2>
+          <p className="tool-intro">
+            가이드 27편의 노하우와 박 실장 알고리즘 11공식이 자동 적용된
+            <strong> 영상 메타데이터(제목·시나리오·해시태그·SEO 태그)</strong>를
+            5초 안에 만들어드립니다.
+          </p>
+
+          <div className="tool-features">
+            <div className="tool-feature">
+              <div className="tool-feature-num">01</div>
+              <div className="tool-feature-content">
+                <h3 className="tool-feature-title">알고리즘 11공식 자동 적용</h3>
+                <p className="tool-feature-desc">
+                  제목 8:2 법칙, 음성 SEO, 챕터 전략, 해시태그 패턴 등
+                  검증된 노하우가 자동으로 적용됩니다.
+                </p>
+              </div>
+            </div>
+
+            <div className="tool-feature">
+              <div className="tool-feature-num">02</div>
+              <div className="tool-feature-content">
+                <h3 className="tool-feature-title">시니어 알고리즘 자동 인식</h3>
+                <p className="tool-feature-desc">
+                  시니어 키워드를 입력하시면 시니어 채널 전용 후크와
+                  업로드 시간 등이 자동으로 적용됩니다.
+                </p>
+              </div>
+            </div>
+
+            <div className="tool-feature">
+              <div className="tool-feature-num">03</div>
+              <div className="tool-feature-content">
+                <h3 className="tool-feature-title">한 번에 전체 메타데이터</h3>
+                <p className="tool-feature-desc">
+                  제목 후보 5개, 시나리오, AI 영상 프롬프트, SEO 태그,
+                  해시태그까지 한 번 클릭으로 받아보세요.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <div className="tool-cta-row">
+            <Link href="/publish" className="tool-cta-btn">
+              메타데이터 생성기 사용하기 →
+            </Link>
+            <span className="tool-cta-note">완전 무료 · 회원가입 불필요</span>
+          </div>
+        </section>
+
         <section className="section about-section">
           <h2 className="section-title">사이트 소개</h2>
           <p className="about-p">
             AlgoMaker는 유튜브 채널을 시작하거나 키우고 싶으신 분들을 위한 정보 사이트입니다.
-            구글 알고리즘 분석, 시니어 사연 쇼츠 채널 운영법, 클로드와 ChatGPT 같은 AI 도구 활용법,
-            채널 수익화 전략까지 영상 채널 운영의 모든 노하우를 한 곳에 정리했습니다.
+            <strong>가이드 + 도구</strong> 두 가지 방식으로 도와드립니다.
           </p>
           <p className="about-p">
-            모든 가이드는 무료이며 회원가입이 필요하지 않습니다. 50대 이상 시니어 분들이
-            보시기 편하도록 큰 글씨와 단계별 설명으로 작성했습니다. 추가로 영상 자료
-            (제목·시나리오·해시태그) 를 자동으로 만들어주는 도구도 무료로 제공하고 있습니다.
+            <strong>가이드</strong>: 유튜브 알고리즘, 시니어 사연 쇼츠, AI 도구 활용,
+            채널 수익화 등 영상 채널 운영의 모든 노하우를 27편으로 정리했습니다.
+            모든 가이드는 무료이며 회원가입이 필요하지 않습니다.
           </p>
           <p className="about-p">
+            <strong>메타데이터 생성기</strong>: 가이드의 노하우와 박 실장 알고리즘 11공식이
+            자동 적용된 영상 메타데이터(제목·시나리오·해시태그·SEO 태그)를 5초 안에 만들어드립니다.
+            가이드를 읽으면서 알게 된 내용을 바로 본인 영상에 적용하실 수 있습니다.
+          </p>
+          <p className="about-p">
+            50대 이상 시니어 분들이 보시기 편하도록 큰 글씨와 단계별 설명으로 작성했습니다.
             궁금하신 점이 있으시면 <Link href="/contact" className="link">문의 페이지</Link>를
             통해 연락 주세요. 매주 새로운 가이드가 추가됩니다.
           </p>
@@ -349,6 +405,117 @@ export default function HomePage() {
           color: #1a1a1a;
           font-weight: 600;
           text-decoration: underline;
+        }
+
+        /* 도구 섹션 */
+        .tool-section {
+          background: #fffbeb;
+          padding: 36px 32px 32px;
+          border-left: 4px solid #c2410c;
+        }
+        @media (max-width: 600px) {
+          .tool-section { padding: 28px 22px 24px; }
+        }
+
+        .tool-intro {
+          font-size: 16px;
+          color: #404040;
+          line-height: 1.75;
+          margin: 0 0 28px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .tool-intro { font-size: 14.5px; margin-bottom: 22px; }
+        }
+        .tool-intro strong {
+          color: #1a1a1a;
+          font-weight: 700;
+        }
+
+        .tool-features {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          margin-bottom: 28px;
+        }
+        @media (max-width: 600px) {
+          .tool-features { gap: 16px; margin-bottom: 22px; }
+        }
+
+        .tool-feature {
+          display: grid;
+          grid-template-columns: 50px 1fr;
+          gap: 16px;
+          align-items: start;
+          padding: 16px 18px;
+          background: #ffffff;
+          border: 1px solid #fde68a;
+        }
+        @media (max-width: 600px) {
+          .tool-feature { grid-template-columns: 38px 1fr; gap: 12px; padding: 14px 16px; }
+        }
+
+        .tool-feature-num {
+          font-size: 22px;
+          font-weight: 800;
+          color: #c2410c;
+          letter-spacing: -0.02em;
+          line-height: 1;
+        }
+        @media (max-width: 600px) {
+          .tool-feature-num { font-size: 18px; }
+        }
+
+        .tool-feature-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: #1a1a1a;
+          margin: 0 0 6px;
+          letter-spacing: -0.015em;
+        }
+        @media (max-width: 600px) {
+          .tool-feature-title { font-size: 14.5px; }
+        }
+
+        .tool-feature-desc {
+          font-size: 14px;
+          color: #525252;
+          line-height: 1.65;
+          margin: 0;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .tool-feature-desc { font-size: 13px; }
+        }
+
+        .tool-cta-row {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          flex-wrap: wrap;
+        }
+
+        .tool-cta-btn {
+          display: inline-block;
+          padding: 14px 28px;
+          background: #1a1a1a;
+          color: #ffffff;
+          font-size: 15px;
+          font-weight: 700;
+          letter-spacing: -0.012em;
+          transition: background 0.15s;
+        }
+        @media (max-width: 600px) {
+          .tool-cta-btn { padding: 12px 22px; font-size: 14px; }
+        }
+        .tool-cta-btn:hover {
+          background: #c2410c;
+        }
+
+        .tool-cta-note {
+          font-size: 12.5px;
+          color: #737373;
+          font-weight: 500;
         }
       `}</style>
     </V18Shell>
