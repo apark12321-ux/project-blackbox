@@ -1,167 +1,77 @@
 import type { MetadataRoute } from 'next';
 
-const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://nutube.kr';
+const BASE_URL = 'https://nutube.kr';
 
-// 노하우 글 슬러그 (15개)
-const KNOWHOW_SLUGS = [
-  'youtube-algorithm',
-  'ctr-title-secrets',
-  'thumbnail-design',
-  'viewer-retention',
-  'first-30-seconds-hook',
-  'seo-tags',
-  'shorts-vs-longform',
-  'middle-aged-channel-tips',
-  'monetization-tips',
-  'trending-keywords-research',
-  'storytelling-structure',
-  'bgm-copyright-free',
-  'upload-time-optimization',
-  'channel-branding',
-  'community-engagement',
-  'family-story-shorts',
-  'content-value-paths',
-  // v6.2.0 Phase 3 - 새 콘텐츠 8편
-  'viral-patterns-9-domains',
-  'viral-patterns-senior',
-  'viral-patterns-family-story',
-  'phone-video-basics',
-  'phone-app-capcut-vlo',
-  'phone-free-editing-apps',
-  'ai-tools-for-seniors',
-  'chatgpt-for-seniors',
+const GUIDE_SLUGS = [
+  // 알고리즘 (10편)
+  'algorithm-seo', 'algorithm-retention', 'algorithm-branding',
+  'algorithm-mistakes', 'youtube-algorithm', 'viral-patterns',
+  'channel-concept', 'youtube-start', 'human-warmth', 'youtube-monetization',
+  // 시니어 (5편)
+  'senior-channel-start', 'senior-content-ideas', 'senior-hook-patterns',
+  'senior-engagement', 'senior-policy-safe',
+  // AI 도구 (9편)
+  'claude-youtube-workflow', 'chatgpt-script', 'ai-thumbnail',
+  'ai-tools', 'phone-shooting', 'free-editing-apps',
+  'camera-anxiety', 'thumbnail-tips', 'voice-seo',
+  // 수익화 (3편)
+  'algorithm-mindset', 'first-100-subs', 'side-job-50', 'revenue-calc',
 ];
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const now = new Date();
 
-  // 메인 페이지들 (최우선)
-  const mainPages: MetadataRoute.Sitemap = [
+  const staticPages: MetadataRoute.Sitemap = [
     {
-      url: SITE_URL,
+      url: BASE_URL,
       lastModified: now,
       changeFrequency: 'daily',
       priority: 1.0,
     },
     {
-      url: `${SITE_URL}/create`,
-      lastModified: now,
-      changeFrequency: 'daily',
-      priority: 0.95,
-    },
-    {
-      url: `${SITE_URL}/imagegen`,
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.9,
-    },
-    {
-      url: `${SITE_URL}/blog`,
+      url: `${BASE_URL}/blog`,
       lastModified: now,
       changeFrequency: 'daily',
       priority: 0.9,
     },
     {
-      url: `${SITE_URL}/workflow`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.9,
-    },
-    {
-      url: `${SITE_URL}/news`,
-      lastModified: now,
-      changeFrequency: 'daily',
-      priority: 0.85,
-    },
-    {
-      url: `${SITE_URL}/analytics`,
+      url: `${BASE_URL}/publish`,
       lastModified: now,
       changeFrequency: 'weekly',
       priority: 0.8,
     },
-  ];
-
-  // 서비스 페이지들
-  const servicePages: MetadataRoute.Sitemap = [
     {
-      url: `${SITE_URL}/keyword`,
-      lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.7,
-    },
-    {
-      url: `${SITE_URL}/configure`,
+      url: `${BASE_URL}/about`,
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
-      url: `${SITE_URL}/publish`,
+      url: `${BASE_URL}/contact`,
       lastModified: now,
       changeFrequency: 'monthly',
       priority: 0.6,
     },
     {
-      url: `${SITE_URL}/done`,
+      url: `${BASE_URL}/privacy`,
       lastModified: now,
-      changeFrequency: 'monthly',
+      changeFrequency: 'yearly',
       priority: 0.4,
     },
     {
-      url: `${SITE_URL}/assets`,
+      url: `${BASE_URL}/terms`,
       lastModified: now,
-      changeFrequency: 'weekly',
-      priority: 0.5,
-    },
-  ];
-
-  // 정보 페이지 (필수 - AdSense 승인용)
-  const infoPages: MetadataRoute.Sitemap = [
-    {
-      url: `${SITE_URL}/about`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${SITE_URL}/contact`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.8,
-    },
-    {
-      url: `${SITE_URL}/privacy`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${SITE_URL}/terms`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.7,
-    },
-    {
-      url: `${SITE_URL}/plan`,
-      lastModified: now,
-      changeFrequency: 'monthly',
-      priority: 0.6,
-    },
-    {
-      url: `${SITE_URL}/login`,
-      lastModified: now,
-      changeFrequency: 'monthly',
+      changeFrequency: 'yearly',
       priority: 0.4,
     },
   ];
 
-  // 노하우 / 블로그 콘텐츠 15개 (SEO 핵심!)
-  const knowhowPages: MetadataRoute.Sitemap = KNOWHOW_SLUGS.map((slug) => ({
-    url: `${SITE_URL}/knowhow/${slug}`,
+  const guidePages: MetadataRoute.Sitemap = GUIDE_SLUGS.map((slug) => ({
+    url: `${BASE_URL}/blog/${slug}`,
     lastModified: now,
-    changeFrequency: 'monthly',
-    priority: 0.85,
+    changeFrequency: 'weekly' as const,
+    priority: 0.7,
   }));
 
-  return [...mainPages, ...servicePages, ...infoPages, ...knowhowPages];
+  return [...staticPages, ...guidePages];
 }
