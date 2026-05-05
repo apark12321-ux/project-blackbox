@@ -85,11 +85,16 @@ export default function HomePage() {
     <V18Shell>
       <div className="container">
         <section className="hero">
-          <h1 className="hero-title">유튜브 채널 운영 노하우 가이드</h1>
+          <div className="hero-badge">유튜브 채널 운영 정보 사이트</div>
+          <h1 className="hero-title">
+            알고리즘 · 시니어 · AI<br />
+            <span className="hero-title-accent">유튜브 채널 운영 가이드</span>
+          </h1>
           <p className="hero-sub">
-            알고리즘, 시니어 사연 쇼츠, AI 도구 활용, 채널 수익화까지.<br />
-            유튜브 시작하시는 분들을 위한 실전 가이드 27편을 무료로 정리했습니다.
+            유튜브 채널 운영에 필요한 모든 노하우를 무료로 제공합니다.<br />
+            알고리즘 분석부터 자동 메타데이터 생성 도구까지 한 곳에서.
           </p>
+          <Link href="/blog" className="hero-cta">가이드 둘러보기 →</Link>
         </section>
 
         <section className="section">
@@ -102,6 +107,35 @@ export default function HomePage() {
                 <div className="cat-count">가이드 {c.count}편 →</div>
               </Link>
             ))}
+          </div>
+        </section>
+
+        <section className="features-section">
+          <div className="features-grid">
+            <div className="feature">
+              <div className="feature-icon">📊</div>
+              <h3 className="feature-title">실전 데이터 기반</h3>
+              <p className="feature-desc">
+                실제 채널 데이터를 분석한 알고리즘 11공식과
+                검증된 운영 노하우를 가이드에 담았습니다.
+              </p>
+            </div>
+            <div className="feature">
+              <div className="feature-icon">🤝</div>
+              <h3 className="feature-title">인간 + AI 시너지</h3>
+              <p className="feature-desc">
+                AI 도구 활용법과 함께 인간만의 따뜻한 감성을 결합해,
+                자동 생성을 넘어선 가치를 만들어냅니다.
+              </p>
+            </div>
+            <div className="feature">
+              <div className="feature-icon">👥</div>
+              <h3 className="feature-title">시니어 맞춤형</h3>
+              <p className="feature-desc">
+                디지털 도구가 어려운 50~70 세대를 위해
+                큰 글씨와 단계별 설명으로 콘텐츠를 제공합니다.
+              </p>
+            </div>
           </div>
         </section>
 
@@ -142,6 +176,17 @@ export default function HomePage() {
               </li>
             ))}
           </ul>
+        </section>
+
+        <section className="value-section">
+          <div className="value-quote-mark">"</div>
+          <p className="value-quote">
+            유튜브 채널 운영의 본질은 알고리즘이 아니라
+            <strong> 시청자의 마음을 얻는 것</strong>입니다.
+            검증된 노하우와 AI 도구를 결합해 누구나 자기만의 채널을
+            만들 수 있도록 돕습니다.
+          </p>
+          <div className="value-source">— AlgoMaker가 추구하는 가치</div>
         </section>
 
         <section className="section tool-section">
@@ -238,33 +283,176 @@ export default function HomePage() {
           padding: 56px 0 48px;
           border-bottom: 1px solid #e5e5e5;
           margin-bottom: 48px;
+          text-align: center;
         }
         @media (max-width: 600px) {
           .hero { padding: 36px 0 32px; margin-bottom: 36px; }
         }
 
+        .hero-badge {
+          display: inline-block;
+          padding: 6px 14px;
+          background: #fff7ed;
+          color: #c2410c;
+          font-size: 12.5px;
+          font-weight: 700;
+          letter-spacing: -0.01em;
+          margin-bottom: 24px;
+          border-radius: 100px;
+        }
+        @media (max-width: 600px) {
+          .hero-badge { font-size: 11.5px; padding: 5px 12px; margin-bottom: 18px; }
+        }
+
         .hero-title {
-          font-size: 36px;
+          font-size: 40px;
           font-weight: 800;
           color: #1a1a1a;
-          letter-spacing: -0.025em;
-          line-height: 1.25;
-          margin: 0 0 16px;
+          letter-spacing: -0.028em;
+          line-height: 1.2;
+          margin: 0 0 18px;
           word-break: keep-all;
         }
         @media (max-width: 600px) {
-          .hero-title { font-size: 26px; line-height: 1.3; margin-bottom: 12px; }
+          .hero-title { font-size: 28px; line-height: 1.25; margin-bottom: 14px; }
+        }
+
+        .hero-title-accent {
+          color: #c2410c;
         }
 
         .hero-sub {
           font-size: 17px;
           color: #525252;
           line-height: 1.7;
-          margin: 0;
+          margin: 0 0 28px;
           word-break: keep-all;
         }
         @media (max-width: 600px) {
           .hero-sub { font-size: 15px; line-height: 1.65; }
+        }
+
+        .hero-cta {
+          display: inline-block;
+          padding: 14px 32px;
+          background: #1a1a1a;
+          color: #ffffff;
+          font-size: 15px;
+          font-weight: 700;
+          letter-spacing: -0.012em;
+          transition: background 0.15s;
+        }
+        .hero-cta:hover {
+          background: #c2410c;
+        }
+        @media (max-width: 600px) {
+          .hero-cta { padding: 12px 26px; font-size: 14px; }
+        }
+
+        /* 3가지 특징 영역 */
+        .features-section {
+          margin-bottom: 56px;
+        }
+        @media (max-width: 600px) {
+          .features-section { margin-bottom: 40px; }
+        }
+
+        .features-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 768px) {
+          .features-grid { grid-template-columns: 1fr; gap: 12px; }
+        }
+
+        .feature {
+          padding: 24px 22px;
+          background: #fafafa;
+          border: 1px solid #e5e5e5;
+          text-align: center;
+        }
+        @media (max-width: 600px) {
+          .feature { padding: 20px 18px; }
+        }
+
+        .feature-icon {
+          font-size: 32px;
+          margin-bottom: 12px;
+          line-height: 1;
+        }
+        @media (max-width: 600px) {
+          .feature-icon { font-size: 28px; }
+        }
+
+        .feature-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: #1a1a1a;
+          margin: 0 0 10px;
+          letter-spacing: -0.018em;
+        }
+        @media (max-width: 600px) {
+          .feature-title { font-size: 15px; }
+        }
+
+        .feature-desc {
+          font-size: 14px;
+          color: #525252;
+          line-height: 1.65;
+          margin: 0;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .feature-desc { font-size: 13px; }
+        }
+
+        /* 가치 인용 영역 */
+        .value-section {
+          padding: 40px 32px 36px;
+          background: #fafafa;
+          border-left: 4px solid #c2410c;
+          margin-bottom: 56px;
+          position: relative;
+        }
+        @media (max-width: 600px) {
+          .value-section { padding: 28px 22px 24px; margin-bottom: 40px; }
+        }
+
+        .value-quote-mark {
+          font-size: 56px;
+          color: #c2410c;
+          font-weight: 700;
+          line-height: 0.5;
+          margin-bottom: 6px;
+          font-family: Georgia, serif;
+        }
+        @media (max-width: 600px) {
+          .value-quote-mark { font-size: 42px; }
+        }
+
+        .value-quote {
+          font-size: 18px;
+          color: #1a1a1a;
+          line-height: 1.75;
+          margin: 0 0 14px;
+          word-break: keep-all;
+          font-weight: 500;
+        }
+        @media (max-width: 600px) {
+          .value-quote { font-size: 15.5px; line-height: 1.7; }
+        }
+
+        .value-quote strong {
+          color: #c2410c;
+          font-weight: 700;
+        }
+
+        .value-source {
+          font-size: 13px;
+          color: #737373;
+          font-weight: 600;
+          letter-spacing: -0.01em;
         }
 
         .section {
