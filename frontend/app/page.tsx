@@ -38,8 +38,8 @@ const CATEGORIES = [
   {
     id: 'senior',
     name: '시니어 사연 쇼츠',
-    desc: '50~80대 타겟 채널 운영법. 후크 패턴, 콘텐츠 아이디어 30가지, 정책 안전 운영.',
-    count: 5,
+    desc: '50~80대 타겟 채널 운영법. 촬영 실수 방어, 편집 기초, 100명 모으기 등.',
+    count: 10,
   },
   {
     id: 'aitools',
@@ -56,11 +56,11 @@ const CATEGORIES = [
 ];
 
 const LATEST = [
-  { slug: 'claude-youtube-workflow', cat: 'AI 도구', title: '클로드로 유튜브 콘텐츠 자동화 - 4단계 프로세스', date: '2026.05.04' },
-  { slug: 'human-warmth', cat: '채널 운영', title: 'AI 시대, 유튜버가 잃지 말아야 할 인간의 온도', date: '2026.05.04' },
-  { slug: 'senior-channel-start', cat: '시니어', title: '50대부터 시작하는 시니어 사연 쇼츠 채널', date: '2026.05.04' },
-  { slug: 'senior-content-ideas', cat: '시니어', title: '시니어 채널 콘텐츠 아이디어 30가지', date: '2026.05.04' },
-  { slug: 'senior-hook-patterns', cat: '시니어', title: '시청자를 사로잡는 시니어 영상 후크 8가지', date: '2026.05.04' },
+  { slug: 'senior-shooting-mistakes', cat: '시니어', title: '시니어가 처음 영상 찍을 때 흔한 실수 7가지', date: '2026.05.06' },
+  { slug: 'senior-first-100', cat: '시니어', title: '시니어 채널 첫 100명 구독자 모으기 단계별 가이드', date: '2026.05.06' },
+  { slug: 'senior-capcut-basic', cat: '시니어', title: '시니어 영상 편집 - 무료 앱 기본 사용법', date: '2026.05.06' },
+  { slug: 'senior-family-channel', cat: '시니어', title: '50대 이후 시작하는 가족 일상 채널 가이드', date: '2026.05.06' },
+  { slug: 'senior-thumbnail-design', cat: '시니어', title: '시니어 시청자가 좋아하는 썸네일 디자인 5가지', date: '2026.05.06' },
 ];
 
 const POPULAR = [

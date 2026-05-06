@@ -28,6 +28,12 @@ const GUIDES: GuideMeta[] = [
   { slug: 'senior-hook-patterns', publishedAt: '2026-05-04', category: 'senior' },
   { slug: 'senior-engagement', publishedAt: '2026-05-04', category: 'senior' },
   { slug: 'senior-policy-safe', publishedAt: '2026-05-04', category: 'senior' },
+  // 시니어 추가 5편 (v18.7)
+  { slug: 'senior-shooting-mistakes', publishedAt: '2026-05-06', category: 'senior' },
+  { slug: 'senior-first-100', publishedAt: '2026-05-06', category: 'senior' },
+  { slug: 'senior-capcut-basic', publishedAt: '2026-05-06', category: 'senior' },
+  { slug: 'senior-family-channel', publishedAt: '2026-05-06', category: 'senior' },
+  { slug: 'senior-thumbnail-design', publishedAt: '2026-05-06', category: 'senior' },
   // AI 도구 (9편)
   { slug: 'claude-youtube-workflow', publishedAt: '2026-05-04', category: 'aitools' },
   { slug: 'chatgpt-script', publishedAt: '2026-04-30', category: 'aitools' },

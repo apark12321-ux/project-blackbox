@@ -50,6 +50,12 @@ const GUIDES: Guide[] = [
   { slug: 'first-100-subs', title: '첫 100명 구독자 모으는 방법', subtitle: '0명에서 100명까지 4단계 전략', category: 'monetization', categoryLabel: '수익화', readTime: '7분', publishedAt: '2026-05-02' },
   { slug: 'side-job-50', title: '50대 부업 유튜브 시작 가이드', subtitle: '늦은 나이가 오히려 무기가 되는 채널 운영', category: 'monetization', categoryLabel: '수익화', readTime: '8분', publishedAt: '2026-05-02' },
   { slug: 'revenue-calc', title: '유튜브 광고 수익 계산법', subtitle: '조회수당 수익과 RPM 이해하기', category: 'monetization', categoryLabel: '수익화', readTime: '6분', publishedAt: '2026-04-30' },
+  // v18.7 추가 5편 (시니어 카테고리 강화)
+  { slug: 'senior-shooting-mistakes', title: '시니어가 처음 영상 찍을 때 흔한 실수 7가지', subtitle: '50대 이후 처음 촬영 시 자주 하는 실수와 해결법', category: 'senior', categoryLabel: '시니어', readTime: '8분', publishedAt: '2026-05-06' },
+  { slug: 'senior-first-100', title: '시니어 채널 첫 100명 구독자 모으기 단계별 가이드', subtitle: '50~70대 채널의 100명 도달 4단계 전략', category: 'senior', categoryLabel: '시니어', readTime: '8분', publishedAt: '2026-05-06' },
+  { slug: 'senior-capcut-basic', title: '시니어 영상 편집 - 무료 앱 기본 사용법', subtitle: '처음 시작하는 시니어를 위한 영상 편집 5단계', category: 'senior', categoryLabel: '시니어', readTime: '9분', publishedAt: '2026-05-06' },
+  { slug: 'senior-family-channel', title: '50대 이후 시작하는 가족 일상 채널 가이드', subtitle: '가족과 함께 추억을 영상으로 남기는 채널 운영법', category: 'senior', categoryLabel: '시니어', readTime: '8분', publishedAt: '2026-05-06' },
+  { slug: 'senior-thumbnail-design', title: '시니어 시청자가 좋아하는 썸네일 디자인 5가지', subtitle: '50~70대 시청자의 클릭을 부르는 썸네일 원칙', category: 'senior', categoryLabel: '시니어', readTime: '8분', publishedAt: '2026-05-06' },
 ];
 
 const FILTERS = [
