@@ -33,7 +33,7 @@ const CATEGORIES = [
     id: 'algorithm',
     name: '유튜브 알고리즘',
     desc: '검색 노출, 시청 지속률, 떡상 패턴까지. 박 실장 11공식 기반 알고리즘 노하우.',
-    count: 10,
+    count: 11,
   },
   {
     id: 'senior',
