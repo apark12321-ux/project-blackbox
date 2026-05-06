@@ -660,18 +660,18 @@ function PublishContent() {
 
           {data?.tags && data.tags.length > 0 && (
             <div className="v15-tags-box">
-              <div className="v15-tags-label">🏷 해시태그 (3~5개만 사용 권장)</div>
+              <div className="v15-tags-label">🏷 키워드 태그 (3~5개만 사용 권장)</div>
               <div className="v15-tags">
                 {data.tags.slice(0, 8).map((tag: string, i: number) => (
-                  <span key={i} className="v15-tag">#{tag}</span>
+                  <span key={i} className="v15-tag">{tag}</span>
                 ))}
               </div>
               <button
                 type="button"
                 className={`v15-copy-btn ${copied === 'tags' ? 'copied' : ''}`}
-                onClick={() => copy(data.tags.slice(0, 5).map((t: string) => '#' + t).join(' '), 'tags')}
+                onClick={() => copy(data.tags.slice(0, 5).join(', '), 'tags')}
               >
-                {copied === 'tags' ? '✓ 복사 완료' : '📋 상위 5개 해시태그 복사'}
+                {copied === 'tags' ? '✓ 복사 완료' : '📋 상위 5개 키워드 복사'}
               </button>
             </div>
           )}
