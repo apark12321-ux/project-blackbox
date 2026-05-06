@@ -142,7 +142,7 @@ export default function HomePage() {
         <section className="section">
           <h2 className="section-title">최신 가이드</h2>
           <ul className="post-list">
-            {LATEST.map((p) => (
+            {[...LATEST].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5).map((p) => (
               <li key={p.slug} className="post-item">
                 <Link href={`/blog/${p.slug}`} className="post-link">
                   <div className="post-meta">

@@ -64,8 +64,10 @@ export default function BlogPage() {
   const [filter, setFilter] = useState<string>('all');
 
   const filtered = useMemo(() => {
-    if (filter === 'all') return GUIDES;
-    return GUIDES.filter((g) => g.category === filter);
+    // 1. 필터링 (카테고리)
+    const list = filter === 'all' ? GUIDES : GUIDES.filter((g) => g.category === filter);
+    // 2. 최신순 정렬 (publishedAt 내림차순)
+    return [...list].sort((a, b) => b.publishedAt.localeCompare(a.publishedAt));
   }, [filter]);
 
   return (
