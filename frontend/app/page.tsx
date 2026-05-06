@@ -1,7 +1,7 @@
 'use client';
 
 /**
- * AlgoMaker 메인 페이지 v18.0 - 애드센스 친화 표준 블로그
+ * NuTube 메인 페이지 v18.0 - 애드센스 친화 표준 블로그
  *
  * 박 대표님 v18 결정:
  *   "구글이 애드센스 승인 위한 사람들을 위해서 만든 샘플 사이트처럼"
@@ -186,7 +186,7 @@ export default function HomePage() {
             검증된 노하우와 AI 도구를 결합해 누구나 자기만의 채널을
             만들 수 있도록 돕습니다.
           </p>
-          <div className="value-source">— AlgoMaker가 추구하는 가치</div>
+          <div className="value-source">— NuTube가 추구하는 가치</div>
         </section>
 
         <section className="section tool-section">
@@ -257,7 +257,7 @@ export default function HomePage() {
         <section className="section about-section">
           <h2 className="section-title">사이트 소개</h2>
           <p className="about-p">
-            AlgoMaker는 유튜브 채널을 시작하거나 키우고 싶으신 분들을 위한 정보 사이트입니다.
+            NuTube는 유튜브 채널을 시작하거나 키우고 싶으신 분들을 위한 정보 사이트입니다.
             <strong>가이드 + 도구</strong> 두 가지 방식으로 도와드립니다.
           </p>
           <p className="about-p">

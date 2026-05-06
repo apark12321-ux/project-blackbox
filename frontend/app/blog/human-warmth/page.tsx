@@ -334,7 +334,7 @@ export default function HumanWarmthGuide() {
           </p>
 
           <p>
-            <strong>AlgoMaker는 후자를 응원합니다.</strong>
+            <strong>NuTube는 후자를 응원합니다.</strong>
             알고리즘 노하우, 시니어 사연, 채널 운영 가이드 — 모두 인간 경험을 담은 콘텐츠입니다.
             AI 도구는 보조로 쓰시되, 채널의 핵심은 본인이 살아낸 이야기로 채우세요.
           </p>

@@ -10,10 +10,10 @@ const articleSchema = {
   description: '구독자 1만 명 이상 채널들의 공통 패턴 5가지. 첫 30초, 썸네일, 제목, 시청 시간, 업로드 주기까지.',
   datePublished: '2026-05-02',
   dateModified: '2026-05-02',
-  author: { '@type': 'Organization', name: 'AlgoMaker' },
+  author: { '@type': 'Organization', name: 'NuTube' },
   publisher: {
     '@type': 'Organization',
-    name: 'AlgoMaker',
+    name: 'NuTube',
     url: 'https://nutube.kr',
   },
   inLanguage: 'ko',

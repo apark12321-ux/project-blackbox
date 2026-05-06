@@ -10,8 +10,8 @@ const articleSchema = {
   description: '유튜브 시작 전 가장 중요한 단계. 본인만의 채널 컨셉을 찾는 5단계 워크시트와 흔한 실수.',
   datePublished: '2026-05-02',
   dateModified: '2026-05-02',
-  author: { '@type': 'Organization', name: 'AlgoMaker' },
-  publisher: { '@type': 'Organization', name: 'AlgoMaker', url: 'https://nutube.kr' },
+  author: { '@type': 'Organization', name: 'NuTube' },
+  publisher: { '@type': 'Organization', name: 'NuTube', url: 'https://nutube.kr' },
   inLanguage: 'ko',
 };
 

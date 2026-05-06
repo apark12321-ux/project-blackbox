@@ -10,8 +10,8 @@ const articleSchema = {
   description: '카메라만 켜면 얼어붙는 분들을 위한 실전 5가지 방법. 시선 처리, 첫마디, 호흡 조절까지.',
   datePublished: '2026-05-02',
   dateModified: '2026-05-02',
-  author: { '@type': 'Organization', name: 'AlgoMaker' },
-  publisher: { '@type': 'Organization', name: 'AlgoMaker', url: 'https://nutube.kr' },
+  author: { '@type': 'Organization', name: 'NuTube' },
+  publisher: { '@type': 'Organization', name: 'NuTube', url: 'https://nutube.kr' },
   inLanguage: 'ko',
 };
 

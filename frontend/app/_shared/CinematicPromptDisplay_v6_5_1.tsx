@@ -1,5 +1,5 @@
 // ============================================================
-// AlgoMaker v6.5.1 - Cinematic Prompt Display (PROFESSIONAL PANEL)
+// NuTube v6.5.1 - Cinematic Prompt Display (PROFESSIONAL PANEL)
 // 
 // 박 대표님 v10.7 메인 페이지 ENGINE PANEL 디자인과 일관성:
 // - 패널 상단 바 (브라우저 윈도우 스타일)

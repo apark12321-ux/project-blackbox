@@ -10,10 +10,10 @@ const articleSchema = {
   description: '핸드폰만으로 영상 편집할 수 있는 무료 앱 4개 비교. CapCut, VLLO, KineMaster, InShot 장단점.',
   datePublished: '2026-05-02',
   dateModified: '2026-05-02',
-  author: { '@type': 'Organization', name: 'AlgoMaker' },
+  author: { '@type': 'Organization', name: 'NuTube' },
   publisher: {
     '@type': 'Organization',
-    name: 'AlgoMaker',
+    name: 'NuTube',
     url: 'https://nutube.kr',
   },
   inLanguage: 'ko',

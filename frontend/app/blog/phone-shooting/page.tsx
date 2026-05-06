@@ -10,10 +10,10 @@ const articleSchema = {
   description: '핸드폰 1대만으로 유튜브 영상 촬영하는 실전 5가지 팁. 화질, 음질, 흔들림, 조명, 구도까지.',
   datePublished: '2026-05-02',
   dateModified: '2026-05-02',
-  author: { '@type': 'Organization', name: 'AlgoMaker' },
+  author: { '@type': 'Organization', name: 'NuTube' },
   publisher: {
     '@type': 'Organization',
-    name: 'AlgoMaker',
+    name: 'NuTube',
     url: 'https://nutube.kr',
   },
   inLanguage: 'ko',

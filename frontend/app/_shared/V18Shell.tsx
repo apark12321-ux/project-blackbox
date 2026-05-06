@@ -37,7 +37,7 @@ export function V18Shell({ children }: V18ShellProps) {
     <div className="site">
       <header className="site-header">
         <div className="container header-inner">
-          <Link href="/" className="logo">AlgoMaker</Link>
+          <Link href="/" className="logo">NuTube</Link>
 
           <nav className="nav-desktop">
             <Link href="/" className={isActive('/') ? 'nav-link active' : 'nav-link'}>홈</Link>
@@ -70,7 +70,7 @@ export function V18Shell({ children }: V18ShellProps) {
       <footer className="site-footer">
         <div className="container footer-inner">
           <div className="footer-col">
-            <div className="footer-title">AlgoMaker</div>
+            <div className="footer-title">NuTube</div>
             <p className="footer-desc">
               유튜브 채널 운영 노하우 가이드.<br />
               알고리즘, 시니어 사연 쇼츠, AI 도구, 수익화 33편.

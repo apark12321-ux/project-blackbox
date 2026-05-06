@@ -8,14 +8,14 @@ export default function AboutPage() {
     <V18Shell>
       <div className="container">
         <article className="page">
-          <h1 className="page-h1">AlgoMaker 소개</h1>
+          <h1 className="page-h1">NuTube 소개</h1>
           <p className="page-lede">
             유튜브 채널 운영에 필요한 모든 노하우를 한 곳에 정리해드리는 무료 정보 사이트입니다.
           </p>
 
           <h2>사이트 운영 목적</h2>
           <p>
-            AlgoMaker는 유튜브를 처음 시작하시는 분들, 또는 채널이 잘 성장하지 않아 고민이신 분들을
+            NuTube는 유튜브를 처음 시작하시는 분들, 또는 채널이 잘 성장하지 않아 고민이신 분들을
             위해 만들어진 정보 사이트입니다. 알고리즘, 시니어 사연 쇼츠, AI 도구, 채널 수익화 등
             영상 채널 운영에 필요한 실전 노하우를 27편의 가이드로 정리해드립니다.
           </p>

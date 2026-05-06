@@ -10,8 +10,8 @@ const articleSchema = {
   description: '50대 직장인·퇴직 예정자를 위한 부업 유튜브 시작 가이드. 인생 경험을 자산으로 만드는 5단계.',
   datePublished: '2026-05-02',
   dateModified: '2026-05-02',
-  author: { '@type': 'Organization', name: 'AlgoMaker' },
-  publisher: { '@type': 'Organization', name: 'AlgoMaker', url: 'https://nutube.kr' },
+  author: { '@type': 'Organization', name: 'NuTube' },
+  publisher: { '@type': 'Organization', name: 'NuTube', url: 'https://nutube.kr' },
   inLanguage: 'ko',
 };
 

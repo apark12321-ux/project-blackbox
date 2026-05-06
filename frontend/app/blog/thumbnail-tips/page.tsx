@@ -344,7 +344,7 @@ export default function ThumbnailTipsGuide() {
         </ul>
 
         <p>
-          AlgoMaker에서 키워드를 입력하시면 3가지 썸네일 컨셉을
+          NuTube에서 키워드를 입력하시면 3가지 썸네일 컨셉을
           자동으로 추천해드립니다. 거기서 영감 얻어서 만드시면 됩니다.
         </p>
 

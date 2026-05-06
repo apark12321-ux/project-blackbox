@@ -10,8 +10,8 @@ const articleSchema = {
   description: 'AI로 유튜브 썸네일 만드는 도구 5개 비교. Canva, Midjourney, DALL-E, 망고보드, 미리캔버스 장단점.',
   datePublished: '2026-05-02',
   dateModified: '2026-05-02',
-  author: { '@type': 'Organization', name: 'AlgoMaker' },
-  publisher: { '@type': 'Organization', name: 'AlgoMaker', url: 'https://nutube.kr' },
+  author: { '@type': 'Organization', name: 'NuTube' },
+  publisher: { '@type': 'Organization', name: 'NuTube', url: 'https://nutube.kr' },
   inLanguage: 'ko',
 };
 
@@ -165,7 +165,7 @@ export default function AIThumbnailGuide() {
 
         <p>
           영어 가능하시고 차별화된 비주얼 원하시는 분.
-          AlgoMaker가 자동으로 Midjourney 프롬프트를 생성해드립니다.
+          NuTube가 자동으로 Midjourney 프롬프트를 생성해드립니다.
         </p>
 
         <h2>5. DALL-E (ChatGPT 안) — 무료 AI</h2>

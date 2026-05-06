@@ -8,8 +8,8 @@ import './globals.css';
 // ============================================================
 
 const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://nutube.kr';
-const SITE_NAME = 'AlgoMaker';
-const SITE_TITLE = 'AlgoMaker - 유튜브 채널 운영 노하우 가이드 | 알고리즘·시니어·AI·수익화';
+const SITE_NAME = 'NuTube';
+const SITE_TITLE = 'NuTube - 유튜브 채널 운영 노하우 가이드 | 알고리즘·시니어·AI·수익화';
 const SITE_DESCRIPTION =
   '유튜브 채널 운영에 필요한 모든 노하우를 무료로 정리해드립니다. 알고리즘, 시니어 사연 쇼츠, AI 도구 활용, 채널 수익화까지 26편의 실전 가이드 제공. 유튜브 시작하시는 분들을 위한 단계별 안내. 회원가입 불필요, 완전 무료.';
 
@@ -113,8 +113,8 @@ export const metadata: Metadata = {
   // Twitter Card (twitter-image.tsx로 동적 생성)
   twitter: {
     card: 'summary_large_image',
-    site: '@algomaker',
-    creator: '@algomaker',
+    site: '@nutube',
+    creator: '@nutube',
     title: SITE_TITLE,
     description: SITE_DESCRIPTION,
   },
@@ -280,10 +280,10 @@ const faqSchema = {
   mainEntity: [
     {
       '@type': 'Question',
-      name: 'AlgoMaker는 무엇인가요?',
+      name: 'NuTube는 무엇인가요?',
       acceptedAnswer: {
         '@type': 'Answer',
-        text: 'AlgoMaker는 키워드 하나만 입력하면 AI가 영상 제목, 태그, 대본, 썸네일, SNS 메타데이터를 모두 자동 생성해주는 무료 도구입니다. 부동산은 수치 중심, 영어는 경험담 중심처럼 분야별로 다른 떡상 트리거를 자동 매칭합니다.',
+        text: 'NuTube는 키워드 하나만 입력하면 AI가 영상 제목, 태그, 대본, 썸네일, SNS 메타데이터를 모두 자동 생성해주는 무료 도구입니다. 부동산은 수치 중심, 영어는 경험담 중심처럼 분야별로 다른 떡상 트리거를 자동 매칭합니다.',
       },
     },
     {
@@ -333,7 +333,7 @@ const faqSchema = {
 const howToSchema = {
   '@context': 'https://schema.org',
   '@type': 'HowTo',
-  name: 'AlgoMaker로 영상 자료 만드는 방법',
+  name: 'NuTube로 영상 자료 만드는 방법',
   description: '키워드 하나로 영상 제목, 태그, 대본, 썸네일을 자동 생성하는 4단계 가이드',
   step: [
     {

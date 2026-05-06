@@ -267,7 +267,7 @@ export default function AIToolsGuide() {
           <h3 className="guide-tool-name">키워드 기반 자동 생성</h3>
           <span className="guide-tool-tag free">완전 무료</span>
           <p className="guide-tool-desc">
-            AlgoMaker 같은 도구는 키워드만 입력하면 제목, 시나리오,
+            NuTube 같은 도구는 키워드만 입력하면 제목, 시나리오,
             메타데이터까지 자동 생성합니다. 챗봇처럼 매번 프롬프트 짜지 않아도 됩니다.
           </p>
         </div>
@@ -290,7 +290,7 @@ export default function AIToolsGuide() {
         </div>
 
         <div className="guide-callout">
-          💡 영문 프롬프트가 어려우시면 AlgoMaker에서 한글로 입력하시면
+          💡 영문 프롬프트가 어려우시면 NuTube에서 한글로 입력하시면
           영문 프롬프트로 자동 번역해드립니다.
         </div>
 

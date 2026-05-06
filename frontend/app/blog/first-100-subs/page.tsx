@@ -10,10 +10,10 @@ const articleSchema = {
   description: '첫 100명 구독자가 가장 어렵습니다. 30일 안에 100명 모으는 실전 5단계 전략과 흔한 실수.',
   datePublished: '2026-05-02',
   dateModified: '2026-05-02',
-  author: { '@type': 'Organization', name: 'AlgoMaker' },
+  author: { '@type': 'Organization', name: 'NuTube' },
   publisher: {
     '@type': 'Organization',
-    name: 'AlgoMaker',
+    name: 'NuTube',
     url: 'https://nutube.kr',
   },
   inLanguage: 'ko',

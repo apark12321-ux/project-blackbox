@@ -10,8 +10,8 @@ const articleSchema = {
   description: '유튜브 조회수 × 광고비 → 실수령액 계산. 세금, 환율, 수수료까지 모두 반영한 실전 가이드.',
   datePublished: '2026-05-02',
   dateModified: '2026-05-02',
-  author: { '@type': 'Organization', name: 'AlgoMaker' },
-  publisher: { '@type': 'Organization', name: 'AlgoMaker', url: 'https://nutube.kr' },
+  author: { '@type': 'Organization', name: 'NuTube' },
+  publisher: { '@type': 'Organization', name: 'NuTube', url: 'https://nutube.kr' },
   inLanguage: 'ko',
 };
 
