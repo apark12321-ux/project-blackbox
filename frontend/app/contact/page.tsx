@@ -23,7 +23,7 @@ export default function ContactPage() {
             </div>
             <div className="info-row">
               <div className="info-label">운영자</div>
-              <div className="info-value">알고파트너스 (대표 박예준)</div>
+              <div className="info-value">알고파트너스</div>
             </div>
             <div className="info-row">
               <div className="info-label">웹사이트</div>

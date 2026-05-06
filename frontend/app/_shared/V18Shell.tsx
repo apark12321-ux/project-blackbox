@@ -73,7 +73,7 @@ export function V18Shell({ children }: V18ShellProps) {
             <div className="footer-title">AlgoMaker</div>
             <p className="footer-desc">
               유튜브 채널 운영 노하우 가이드.<br />
-              알고리즘, 시니어 사연 쇼츠, AI 도구, 수익화 27편.
+              알고리즘, 시니어 사연 쇼츠, AI 도구, 수익화 33편.
             </p>
           </div>
 
@@ -99,7 +99,7 @@ export function V18Shell({ children }: V18ShellProps) {
         </div>
 
         <div className="footer-bottom container">
-          © 2026 알고파트너스 · 대표 박예준 · apark12321@gmail.com
+          © 2026 알고파트너스 · apark12321@gmail.com
         </div>
       </footer>
 

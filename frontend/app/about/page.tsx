@@ -66,7 +66,7 @@ export default function AboutPage() {
 
           <h2>운영자</h2>
           <p>
-            <strong>알고파트너스</strong> · 대표 박예준<br />
+            <strong>알고파트너스</strong><br />
             이메일: apark12321@gmail.com
           </p>
 
