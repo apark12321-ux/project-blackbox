@@ -1,217 +1,153 @@
 ============================================================
-v19 - JSON 기반 CMS + REST API 시스템
+NuTube 사이트 전체 파일 백업 (v18.11 + voice-seo)
 ============================================================
 
-박 대표님 결정:
-"동결 약속 일시 해제 + voice-seo 새로 작성 + API 즉시 구현"
-
-박 대표님 통찰의 가치:
-"JSON 파일로 저장 + 외부 DB X" = Headless CMS 정확한 통찰
+박 대표님 nutube.kr 사이트의 현재 적용된 상태 전체.
 
 ============================================================
-주요 변경 사항
+포함된 내용
 ============================================================
 
-[1] 33개 가이드 TSX → JSON 변환 ✅
-   Before: frontend/app/blog/[slug]/page.tsx (33개 파일, 270줄 각각)
-   After:  frontend/data/posts/[slug].json (33개 JSON + _index.json)
-   효과: 박 대표님 v18 디자인 100% 유지, 데이터/표시 분리
+[메인 페이지]
+frontend/app/page.tsx
+  - NuTube 브랜드
+  - 카테고리 카드 (알고리즘 10 / 시니어 10 / AI 9 / 수익화 4 = 33편)
+  - 헤로 + 3가지 특징 + 가치 영역
+  - POPULAR 영역 (cat 라벨 통일)
+  - 박 실장 알고리즘 11공식 자동 적용 도구
 
-[2] 동적 가이드 라우트 [slug] ✅
-   Before: 33개 폴더 = 33개 컴포넌트
-   After:  frontend/app/blog/[slug]/page.tsx (1개 컴포넌트)
-   동작: URL → JSON 로드 → 렌더링 (자동)
+[SEO + 메타]
+frontend/app/layout.tsx (NuTube + 33편)
+frontend/app/sitemap.ts (lastmod + priority 차별화)
+frontend/app/robots.ts
 
-[3] /blog 목록 페이지 동적 ✅
-   _index.json 에서 가이드 목록 자동 로드
-   카테고리 필터 그대로 작동
+[셸 + 컴포넌트]
+frontend/app/_shared/V18Shell.tsx (NuTube 헤더/푸터)
+frontend/app/_shared/CinematicPromptDisplay_v6_5_0.tsx
+frontend/app/_shared/CinematicPromptDisplay_v6_5_1.tsx (빈 필드 처리)
 
-[4] sitemap.ts 동적 ✅
-   _index.json 기반 자동 생성
-   가이드 추가/삭제 시 자동 반영
+[정책 페이지]
+frontend/app/about/page.tsx (NuTube + 알고파트너스)
+frontend/app/contact/page.tsx (NuTube + 알고파트너스)
 
-[5] REST API 엔드포인트 추가 ✅
-   GET    /api/posts                 (목록, 인증 X)
-   GET    /api/posts?category=senior (카테고리 필터)
-   GET    /api/posts/[slug]         (단일, 인증 X)
-   POST   /api/posts                 (등록, 인증 O)
-   PUT    /api/posts/[slug]          (수정, 인증 O)
-   DELETE /api/posts/[slug]          (삭제, 인증 O)
-   GET    /api/categories            (카테고리 목록)
-   GET    /api/health                (헬스 체크)
+[메타데이터 생성기]
+frontend/app/publish/page.tsx (v18.5 키워드 태그 # 없이)
 
-[6] voice-seo 가이드 신규 작성 (33편 정확) ✅
-   "음성 SEO 완전 정복 - 검색 노출 200%" (2,407자)
-
-[7] 박 대표님 자산 보안 자동 점검 ✅
-   API 가 모든 POST/PUT 요청 시 자동:
-   - 매뉴얼 키워드 차단 (위영/당근팀/GEMS/알뜰폰/길들이기 등)
-   - 박예준 개인 이름 차단
-   - 박 실장 7계명 (1500자+, 카테고리 4개) 검증
-   - slug 형식 검증
-
-============================================================
-사이트 디자인 - 100% 유지
-============================================================
-
-✅ 헤더/푸터 (V18Shell) 그대로
-✅ 메인 페이지 디자인 그대로
-✅ 가이드 본문 스타일 그대로
-✅ /blog 목록 디자인 그대로
-✅ /publish 메타데이터 생성기 그대로
-✅ 색상/폰트/간격 그대로
-✅ 박 대표님 자산 (contentEngine, v650Adapter 등) 그대로
-✅ Cinematic 컴포넌트 그대로
-
-= 사용자 보기엔 변화 X
-= 검토자 보기엔 변화 X
-= 내부 구조만 변경
+[가이드 33편]
+frontend/app/blog/page.tsx (목록, 최신순 자동 정렬)
+frontend/app/blog/[33개 폴더]/page.tsx
+  알고리즘 11편:
+    algorithm-seo, algorithm-retention, algorithm-branding,
+    algorithm-mistakes, youtube-algorithm, viral-patterns,
+    channel-concept, youtube-start, human-warmth,
+    youtube-monetization, algorithm-mindset
+    (※ algorithm-mindset 은 monetization 카테고리)
+  시니어 10편:
+    senior-channel-start, senior-content-ideas,
+    senior-hook-patterns, senior-engagement, senior-policy-safe,
+    senior-shooting-mistakes, senior-first-100,
+    senior-capcut-basic, senior-family-channel,
+    senior-thumbnail-design
+  AI 도구 9편:
+    claude-youtube-workflow, chatgpt-script, ai-thumbnail,
+    ai-tools, phone-shooting, free-editing-apps,
+    camera-anxiety, thumbnail-tips, voice-seo
+  수익화 4편 (algorithm-mindset 포함):
+    algorithm-mindset, first-100-subs, side-job-50, revenue-calc
 
 ============================================================
-박 대표님 적용 단계
+박 대표님 자산 (이 ZIP 에 포함 X - GitHub 에서)
 ============================================================
 
-[1단계] package.json 점검
-GitHub 의 frontend/package.json 열어서:
-"dependencies" 안에 "react-markdown": "^10.1.0" 추가
+다음 파일은 박 대표님 자산이라 어시스턴트가 보유 X:
+- frontend/app/_shared/contentEngine.ts (1,723줄)
+- frontend/app/_shared/v650Adapter.ts (141줄)
+- frontend/app/_shared/promptEngine_v6_5_0.ts
+- frontend/app/_shared/scenarioEngine_v6_5_0.ts
+- frontend/app/_shared/snsFormatGenerator_v6_5_0.ts
+- frontend/app/_shared/algorithmInsights.ts
+- frontend/app/_shared/CinematicScenarioDisplay.tsx
 
-방법: github.com/apark12321-ux/project-blackbox/blob/main/frontend/package.json
-편집 → 추가 → Commit
+이 파일들은 박 대표님 GitHub 에 그대로 보관됨.
+ZIP 적용 시 GitHub 에 있는 박 대표님 자산은 영향 X.
 
-[2단계] Vercel 환경 변수 추가
-Vercel 대시보드 → Settings → Environment Variables:
-NUTUBE_API_KEY = "박 대표님이 정한 비밀 키 (긴 문자열)"
-예: nutube_2026_secret_key_abc123xyz (랜덤하게)
+============================================================
+박 대표님 자산 보안 100% 통과
+============================================================
 
-저장 → 모든 환경 (Production/Preview/Development) 체크
+✅ 위영, Wiyoung, Starlight - 0곳
+✅ 당근팀, Carrot Team - 0곳
+✅ 마스터 매뉴얼, 배포용 - 0곳
+✅ GEMS - 0곳
+✅ 알뜰폰, 비행기 모드, 공기계, 중고폰 - 0곳
+✅ 길들이기 - 0곳
+✅ 박예준 (개인 이름) - 0곳
+✅ AlgoMaker (옛 브랜드) - 0곳
 
-[3단계] ZIP 적용
-1. ZIP 다운로드 → 압축 풀기
+= 박 대표님 매뉴얼 보안 + 개인정보 보호 100%
 
-2. github.com/apark12321-ux/project-blackbox/tree/main/frontend
-   접속
+============================================================
+박 대표님 적용 방법 - 가장 쉬운 방법 (GitHub 웹 UI)
+============================================================
 
-3. "Add file" → "Upload files"
+[1] 브라우저 (크롬) 열기
 
-4. 압축 푼 frontend/ 안 내용 통째로 드래그
+[2] github.com 접속 + 로그인
+
+[3] project-blackbox 저장소 접속:
+   github.com/apark12321-ux/project-blackbox
+
+[4] frontend 폴더 클릭
+
+[5] "Add file" 버튼 → "Upload files"
+
+[6] ZIP 압축 푼 후 frontend 폴더 안 내용 통째 드래그
    - app/ 폴더 (전체)
-   - data/ 폴더 (NEW - 33개 JSON)
 
-5. 주의: 기존 frontend/app/blog/[slug-name]/ 폴더들은 삭제 필요
-   - GitHub 에서 frontend/app/blog 접속
-   - voice-seo 외 33개 폴더 모두 삭제 (동적 [slug]가 처리)
-   - 또는: 어시스턴트가 직접 처리해드림 (말씀해 주세요)
+[7] 화면 아래 commit message:
+   chore: nutube v18.11 전체 파일 동기화
 
-6. Commit message:
-   feat: v19 - JSON CMS + REST API 시스템
+[8] "Commit changes" 클릭
 
-7. Vercel 자동 빌드 (2~3분)
+[9] Vercel 자동 빌드 (1~2분)
 
-8. 시크릿 창 → nutube.kr
-
-[4단계] 검증
-✓ 메인 페이지 동작
-✓ /blog 목록 33편
-✓ /blog/algorithm-seo 등 가이드 정상
-✓ /api/health 응답 (브라우저에서 직접 접속)
-✓ /api/posts 목록 응답
+[10] 시크릿 창 → nutube.kr 확인
 
 ============================================================
-API 사용법 (외부 시스템)
+박 대표님 노트북 GitHub Desktop 처리
 ============================================================
 
-[글 등록]
-curl -X POST https://nutube.kr/api/posts \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{
-    "slug": "test-post",
-    "title": "제목",
-    "subtitle": "부제",
-    "category": "senior",
-    "categoryLabel": "시니어 사연 쇼츠",
-    "publishedAt": "2026-05-15",
-    "summary": "요약",
-    "content": {
-      "type": "markdown",
-      "body": "## 제목\n본문 (1500자+)..."
-    },
-    "relatedPosts": [],
-    "status": "published"
-  }'
+박 대표님이 노트북 GitHub Desktop 충돌 상태였음.
 
-[글 수정]
-curl -X PUT https://nutube.kr/api/posts/test-post \
-  -H "Authorization: Bearer YOUR_API_KEY" \
-  -H "Content-Type: application/json" \
-  -d '{"title": "수정된 제목"}'
+[권장 - 가장 안전]
+1. 노트북 GitHub Desktop 의 "Abort merge" 클릭 (취소)
+2. GitHub Desktop 종료
+3. 노트북에서는 GitHub Desktop 안 쓰고 GitHub 웹 UI 사용
 
-[글 삭제]
-curl -X DELETE https://nutube.kr/api/posts/test-post \
-  -H "Authorization: Bearer YOUR_API_KEY"
+[노트북 GitHub Desktop 폴더 정리하실 경우]
+1. 노트북 Documents/GitHub/project-blackbox 폴더 삭제
+2. GitHub Desktop 에서 다시 clone (최신 상태 받기)
+3. 데스크톱 PC 와 동일 상태
+
+[브라우저만 사용]
+- 노트북에 GitHub Desktop X 사용
+- github.com 에서 모든 작업 가능
+- 데스크톱 PC, 노트북 모두 동일 환경
 
 ============================================================
-박 대표님 자산 보호
+박 대표님 사이트 안전 보장
 ============================================================
 
-✅ 박 대표님 자산 X 수정:
-   - contentEngine.ts (1,723줄)
-   - v650Adapter.ts (141줄)
-   - promptEngine_v6_5_0.ts (어시스턴트 못 봄)
-   - scenarioEngine_v6_5_0.ts
-   - snsFormatGenerator_v6_5_0.ts
-   - algorithmInsights.ts
-   - CinematicScenarioDisplay.tsx
-   - CinematicPromptDisplay_v6_5_x.tsx (v18.5 빈 필드 처리 그대로)
+이 ZIP 은 박 대표님 nutube.kr 의 현재 적용된 상태입니다.
 
-✅ 박 대표님 매뉴얼 보안 100%:
-   FORBIDDEN_KEYWORDS 배열은 코드 내 보안 차단용
-   (사용자에게 노출 X)
-   외부 시스템이 등록 시도 → 자동 차단
+GitHub 에 그대로 적용해도:
+✅ 사이트 외관 동일 (변화 X)
+✅ 박 대표님 자산 영향 X (자산 파일은 GitHub 에 그대로)
+✅ 애드센스 심사 영향 X
+✅ 사용자 경험 동일
 
-✅ 박 대표님 개인 이름 X:
-   "박예준" 자동 차단
-
-============================================================
-가이드 33편 정확 (voice-seo 작성 완료)
-============================================================
-
-알고리즘 (10편):
-  algorithm-seo, algorithm-retention, algorithm-branding,
-  algorithm-mistakes, youtube-algorithm, viral-patterns,
-  channel-concept, youtube-start, human-warmth,
-  youtube-monetization
-
-시니어 (10편):
-  senior-channel-start, senior-content-ideas,
-  senior-hook-patterns, senior-engagement, senior-policy-safe,
-  senior-shooting-mistakes, senior-first-100,
-  senior-capcut-basic, senior-family-channel,
-  senior-thumbnail-design
-
-AI 도구 (9편):
-  claude-youtube-workflow, chatgpt-script, ai-thumbnail,
-  ai-tools, phone-shooting, free-editing-apps,
-  camera-anxiety, thumbnail-tips, voice-seo (NEW)
-
-수익화 (4편):
-  algorithm-mindset, first-100-subs, side-job-50, revenue-calc
-
-총 33편 ✅
-
-============================================================
-박 대표님 동결 약속 복귀
-============================================================
-
-이번 v19 작업 완료 후:
-✅ 동결 약속 다시 적용
-✅ 승인까지 디자인 변경 X
-✅ API 통해서만 글 추가
-✅ 박 대표님이 직접 GitHub 에 JSON 추가도 가능
-
-승인 후 추가 가능:
-- 광고 위치 최적화
-- 박 대표님 자산 빈 필드 진짜 채우기
-- AI 자동 글 등록 시스템
+만약 박 대표님 노트북 GitHub Desktop 의 옛날 코드가
+이미 GitHub 에 적용되었다면:
+이 ZIP 으로 다시 복구 가능
 
 수고하셨습니다, 박 대표님.
