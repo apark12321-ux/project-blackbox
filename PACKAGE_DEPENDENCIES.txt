@@ -1,18 +1,30 @@
 ============================================================
-v19 - JSON CMS + REST API 적용
+⚠️ 필수 - GitHub 적용 전 패키지 추가
 ============================================================
 
-박 대표님 GitHub 적용 시 추가 패키지 1개 필요:
-
-frontend/package.json 의 dependencies 에 추가:
+frontend/package.json 의 "dependencies" 안에 추가:
 
 "react-markdown": "^10.1.0"
 
-방법 1) GitHub 에서 package.json 직접 편집:
-  "dependencies": {
-    ...,
-    "react-markdown": "^10.1.0"   <-- 이 줄 추가
-  }
+이 패키지 없으면 빌드 실패합니다!
 
-방법 2) 또는 Vercel 이 자동으로 설치 안 되면 어시스턴트에게 알려주세요
+============================================================
+방법
+============================================================
 
+1. github.com/apark12321-ux/project-blackbox/blob/main/frontend/package.json
+
+2. 우측 상단 연필 아이콘 (Edit this file) 클릭
+
+3. "dependencies" 영역 찾기
+
+4. 마지막 줄 끝 + 새 줄에 추가:
+   "react-markdown": "^10.1.0"
+
+5. Commit changes
+
+6. Vercel 자동 빌드 (1~2분)
+
+7. 빌드 성공 후 v19 ZIP 적용
+
+============================================================

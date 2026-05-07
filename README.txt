@@ -1,66 +1,108 @@
 ============================================================
-NuTube 사이트 전체 파일 (v18.11 최종)
+🔥 NuTube 최종 통합 버전 (v18.11 + v19 API)
 ============================================================
 
-박 대표님 nutube.kr 사이트의 최종 업데이트 상태.
+박 대표님 사이트의 모든 내용 통합:
+- v18.11 디자인 + 가이드 33편
+- v19 JSON CMS + REST API
+- 박 대표님 자산 보호 (자동 차단)
 
-[포함]
-✅ 메인 페이지 (NuTube + 카테고리 10/10/9/4 = 33편)
-✅ 헤더/푸터 (NuTube + 알고파트너스, 박 대표님 이름 X)
-✅ SEO 메타 (NuTube + 33편)
-✅ 가이드 33편 (voice-seo 새로 작성 포함)
-✅ 메타데이터 생성기 (/publish v18.5 키워드 태그)
-✅ sitemap (lastmod + priority)
+============================================================
+포함된 모든 내용
+============================================================
+
+[1] 사이트 디자인 (v18.11)
+✅ 메인 페이지 (NuTube + 카테고리 4개 = 33편)
+✅ 헤더/푸터 (V18Shell)
+✅ Cinematic 컴포넌트 (빈 필드 처리)
 ✅ 정책 페이지 (about, contact)
+✅ 메타데이터 생성기 (publish)
 
-[검증]
-✅ 44개 파일 파싱 OK
-✅ 33편 가이드 폴더 정확
+[2] 가이드 33편 (JSON 데이터)
+✅ frontend/data/posts/[slug].json (33개)
+✅ frontend/data/posts/_index.json (전체 목록)
+✅ 알고리즘 10 / 시니어 10 / AI 도구 9 / 수익화 4
+
+[3] REST API 엔드포인트 (v19)
+✅ GET    /api/posts                 목록
+✅ GET    /api/posts?category=...    필터
+✅ GET    /api/posts/[slug]         단일
+✅ POST   /api/posts                 등록 (Bearer 토큰)
+✅ PUT    /api/posts/[slug]          수정 (Bearer 토큰)
+✅ DELETE /api/posts/[slug]          삭제 (Bearer 토큰)
+✅ GET    /api/categories            카테고리
+✅ GET    /api/health                헬스 체크
+
+[4] 동적 라우트
+✅ frontend/app/blog/[slug]/page.tsx (33편 처리)
+✅ frontend/app/sitemap.ts (자동 생성)
+
+[5] 박 대표님 자산 보안 (자동)
+✅ 매뉴얼 키워드 차단 (위영/당근팀/GEMS 등)
+✅ 박예준 개인 이름 차단
+✅ 박 실장 7계명 자동 검증
+
+============================================================
+박 대표님 적용 - 3단계
+============================================================
+
+[필수 1] frontend/package.json 편집
+GitHub 에서:
+"react-markdown": "^10.1.0" 추가
+
+[필수 2] Vercel 환경 변수
+NUTUBE_API_KEY = "박 대표님이 정한 비밀 키"
+
+[필수 3] 33개 가이드 폴더 삭제
+GitHub 의 frontend/app/blog/ 안 33개 폴더 모두 삭제
+(새 [slug] 동적 라우트가 처리)
+
+============================================================
+적용 방법
+============================================================
+
+1. ZIP 다운로드 + 압축 풀기
+
+2. 집 PC GitHub Desktop 에서:
+   - 박 대표님 GitHub 폴더 열기
+   - frontend/ 안 두 폴더 통째 복사:
+     * app/ (전체)
+     * data/ (NEW - 33개 JSON)
+   - 기존 frontend/app/blog/ 안 33개 폴더 삭제
+
+3. GitHub Desktop 변경 감지
+
+4. Summary: feat: v19 - JSON CMS + REST API
+
+5. Commit + Push
+
+6. Vercel 자동 빌드 (3~5분)
+
+============================================================
+박 대표님 자산 (이 ZIP X 포함 - GitHub 보존)
+============================================================
+
+박 대표님 자산 파일 (어시스턴트 보유 X):
+- frontend/app/_shared/contentEngine.ts (1,723줄)
+- frontend/app/_shared/v650Adapter.ts (141줄)
+- frontend/app/_shared/promptEngine_v6_5_0.ts
+- frontend/app/_shared/scenarioEngine_v6_5_0.ts
+- frontend/app/_shared/snsFormatGenerator_v6_5_0.ts
+- frontend/app/_shared/algorithmInsights.ts
+- frontend/app/_shared/CinematicScenarioDisplay.tsx
+
+이 파일들은 박 대표님 GitHub 에 그대로 보존됨.
+ZIP 적용 시 영향 X.
+
+============================================================
+검증 통과
+============================================================
+
+✅ 16/16 .tsx/.ts 파싱 OK
+✅ 34/34 JSON 검증 OK
+✅ 33편 가이드 (10/10/9/4)
 ✅ 박 대표님 매뉴얼 보안 100%
-✅ AlgoMaker 잔재 0곳
 ✅ 박 대표님 개인 이름 0곳
-
-[박 대표님 적용 단계]
-
-1. ZIP 압축 풀기
-
-2. 노트북 GitHub Desktop 종료 (충돌 방지)
-
-3. 브라우저로 GitHub 접속:
-   github.com/apark12321-ux/project-blackbox
-
-4. frontend 폴더 클릭 → app 폴더
-
-5. "Add file" → "Upload files"
-
-6. 압축 푼 폴더의 frontend/app/ 안 내용 통째로 드래그
-   - _shared 폴더
-   - about 폴더
-   - blog 폴더 (33개 가이드)
-   - contact 폴더
-   - publish 폴더
-   - layout.tsx
-   - page.tsx
-   - sitemap.ts
-   - robots.ts
-
-7. 화면에 "Replace existing files" 메시지 → Yes
-
-8. Commit message:
-   restore: v18.11 최종 상태 복구
-
-9. "Commit changes" 클릭
-
-10. Vercel 자동 빌드 (1~3분)
-
-11. 시크릿 창에서 nutube.kr 정상 확인
-
-[검증 항목]
-✓ 헤더 NuTube 로고
-✓ 카테고리 4개 (10/10/9/4)
-✓ 합계 33편
-✓ /blog 가이드 목록 33편
-✓ /blog/voice-seo 정상 표시
-✓ 푸터 알고파트너스 (개인 이름 X)
+✅ AlgoMaker 잔재 0곳
 
 수고하셨습니다, 박 대표님.
