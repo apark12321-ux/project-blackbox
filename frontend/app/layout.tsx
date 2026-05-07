@@ -11,7 +11,7 @@ const SITE_URL = process.env.NEXT_PUBLIC_SITE_URL || 'https://nutube.kr';
 const SITE_NAME = 'NuTube';
 const SITE_TITLE = 'NuTube - 유튜브 채널 운영 노하우 가이드 | 알고리즘·시니어·AI·수익화';
 const SITE_DESCRIPTION =
-  '유튜브 채널 운영에 필요한 모든 노하우를 무료로 정리해드립니다. 알고리즘, 시니어 사연 쇼츠, AI 도구 활용, 채널 수익화까지 26편의 실전 가이드 제공. 유튜브 시작하시는 분들을 위한 단계별 안내. 회원가입 불필요, 완전 무료.';
+  '유튜브 채널 운영에 필요한 모든 노하우를 무료로 정리해드립니다. 알고리즘, 시니어 사연 쇼츠, AI 도구 활용, 채널 수익화까지 33편의 실전 가이드 제공. 유튜브 시작하시는 분들을 위한 단계별 안내. 회원가입 불필요, 완전 무료.';
 
 const SITE_KEYWORDS = [
   // 핵심 정보 사이트 키워드

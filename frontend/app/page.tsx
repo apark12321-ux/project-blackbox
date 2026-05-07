@@ -33,7 +33,7 @@ const CATEGORIES = [
     id: 'algorithm',
     name: '유튜브 알고리즘',
     desc: '검색 노출, 시청 지속률, 떡상 패턴까지. 박 실장 11공식 기반 알고리즘 노하우.',
-    count: 11,
+    count: 10,
   },
   {
     id: 'senior',
@@ -51,7 +51,7 @@ const CATEGORIES = [
     id: 'monetization',
     name: '영상 채널 수익화',
     desc: '광고 수익 계산법, 첫 100명 구독자, 멘탈 관리까지.',
-    count: 3,
+    count: 4,
   },
 ];
 
@@ -65,10 +65,10 @@ const LATEST = [
 
 const POPULAR = [
   { slug: 'algorithm-seo', cat: '알고리즘', title: '알고리즘이 내 영상을 알아보게 하는 SEO 전략', date: '2026.05.02' },
-  { slug: 'algorithm-mistakes', cat: '실수 방어', title: '치명적 실수 7가지 - 알고 피하면 떡상', date: '2026.05.02' },
-  { slug: 'algorithm-retention', cat: '시청 지속', title: '시청자를 채널에 가두는 무한 루프 세팅', date: '2026.05.02' },
-  { slug: 'algorithm-mindset', cat: '멘탈', title: '6개월간 떡상이 안 와도 버티는 멘탈 관리', date: '2026.05.02' },
-  { slug: 'first-100-subs', cat: '구독자', title: '첫 100명 구독자 모으는 방법', date: '2026.05.02' },
+  { slug: 'algorithm-mistakes', cat: '알고리즘', title: '치명적 실수 7가지 - 알고 피하면 떡상', date: '2026.05.02' },
+  { slug: 'algorithm-retention', cat: '알고리즘', title: '시청자를 채널에 가두는 무한 루프 세팅', date: '2026.05.02' },
+  { slug: 'algorithm-mindset', cat: '수익화', title: '6개월간 떡상이 안 와도 버티는 멘탈 관리', date: '2026.05.02' },
+  { slug: 'first-100-subs', cat: '수익화', title: '첫 100명 구독자 모으는 방법', date: '2026.05.02' },
 ];
 
 export default function HomePage() {
