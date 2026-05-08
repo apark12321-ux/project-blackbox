@@ -56,19 +56,19 @@ const CATEGORIES = [
 ];
 
 const LATEST = [
-  { slug: 'senior-shooting-mistakes', cat: '시니어', title: '시니어가 처음 영상 찍을 때 흔한 실수 7가지', date: '2026.05.06' },
-  { slug: 'senior-first-100', cat: '시니어', title: '시니어 채널 첫 100명 구독자 모으기 단계별 가이드', date: '2026.05.06' },
-  { slug: 'senior-capcut-basic', cat: '시니어', title: '시니어 영상 편집 - 무료 앱 기본 사용법', date: '2026.05.06' },
-  { slug: 'senior-family-channel', cat: '시니어', title: '50대 이후 시작하는 가족 일상 채널 가이드', date: '2026.05.06' },
-  { slug: 'senior-thumbnail-design', cat: '시니어', title: '시니어 시청자가 좋아하는 썸네일 디자인 5가지', date: '2026.05.06' },
+  { slug: 'senior-shooting-mistakes', cat: '시니어', catKey: 'senior', title: '시니어가 처음 영상 찍을 때 흔한 실수 7가지', date: '2026.05.06' },
+  { slug: 'senior-first-100', cat: '시니어', catKey: 'senior', title: '시니어 채널 첫 100명 구독자 모으기 단계별 가이드', date: '2026.05.06' },
+  { slug: 'senior-capcut-basic', cat: '시니어', catKey: 'senior', title: '시니어 영상 편집 - 무료 앱 기본 사용법', date: '2026.05.06' },
+  { slug: 'senior-family-channel', cat: '시니어', catKey: 'senior', title: '50대 이후 시작하는 가족 일상 채널 가이드', date: '2026.05.06' },
+  { slug: 'senior-thumbnail-design', cat: '시니어', catKey: 'senior', title: '시니어 시청자가 좋아하는 썸네일 디자인 5가지', date: '2026.05.06' },
 ];
 
 const POPULAR = [
-  { slug: 'algorithm-seo', cat: '알고리즘', title: '알고리즘이 내 영상을 알아보게 하는 SEO 전략', date: '2026.05.02' },
-  { slug: 'algorithm-mistakes', cat: '알고리즘', title: '치명적 실수 7가지 - 알고 피하면 떡상', date: '2026.05.02' },
-  { slug: 'algorithm-retention', cat: '알고리즘', title: '시청자를 채널에 가두는 무한 루프 세팅', date: '2026.05.02' },
-  { slug: 'algorithm-mindset', cat: '수익화', title: '6개월간 떡상이 안 와도 버티는 멘탈 관리', date: '2026.05.02' },
-  { slug: 'first-100-subs', cat: '수익화', title: '첫 100명 구독자 모으는 방법', date: '2026.05.02' },
+  { slug: 'algorithm-seo', cat: '알고리즘', catKey: 'algorithm', title: '알고리즘이 내 영상을 알아보게 하는 SEO 전략', date: '2026.05.02' },
+  { slug: 'algorithm-mistakes', cat: '알고리즘', catKey: 'algorithm', title: '치명적 실수 7가지 - 알고 피하면 떡상', date: '2026.05.02' },
+  { slug: 'algorithm-retention', cat: '알고리즘', catKey: 'algorithm', title: '시청자를 채널에 가두는 무한 루프 세팅', date: '2026.05.02' },
+  { slug: 'algorithm-mindset', cat: '수익화', catKey: 'monetization', title: '6개월간 떡상이 안 와도 버티는 멘탈 관리', date: '2026.05.02' },
+  { slug: 'first-100-subs', cat: '수익화', catKey: 'monetization', title: '첫 100명 구독자 모으는 방법', date: '2026.05.02' },
 ];
 
 export default function HomePage() {
@@ -146,8 +146,7 @@ export default function HomePage() {
               <li key={p.slug} className="post-item">
                 <Link href={`/blog/${p.slug}`} className="post-link">
                   <div className="post-meta">
-                    <span className="post-cat">{p.cat}</span>
-                    <span className="post-dot">·</span>
+                    <span className={`post-badge post-badge-${p.catKey}`}>{p.cat}</span>
                     <span className="post-date">{p.date}</span>
                   </div>
                   <h3 className="post-title">{p.title}</h3>
@@ -167,8 +166,7 @@ export default function HomePage() {
               <li key={p.slug} className="post-item">
                 <Link href={`/blog/${p.slug}`} className="post-link">
                   <div className="post-meta">
-                    <span className="post-cat">{p.cat}</span>
-                    <span className="post-dot">·</span>
+                    <span className={`post-badge post-badge-${p.catKey}`}>{p.cat}</span>
                     <span className="post-date">{p.date}</span>
                   </div>
                   <h3 className="post-title">{p.title}</h3>
@@ -528,34 +526,70 @@ export default function HomePage() {
           list-style: none;
           padding: 0;
           margin: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
         }
 
         .post-item {
-          border-bottom: 1px solid #e5e5e5;
+          background: #ffffff;
+          border: 1px solid #e5e5e5;
+          border-radius: 12px;
+          overflow: hidden;
+          transition: all 0.18s ease;
         }
-        .post-item:first-child { border-top: 1px solid #e5e5e5; }
+        .post-item:hover {
+          border-color: #c2410c;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
 
         .post-link {
           display: block;
-          padding: 18px 0;
-          transition: opacity 0.15s;
+          padding: 16px 18px;
         }
-        .post-link:hover { opacity: 0.7; }
+        @media (max-width: 600px) {
+          .post-link { padding: 14px 16px; }
+        }
 
         .post-meta {
           display: flex;
-          gap: 8px;
-          font-size: 12.5px;
-          color: #737373;
-          margin-bottom: 6px;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 8px;
           flex-wrap: wrap;
         }
 
-        .post-cat {
-          font-weight: 700;
-          color: #1a1a1a;
+        .post-badge {
+          display: inline-flex;
+          align-items: center;
+          padding: 4px 12px;
+          font-size: 11.5px;
+          font-weight: 600;
+          border-radius: 999px;
+          letter-spacing: -0.005em;
         }
-        .post-dot { color: #d4d4d4; }
+        .post-badge-algorithm {
+          background: #F1EFE8;
+          color: #444441;
+        }
+        .post-badge-senior {
+          background: #FAECE7;
+          color: #993C1D;
+        }
+        .post-badge-aitools {
+          background: #E6F1FB;
+          color: #185FA5;
+        }
+        .post-badge-monetization {
+          background: #FAEEDA;
+          color: #854F0B;
+        }
+
+        .post-date {
+          font-size: 12.5px;
+          color: #a3a3a3;
+        }
 
         .post-title {
           font-size: 18px;

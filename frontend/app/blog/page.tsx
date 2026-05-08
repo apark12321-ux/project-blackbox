@@ -121,9 +121,8 @@ export default function BlogPage() {
             <li key={g.slug} className="post-item">
               <Link href={`/blog/${g.slug}`} className="post-link">
                 <div className="post-meta">
-                  <span className="post-cat">{g.categoryLabel}</span>
-                  <span className="post-dot">·</span>
-                  <span>{g.publishedAt.replace(/-/g, '.')}</span>
+                  <span className={`post-badge post-badge-${g.category}`}>{g.categoryLabel}</span>
+                  <span className="post-date">{g.publishedAt.replace(/-/g, '.')}</span>
                 </div>
                 <h2 className="post-title">{g.title}</h2>
                 <p className="post-subtitle">{g.subtitle}</p>
@@ -220,32 +219,70 @@ export default function BlogPage() {
           list-style: none;
           padding: 0;
           margin: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 12px;
         }
 
         .post-item {
-          border-bottom: 1px solid #e5e5e5;
+          background: #ffffff;
+          border: 1px solid #e5e5e5;
+          border-radius: 12px;
+          overflow: hidden;
+          transition: all 0.18s ease;
+        }
+        .post-item:hover {
+          border-color: #c2410c;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
         }
 
         .post-link {
           display: block;
-          padding: 22px 0;
-          transition: opacity 0.15s;
+          padding: 18px 20px;
         }
-        .post-link:hover { opacity: 0.7; }
+        @media (max-width: 600px) {
+          .post-link { padding: 16px 18px; }
+        }
 
         .post-meta {
           display: flex;
-          gap: 8px;
-          font-size: 12.5px;
-          color: #737373;
-          margin-bottom: 8px;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 10px;
           flex-wrap: wrap;
         }
-        .post-cat {
-          font-weight: 700;
-          color: #c2410c;
+
+        .post-badge {
+          display: inline-flex;
+          align-items: center;
+          padding: 4px 12px;
+          font-size: 11.5px;
+          font-weight: 600;
+          border-radius: 999px;
+          letter-spacing: -0.005em;
         }
-        .post-dot { color: #d4d4d4; }
+        .post-badge-algorithm {
+          background: #F1EFE8;
+          color: #444441;
+        }
+        .post-badge-senior {
+          background: #FAECE7;
+          color: #993C1D;
+        }
+        .post-badge-aitools {
+          background: #E6F1FB;
+          color: #185FA5;
+        }
+        .post-badge-monetization {
+          background: #FAEEDA;
+          color: #854F0B;
+        }
+
+        .post-date {
+          font-size: 12.5px;
+          color: #a3a3a3;
+        }
 
         .post-title {
           font-size: 19px;
