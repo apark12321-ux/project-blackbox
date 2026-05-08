@@ -1,7 +1,57 @@
 {
-  "total": 33,
-  "lastUpdated": "2026-05-07",
+  "total": 38,
+  "lastUpdated": "2026-05-08",
   "posts": [
+    {
+      "slug": "ai-dubbing-korean",
+      "title": "AI 자동 더빙으로 한국어 영상 자연스럽게 만들기",
+      "subtitle": "외국어 자막 영상 → 자연스러운 한국어 더빙 자동화",
+      "category": "aitools",
+      "categoryLabel": "AI 도구",
+      "publishedAt": "2026-05-08",
+      "summary": "AI 더빙 기술로 외국어 영상을 한국어로 자연스럽게 변환하는 방법을 알려드립니다.",
+      "featured": false
+    },
+    {
+      "slug": "ai-thumbnail-master",
+      "title": "AI 썸네일 디자인 완전 정복 - 클릭률 5배 올리는 비결",
+      "subtitle": "Midjourney + Canva + ChatGPT 조합으로 프로 썸네일 5분 완성",
+      "category": "aitools",
+      "categoryLabel": "AI 도구",
+      "publishedAt": "2026-05-08",
+      "summary": "AI 도구로 클릭률 5배 올리는 썸네일을 5분 만에 완성하는 방법을 알려드립니다.",
+      "featured": false
+    },
+    {
+      "slug": "senior-comment-reply",
+      "title": "시니어 채널 댓글 답변 5가지 - 진짜 팬을 만드는 비결",
+      "subtitle": "구독자 → 진짜 팬 → 후원자로 키우는 댓글 답변 전략",
+      "category": "senior",
+      "categoryLabel": "시니어 사연 쇼츠",
+      "publishedAt": "2026-05-08",
+      "summary": "시니어 채널의 댓글 답변으로 진짜 팬을 만드는 5가지 전략을 알려드립니다.",
+      "featured": false
+    },
+    {
+      "slug": "shorts-algorithm-mastery",
+      "title": "유튜브 쇼츠 알고리즘 완전 정복 - 100만 조회의 비밀",
+      "subtitle": "긴 영상과 다른 쇼츠만의 알고리즘 5가지 핵심 원칙",
+      "category": "algorithm",
+      "categoryLabel": "알고리즘",
+      "publishedAt": "2026-05-08",
+      "summary": "유튜브 쇼츠만의 특별한 알고리즘 작동 원리와 100만 조회를 위한 5가지 핵심 원칙을 알려드립니다.",
+      "featured": true
+    },
+    {
+      "slug": "sponsorship-strategy",
+      "title": "유튜브 스폰서십 받는 채널 만드는 5단계 전략",
+      "subtitle": "구독자 5,000명 채널도 가능 - 스폰서 받는 진짜 비결",
+      "category": "monetization",
+      "categoryLabel": "수익화",
+      "publishedAt": "2026-05-08",
+      "summary": "유튜브 스폰서십을 받는 채널을 만드는 5단계 전략을 알려드립니다.",
+      "featured": false
+    },
     {
       "slug": "senior-capcut-basic",
       "title": "시니어 영상 편집 - 무료 앱 기본 사용법",
