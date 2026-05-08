@@ -33,25 +33,25 @@ const CATEGORIES = [
     id: 'algorithm',
     name: '유튜브 알고리즘',
     desc: '검색 노출, 시청 지속률, 떡상 패턴까지. 박 실장 11공식 기반 알고리즘 노하우.',
-    count: 10,
+    count: 11,
   },
   {
     id: 'senior',
     name: '시니어 사연 쇼츠',
     desc: '50~80대 타겟 채널 운영법. 촬영 실수 방어, 편집 기초, 100명 모으기 등.',
-    count: 10,
+    count: 11,
   },
   {
     id: 'aitools',
     name: 'AI 도구 활용',
     desc: '클로드, ChatGPT, Sora 등을 영상 제작에 활용하는 실전 가이드.',
-    count: 9,
+    count: 11,
   },
   {
     id: 'monetization',
     name: '영상 채널 수익화',
     desc: '광고 수익 계산법, 첫 100명 구독자, 멘탈 관리까지.',
-    count: 4,
+    count: 5,
   },
 ];
 
@@ -156,7 +156,7 @@ export default function HomePage() {
             ))}
           </ul>
           <div className="more-row">
-            <Link href="/blog" className="more-link">전체 33편 보기 →</Link>
+            <Link href="/blog" className="more-link">전체 가이드 보기 →</Link>
           </div>
         </section>
 
@@ -192,7 +192,7 @@ export default function HomePage() {
         <section className="section tool-section">
           <h2 className="section-title">영상 메타데이터 생성기</h2>
           <p className="tool-intro">
-            가이드 33편의 노하우와 박 실장 알고리즘 11공식이 자동 적용된
+            가이드의 노하우와 박 실장 알고리즘 11공식이 자동 적용된
             <strong> 영상 메타데이터(제목·시나리오·해시태그·SEO 태그)</strong>를
             5초 안에 만들어드립니다.
           </p>
@@ -262,7 +262,7 @@ export default function HomePage() {
           </p>
           <p className="about-p">
             <strong>가이드</strong>: 유튜브 알고리즘, 시니어 사연 쇼츠, AI 도구 활용,
-            채널 수익화 등 영상 채널 운영의 모든 노하우를 33편으로 정리했습니다.
+            채널 수익화 등 영상 채널 운영의 모든 노하우를 정리했습니다.
             모든 가이드는 무료이며 회원가입이 필요하지 않습니다.
           </p>
           <p className="about-p">

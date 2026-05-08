@@ -73,7 +73,7 @@ export function V18Shell({ children }: V18ShellProps) {
             <div className="footer-title">NuTube</div>
             <p className="footer-desc">
               유튜브 채널 운영 노하우 가이드.<br />
-              알고리즘, 시니어 사연 쇼츠, AI 도구, 수익화 33편.
+              알고리즘, 시니어 사연 쇼츠, AI 도구, 채널 수익화.
             </p>
           </div>
 

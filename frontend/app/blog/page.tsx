@@ -56,6 +56,13 @@ const GUIDES: Guide[] = [
   { slug: 'senior-capcut-basic', title: '시니어 영상 편집 - 무료 앱 기본 사용법', subtitle: '처음 시작하는 시니어를 위한 영상 편집 5단계', category: 'senior', categoryLabel: '시니어', readTime: '9분', publishedAt: '2026-05-06' },
   { slug: 'senior-family-channel', title: '50대 이후 시작하는 가족 일상 채널 가이드', subtitle: '가족과 함께 추억을 영상으로 남기는 채널 운영법', category: 'senior', categoryLabel: '시니어', readTime: '8분', publishedAt: '2026-05-06' },
   { slug: 'senior-thumbnail-design', title: '시니어 시청자가 좋아하는 썸네일 디자인 5가지', subtitle: '50~70대 시청자의 클릭을 부르는 썸네일 원칙', category: 'senior', categoryLabel: '시니어', readTime: '8분', publishedAt: '2026-05-06' },
+
+  // v19 추가 5편 (2026-05-08)
+  { slug: 'shorts-algorithm-mastery', title: '유튜브 쇼츠 알고리즘 완전 정복 - 100만 조회의 비밀', subtitle: '긴 영상과 다른 쇼츠만의 알고리즘 5가지 핵심 원칙', category: 'algorithm', categoryLabel: '알고리즘', readTime: '9분', publishedAt: '2026-05-08' },
+  { slug: 'senior-comment-reply', title: '시니어 채널 댓글 답변 5가지 - 진짜 팬을 만드는 비결', subtitle: '구독자 → 진짜 팬 → 후원자로 키우는 댓글 답변 전략', category: 'senior', categoryLabel: '시니어', readTime: '8분', publishedAt: '2026-05-08' },
+  { slug: 'ai-dubbing-korean', title: 'AI 자동 더빙으로 한국어 영상 자연스럽게 만들기', subtitle: '외국어 자막 영상 → 자연스러운 한국어 더빙 자동화', category: 'aitools', categoryLabel: 'AI 도구', readTime: '8분', publishedAt: '2026-05-08' },
+  { slug: 'sponsorship-strategy', title: '유튜브 스폰서십 받는 채널 만드는 5단계 전략', subtitle: '구독자 5,000명 채널도 가능 - 스폰서 받는 진짜 비결', category: 'monetization', categoryLabel: '수익화', readTime: '8분', publishedAt: '2026-05-08' },
+  { slug: 'ai-thumbnail-master', title: 'AI 썸네일 디자인 완전 정복 - 클릭률 5배 올리는 비결', subtitle: 'Midjourney + Canva + ChatGPT 조합으로 프로 썸네일 5분 완성', category: 'aitools', categoryLabel: 'AI 도구', readTime: '8분', publishedAt: '2026-05-08' },
 ];
 
 const FILTERS = [
