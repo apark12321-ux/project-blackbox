@@ -1,7 +1,7 @@
 'use client';
 
-// NuTube 가이드 동적 렌더링 (JSON 기반)
-// react-markdown X 사용 - 자체 markdown 파서
+// NuTube 가이드 동적 페이지 - Upstash Redis 에서 읽음
+// Blog Studio 등 외부에서 발행한 새 가이드 표시
 
 import Link from 'next/link';
 import { useState, useEffect } from 'react';
@@ -22,21 +22,15 @@ interface Post {
   status: string;
 }
 
-// 자체 Markdown → HTML 파서 (외부 패키지 X)
+// 자체 Markdown 파서 (외부 패키지 X)
 function markdownToHtml(md: string): string {
   let html = md;
   
-  // 헤더
   html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
   html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-  
-  // 강조
   html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  
-  // 링크
   html = html.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" style="color:#c2410c;">$1</a>');
   
-  // 리스트 처리 (라인별)
   const lines = html.split('\n');
   const result: string[] = [];
   let inList = false;
@@ -56,7 +50,6 @@ function markdownToHtml(md: string): string {
       if (inList) { result.push('</ul>'); inList = false; }
       if (inOrdered) { result.push('</ol>'); inOrdered = false; }
       
-      // 빈 줄 X 무시, 일반 줄은 <p> 로
       if (line.trim() && !line.match(/^<(h2|h3|ul|ol|li|p)/)) {
         result.push(`<p>${line}</p>`);
       } else if (line.trim()) {
@@ -70,7 +63,7 @@ function markdownToHtml(md: string): string {
   return result.join('\n');
 }
 
-export default function BlogPostPage() {
+export default function DynamicBlogPostPage() {
   const params = useParams();
   const slug = params?.slug as string;
   
@@ -86,8 +79,12 @@ export default function BlogPostPage() {
         if (!res.ok) throw new Error('Not found');
         return res.json();
       })
-      .then(data => {
-        setPost(data);
+      .then(json => {
+        if (json.success && json.data) {
+          setPost(json.data);
+        } else {
+          setError(true);
+        }
         setLoading(false);
       })
       .catch(() => {
