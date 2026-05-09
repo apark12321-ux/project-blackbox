@@ -199,7 +199,7 @@ export default function ContentProtection() {
       images.forEach((img) => {
         img.setAttribute('draggable', 'false');
         img.setAttribute('oncontextmenu', 'return false;');
-        img.style.webkitUserDrag = 'none' as any;
+        (img.style as any).webkitUserDrag = 'none';
         img.style.userSelect = 'none';
         img.style.pointerEvents = 'auto';
       });
