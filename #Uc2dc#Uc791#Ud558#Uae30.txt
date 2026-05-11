@@ -1,0 +1,41 @@
+╔═════════════════════════════════════════════════╗
+║   v11 HOTFIX · shell.module.css :root 제거      ║
+╚═════════════════════════════════════════════════╝
+
+🔴 원인 
+v11의 shell.module.css에 :root 전역 선택자가 있어서
+CSS Module이 컴파일 실패했습니다.
+CSS Module은 클래스 선택자만 허용합니다.
+
+✅ 해결
+shell.module.css에서 :root 변수 제거하고
+직접 값(color code)으로 모두 치환했습니다.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+📋 배포 순서
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+1. 이 ZIP 압축 풀기
+
+2. algomaker-v11-PATCH/frontend/app/_shared/shell.module.css 파일 1개를
+   문서/GitHub/project-blackbox/frontend/app/_shared/ 에 복사/덮어쓰기
+   ("파일 바꾸기" 선택)
+
+3. GitHub Desktop
+   - Changes 탭에 shell.module.css 1개 변경 보임
+   - Summary: HOTFIX · shell.module.css :root 제거
+   - Commit to main → Push origin
+
+4. 3~5분 대기 → Vercel 빌드 결과 확인
+   https://project-blackbox-cpqy.vercel.app/
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+🎯 이번엔 반드시 성공합니다
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+에러 원인을 정확히 알았기 때문에 이번 Push는 
+빌드 성공할 가능성이 매우 높아요.
+
+만약 또 다른 에러가 나면 Build Logs 스크린샷 보내주세요.
+즉시 진단·수정 가능합니다.
+
