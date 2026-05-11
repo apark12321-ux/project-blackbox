@@ -66,12 +66,27 @@ const STATIC_GUIDES: Guide[] = [
 ];
 
 const FILTERS = [
-  { id: 'all', label: '전체' },
+  { id: 'all', label: '전체보기' },
   { id: 'algorithm', label: '알고리즘' },
   { id: 'senior', label: '시니어' },
   { id: 'aitools', label: 'AI 도구' },
   { id: 'monetization', label: '수익화' },
 ];
+
+// 카테고리별 그라데이션 (이미지 대체용)
+const CATEGORY_GRADIENT: Record<string, string> = {
+  algorithm: 'linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #4f46e5 100%)',
+  senior: 'linear-gradient(135deg, #fb923c 0%, #f97316 50%, #ea580c 100%)',
+  aitools: 'linear-gradient(135deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%)',
+  monetization: 'linear-gradient(135deg, #facc15 0%, #eab308 50%, #ca8a04 100%)',
+};
+
+const CATEGORY_ICON: Record<string, string> = {
+  algorithm: '🎯',
+  senior: '👴',
+  aitools: '🤖',
+  monetization: '💰',
+};
 
 export default function BlogPage() {
   const [filter, setFilter] = useState<string>('all');
@@ -112,120 +127,319 @@ export default function BlogPage() {
 
   return (
     <V18Shell>
-      <style jsx>{`
-        .blog-container {
-          max-width: 760px; margin: 0 auto; padding: 32px 20px 60px;
+      <style jsx global>{`
+        .hh-page {
+          background: linear-gradient(180deg, #eef2ff 0%, #ffffff 280px);
+          min-height: 100vh;
           font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
+          color: #111827;
         }
-        @media (max-width: 600px) { .blog-container { padding: 24px 16px 50px; } }
-        .blog-header { margin-bottom: 28px; }
-        .blog-h1 {
-          font-size: 28px; font-weight: 800; letter-spacing: -0.025em;
-          margin: 0 0 8px; color: #0a0a0a;
+        .hh-container {
+          max-width: 1200px;
+          margin: 0 auto;
+          padding: 56px 24px 80px;
         }
-        @media (max-width: 600px) { .blog-h1 { font-size: 24px; } }
-        .blog-desc {
-          font-size: 14px; color: #525252; line-height: 1.6; margin: 0;
+        @media (max-width: 640px) {
+          .hh-container { padding: 32px 16px 60px; }
+        }
+        .hh-hero {
+          margin-bottom: 40px;
+        }
+        .hh-badge {
+          display: inline-block;
+          padding: 6px 16px;
+          font-size: 12px;
+          font-weight: 700;
+          color: #4f46e5;
+          background: #fff;
+          border: 1px solid #c7d2fe;
+          border-radius: 999px;
+          letter-spacing: 0.05em;
+          margin-bottom: 16px;
+        }
+        .hh-title {
+          font-size: 48px;
+          font-weight: 800;
+          letter-spacing: -0.03em;
+          line-height: 1.1;
+          margin: 0 0 16px;
+          color: #111827;
+        }
+        @media (max-width: 640px) {
+          .hh-title { font-size: 32px; }
+        }
+        .hh-title-accent { color: #4f46e5; }
+        .hh-desc {
+          font-size: 18px;
+          color: #6b7280;
+          line-height: 1.6;
+          max-width: 640px;
           word-break: keep-all;
+          margin: 0 0 32px;
         }
-        .filter-bar {
-          display: flex; gap: 6px; margin: 20px 0 24px; flex-wrap: wrap;
+        @media (max-width: 640px) {
+          .hh-desc { font-size: 15px; }
         }
-        .filter-btn {
-          padding: 6px 14px; font-size: 13px; font-weight: 500;
-          border: 1px solid #e5e5e5; background: #fff; color: #525252;
-          border-radius: 999px; cursor: pointer; transition: all 0.15s;
+        .hh-filter-bar {
+          display: flex;
+          gap: 8px;
+          flex-wrap: wrap;
+          padding: 16px;
+          background: rgba(249, 250, 251, 0.5);
+          border-radius: 16px;
+          margin-bottom: 32px;
+          backdrop-filter: blur(8px);
         }
-        .filter-btn:hover { border-color: #c2410c; color: #c2410c; }
-        .filter-btn.active {
-          background: #1a1a1a; color: #fff; border-color: #1a1a1a;
+        .hh-filter-btn {
+          padding: 10px 20px;
+          font-size: 14px;
+          font-weight: 600;
+          background: #fff;
+          color: #6b7280;
+          border: 1px solid #e5e7eb;
+          border-radius: 999px;
+          cursor: pointer;
+          transition: all 0.18s;
+          white-space: nowrap;
         }
-        .filter-count { font-size: 12px; color: #a3a3a3; margin-left: 4px; }
-        .filter-btn.active .filter-count { color: #d4d4d4; }
-        .guide-count { font-size: 13px; color: #737373; margin-bottom: 16px; }
-        
-        .post-list {
-          list-style: none; padding: 0; margin: 0;
-          display: flex; flex-direction: column; gap: 12px;
+        .hh-filter-btn:hover {
+          border-color: #4f46e5;
+          color: #4f46e5;
         }
-        .post-item {
-          background: #ffffff; border: 1px solid #e5e5e5;
-          border-radius: 12px; overflow: hidden;
-          transition: all 0.18s ease;
+        .hh-filter-btn.active {
+          background: #4f46e5;
+          color: #fff;
+          border-color: #4f46e5;
+          box-shadow: 0 4px 12px rgba(79, 70, 229, 0.25);
         }
-        .post-item:hover {
-          border-color: #c2410c;
-          transform: translateY(-2px);
-          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        .hh-count {
+          font-size: 11.5px;
+          color: #9ca3af;
+          margin-left: 6px;
+          font-weight: 500;
         }
-        .post-link { display: block; padding: 18px 20px; }
-        @media (max-width: 600px) { .post-link { padding: 16px 18px; } }
-        .post-meta {
-          display: flex; align-items: center; gap: 10px;
-          margin-bottom: 10px; flex-wrap: wrap;
+        .hh-filter-btn.active .hh-count { color: #c7d2fe; }
+        .hh-section-head {
+          display: flex;
+          align-items: flex-end;
+          justify-content: space-between;
+          margin-bottom: 28px;
+          flex-wrap: wrap;
+          gap: 12px;
         }
-        .post-badge {
-          display: inline-flex; align-items: center;
-          padding: 4px 12px; font-size: 11.5px; font-weight: 600;
-          border-radius: 999px; letter-spacing: -0.005em;
+        .hh-section-title {
+          font-size: 24px;
+          font-weight: 700;
+          color: #111827;
+          margin: 0;
         }
-        .post-badge-algorithm { background: #F1EFE8; color: #444441; }
-        .post-badge-senior { background: #FAECE7; color: #993C1D; }
-        .post-badge-aitools { background: #E6F1FB; color: #185FA5; }
-        .post-badge-monetization { background: #FAEEDA; color: #854F0B; }
-        .post-date { font-size: 12.5px; color: #a3a3a3; }
-        .post-title {
-          font-size: 16px; font-weight: 600; margin: 0 0 6px;
-          color: #0a0a0a; line-height: 1.4; word-break: keep-all;
+        .hh-section-meta {
+          font-size: 14px;
+          color: #9ca3af;
         }
-        .post-subtitle {
-          font-size: 13px; color: #737373; line-height: 1.5;
-          margin: 0; word-break: keep-all;
+        .hh-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 24px;
         }
+        @media (max-width: 1024px) {
+          .hh-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        }
+        @media (max-width: 640px) {
+          .hh-grid { grid-template-columns: 1fr; gap: 16px; }
+        }
+        .hh-card {
+          background: #fff;
+          border-radius: 20px;
+          overflow: hidden;
+          cursor: pointer;
+          transition: all 0.25s ease;
+          border: 1px solid #f3f4f6;
+          display: flex;
+          flex-direction: column;
+          height: 100%;
+          text-decoration: none;
+          color: inherit;
+        }
+        .hh-card:hover {
+          transform: translateY(-6px);
+          box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.15);
+          border-color: #e0e7ff;
+        }
+        .hh-card-image {
+          aspect-ratio: 16 / 9;
+          position: relative;
+          overflow: hidden;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+        }
+        .hh-card-icon {
+          font-size: 56px;
+          filter: drop-shadow(0 4px 12px rgba(0, 0, 0, 0.15));
+        }
+        .hh-card-category {
+          position: absolute;
+          top: 16px;
+          left: 16px;
+          padding: 5px 12px;
+          background: rgba(255, 255, 255, 0.95);
+          color: #4f46e5;
+          font-size: 11.5px;
+          font-weight: 700;
+          border-radius: 999px;
+          letter-spacing: -0.005em;
+          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+        }
+        .hh-card-body {
+          padding: 24px;
+          flex: 1;
+          display: flex;
+          flex-direction: column;
+        }
+        .hh-card-meta {
+          display: flex;
+          gap: 12px;
+          font-size: 12px;
+          color: #9ca3af;
+          margin-bottom: 10px;
+        }
+        .hh-card-meta-item {
+          display: inline-flex;
+          align-items: center;
+          gap: 4px;
+        }
+        .hh-card-title {
+          font-size: 18px;
+          font-weight: 700;
+          color: #111827;
+          margin: 0 0 10px;
+          line-height: 1.35;
+          letter-spacing: -0.015em;
+          word-break: keep-all;
+          display: -webkit-box;
+          -webkit-line-clamp: 2;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .hh-card:hover .hh-card-title { color: #4f46e5; }
+        .hh-card-excerpt {
+          font-size: 14px;
+          color: #6b7280;
+          line-height: 1.55;
+          word-break: keep-all;
+          flex: 1;
+          margin: 0 0 16px;
+          display: -webkit-box;
+          -webkit-line-clamp: 3;
+          -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .hh-card-footer {
+          padding-top: 14px;
+          border-top: 1px solid #f3f4f6;
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+        }
+        .hh-card-author {
+          font-size: 12px;
+          color: #6b7280;
+          font-weight: 500;
+        }
+        .hh-card-arrow {
+          font-size: 16px;
+          color: #4f46e5;
+          font-weight: 700;
+          transition: transform 0.2s;
+        }
+        .hh-card:hover .hh-card-arrow { transform: translateX(4px); }
+        .hh-empty {
+          padding: 80px 20px;
+          text-align: center;
+          background: #f9fafb;
+          border-radius: 20px;
+          border: 2px dashed #e5e7eb;
+        }
+        .hh-empty-icon { font-size: 48px; opacity: 0.4; margin-bottom: 12px; }
+        .hh-empty-text { font-size: 16px; font-weight: 600; color: #9ca3af; }
       `}</style>
 
-      <div className="blog-container">
-        <div className="blog-header">
-          <h1 className="blog-h1">전체 가이드</h1>
-          <p className="blog-desc">
-            유튜브 채널 운영 노하우. 알고리즘, 시니어 사연 쇼츠, AI 도구 활용,
-            채널 수익화까지 영상 채널의 모든 것을 정리했습니다.
-          </p>
+      <div className="hh-page">
+        <div className="hh-container">
+          {/* Hero */}
+          <div className="hh-hero">
+            <span className="hh-badge">유튜브 채널 운영 가이드</span>
+            <h1 className="hh-title">
+              영상 채널 운영의<br />
+              <span className="hh-title-accent">모든 노하우</span>
+            </h1>
+            <p className="hh-desc">
+              알고리즘, 시니어 사연 쇼츠, AI 도구 활용, 수익화까지.
+              유튜브 채널 운영에 필요한 실전 가이드를 정리했습니다.
+            </p>
+          </div>
+
+          {/* Filter */}
+          <div className="hh-filter-bar">
+            {FILTERS.map(f => {
+              const count = f.id === 'all'
+                ? allGuides.length
+                : allGuides.filter(g => g.category === f.id).length;
+              return (
+                <button
+                  key={f.id}
+                  className={`hh-filter-btn ${filter === f.id ? 'active' : ''}`}
+                  onClick={() => setFilter(f.id)}
+                >
+                  {f.label}<span className="hh-count">{count}</span>
+                </button>
+              );
+            })}
+          </div>
+
+          {/* Section Head */}
+          <div className="hh-section-head">
+            <h2 className="hh-section-title">
+              {filter === 'all' ? '최근 게시물' : FILTERS.find(f => f.id === filter)?.label + ' 가이드'}
+            </h2>
+            <span className="hh-section-meta">총 {filtered.length}편</span>
+          </div>
+
+          {/* Grid */}
+          {filtered.length > 0 ? (
+            <div className="hh-grid">
+              {filtered.map(g => (
+                <Link key={g.slug} href={`/blog/${g.slug}`} className="hh-card">
+                  <div
+                    className="hh-card-image"
+                    style={{ background: CATEGORY_GRADIENT[g.category] }}
+                  >
+                    <div className="hh-card-icon">{CATEGORY_ICON[g.category]}</div>
+                    <span className="hh-card-category">{g.categoryLabel}</span>
+                  </div>
+                  <div className="hh-card-body">
+                    <div className="hh-card-meta">
+                      <span className="hh-card-meta-item">📅 {g.publishedAt.replace(/-/g, '.')}</span>
+                      <span className="hh-card-meta-item">⏱ {g.readTime}</span>
+                    </div>
+                    <h3 className="hh-card-title">{g.title}</h3>
+                    <p className="hh-card-excerpt">{g.subtitle}</p>
+                    <div className="hh-card-footer">
+                      <span className="hh-card-author">NuTube</span>
+                      <span className="hh-card-arrow">→</span>
+                    </div>
+                  </div>
+                </Link>
+              ))}
+            </div>
+          ) : (
+            <div className="hh-empty">
+              <div className="hh-empty-icon">📭</div>
+              <p className="hh-empty-text">해당 카테고리에 가이드가 없습니다.</p>
+            </div>
+          )}
         </div>
-
-        <div className="filter-bar">
-          {FILTERS.map(f => {
-            const count = f.id === 'all'
-              ? allGuides.length
-              : allGuides.filter(g => g.category === f.id).length;
-            return (
-              <button
-                key={f.id}
-                className={`filter-btn ${filter === f.id ? 'active' : ''}`}
-                onClick={() => setFilter(f.id)}
-              >
-                {f.label} <span className="filter-count">{count}</span>
-              </button>
-            );
-          })}
-        </div>
-
-        <div className="guide-count">{filtered.length}편의 가이드</div>
-
-        <ul className="post-list">
-          {filtered.map(g => (
-            <li key={g.slug} className="post-item">
-              <Link href={`/blog/${g.slug}`} className="post-link">
-                <div className="post-meta">
-                  <span className={`post-badge post-badge-${g.category}`}>{g.categoryLabel}</span>
-                  <span className="post-date">{g.publishedAt.replace(/-/g, '.')}</span>
-                </div>
-                <h2 className="post-title">{g.title}</h2>
-                <p className="post-subtitle">{g.subtitle}</p>
-              </Link>
-            </li>
-          ))}
-        </ul>
       </div>
     </V18Shell>
   );
