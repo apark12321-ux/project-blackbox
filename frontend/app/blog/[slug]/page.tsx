@@ -87,6 +87,16 @@ function formatDate(iso: string): string {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 }
 
+// 본문 글자수 기반 읽기 시간 자동 계산 (한국어 분당 500자 기준)
+function calculateReadTime(text: string | undefined | null, wpm: number = 500): string {
+  if (!text) return '1분';
+  const plainText = String(text).replace(/<[^>]+>/g, '').replace(/\s+/g, ' ').trim();
+  const length = plainText.length;
+  if (length === 0) return '1분';
+  const minutes = Math.max(1, Math.ceil(length / wpm));
+  return `${minutes}분`;
+}
+
 export default function DynamicBlogPostPage() {
   const params = useParams();
   const slug = params?.slug as string;
@@ -142,6 +152,7 @@ export default function DynamicBlogPostPage() {
   
   const dateFormatted = formatDate(post.publishedAt);
   const htmlContent = markdownToHtml(post.content.body);
+  const readTime = calculateReadTime(post.content.body);
   const gradient = CATEGORY_GRADIENT[post.category] || CATEGORY_GRADIENT.algorithm;
   const icon = CATEGORY_ICON[post.category] || '📄';
   
@@ -326,7 +337,7 @@ export default function DynamicBlogPostPage() {
             <div className="hh-detail-avatar">N</div>
             <div>
               <p className="hh-detail-author">NuTube</p>
-              <p className="hh-detail-date">{dateFormatted} 발행</p>
+              <p className="hh-detail-date">{dateFormatted} 발행 · {readTime} 읽기</p>
             </div>
           </div>
 
