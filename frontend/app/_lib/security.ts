@@ -178,9 +178,9 @@ export function validatePost(post: any): { valid: boolean; errors: string[] } {
   if (!post.title) errors.push('title is required');
   if (!post.category) errors.push('category is required');
   if (!post.content?.body) errors.push('content.body (or body) is required');
-  if (!post.publishedAt) {
-    post.publishedAt = new Date().toISOString().split('T')[0];
-  }
+  // 실시간 발행 시각 (ISO 8601, 밀리초 포함)
+  // 예: 2026-05-11T15:35:42.123Z
+  post.publishedAt = new Date().toISOString();
 
   if (post.slug && !/^[a-z0-9-]+$/.test(post.slug)) {
     errors.push('slug format invalid (use [a-z0-9-]+)');
