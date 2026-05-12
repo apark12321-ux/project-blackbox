@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function GuidePage() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="ai-dubbing-korean"
+        title="AI 자동 더빙으로 한국어 영상 자연스럽게 만들기"
+        subtitle="외국어 자막 영상 → 자연스러운 한국어 더빙 자동화"
+        description="외국어 자막 영상 → 자연스러운 한국어 더빙 자동화"
+        category="AI 도구"
+        publishedAt="2026-05-08"
+        readTime="8분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

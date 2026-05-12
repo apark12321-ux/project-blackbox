@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function SeniorShootingMistakesGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="senior-shooting-mistakes"
+        title="시니어가 처음 영상 찍을 때 흔한 실수 7가지"
+        subtitle="50대 이후 처음 촬영 시 자주 하는 실수와 해결법"
+        description="50대 이후 처음 촬영 시 자주 하는 실수와 해결법"
+        category="시니어"
+        publishedAt="2026-05-06"
+        readTime="7분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

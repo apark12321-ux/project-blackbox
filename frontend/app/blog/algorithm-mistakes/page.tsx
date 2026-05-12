@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function AlgorithmMistakesGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="algorithm-mistakes"
+        title="치명적 실수 7가지 - 알고 피하면 떡상"
+        subtitle="99% 채널이 모르는 알고리즘 위반 행동"
+        description="99% 채널이 모르는 알고리즘 위반 행동"
+        category="알고리즘"
+        publishedAt="2026-05-02"
+        readTime="8분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

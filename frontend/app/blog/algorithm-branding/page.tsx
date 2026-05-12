@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function AlgorithmBrandingGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="algorithm-branding"
+        title="클릭을 부르는 브랜딩과 디테일의 힘"
+        subtitle="60-30-10 컬러 법칙과 채널 아트 3요소 공식"
+        description="60-30-10 컬러 법칙과 채널 아트 3요소 공식"
+        category="알고리즘"
+        publishedAt="2026-05-02"
+        readTime="7분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

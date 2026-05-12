@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function VoiceSEOGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="voice-seo"
+        title="음성 SEO 완전 정복 - 검색 노출 200%"
+        subtitle="AI 자막이 검색 엔진을 잡는 새로운 SEO 방식"
+        description="AI 자막이 검색 엔진을 잡는 새로운 SEO 방식"
+        category="AI 도구"
+        publishedAt="2026-05-01"
+        readTime="8분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

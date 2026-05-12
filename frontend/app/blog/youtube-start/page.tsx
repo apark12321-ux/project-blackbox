@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 /**
  * 가이드 1편: 유튜브 입문 (시니어 친화)
@@ -11,6 +12,16 @@ import { V18Shell } from '../../_shared/V18Shell';
 export default function YouTubeStartGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="youtube-start"
+        title="유튜브 시작 가이드 - 첫 한 달 핵심"
+        subtitle="0명에서 100명 구독자까지 단계별 안내"
+        description="0명에서 100명 구독자까지 단계별 안내"
+        category="알고리즘"
+        publishedAt="2026-05-01"
+        readTime="8분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px;

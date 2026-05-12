@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 const articleSchema = {
   '@context': 'https://schema.org',
@@ -18,6 +19,16 @@ const articleSchema = {
 export default function RevenueCalcGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="revenue-calc"
+        title="유튜브 광고 수익 계산법"
+        subtitle="조회수당 수익과 RPM 이해하기"
+        description="조회수당 수익과 RPM 이해하기"
+        category="수익화"
+        publishedAt="2026-04-30"
+        readTime="7분"
+      />
+
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       <style jsx>{`
         .guide { max-width: 760px; margin: 0 auto; padding: 24px 20px 60px; font-family: 'Pretendard', -apple-system, system-ui, sans-serif; color: #0a0a0a; line-height: 1.75; letter-spacing: -0.01em; }

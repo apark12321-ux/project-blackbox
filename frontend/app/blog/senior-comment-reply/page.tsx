@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function GuidePage() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="senior-comment-reply"
+        title="시니어 채널 댓글 답변 5가지 - 진짜 팬을 만드는 비결"
+        subtitle="구독자 → 진짜 팬 → 후원자로 키우는 댓글 답변 전략"
+        description="구독자 → 진짜 팬 → 후원자로 키우는 댓글 답변 전략"
+        category="시니어"
+        publishedAt="2026-05-08"
+        readTime="8분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

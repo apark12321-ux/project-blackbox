@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function SeniorFamilyChannelGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="senior-family-channel"
+        title="50대 이후 시작하는 가족 일상 채널 가이드"
+        subtitle="가족과 함께 추억을 영상으로 남기는 채널 운영법"
+        description="가족과 함께 추억을 영상으로 남기는 채널 운영법"
+        category="시니어"
+        publishedAt="2026-05-06"
+        readTime="7분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

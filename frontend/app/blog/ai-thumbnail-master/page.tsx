@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function GuidePage() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="ai-thumbnail-master"
+        title="AI 썸네일 디자인 완전 정복 - 클릭률 5배 올리는 비결"
+        subtitle="Midjourney + Canva + ChatGPT 조합으로 프로 썸네일 5분 완성"
+        description="Midjourney + Canva + ChatGPT 조합으로 프로 썸네일 5분 완성"
+        category="AI 도구"
+        publishedAt="2026-05-08"
+        readTime="8분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

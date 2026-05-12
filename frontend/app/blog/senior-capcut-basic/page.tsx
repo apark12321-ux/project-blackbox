@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function SeniorCapcutBasicGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="senior-capcut-basic"
+        title="시니어 영상 편집 - 무료 앱 기본 사용법"
+        subtitle="처음 시작하는 시니어를 위한 영상 편집 5단계"
+        description="처음 시작하는 시니어를 위한 영상 편집 5단계"
+        category="시니어"
+        publishedAt="2026-05-06"
+        readTime="8분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

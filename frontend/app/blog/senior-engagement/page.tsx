@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function SeniorEngagementGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="senior-engagement"
+        title="시니어 채널 댓글과 참여 늘리는 5가지 질문"
+        subtitle="알고리즘이 좋아하는 참여형 질문 패턴"
+        description="알고리즘이 좋아하는 참여형 질문 패턴"
+        category="시니어"
+        publishedAt="2026-05-04"
+        readTime="7분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 const articleSchema = {
   '@context': 'https://schema.org',
@@ -22,6 +23,16 @@ const articleSchema = {
 export default function First100SubsGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="first-100-subs"
+        title="첫 100명 구독자 모으는 방법"
+        subtitle="0명에서 100명까지 4단계 전략"
+        description="0명에서 100명까지 4단계 전략"
+        category="수익화"
+        publishedAt="2026-05-02"
+        readTime="8분"
+      />
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}

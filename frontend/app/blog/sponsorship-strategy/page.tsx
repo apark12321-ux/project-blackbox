@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function GuidePage() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="sponsorship-strategy"
+        title="유튜브 스폰서십 받는 채널 만드는 5단계 전략"
+        subtitle="구독자 5,000명 채널도 가능 - 스폰서 받는 진짜 비결"
+        description="구독자 5,000명 채널도 가능 - 스폰서 받는 진짜 비결"
+        category="수익화"
+        publishedAt="2026-05-08"
+        readTime="8분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function AlgorithmRetentionGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="algorithm-retention"
+        title="시청자를 채널에 가두는 무한 루프 세팅"
+        subtitle="챕터 + 최종화면 + 재생목록으로 체류시간 2배"
+        description="챕터 + 최종화면 + 재생목록으로 체류시간 2배"
+        category="알고리즘"
+        publishedAt="2026-05-02"
+        readTime="7분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

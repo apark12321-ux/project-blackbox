@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 const articleSchema = {
   '@context': 'https://schema.org',
@@ -22,6 +23,16 @@ const articleSchema = {
 export default function PhoneShootingGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="phone-shooting"
+        title="핸드폰만으로 영상 잘 찍는 법"
+        subtitle="카메라 없이도 가능한 촬영 노하우"
+        description="카메라 없이도 가능한 촬영 노하우"
+        category="AI 도구"
+        publishedAt="2026-05-01"
+        readTime="8분"
+      />
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}

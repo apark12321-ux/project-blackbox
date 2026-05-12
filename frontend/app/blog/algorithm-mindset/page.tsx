@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function AlgorithmMindsetGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="algorithm-mindset"
+        title="6개월간 떡상이 안 와도 버티는 멘탈 관리"
+        subtitle="실패해도 다시 도전하는 5가지 마인드셋"
+        description="실패해도 다시 도전하는 5가지 마인드셋"
+        category="수익화"
+        publishedAt="2026-05-02"
+        readTime="7분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 /**
  * 가이드 3편: 유튜브 수익 창출 조건 (2026년 기준)
@@ -11,6 +12,16 @@ import { V18Shell } from '../../_shared/V18Shell';
 export default function YouTubeMonetizationGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="youtube-monetization"
+        title="유튜브 채널 수익화 완전 정복"
+        subtitle="광고 수익부터 협찬·멤버십까지 다양한 수익 모델"
+        description="광고 수익부터 협찬·멤버십까지 다양한 수익 모델"
+        category="알고리즘"
+        publishedAt="2026-04-28"
+        readTime="8분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px;

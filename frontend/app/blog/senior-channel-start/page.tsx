@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function SeniorChannelStartGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="senior-channel-start"
+        title="50대부터 시작하는 시니어 사연 쇼츠 채널"
+        subtitle="처음 시작하시는 분들을 위한 단계별 안내"
+        description="처음 시작하시는 분들을 위한 단계별 안내"
+        category="시니어"
+        publishedAt="2026-05-04"
+        readTime="8분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

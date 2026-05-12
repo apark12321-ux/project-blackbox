@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function SeniorHookPatternsGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="senior-hook-patterns"
+        title="시청자를 사로잡는 시니어 영상 후크 8가지"
+        subtitle="영상 첫 5초로 시청 완료율 60% 올리는 법"
+        description="영상 첫 5초로 시청 완료율 60% 올리는 법"
+        category="시니어"
+        publishedAt="2026-05-04"
+        readTime="7분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

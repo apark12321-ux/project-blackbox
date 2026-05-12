@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 /**
  * 가이드 4편: 썸네일 잘 만드는 5가지 비법
@@ -11,6 +12,16 @@ import { V18Shell } from '../../_shared/V18Shell';
 export default function ThumbnailTipsGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="thumbnail-tips"
+        title="눈길을 사로잡는 썸네일 글자 디자인"
+        subtitle="클릭율 2배 늘리는 썸네일 폰트 활용법"
+        description="클릭율 2배 늘리는 썸네일 폰트 활용법"
+        category="AI 도구"
+        publishedAt="2026-05-01"
+        readTime="7분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px;

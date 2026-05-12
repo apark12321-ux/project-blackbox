@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 const articleSchema = {
   '@context': 'https://schema.org',
@@ -18,6 +19,16 @@ const articleSchema = {
 export default function ChannelConceptGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="channel-concept"
+        title="채널 컨셉 5가지 카테고리 정리"
+        subtitle="나에게 맞는 채널 방향 찾기"
+        description="나에게 맞는 채널 방향 찾기"
+        category="알고리즘"
+        publishedAt="2026-05-01"
+        readTime="6분"
+      />
+
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       <style jsx>{`
         .guide { max-width: 760px; margin: 0 auto; padding: 24px 20px 60px; font-family: 'Pretendard', -apple-system, system-ui, sans-serif; color: #0a0a0a; line-height: 1.75; letter-spacing: -0.01em; }

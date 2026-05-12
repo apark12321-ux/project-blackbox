@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 const articleSchema = {
   '@context': 'https://schema.org',
@@ -22,6 +23,16 @@ const articleSchema = {
 export default function FreeEditingAppsGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="free-editing-apps"
+        title="무료 영상 편집 앱 추천"
+        subtitle="초보가 바로 쓸 수 있는 편집 도구 5선"
+        description="초보가 바로 쓸 수 있는 편집 도구 5선"
+        category="AI 도구"
+        publishedAt="2026-05-01"
+        readTime="7분"
+      />
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}

@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function SeniorContentIdeasGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="senior-content-ideas"
+        title="시니어 채널 콘텐츠 아이디어 30가지"
+        subtitle="시청자 공감을 부르는 검증된 주제 30가지"
+        description="시청자 공감을 부르는 검증된 주제 30가지"
+        category="시니어"
+        publishedAt="2026-05-04"
+        readTime="8분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 const articleSchema = {
   '@context': 'https://schema.org',
@@ -18,6 +19,16 @@ const articleSchema = {
 export default function SideJob50Guide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="side-job-50"
+        title="50대 부업 유튜브 시작 가이드"
+        subtitle="늦은 나이가 오히려 무기가 되는 채널 운영"
+        description="늦은 나이가 오히려 무기가 되는 채널 운영"
+        category="수익화"
+        publishedAt="2026-05-02"
+        readTime="8분"
+      />
+
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       <style jsx>{`
         .guide { max-width: 760px; margin: 0 auto; padding: 24px 20px 60px; font-family: 'Pretendard', -apple-system, system-ui, sans-serif; color: #0a0a0a; line-height: 1.75; letter-spacing: -0.01em; }

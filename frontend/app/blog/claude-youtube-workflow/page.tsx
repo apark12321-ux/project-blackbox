@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function ClaudeYoutubeWorkflowGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="claude-youtube-workflow"
+        title="클로드로 유튜브 콘텐츠 자동화 - 4단계 프로세스"
+        subtitle="기획부터 업로드 패키지까지 클로드 한 곳에서 완성"
+        description="기획부터 업로드 패키지까지 클로드 한 곳에서 완성"
+        category="AI 도구"
+        publishedAt="2026-05-04"
+        readTime="8분"
+      />
+
       <style jsx>{`
         .guide-layout {
           max-width: 1080px;

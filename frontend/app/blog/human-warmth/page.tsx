@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function HumanWarmthGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="human-warmth"
+        title="AI 시대, 유튜버가 잃지 말아야 할 인간의 온도"
+        subtitle="AI가 절대 못 만드는 콘텐츠 3가지와 실천법 5가지"
+        description="AI가 절대 못 만드는 콘텐츠 3가지와 실천법 5가지"
+        category="알고리즘"
+        publishedAt="2026-05-04"
+        readTime="7분"
+      />
+
       <style jsx>{`
         .guide-layout {
           max-width: 1080px;

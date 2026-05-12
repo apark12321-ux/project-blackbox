@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function SeniorFirst100Guide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="senior-first-100"
+        title="시니어 채널 첫 100명 구독자 모으기 단계별 가이드"
+        subtitle="50~70대 채널의 100명 도달 4단계 전략"
+        description="50~70대 채널의 100명 도달 4단계 전략"
+        category="시니어"
+        publishedAt="2026-05-06"
+        readTime="8분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

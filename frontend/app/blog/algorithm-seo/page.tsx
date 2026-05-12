@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 /**
  * 가이드: 알고리즘 SEO 검색 최적화 전략
@@ -11,6 +12,16 @@ import { V18Shell } from '../../_shared/V18Shell';
 export default function AlgorithmSEOGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="algorithm-seo"
+        title="알고리즘이 내 영상을 알아보게 하는 SEO 전략"
+        subtitle="제목 8:2 법칙과 음성 SEO로 검색 노출 200%"
+        description="제목 8:2 법칙과 음성 SEO로 검색 노출 200%"
+        category="알고리즘"
+        publishedAt="2026-05-02"
+        readTime="8분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px;

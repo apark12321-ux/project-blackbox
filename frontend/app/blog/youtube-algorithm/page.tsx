@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 /**
  * 가이드 2편: 유튜브 알고리즘 쉽게 이해하기
@@ -11,6 +12,16 @@ import { V18Shell } from '../../_shared/V18Shell';
 export default function YouTubeAlgorithmGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="youtube-algorithm"
+        title="유튜브 알고리즘 작동 원리 완벽 분석"
+        subtitle="추천 영상에 노출되는 진짜 기준 6가지"
+        description="추천 영상에 노출되는 진짜 기준 6가지"
+        category="알고리즘"
+        publishedAt="2026-05-01"
+        readTime="8분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px;

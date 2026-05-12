@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 /**
  * 가이드 5편: 영상 제작 AI 도구 정리
@@ -11,6 +12,16 @@ import { V18Shell } from '../../_shared/V18Shell';
 export default function AIToolsGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="ai-tools"
+        title="AI 영상 만들기 도구 모음"
+        subtitle="초보도 쓸 수 있는 AI 도구 추천 가이드"
+        description="초보도 쓸 수 있는 AI 도구 추천 가이드"
+        category="AI 도구"
+        publishedAt="2026-04-28"
+        readTime="8분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px;

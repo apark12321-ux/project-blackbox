@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 const articleSchema = {
   '@context': 'https://schema.org',
@@ -22,6 +23,16 @@ const articleSchema = {
 export default function ViralPatternsGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="viral-patterns"
+        title="떡상 채널 패턴 분석"
+        subtitle="조회수 100만+ 채널들의 공통점 7가지"
+        description="조회수 100만+ 채널들의 공통점 7가지"
+        category="알고리즘"
+        publishedAt="2026-05-02"
+        readTime="7분"
+      />
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}

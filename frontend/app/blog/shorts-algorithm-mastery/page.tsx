@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function GuidePage() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="shorts-algorithm-mastery"
+        title="유튜브 쇼츠 알고리즘 완전 정복 - 100만 조회의 비밀"
+        subtitle="긴 영상과 다른 쇼츠만의 알고리즘 5가지 핵심 원칙"
+        description="긴 영상과 다른 쇼츠만의 알고리즘 5가지 핵심 원칙"
+        category="알고리즘"
+        publishedAt="2026-05-08"
+        readTime="9분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

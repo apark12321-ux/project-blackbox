@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 const articleSchema = {
   '@context': 'https://schema.org',
@@ -18,6 +19,16 @@ const articleSchema = {
 export default function AIThumbnailGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="ai-thumbnail"
+        title="AI 썸네일 만드는 도구 5개 비교"
+        subtitle="Midjourney, DALL-E, Sora 등 AI 이미지 생성 비교"
+        description="Midjourney, DALL-E, Sora 등 AI 이미지 생성 비교"
+        category="AI 도구"
+        publishedAt="2026-04-29"
+        readTime="7분"
+      />
+
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }} />
       <style jsx>{`
         .guide { max-width: 760px; margin: 0 auto; padding: 24px 20px 60px; font-family: 'Pretendard', -apple-system, system-ui, sans-serif; color: #0a0a0a; line-height: 1.75; letter-spacing: -0.01em; }

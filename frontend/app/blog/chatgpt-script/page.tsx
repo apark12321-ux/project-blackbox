@@ -2,6 +2,7 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 const articleSchema = {
   '@context': 'https://schema.org',
@@ -22,6 +23,16 @@ const articleSchema = {
 export default function ChatGPTScriptGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="chatgpt-script"
+        title="ChatGPT로 영상 대본 빠르게 쓰는 법"
+        subtitle="AI를 보조 도구로 활용하는 5가지 프롬프트"
+        description="AI를 보조 도구로 활용하는 5가지 프롬프트"
+        category="AI 도구"
+        publishedAt="2026-04-30"
+        readTime="7분"
+      />
+
       <script
         type="application/ld+json"
         dangerouslySetInnerHTML={{ __html: JSON.stringify(articleSchema) }}

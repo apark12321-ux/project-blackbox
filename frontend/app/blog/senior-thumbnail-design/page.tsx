@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function SeniorThumbnailDesignGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="senior-thumbnail-design"
+        title="시니어 시청자가 좋아하는 썸네일 디자인 5가지"
+        subtitle="50~70대 시청자의 클릭을 부르는 썸네일 원칙"
+        description="50~70대 시청자의 클릭을 부르는 썸네일 원칙"
+        category="시니어"
+        publishedAt="2026-05-06"
+        readTime="8분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;

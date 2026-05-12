@@ -2,10 +2,21 @@
 
 import Link from 'next/link';
 import { V18Shell } from '../../_shared/V18Shell';
+import { GuideMetadata } from '../../_shared/GuideMetadata';
 
 export default function SeniorPolicySafeGuide() {
   return (
     <V18Shell>
+      <GuideMetadata
+        slug="senior-policy-safe"
+        title="시니어 채널 정책 위반 피하는 6가지 규칙"
+        subtitle="안전하게 채널 키우는 핵심 운영 규칙"
+        description="안전하게 채널 키우는 핵심 운영 규칙"
+        category="시니어"
+        publishedAt="2026-05-04"
+        readTime="7분"
+      />
+
       <style jsx>{`
         .guide {
           max-width: 760px; margin: 0 auto; padding: 24px 20px 60px;
