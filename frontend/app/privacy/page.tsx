@@ -1,140 +1,182 @@
 'use client';
-import Link from 'next/link';
-import { V11Shell } from '../_shared/V11Shell';
-import AdSlot from '../_shared/AdSlot';
 
-export default function Page() {
+import Link from 'next/link';
+import { V18Shell } from '../_shared/V18Shell';
+
+export default function PrivacyPage() {
   return (
-    <V11Shell>
+    <V18Shell>
       <style jsx>{`
-        .page { max-width: 920px; margin: 0 auto; padding: 56px 24px 60px; }
-        .breadcrumb {
-          display: flex; gap: 8px; font-size: 13px;
-          color: #888; margin-bottom: 24px;
+        .privacy-container {
+          max-width: 760px; margin: 0 auto; padding: 32px 20px 60px;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
+          color: #0a0a0a; line-height: 1.75; letter-spacing: -0.01em;
         }
-        .breadcrumb a:hover { color: #c65f3b; }
-        .breadcrumb .sep { color: #ccc; }
-        .pageBadge {
-          display: inline-block; padding: 6px 14px;
-          background: #fdf1e7; color: #c65f3b;
-          border-radius: 100px; font-size: 12px; font-weight: 700;
-          margin-bottom: 16px;
+        @media (max-width: 600px) { .privacy-container { padding: 24px 16px 50px; } }
+        h1 {
+          font-size: 28px; font-weight: 800; letter-spacing: -0.025em;
+          margin: 0 0 8px; color: #0a0a0a;
         }
-        .header { text-align: center; margin-bottom: 40px; }
-        .title {
-          font-size: 32px; font-weight: 800;
-          color: #1a1a1a; letter-spacing: -0.025em;
-          margin: 0 0 12px;
+        @media (max-width: 600px) { h1 { font-size: 24px; } }
+        .updated {
+          font-size: 13px; color: #737373; margin-bottom: 32px;
         }
-        .sub { font-size: 15px; color: #666; line-height: 1.7; }
-        @media (max-width: 600px) { .title { font-size: 24px; } }
-        .content {
-          background: #fff; border: 1px solid #e5e5e5;
-          border-radius: 14px; padding: 32px;
-          line-height: 1.8; color: #333;
+        h2 {
+          font-size: 20px; font-weight: 700; letter-spacing: -0.02em;
+          margin: 36px 0 12px; color: #0a0a0a;
         }
-        .content h2 {
-          font-size: 19px; font-weight: 800;
-          color: #1a1a1a; margin: 28px 0 12px;
+        @media (max-width: 600px) { h2 { font-size: 18px; } }
+        h3 {
+          font-size: 16px; font-weight: 700; margin: 20px 0 8px;
+          color: #1a1a1a;
         }
-        .content h2:first-child { margin-top: 0; }
-        .content h3 {
-          font-size: 15px; font-weight: 700;
-          color: #1a1a1a; margin: 20px 0 8px;
+        p {
+          font-size: 15px; margin: 0 0 12px; line-height: 1.75;
+          word-break: keep-all;
         }
-        .content p { margin: 0 0 14px; font-size: 14.5px; }
-        .content ul { padding-left: 24px; margin: 12px 0; }
-        .content li {
-          margin-bottom: 8px; font-size: 14px; color: #555;
-          line-height: 1.7;
+        ul {
+          margin: 0 0 16px; padding-left: 24px;
         }
-        .content strong { color: #c65f3b; font-weight: 700; }
-        .ctaBtn {
-          display: inline-block; padding: 14px 28px;
-          background: #c65f3b; color: #fff;
-          border-radius: 100px; font-size: 14px; font-weight: 700;
-          text-decoration: none; transition: all 0.2s;
-          margin-top: 20px;
+        li {
+          font-size: 15px; margin-bottom: 6px; line-height: 1.7;
+          word-break: keep-all;
         }
-        .ctaBtn:hover { background: #a64a2a; }
-        .adArea { margin: 32px 0; }
+        .contact-box {
+          background: #f8f8f8; padding: 16px 20px; border-radius: 8px;
+          margin-top: 24px; font-size: 14px;
+        }
       `}</style>
 
-      <div className="page">
-        <nav className="breadcrumb">
-          <Link href="/">홈</Link>
-          <span className="sep">/</span>
-          <span>개인정보 처리방침</span>
-        </nav>
+      <div className="privacy-container">
+        <h1>개인정보 처리방침</h1>
+        <p className="updated">최종 업데이트: 2026년 5월 9일</p>
 
-        <header className="header">
-          
-          <h1 className="title">개인정보 처리방침</h1>
-          <p className="sub">AlgoMaker는 사용자의 개인정보를 소중히 다룹니다</p>
-        </header>
+        <p>
+          알고파트너스(이하 &apos;운영자&apos;)는 NuTube(nutube.kr) 사이트(이하 &apos;본 사이트&apos;)를
+          운영함에 있어 이용자의 개인정보를 중요시하며, 개인정보 보호법 등 관련 법령을
+          준수하기 위해 다음과 같은 처리방침을 두고 있습니다.
+        </p>
 
-        <div className="content">
-          <h2>제1조 (개인정보의 처리 목적)</h2>
-          <p>
-            AlgoMaker(이하 '서비스')는 다음의 목적을 위하여 개인정보를 처리합니다. 처리한 개인정보는 다음의 목적 이외의 용도로는 이용되지 않습니다.
-          </p>
-          <ul>
-            <li>서비스 제공 및 운영</li>
-            <li>서비스 개선 및 통계 분석</li>
-            <li>고객 문의 응대</li>
-          </ul>
+        <h2>1. 수집하는 개인정보 항목</h2>
+        <p>본 사이트는 이용자의 개인 식별 정보를 직접 수집하지 않습니다. 다만 다음 정보가 자동으로 수집될 수 있습니다:</p>
+        <ul>
+          <li>접속 IP 주소</li>
+          <li>쿠키(Cookie)</li>
+          <li>접속 로그 및 방문 일시</li>
+          <li>이용 브라우저 종류 및 운영체제</li>
+          <li>이용 페이지 정보</li>
+        </ul>
 
-          <h2>제2조 (수집하는 개인정보 항목)</h2>
-          <p>본 서비스는 회원가입 없이 이용 가능합니다. 다만 다음과 같은 정보가 자동으로 수집될 수 있습니다.</p>
-          <ul>
-            <li>접속 IP 정보, 쿠키, 접속 기록, 브라우저 정보</li>
-            <li>localStorage 기반의 사용자 선택 정보 (카테고리, 키워드 등)</li>
-          </ul>
+        <h2>2. 개인정보의 수집 및 이용 목적</h2>
+        <ul>
+          <li>사이트 운영 및 서비스 제공</li>
+          <li>통계 분석 및 서비스 개선</li>
+          <li>광고 게재 및 맞춤형 콘텐츠 제공</li>
+          <li>법령상 의무 이행</li>
+        </ul>
 
-          <h2>제3조 (개인정보의 보유 및 이용기간)</h2>
-          <p>
-            서비스 이용 통계 분석을 위한 데이터는 익명화되어 1년간 보관됩니다.
-            사용자가 입력한 키워드 등의 정보는 사용자 브라우저에만 저장되며, 서버에 저장되지 않습니다.
-          </p>
+        <h2>3. 쿠키(Cookie)의 운용</h2>
+        <p>
+          본 사이트는 이용자에게 맞춤형 서비스를 제공하기 위해 쿠키를 사용합니다.
+          쿠키는 웹사이트가 이용자의 컴퓨터 브라우저에 보내는 소량의 정보입니다.
+        </p>
 
-          <h2>제4조 (광고 및 분석 도구)</h2>
-          <p>
-            본 서비스는 다음과 같은 제3자 광고 및 분석 도구를 사용할 수 있습니다.
-          </p>
-          <ul>
-            <li>Google AdSense - 광고 게재</li>
-            <li>Google Analytics - 사용자 통계 분석</li>
-          </ul>
-          <p>
-            이러한 도구들은 쿠키를 사용하여 사용자 활동을 분석합니다.
-            사용자는 브라우저 설정에서 쿠키를 비활성화할 수 있습니다.
-          </p>
+        <h3>쿠키 사용 목적</h3>
+        <ul>
+          <li>이용자의 선호 설정 저장</li>
+          <li>방문 및 이용 형태 분석</li>
+          <li>맞춤형 광고 제공</li>
+          <li>사이트 보안 강화</li>
+        </ul>
 
-          <h2>제5조 (정보주체의 권리)</h2>
-          <p>이용자는 언제든지 다음의 권리를 행사할 수 있습니다.</p>
-          <ul>
-            <li>개인정보 열람 요구</li>
-            <li>개인정보 정정·삭제 요구</li>
-            <li>개인정보 처리정지 요구</li>
-          </ul>
+        <h3>쿠키 거부 방법</h3>
+        <p>
+          이용자는 웹 브라우저 설정을 통해 쿠키를 거부하거나 삭제할 수 있습니다.
+          단, 쿠키를 거부할 경우 일부 서비스 이용에 제한이 있을 수 있습니다.
+        </p>
 
-          <h2>제6조 (개인정보 보호 책임자)</h2>
-          <p>
-            <strong>책임 부서:</strong> 알고파트너스 개인정보보호 담당<br />
-            <strong>이메일:</strong> apark12321@gmail.com
-          </p>
+        <h2>4. 제3자 광고 및 분석 도구</h2>
 
-          <h2>제7조 (개정)</h2>
-          <p>
-            본 개인정보 처리방침은 2026년 4월 25일부터 시행됩니다.
-            법령 및 방침의 변경에 따라 개정될 수 있으며, 변경 시 7일 전에 공지합니다.
+        <h3>Google AdSense</h3>
+        <p>
+          본 사이트는 Google AdSense 광고를 게재합니다. Google AdSense는 쿠키를
+          사용하여 이용자의 본 사이트 및 다른 사이트 방문 정보를 기반으로 맞춤형
+          광고를 제공합니다.
+        </p>
+        <p>
+          이용자는 광고 설정 페이지에서 맞춤형 광고를 비활성화할 수 있습니다:
+        </p>
+        <ul>
+          <li>Google 광고 설정: https://www.google.com/settings/ads</li>
+          <li>광고 선택 해제: https://optout.aboutads.info</li>
+        </ul>
+
+        <h3>Google Analytics (사용 시)</h3>
+        <p>
+          본 사이트는 Google Analytics를 사용하여 방문 통계를 분석할 수 있습니다.
+          Google Analytics는 익명화된 데이터를 수집하며, 이용자는 Google Analytics
+          비활성화 부가 기능을 통해 데이터 수집을 거부할 수 있습니다.
+        </p>
+
+        <h2>5. 개인정보의 보유 및 이용 기간</h2>
+        <p>
+          본 사이트는 이용자의 개인정보를 수집 및 이용 목적이 달성된 후에는 해당 정보를
+          지체 없이 파기합니다. 다만 관련 법령에 따라 보존이 필요한 경우 법령에서
+          정한 기간 동안 보관됩니다.
+        </p>
+
+        <h2>6. 개인정보의 안전성 확보 조치</h2>
+        <p>
+          본 사이트는 개인정보의 안전성 확보를 위해 다음과 같은 조치를 취하고 있습니다:
+        </p>
+        <ul>
+          <li>HTTPS 통신 암호화</li>
+          <li>접근 권한 관리</li>
+          <li>해킹 등에 대비한 기술적 대책</li>
+          <li>개인정보 처리 시스템 접근 통제</li>
+        </ul>
+
+        <h2>7. 이용자의 권리</h2>
+        <p>
+          이용자는 언제든지 다음 권리를 행사할 수 있습니다:
+        </p>
+        <ul>
+          <li>개인정보 열람 요구</li>
+          <li>오류 정정 요구</li>
+          <li>삭제 요구</li>
+          <li>처리 정지 요구</li>
+        </ul>
+
+        <h2>8. 개인정보 보호책임자</h2>
+        <p>
+          본 사이트의 개인정보 처리에 관한 문의사항은 아래로 연락 주시기 바랍니다:
+        </p>
+        <div className="contact-box">
+          <p style={{ margin: 0 }}>
+            <strong>운영자:</strong> 알고파트너스<br />
+            <strong>이메일:</strong> apark12321@gmail.com<br />
+            <strong>처리방침 문의:</strong> <Link href="/contact" style={{ color: '#c2410c' }}>문의하기</Link>
           </p>
         </div>
 
-        <div className="adArea">
-          <AdSlot slot="page-bottom" variant="horizontal" />
+        <h2>9. 변경 사항 고지</h2>
+        <p>
+          본 개인정보 처리방침이 변경되는 경우, 변경 사항을 본 사이트에 게시하여
+          이용자가 확인할 수 있도록 합니다. 본 처리방침은 게시된 날부터 효력이 발생합니다.
+        </p>
+
+        <h2>10. 어린이 보호</h2>
+        <p>
+          본 사이트는 만 14세 미만 어린이의 개인정보를 수집하지 않습니다.
+          어린이가 본 사이트를 이용하는 경우, 보호자의 지도와 감독이 필요합니다.
+        </p>
+
+        <div style={{ marginTop: 40, paddingTop: 20, borderTop: '1px solid #e5e5e5', fontSize: 13, color: '#737373' }}>
+          <p>
+            본 처리방침은 2026년 5월 9일부터 시행됩니다.
+          </p>
         </div>
       </div>
-    </V11Shell>
+    </V18Shell>
   );
 }

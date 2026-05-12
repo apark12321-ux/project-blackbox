@@ -1,8 +1,26 @@
 'use client';
 
 /**
- * NuTube 메인 페이지 v21 - 하우징허브 스타일
- * 인디고 컬러, 둥근 카드, 모던 미니멀 디자인
+ * NuTube 메인 페이지 v18.0 - 애드센스 친화 표준 블로그
+ *
+ * 박 대표님 v18 결정:
+ *   "구글이 애드센스 승인 위한 사람들을 위해서 만든 샘플 사이트처럼"
+ *   "오류 없이 깔끔하게"
+ *   "내가 하고 싶은 내용은 다 들어가게"
+ *
+ * 박 대표님 콘텐츠 자산 (모두 포함):
+ *   1. 알고리즘 노하우 (11공식)
+ *   2. 시니어 사연 쇼츠
+ *   3. AI 도구 활용
+ *   4. 영상 채널 수익화
+ *
+ * 설계 원칙:
+ *   ✅ 표준 블로그 구조
+ *   ✅ 단일 컬럼, 큰 글씨
+ *   ✅ H1-H2-H3 명확
+ *   ✅ 카테고리 + 최신 글 + 추천 글
+ *   ✅ 모바일 최적화
+ *   ✅ 인터랙션 / 카드 / 매거진 / 도구 중심 X
  */
 
 import Link from 'next/link';
@@ -16,32 +34,24 @@ const CATEGORIES = [
     name: '유튜브 알고리즘',
     desc: '검색 노출, 시청 지속률, 떡상 패턴까지. 박 실장 11공식 기반 알고리즘 노하우.',
     count: 11,
-    icon: '🎯',
-    gradient: 'linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #4f46e5 100%)',
   },
   {
     id: 'senior',
     name: '시니어 사연 쇼츠',
     desc: '50~80대 타겟 채널 운영법. 촬영 실수 방어, 편집 기초, 100명 모으기 등.',
     count: 11,
-    icon: '👴',
-    gradient: 'linear-gradient(135deg, #fb923c 0%, #f97316 50%, #ea580c 100%)',
   },
   {
     id: 'aitools',
     name: 'AI 도구 활용',
     desc: '클로드, ChatGPT, Sora 등을 영상 제작에 활용하는 실전 가이드.',
     count: 11,
-    icon: '🤖',
-    gradient: 'linear-gradient(135deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%)',
   },
   {
     id: 'monetization',
     name: '영상 채널 수익화',
     desc: '광고 수익 계산법, 첫 100명 구독자, 멘탈 관리까지.',
     count: 5,
-    icon: '💰',
-    gradient: 'linear-gradient(135deg, #facc15 0%, #eab308 50%, #ca8a04 100%)',
   },
 ];
 
@@ -61,20 +71,6 @@ const POPULAR = [
   { slug: 'first-100-subs', cat: '수익화', catKey: 'monetization', title: '첫 100명 구독자 모으는 방법', date: '2026.05.02' },
 ];
 
-const CATEGORY_ICON: Record<string, string> = {
-  algorithm: '🎯',
-  senior: '👴',
-  aitools: '🤖',
-  monetization: '💰',
-};
-
-const CATEGORY_GRADIENT: Record<string, string> = {
-  algorithm: 'linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #4f46e5 100%)',
-  senior: 'linear-gradient(135deg, #fb923c 0%, #f97316 50%, #ea580c 100%)',
-  aitools: 'linear-gradient(135deg, #38bdf8 0%, #0ea5e9 50%, #0284c7 100%)',
-  monetization: 'linear-gradient(135deg, #facc15 0%, #eab308 50%, #ca8a04 100%)',
-};
-
 export default function HomePage() {
   const router = useRouter();
   const [keyword, setKeyword] = useState('');
@@ -87,799 +83,752 @@ export default function HomePage() {
 
   return (
     <V18Shell>
-      <style jsx global>{`
-        .nh-home {
-          background: #fff;
-          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
-          color: #111827;
-          min-height: 100vh;
-        }
-
-        /* HERO */
-        .nh-hero {
-          position: relative;
-          padding: 80px 24px 100px;
-          background: linear-gradient(135deg, #eef2ff 0%, #faf5ff 50%, #fff 100%);
-          overflow: hidden;
-        }
-        @media (max-width: 640px) {
-          .nh-hero { padding: 48px 16px 64px; }
-        }
-        .nh-hero-inner {
-          max-width: 1200px;
-          margin: 0 auto;
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 48px;
-          align-items: center;
-        }
-        @media (max-width: 900px) {
-          .nh-hero-inner { grid-template-columns: 1fr; gap: 32px; }
-        }
-        .nh-hero-badge {
-          display: inline-block;
-          padding: 6px 16px;
-          background: #fff;
-          color: #4f46e5;
-          font-size: 12px;
-          font-weight: 700;
-          border: 1px solid #c7d2fe;
-          border-radius: 999px;
-          letter-spacing: 0.04em;
-          margin-bottom: 18px;
-        }
-        .nh-hero-title {
-          font-size: 56px;
-          font-weight: 800;
-          letter-spacing: -0.03em;
-          line-height: 1.1;
-          color: #111827;
-          margin: 0 0 20px;
-          word-break: keep-all;
-        }
-        @media (max-width: 900px) {
-          .nh-hero-title { font-size: 40px; }
-        }
-        @media (max-width: 640px) {
-          .nh-hero-title { font-size: 32px; }
-        }
-        .nh-hero-accent { color: #4f46e5; }
-        .nh-hero-desc {
-          font-size: 18px;
-          color: #6b7280;
-          line-height: 1.65;
-          margin: 0 0 32px;
-          max-width: 540px;
-          word-break: keep-all;
-        }
-        @media (max-width: 640px) {
-          .nh-hero-desc { font-size: 15px; }
-        }
-        .nh-hero-buttons {
-          display: flex;
-          gap: 12px;
-          flex-wrap: wrap;
-        }
-        .nh-btn-primary {
-          padding: 16px 32px;
-          background: #4f46e5;
-          color: #fff;
-          font-size: 16px;
-          font-weight: 700;
-          border-radius: 999px;
-          text-decoration: none;
-          transition: all 0.2s;
-          box-shadow: 0 8px 20px rgba(79, 70, 229, 0.25);
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-        }
-        .nh-btn-primary:hover {
-          background: #4338ca;
-          transform: translateY(-2px);
-          box-shadow: 0 12px 28px rgba(79, 70, 229, 0.35);
-        }
-        .nh-btn-outline {
-          padding: 16px 32px;
-          background: #fff;
-          color: #4f46e5;
-          font-size: 16px;
-          font-weight: 700;
-          border: 2px solid #e5e7eb;
-          border-radius: 999px;
-          text-decoration: none;
-          transition: all 0.2s;
-        }
-        .nh-btn-outline:hover {
-          border-color: #4f46e5;
-        }
-        @media (max-width: 640px) {
-          .nh-btn-primary, .nh-btn-outline { padding: 13px 24px; font-size: 14px; }
-        }
-
-        /* HERO Right Card */
-        .nh-hero-card {
-          position: relative;
-          aspect-ratio: 4/3;
-          background: linear-gradient(135deg, #818cf8 0%, #6366f1 50%, #4f46e5 100%);
-          border-radius: 24px;
-          padding: 16px;
-          box-shadow: 0 30px 60px -15px rgba(79, 70, 229, 0.3);
-          border: 8px solid #fff;
-        }
-        .nh-hero-card-inner {
-          width: 100%;
-          height: 100%;
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 120px;
-        }
-        @media (max-width: 900px) {
-          .nh-hero-card { max-width: 480px; margin: 0 auto; }
-          .nh-hero-card-inner { font-size: 80px; }
-        }
-        .nh-hero-floating {
-          position: absolute;
-          bottom: -24px;
-          left: -24px;
-          background: #fff;
-          padding: 20px 24px;
-          border-radius: 16px;
-          box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
-          display: flex;
-          align-items: center;
-          gap: 14px;
-        }
-        @media (max-width: 900px) {
-          .nh-hero-floating { display: none; }
-        }
-        .nh-hero-floating-icon {
-          width: 44px;
-          height: 44px;
-          background: #eef2ff;
-          color: #4f46e5;
-          border-radius: 999px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 22px;
-        }
-        .nh-hero-floating-text {
-          font-size: 14px;
-          font-weight: 700;
-          color: #111827;
-          margin: 0;
-        }
-        .nh-hero-floating-sub {
-          font-size: 12px;
-          color: #9ca3af;
-          margin: 2px 0 0;
-        }
-
-        /* SECTIONS */
-        .nh-section {
-          max-width: 1200px;
-          margin: 0 auto;
-          padding: 80px 24px;
-        }
-        @media (max-width: 640px) {
-          .nh-section { padding: 48px 16px; }
-        }
-        .nh-section-head {
-          margin-bottom: 40px;
-        }
-        .nh-section-tag {
-          display: inline-block;
-          padding: 4px 12px;
-          background: #eef2ff;
-          color: #4f46e5;
-          font-size: 12px;
-          font-weight: 700;
-          border-radius: 999px;
-          margin-bottom: 12px;
-        }
-        .nh-section-title {
-          font-size: 36px;
-          font-weight: 800;
-          color: #111827;
-          letter-spacing: -0.025em;
-          margin: 0 0 12px;
-          line-height: 1.2;
-          word-break: keep-all;
-        }
-        @media (max-width: 640px) {
-          .nh-section-title { font-size: 26px; }
-        }
-        .nh-section-desc {
-          font-size: 16px;
-          color: #6b7280;
-          line-height: 1.6;
-          margin: 0;
-          word-break: keep-all;
-        }
-
-        /* CATEGORY GRID */
-        .nh-cat-grid {
-          display: grid;
-          grid-template-columns: repeat(4, 1fr);
-          gap: 20px;
-        }
-        @media (max-width: 1024px) {
-          .nh-cat-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 640px) {
-          .nh-cat-grid { grid-template-columns: 1fr; gap: 14px; }
-        }
-        .nh-cat-card {
-          padding: 28px 24px;
-          background: #fff;
-          border: 1px solid #f3f4f6;
-          border-radius: 20px;
-          text-decoration: none;
-          color: inherit;
-          transition: all 0.25s;
-          display: flex;
-          flex-direction: column;
-        }
-        .nh-cat-card:hover {
-          transform: translateY(-6px);
-          border-color: #c7d2fe;
-          box-shadow: 0 20px 40px -10px rgba(79, 70, 229, 0.15);
-        }
-        .nh-cat-icon {
-          width: 56px;
-          height: 56px;
-          border-radius: 16px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 28px;
-          margin-bottom: 18px;
-          box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
-        }
-        .nh-cat-name {
-          font-size: 18px;
-          font-weight: 700;
-          color: #111827;
-          margin: 0 0 10px;
-          letter-spacing: -0.018em;
-        }
-        .nh-cat-desc {
-          font-size: 14px;
-          color: #6b7280;
-          line-height: 1.6;
-          margin: 0 0 18px;
-          flex: 1;
-          word-break: keep-all;
-        }
-        .nh-cat-count {
-          font-size: 13px;
-          color: #4f46e5;
-          font-weight: 700;
-          padding-top: 14px;
-          border-top: 1px solid #f3f4f6;
-        }
-
-        /* FEATURES (3 columns) */
-        .nh-feat-bg {
-          background: #f9fafb;
-        }
-        .nh-feat-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 24px;
-        }
-        @media (max-width: 900px) {
-          .nh-feat-grid { grid-template-columns: 1fr; }
-        }
-        .nh-feat {
-          padding: 32px 28px;
-          background: #fff;
-          border-radius: 20px;
-          text-align: center;
-        }
-        .nh-feat-icon {
-          width: 64px;
-          height: 64px;
-          background: #eef2ff;
-          border-radius: 16px;
-          margin: 0 auto 18px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 30px;
-        }
-        .nh-feat-title {
-          font-size: 18px;
-          font-weight: 700;
-          color: #111827;
-          margin: 0 0 10px;
-        }
-        .nh-feat-desc {
-          font-size: 14px;
-          color: #6b7280;
-          line-height: 1.65;
-          margin: 0;
-          word-break: keep-all;
-        }
-
-        /* POST LIST */
-        .nh-post-grid {
-          display: grid;
-          grid-template-columns: repeat(3, 1fr);
-          gap: 24px;
-        }
-        @media (max-width: 1024px) {
-          .nh-post-grid { grid-template-columns: repeat(2, 1fr); }
-        }
-        @media (max-width: 640px) {
-          .nh-post-grid { grid-template-columns: 1fr; gap: 16px; }
-        }
-        .nh-post {
-          background: #fff;
-          border: 1px solid #f3f4f6;
-          border-radius: 20px;
-          overflow: hidden;
-          text-decoration: none;
-          color: inherit;
-          transition: all 0.25s;
-          display: flex;
-          flex-direction: column;
-        }
-        .nh-post:hover {
-          transform: translateY(-4px);
-          border-color: #e0e7ff;
-          box-shadow: 0 16px 32px -8px rgba(79, 70, 229, 0.12);
-        }
-        .nh-post-image {
-          aspect-ratio: 16/9;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-size: 48px;
-          position: relative;
-        }
-        .nh-post-badge {
-          position: absolute;
-          top: 14px;
-          left: 14px;
-          padding: 4px 12px;
-          background: rgba(255, 255, 255, 0.95);
-          color: #4f46e5;
-          font-size: 11px;
-          font-weight: 700;
-          border-radius: 999px;
-        }
-        .nh-post-body {
-          padding: 20px 22px;
-        }
-        .nh-post-date {
-          font-size: 12px;
-          color: #9ca3af;
-          margin-bottom: 8px;
-        }
-        .nh-post-title {
-          font-size: 16px;
-          font-weight: 700;
-          color: #111827;
-          margin: 0;
-          line-height: 1.4;
-          letter-spacing: -0.012em;
-          word-break: keep-all;
-          display: -webkit-box;
-          -webkit-line-clamp: 2;
-          -webkit-box-orient: vertical;
-          overflow: hidden;
-        }
-        .nh-post:hover .nh-post-title { color: #4f46e5; }
-
-        .nh-more-row {
-          text-align: center;
-          margin-top: 40px;
-        }
-        .nh-more-link {
-          display: inline-flex;
-          align-items: center;
-          gap: 6px;
-          padding: 14px 32px;
-          background: #fff;
-          color: #4f46e5;
-          font-size: 15px;
-          font-weight: 700;
-          border: 2px solid #e0e7ff;
-          border-radius: 999px;
-          text-decoration: none;
-          transition: all 0.2s;
-        }
-        .nh-more-link:hover {
-          background: #4f46e5;
-          color: #fff;
-          border-color: #4f46e5;
-        }
-
-        /* TOOL SECTION */
-        .nh-tool {
-          background: linear-gradient(135deg, #eef2ff 0%, #f5f3ff 100%);
-        }
-        .nh-tool-wrap {
-          display: grid;
-          grid-template-columns: 1fr 1fr;
-          gap: 48px;
-          align-items: center;
-        }
-        @media (max-width: 900px) {
-          .nh-tool-wrap { grid-template-columns: 1fr; }
-        }
-        .nh-tool-features {
-          display: flex;
-          flex-direction: column;
-          gap: 16px;
-          margin: 24px 0 32px;
-        }
-        .nh-tool-feat {
-          display: grid;
-          grid-template-columns: 44px 1fr;
-          gap: 16px;
-          align-items: start;
-          padding: 18px 20px;
-          background: #fff;
-          border-radius: 14px;
-          box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
-        }
-        .nh-tool-num {
-          width: 44px;
-          height: 44px;
-          background: #4f46e5;
-          color: #fff;
-          border-radius: 999px;
-          display: flex;
-          align-items: center;
-          justify-content: center;
-          font-weight: 800;
-          font-size: 16px;
-        }
-        .nh-tool-feat-title {
-          font-size: 15px;
-          font-weight: 700;
-          color: #111827;
-          margin: 0 0 4px;
-        }
-        .nh-tool-feat-desc {
-          font-size: 13px;
-          color: #6b7280;
-          line-height: 1.6;
-          margin: 0;
-          word-break: keep-all;
-        }
-        .nh-tool-form {
-          display: flex;
-          gap: 10px;
-          padding: 12px;
-          background: #fff;
-          border-radius: 999px;
-          box-shadow: 0 8px 20px rgba(79, 70, 229, 0.12);
-        }
-        @media (max-width: 640px) {
-          .nh-tool-form {
-            border-radius: 16px;
-            flex-direction: column;
-          }
-        }
-        .nh-tool-input {
-          flex: 1;
-          padding: 12px 18px;
-          font-size: 15px;
-          color: #111827;
-          background: transparent;
-          border: none;
-          outline: none;
-          font-family: inherit;
-        }
-        .nh-tool-input::placeholder { color: #9ca3af; }
-        .nh-tool-submit {
-          padding: 12px 24px;
-          background: #4f46e5;
-          color: #fff;
-          font-size: 14px;
-          font-weight: 700;
-          border: none;
-          border-radius: 999px;
-          cursor: pointer;
-          transition: all 0.2s;
-          font-family: inherit;
-        }
-        .nh-tool-submit:hover:not(:disabled) {
-          background: #4338ca;
-        }
-        .nh-tool-submit:disabled {
-          background: #d1d5db;
-          cursor: not-allowed;
-        }
-        .nh-tool-note {
-          margin-top: 14px;
-          font-size: 13px;
-          color: #6b7280;
-          text-align: center;
-        }
-
-        /* ABOUT */
-        .nh-about {
-          max-width: 880px;
-          margin: 0 auto;
-          padding: 80px 24px;
-          text-align: center;
-        }
-        @media (max-width: 640px) {
-          .nh-about { padding: 48px 16px; }
-        }
-        .nh-about-p {
-          font-size: 17px;
-          color: #4b5563;
-          line-height: 1.8;
-          margin: 0 0 18px;
-          word-break: keep-all;
-        }
-        @media (max-width: 640px) {
-          .nh-about-p { font-size: 15px; }
-        }
-        .nh-about-p strong {
-          color: #4f46e5;
-          font-weight: 700;
-        }
-        .nh-about-link {
-          color: #4f46e5;
-          font-weight: 700;
-          text-decoration: underline;
-        }
-      `}</style>
-
-      <div className="nh-home">
-        {/* HERO */}
-        <section className="nh-hero">
-          <div className="nh-hero-inner">
-            <div>
-              <span className="nh-hero-badge">유튜브 채널 운영 가이드</span>
-              <h1 className="nh-hero-title">
-                알고리즘 · 시니어 · AI<br />
-                <span className="nh-hero-accent">유튜브 가이드</span>
-              </h1>
-              <p className="nh-hero-desc">
-                유튜브 채널 운영에 필요한 모든 노하우를 무료로 제공합니다.
-                알고리즘 분석부터 자동 메타데이터 생성 도구까지 한 곳에서.
-              </p>
-              <div className="nh-hero-buttons">
-                <Link href="/blog" className="nh-btn-primary">
-                  가이드 둘러보기 →
-                </Link>
-                <Link href="/publish" className="nh-btn-outline">
-                  메타데이터 생성
-                </Link>
-              </div>
-            </div>
-            <div className="nh-hero-card">
-              <div className="nh-hero-card-inner">🎬</div>
-              <div className="nh-hero-floating">
-                <div className="nh-hero-floating-icon">📚</div>
-                <div>
-                  <p className="nh-hero-floating-text">실전 가이드 38편</p>
-                  <p className="nh-hero-floating-sub">매주 새 글 업데이트</p>
-                </div>
-              </div>
-            </div>
-          </div>
+      <div className="container">
+        <section className="hero">
+          <div className="hero-badge">유튜브 채널 운영 정보 사이트</div>
+          <h1 className="hero-title">
+            알고리즘 · 시니어 · AI<br />
+            <span className="hero-title-accent">유튜브 채널 운영 가이드</span>
+          </h1>
+          <p className="hero-sub">
+            유튜브 채널 운영에 필요한 모든 노하우를 무료로 제공합니다.<br />
+            알고리즘 분석부터 자동 메타데이터 생성 도구까지 한 곳에서.
+          </p>
+          <Link href="/blog" className="hero-cta">가이드 둘러보기 →</Link>
         </section>
 
-        {/* CATEGORIES */}
-        <section className="nh-section">
-          <div className="nh-section-head">
-            <span className="nh-section-tag">CATEGORIES</span>
-            <h2 className="nh-section-title">4가지 카테고리</h2>
-            <p className="nh-section-desc">
-              유튜브 채널 운영의 모든 영역을 다룹니다.
-            </p>
-          </div>
-          <div className="nh-cat-grid">
+        <section className="section">
+          <h2 className="section-title">카테고리</h2>
+          <div className="cat-list">
             {CATEGORIES.map((c) => (
-              <Link key={c.id} href={`/blog?cat=${c.id}`} className="nh-cat-card">
-                <div className="nh-cat-icon" style={{ background: c.gradient }}>
-                  {c.icon}
-                </div>
-                <h3 className="nh-cat-name">{c.name}</h3>
-                <p className="nh-cat-desc">{c.desc}</p>
-                <div className="nh-cat-count">가이드 {c.count}편 →</div>
+              <Link key={c.id} href={`/blog?cat=${c.id}`} className="cat-item">
+                <h3 className="cat-name">{c.name}</h3>
+                <p className="cat-desc">{c.desc}</p>
+                <div className="cat-count">가이드 {c.count}편 →</div>
               </Link>
             ))}
           </div>
         </section>
 
-        {/* FEATURES */}
-        <div className="nh-feat-bg">
-          <section className="nh-section">
-            <div className="nh-section-head">
-              <span className="nh-section-tag">WHY NUTUBE</span>
-              <h2 className="nh-section-title">NuTube의 강점</h2>
-              <p className="nh-section-desc">
-                실전 데이터, AI 시너지, 시니어 맞춤형 - 우리만의 3가지 가치
+        <section className="features-section">
+          <div className="features-grid">
+            <div className="feature">
+              <div className="feature-icon">📊</div>
+              <h3 className="feature-title">실전 데이터 기반</h3>
+              <p className="feature-desc">
+                실제 채널 데이터를 분석한 알고리즘 11공식과
+                검증된 운영 노하우를 가이드에 담았습니다.
               </p>
             </div>
-            <div className="nh-feat-grid">
-              <div className="nh-feat">
-                <div className="nh-feat-icon">📊</div>
-                <h3 className="nh-feat-title">실전 데이터 기반</h3>
-                <p className="nh-feat-desc">
-                  실제 채널 데이터를 분석한 알고리즘 11공식과
-                  검증된 운영 노하우.
-                </p>
-              </div>
-              <div className="nh-feat">
-                <div className="nh-feat-icon">🤝</div>
-                <h3 className="nh-feat-title">인간 + AI 시너지</h3>
-                <p className="nh-feat-desc">
-                  AI 도구 활용법과 인간만의 따뜻한 감성을 결합해
-                  자동 생성을 넘어선 가치 창출.
-                </p>
-              </div>
-              <div className="nh-feat">
-                <div className="nh-feat-icon">👥</div>
-                <h3 className="nh-feat-title">시니어 맞춤형</h3>
-                <p className="nh-feat-desc">
-                  디지털 도구가 어려운 50~70 세대를 위한
-                  큰 글씨와 단계별 친절한 설명.
-                </p>
-              </div>
+            <div className="feature">
+              <div className="feature-icon">🤝</div>
+              <h3 className="feature-title">인간 + AI 시너지</h3>
+              <p className="feature-desc">
+                AI 도구 활용법과 함께 인간만의 따뜻한 감성을 결합해,
+                자동 생성을 넘어선 가치를 만들어냅니다.
+              </p>
             </div>
-          </section>
-        </div>
-
-        {/* LATEST POSTS */}
-        <section className="nh-section">
-          <div className="nh-section-head">
-            <span className="nh-section-tag">LATEST</span>
-            <h2 className="nh-section-title">최신 가이드</h2>
-            <p className="nh-section-desc">
-              새로 업데이트된 가이드를 확인하세요.
-            </p>
-          </div>
-          <div className="nh-post-grid">
-            {LATEST.slice(0, 3).map((p) => (
-              <Link key={p.slug} href={`/blog/${p.slug}`} className="nh-post">
-                <div
-                  className="nh-post-image"
-                  style={{ background: CATEGORY_GRADIENT[p.catKey] }}
-                >
-                  {CATEGORY_ICON[p.catKey]}
-                  <span className="nh-post-badge">{p.cat}</span>
-                </div>
-                <div className="nh-post-body">
-                  <div className="nh-post-date">📅 {p.date}</div>
-                  <h3 className="nh-post-title">{p.title}</h3>
-                </div>
-              </Link>
-            ))}
-          </div>
-          <div className="nh-more-row">
-            <Link href="/blog" className="nh-more-link">전체 가이드 보기 →</Link>
+            <div className="feature">
+              <div className="feature-icon">👥</div>
+              <h3 className="feature-title">시니어 맞춤형</h3>
+              <p className="feature-desc">
+                디지털 도구가 어려운 50~70 세대를 위해
+                큰 글씨와 단계별 설명으로 콘텐츠를 제공합니다.
+              </p>
+            </div>
           </div>
         </section>
 
-        {/* POPULAR POSTS */}
-        <div className="nh-feat-bg">
-          <section className="nh-section">
-            <div className="nh-section-head">
-              <span className="nh-section-tag">POPULAR</span>
-              <h2 className="nh-section-title">인기 가이드</h2>
-              <p className="nh-section-desc">
-                많은 분들이 읽은 검증된 가이드들.
-              </p>
-            </div>
-            <div className="nh-post-grid">
-              {POPULAR.slice(0, 3).map((p) => (
-                <Link key={p.slug} href={`/blog/${p.slug}`} className="nh-post">
-                  <div
-                    className="nh-post-image"
-                    style={{ background: CATEGORY_GRADIENT[p.catKey] }}
-                  >
-                    {CATEGORY_ICON[p.catKey]}
-                    <span className="nh-post-badge">{p.cat}</span>
+        <section className="section">
+          <h2 className="section-title">최신 가이드</h2>
+          <ul className="post-list">
+            {[...LATEST].sort((a, b) => b.date.localeCompare(a.date)).slice(0, 5).map((p) => (
+              <li key={p.slug} className="post-item">
+                <Link href={`/blog/${p.slug}`} className="post-link">
+                  <div className="post-meta">
+                    <span className={`post-badge post-badge-${p.catKey}`}>{p.cat}</span>
+                    <span className="post-date">{p.date}</span>
                   </div>
-                  <div className="nh-post-body">
-                    <div className="nh-post-date">📅 {p.date}</div>
-                    <h3 className="nh-post-title">{p.title}</h3>
-                  </div>
+                  <h3 className="post-title">{p.title}</h3>
                 </Link>
-              ))}
-            </div>
-          </section>
-        </div>
+              </li>
+            ))}
+          </ul>
+          <div className="more-row">
+            <Link href="/blog" className="more-link">전체 가이드 보기 →</Link>
+          </div>
+        </section>
 
-        {/* TOOL SECTION */}
-        <div className="nh-tool">
-          <section className="nh-section">
-            <div className="nh-tool-wrap">
-              <div>
-                <span className="nh-section-tag">TOOL</span>
-                <h2 className="nh-section-title">메타데이터 자동 생성기</h2>
-                <p className="nh-section-desc">
-                  키워드만 입력하면 박 실장 11공식이 자동 적용된
-                  영상 메타데이터(제목·시나리오·해시태그·SEO)를 5초 안에.
+        <section className="section">
+          <h2 className="section-title">인기 가이드</h2>
+          <ul className="post-list">
+            {POPULAR.map((p) => (
+              <li key={p.slug} className="post-item">
+                <Link href={`/blog/${p.slug}`} className="post-link">
+                  <div className="post-meta">
+                    <span className={`post-badge post-badge-${p.catKey}`}>{p.cat}</span>
+                    <span className="post-date">{p.date}</span>
+                  </div>
+                  <h3 className="post-title">{p.title}</h3>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </section>
+
+        <section className="value-section">
+          <div className="value-quote-mark">"</div>
+          <p className="value-quote">
+            유튜브 채널 운영의 본질은 알고리즘이 아니라
+            <strong> 시청자의 마음을 얻는 것</strong>입니다.
+            검증된 노하우와 AI 도구를 결합해 누구나 자기만의 채널을
+            만들 수 있도록 돕습니다.
+          </p>
+          <div className="value-source">— NuTube가 추구하는 가치</div>
+        </section>
+
+        <section className="section tool-section">
+          <h2 className="section-title">영상 메타데이터 생성기</h2>
+          <p className="tool-intro">
+            가이드의 노하우와 박 실장 알고리즘 11공식이 자동 적용된
+            <strong> 영상 메타데이터(제목·시나리오·해시태그·SEO 태그)</strong>를
+            5초 안에 만들어드립니다.
+          </p>
+
+          <div className="tool-features">
+            <div className="tool-feature">
+              <div className="tool-feature-num">01</div>
+              <div className="tool-feature-content">
+                <h3 className="tool-feature-title">알고리즘 11공식 자동 적용</h3>
+                <p className="tool-feature-desc">
+                  제목 8:2 법칙, 음성 SEO, 챕터 전략, 해시태그 패턴 등
+                  검증된 노하우가 자동으로 적용됩니다.
                 </p>
-
-                <div className="nh-tool-features">
-                  <div className="nh-tool-feat">
-                    <div className="nh-tool-num">1</div>
-                    <div>
-                      <h3 className="nh-tool-feat-title">알고리즘 11공식 자동 적용</h3>
-                      <p className="nh-tool-feat-desc">
-                        제목 8:2 법칙, 음성 SEO, 챕터 전략, 해시태그 패턴
-                      </p>
-                    </div>
-                  </div>
-                  <div className="nh-tool-feat">
-                    <div className="nh-tool-num">2</div>
-                    <div>
-                      <h3 className="nh-tool-feat-title">시니어 알고리즘 자동 인식</h3>
-                      <p className="nh-tool-feat-desc">
-                        시니어 키워드 입력 시 전용 후크·업로드 시간 자동 적용
-                      </p>
-                    </div>
-                  </div>
-                  <div className="nh-tool-feat">
-                    <div className="nh-tool-num">3</div>
-                    <div>
-                      <h3 className="nh-tool-feat-title">한 번에 전체 메타데이터</h3>
-                      <p className="nh-tool-feat-desc">
-                        제목 5개, 시나리오, AI 영상 프롬프트, SEO 태그까지 한 번에
-                      </p>
-                    </div>
-                  </div>
-                </div>
-
-                <form onSubmit={handleSubmit} className="nh-tool-form">
-                  <input
-                    type="text"
-                    value={keyword}
-                    onChange={(e) => setKeyword(e.target.value)}
-                    placeholder="영상 키워드 (예: 50대 부업 유튜브)"
-                    className="nh-tool-input"
-                    aria-label="영상 키워드"
-                  />
-                  <button type="submit" className="nh-tool-submit" disabled={!keyword.trim()}>
-                    생성하기 →
-                  </button>
-                </form>
-                <p className="nh-tool-note">완전 무료 · 회원가입 불필요</p>
-              </div>
-
-              <div className="nh-hero-card" style={{
-                background: 'linear-gradient(135deg, #a78bfa 0%, #8b5cf6 50%, #7c3aed 100%)',
-              }}>
-                <div className="nh-hero-card-inner">⚡</div>
               </div>
             </div>
-          </section>
-        </div>
 
-        {/* ABOUT */}
-        <section className="nh-about">
-          <span className="nh-section-tag">ABOUT</span>
-          <h2 className="nh-section-title" style={{ marginBottom: 24 }}>사이트 소개</h2>
-          <p className="nh-about-p">
-            NuTube는 유튜브 채널을 시작하거나 키우고 싶은 분들을 위한 정보 사이트입니다.
-            <strong> 가이드 + 도구</strong> 두 가지 방식으로 도와드립니다.
+            <div className="tool-feature">
+              <div className="tool-feature-num">02</div>
+              <div className="tool-feature-content">
+                <h3 className="tool-feature-title">시니어 알고리즘 자동 인식</h3>
+                <p className="tool-feature-desc">
+                  시니어 키워드를 입력하시면 시니어 채널 전용 후크와
+                  업로드 시간 등이 자동으로 적용됩니다.
+                </p>
+              </div>
+            </div>
+
+            <div className="tool-feature">
+              <div className="tool-feature-num">03</div>
+              <div className="tool-feature-content">
+                <h3 className="tool-feature-title">한 번에 전체 메타데이터</h3>
+                <p className="tool-feature-desc">
+                  제목 후보 5개, 시나리오, AI 영상 프롬프트, SEO 태그,
+                  해시태그까지 한 번 클릭으로 받아보세요.
+                </p>
+              </div>
+            </div>
+          </div>
+
+          <form onSubmit={handleSubmit} className="tool-form">
+            <input
+              type="text"
+              value={keyword}
+              onChange={(e) => setKeyword(e.target.value)}
+              placeholder="영상 키워드 입력 (예: 50대 부업 유튜브)"
+              className="tool-input"
+              aria-label="영상 키워드"
+            />
+            <button type="submit" className="tool-submit" disabled={!keyword.trim()}>
+              메타데이터 생성 →
+            </button>
+          </form>
+
+          <div className="tool-cta-row">
+            <Link href="/publish" className="tool-cta-link">
+              자세한 사용법 보기 →
+            </Link>
+            <span className="tool-cta-note">완전 무료 · 회원가입 불필요</span>
+          </div>
+        </section>
+
+        <section className="section about-section">
+          <h2 className="section-title">사이트 소개</h2>
+          <p className="about-p">
+            NuTube는 유튜브 채널을 시작하거나 키우고 싶으신 분들을 위한 정보 사이트입니다.
+            <strong>가이드 + 도구</strong> 두 가지 방식으로 도와드립니다.
           </p>
-          <p className="nh-about-p">
+          <p className="about-p">
+            <strong>가이드</strong>: 유튜브 알고리즘, 시니어 사연 쇼츠, AI 도구 활용,
+            채널 수익화 등 영상 채널 운영의 모든 노하우를 정리했습니다.
             모든 가이드는 무료이며 회원가입이 필요하지 않습니다.
-            50대 이상 시니어 분들이 편하게 보실 수 있도록 큰 글씨와
-            단계별 설명으로 작성했습니다.
           </p>
-          <p className="nh-about-p">
-            궁금하신 점은 <Link href="/contact" className="nh-about-link">문의 페이지</Link>를
+          <p className="about-p">
+            <strong>메타데이터 생성기</strong>: 가이드의 노하우와 박 실장 알고리즘 11공식이
+            자동 적용된 영상 메타데이터(제목·시나리오·해시태그·SEO 태그)를 5초 안에 만들어드립니다.
+            가이드를 읽으면서 알게 된 내용을 바로 본인 영상에 적용하실 수 있습니다.
+          </p>
+          <p className="about-p">
+            50대 이상 시니어 분들이 보시기 편하도록 큰 글씨와 단계별 설명으로 작성했습니다.
+            궁금하신 점이 있으시면 <Link href="/contact" className="link">문의 페이지</Link>를
             통해 연락 주세요. 매주 새로운 가이드가 추가됩니다.
           </p>
         </section>
       </div>
+
+      <style jsx>{`
+        .hero {
+          padding: 56px 0 48px;
+          border-bottom: 1px solid #e5e5e5;
+          margin-bottom: 48px;
+          text-align: center;
+        }
+        @media (max-width: 600px) {
+          .hero { padding: 36px 0 32px; margin-bottom: 36px; }
+        }
+
+        .hero-badge {
+          display: inline-block;
+          padding: 6px 14px;
+          background: #fff7ed;
+          color: #c2410c;
+          font-size: 12.5px;
+          font-weight: 700;
+          letter-spacing: -0.01em;
+          margin-bottom: 24px;
+          border-radius: 100px;
+        }
+        @media (max-width: 600px) {
+          .hero-badge { font-size: 11.5px; padding: 5px 12px; margin-bottom: 18px; }
+        }
+
+        .hero-title {
+          font-size: 40px;
+          font-weight: 800;
+          color: #1a1a1a;
+          letter-spacing: -0.028em;
+          line-height: 1.2;
+          margin: 0 0 18px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .hero-title { font-size: 28px; line-height: 1.25; margin-bottom: 14px; }
+        }
+
+        .hero-title-accent {
+          color: #c2410c;
+        }
+
+        .hero-sub {
+          font-size: 17px;
+          color: #525252;
+          line-height: 1.7;
+          margin: 0 0 28px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .hero-sub { font-size: 15px; line-height: 1.65; }
+        }
+
+        .hero-cta {
+          display: inline-block;
+          padding: 14px 32px;
+          background: #1a1a1a;
+          color: #ffffff;
+          font-size: 15px;
+          font-weight: 700;
+          letter-spacing: -0.012em;
+          transition: background 0.15s;
+        }
+        .hero-cta:hover {
+          background: #c2410c;
+        }
+        @media (max-width: 600px) {
+          .hero-cta { padding: 12px 26px; font-size: 14px; }
+        }
+
+        /* 3가지 특징 영역 */
+        .features-section {
+          margin-bottom: 56px;
+        }
+        @media (max-width: 600px) {
+          .features-section { margin-bottom: 40px; }
+        }
+
+        .features-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 768px) {
+          .features-grid { grid-template-columns: 1fr; gap: 12px; }
+        }
+
+        .feature {
+          padding: 24px 22px;
+          background: #fafafa;
+          border: 1px solid #e5e5e5;
+          text-align: center;
+        }
+        @media (max-width: 600px) {
+          .feature { padding: 20px 18px; }
+        }
+
+        .feature-icon {
+          font-size: 32px;
+          margin-bottom: 12px;
+          line-height: 1;
+        }
+        @media (max-width: 600px) {
+          .feature-icon { font-size: 28px; }
+        }
+
+        .feature-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: #1a1a1a;
+          margin: 0 0 10px;
+          letter-spacing: -0.018em;
+        }
+        @media (max-width: 600px) {
+          .feature-title { font-size: 15px; }
+        }
+
+        .feature-desc {
+          font-size: 14px;
+          color: #525252;
+          line-height: 1.65;
+          margin: 0;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .feature-desc { font-size: 13px; }
+        }
+
+        /* 가치 인용 영역 */
+        .value-section {
+          padding: 40px 32px 36px;
+          background: #fafafa;
+          border-left: 4px solid #c2410c;
+          margin-bottom: 56px;
+          position: relative;
+        }
+        @media (max-width: 600px) {
+          .value-section { padding: 28px 22px 24px; margin-bottom: 40px; }
+        }
+
+        .value-quote-mark {
+          font-size: 56px;
+          color: #c2410c;
+          font-weight: 700;
+          line-height: 0.5;
+          margin-bottom: 6px;
+          font-family: Georgia, serif;
+        }
+        @media (max-width: 600px) {
+          .value-quote-mark { font-size: 42px; }
+        }
+
+        .value-quote {
+          font-size: 18px;
+          color: #1a1a1a;
+          line-height: 1.75;
+          margin: 0 0 14px;
+          word-break: keep-all;
+          font-weight: 500;
+        }
+        @media (max-width: 600px) {
+          .value-quote { font-size: 15.5px; line-height: 1.7; }
+        }
+
+        .value-quote strong {
+          color: #c2410c;
+          font-weight: 700;
+        }
+
+        .value-source {
+          font-size: 13px;
+          color: #737373;
+          font-weight: 600;
+          letter-spacing: -0.01em;
+        }
+
+        .section {
+          margin-bottom: 56px;
+        }
+        @media (max-width: 600px) {
+          .section { margin-bottom: 40px; }
+        }
+
+        .section-title {
+          font-size: 24px;
+          font-weight: 700;
+          color: #1a1a1a;
+          letter-spacing: -0.02em;
+          margin: 0 0 20px;
+          padding-bottom: 12px;
+          border-bottom: 2px solid #1a1a1a;
+        }
+        @media (max-width: 600px) {
+          .section-title { font-size: 20px; margin-bottom: 16px; padding-bottom: 10px; }
+        }
+
+        .cat-list {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 16px;
+        }
+        @media (max-width: 600px) {
+          .cat-list { grid-template-columns: 1fr; gap: 12px; }
+        }
+
+        .cat-item {
+          display: block;
+          padding: 20px 22px;
+          background: #f8f8f8;
+          border: 1px solid #e5e5e5;
+          transition: all 0.15s;
+        }
+        .cat-item:hover {
+          background: #ffffff;
+          border-color: #1a1a1a;
+        }
+
+        .cat-name {
+          font-size: 18px;
+          font-weight: 700;
+          color: #1a1a1a;
+          margin: 0 0 8px;
+          letter-spacing: -0.018em;
+        }
+        @media (max-width: 600px) {
+          .cat-name { font-size: 16.5px; }
+        }
+
+        .cat-desc {
+          font-size: 14.5px;
+          color: #525252;
+          line-height: 1.6;
+          margin: 0 0 12px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .cat-desc { font-size: 13.5px; }
+        }
+
+        .cat-count {
+          font-size: 13px;
+          color: #1a1a1a;
+          font-weight: 600;
+        }
+
+        .post-list {
+          list-style: none;
+          padding: 0;
+          margin: 0;
+          display: flex;
+          flex-direction: column;
+          gap: 10px;
+        }
+
+        .post-item {
+          background: #ffffff;
+          border: 1px solid #e5e5e5;
+          border-radius: 12px;
+          overflow: hidden;
+          transition: all 0.18s ease;
+        }
+        .post-item:hover {
+          border-color: #c2410c;
+          transform: translateY(-2px);
+          box-shadow: 0 4px 12px rgba(0, 0, 0, 0.06);
+        }
+
+        .post-link {
+          display: block;
+          padding: 16px 18px;
+        }
+        @media (max-width: 600px) {
+          .post-link { padding: 14px 16px; }
+        }
+
+        .post-meta {
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          margin-bottom: 8px;
+          flex-wrap: wrap;
+        }
+
+        .post-badge {
+          display: inline-flex;
+          align-items: center;
+          padding: 4px 12px;
+          font-size: 11.5px;
+          font-weight: 600;
+          border-radius: 999px;
+          letter-spacing: -0.005em;
+        }
+        .post-badge-algorithm {
+          background: #F1EFE8;
+          color: #444441;
+        }
+        .post-badge-senior {
+          background: #FAECE7;
+          color: #993C1D;
+        }
+        .post-badge-aitools {
+          background: #E6F1FB;
+          color: #185FA5;
+        }
+        .post-badge-monetization {
+          background: #FAEEDA;
+          color: #854F0B;
+        }
+
+        .post-date {
+          font-size: 12.5px;
+          color: #a3a3a3;
+        }
+
+        .post-title {
+          font-size: 18px;
+          font-weight: 600;
+          color: #1a1a1a;
+          margin: 0;
+          line-height: 1.5;
+          letter-spacing: -0.015em;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .post-title { font-size: 16px; line-height: 1.45; }
+        }
+
+        .more-row {
+          padding: 16px 0;
+          text-align: center;
+        }
+
+        .more-link {
+          font-size: 14.5px;
+          color: #1a1a1a;
+          font-weight: 700;
+          padding: 10px 22px;
+          border: 1px solid #1a1a1a;
+          display: inline-block;
+          transition: all 0.15s;
+        }
+        .more-link:hover {
+          background: #1a1a1a;
+          color: #ffffff;
+        }
+
+        .about-section {
+          background: #f8f8f8;
+          padding: 32px 28px;
+        }
+        @media (max-width: 600px) {
+          .about-section { padding: 24px 20px; }
+        }
+        .about-section .section-title {
+          margin-bottom: 16px;
+        }
+
+        .about-p {
+          font-size: 15.5px;
+          color: #404040;
+          line-height: 1.8;
+          margin: 0 0 14px;
+          word-break: keep-all;
+        }
+        .about-p:last-child { margin-bottom: 0; }
+        @media (max-width: 600px) {
+          .about-p { font-size: 14.5px; line-height: 1.75; }
+        }
+
+        .link {
+          color: #1a1a1a;
+          font-weight: 600;
+          text-decoration: underline;
+        }
+
+        /* 도구 섹션 */
+        .tool-section {
+          background: #fffbeb;
+          padding: 36px 32px 32px;
+          border-left: 4px solid #c2410c;
+        }
+        @media (max-width: 600px) {
+          .tool-section { padding: 28px 22px 24px; }
+        }
+
+        .tool-intro {
+          font-size: 16px;
+          color: #404040;
+          line-height: 1.75;
+          margin: 0 0 28px;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .tool-intro { font-size: 14.5px; margin-bottom: 22px; }
+        }
+        .tool-intro strong {
+          color: #1a1a1a;
+          font-weight: 700;
+        }
+
+        .tool-features {
+          display: flex;
+          flex-direction: column;
+          gap: 20px;
+          margin-bottom: 28px;
+        }
+        @media (max-width: 600px) {
+          .tool-features { gap: 16px; margin-bottom: 22px; }
+        }
+
+        .tool-feature {
+          display: grid;
+          grid-template-columns: 50px 1fr;
+          gap: 16px;
+          align-items: start;
+          padding: 16px 18px;
+          background: #ffffff;
+          border: 1px solid #fde68a;
+        }
+        @media (max-width: 600px) {
+          .tool-feature { grid-template-columns: 38px 1fr; gap: 12px; padding: 14px 16px; }
+        }
+
+        .tool-feature-num {
+          font-size: 22px;
+          font-weight: 800;
+          color: #c2410c;
+          letter-spacing: -0.02em;
+          line-height: 1;
+        }
+        @media (max-width: 600px) {
+          .tool-feature-num { font-size: 18px; }
+        }
+
+        .tool-feature-title {
+          font-size: 16px;
+          font-weight: 700;
+          color: #1a1a1a;
+          margin: 0 0 6px;
+          letter-spacing: -0.015em;
+        }
+        @media (max-width: 600px) {
+          .tool-feature-title { font-size: 14.5px; }
+        }
+
+        .tool-feature-desc {
+          font-size: 14px;
+          color: #525252;
+          line-height: 1.65;
+          margin: 0;
+          word-break: keep-all;
+        }
+        @media (max-width: 600px) {
+          .tool-feature-desc { font-size: 13px; }
+        }
+
+        .tool-cta-row {
+          display: flex;
+          align-items: center;
+          gap: 14px;
+          flex-wrap: wrap;
+        }
+
+        .tool-form {
+          display: flex;
+          gap: 8px;
+          margin-bottom: 16px;
+          flex-wrap: wrap;
+        }
+        @media (max-width: 600px) {
+          .tool-form { flex-direction: column; gap: 10px; }
+        }
+
+        .tool-input {
+          flex: 1 1 280px;
+          padding: 14px 16px;
+          font-size: 15px;
+          font-family: inherit;
+          color: #1a1a1a;
+          background: #ffffff;
+          border: 1.5px solid #d4d4d4;
+          outline: none;
+          letter-spacing: -0.012em;
+          transition: border-color 0.15s;
+        }
+        .tool-input:focus {
+          border-color: #1a1a1a;
+        }
+        .tool-input::placeholder {
+          color: #a3a3a3;
+        }
+        @media (max-width: 600px) {
+          .tool-input { font-size: 14px; padding: 12px 14px; }
+        }
+
+        .tool-submit {
+          padding: 14px 26px;
+          font-family: inherit;
+          font-size: 15px;
+          font-weight: 700;
+          color: #ffffff;
+          background: #1a1a1a;
+          border: 1.5px solid #1a1a1a;
+          cursor: pointer;
+          letter-spacing: -0.015em;
+          transition: all 0.15s;
+          white-space: nowrap;
+        }
+        .tool-submit:hover:not(:disabled) {
+          background: #c2410c;
+          border-color: #c2410c;
+        }
+        .tool-submit:disabled {
+          background: #a3a3a3;
+          border-color: #a3a3a3;
+          cursor: not-allowed;
+        }
+        @media (max-width: 600px) {
+          .tool-submit { padding: 13px 22px; font-size: 14px; }
+        }
+
+        .tool-cta-link {
+          font-size: 14px;
+          color: #1a1a1a;
+          font-weight: 600;
+          text-decoration: underline;
+        }
+        .tool-cta-link:hover { color: #c2410c; }
+
+        .tool-cta-btn {
+          display: inline-block;
+          padding: 14px 28px;
+          background: #1a1a1a;
+          color: #ffffff;
+          font-size: 15px;
+          font-weight: 700;
+          letter-spacing: -0.012em;
+          transition: background 0.15s;
+        }
+        @media (max-width: 600px) {
+          .tool-cta-btn { padding: 12px 22px; font-size: 14px; }
+        }
+        .tool-cta-btn:hover {
+          background: #c2410c;
+        }
+
+        .tool-cta-note {
+          font-size: 12.5px;
+          color: #737373;
+          font-weight: 500;
+        }
+      `}</style>
     </V18Shell>
   );
 }

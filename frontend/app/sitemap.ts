@@ -48,6 +48,12 @@ const GUIDES: GuideMeta[] = [
   { slug: 'algorithm-mindset', publishedAt: '2026-05-02', category: 'monetization' },
   { slug: 'first-100-subs', publishedAt: '2026-05-02', category: 'monetization' },
   { slug: 'side-job-50', publishedAt: '2026-05-02', category: 'monetization' },
+  // v19 추가 5편 (2026-05-08)
+  { slug: 'shorts-algorithm-mastery', publishedAt: '2026-05-08', category: 'algorithm' },
+  { slug: 'senior-comment-reply', publishedAt: '2026-05-08', category: 'senior' },
+  { slug: 'ai-dubbing-korean', publishedAt: '2026-05-08', category: 'aitools' },
+  { slug: 'sponsorship-strategy', publishedAt: '2026-05-08', category: 'monetization' },
+  { slug: 'ai-thumbnail-master', publishedAt: '2026-05-08', category: 'aitools' },
   { slug: 'revenue-calc', publishedAt: '2026-04-30', category: 'monetization' },
 ];
 

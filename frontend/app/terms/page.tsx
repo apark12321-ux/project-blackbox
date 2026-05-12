@@ -1,141 +1,140 @@
 'use client';
-import Link from 'next/link';
-import { V11Shell } from '../_shared/V11Shell';
-import AdSlot from '../_shared/AdSlot';
 
-export default function Page() {
+import Link from 'next/link';
+import { V18Shell } from '../_shared/V18Shell';
+
+export default function TermsPage() {
   return (
-    <V11Shell>
+    <V18Shell>
       <style jsx>{`
-        .page { max-width: 920px; margin: 0 auto; padding: 56px 24px 60px; }
-        .breadcrumb {
-          display: flex; gap: 8px; font-size: 13px;
-          color: #888; margin-bottom: 24px;
+        .terms-container {
+          max-width: 760px; margin: 0 auto; padding: 32px 20px 60px;
+          font-family: 'Pretendard', -apple-system, system-ui, sans-serif;
+          color: #0a0a0a; line-height: 1.75; letter-spacing: -0.01em;
         }
-        .breadcrumb a:hover { color: #c65f3b; }
-        .breadcrumb .sep { color: #ccc; }
-        .pageBadge {
-          display: inline-block; padding: 6px 14px;
-          background: #fdf1e7; color: #c65f3b;
-          border-radius: 100px; font-size: 12px; font-weight: 700;
-          margin-bottom: 16px;
+        @media (max-width: 600px) { .terms-container { padding: 24px 16px 50px; } }
+        h1 {
+          font-size: 28px; font-weight: 800; letter-spacing: -0.025em;
+          margin: 0 0 8px; color: #0a0a0a;
         }
-        .header { text-align: center; margin-bottom: 40px; }
-        .title {
-          font-size: 32px; font-weight: 800;
-          color: #1a1a1a; letter-spacing: -0.025em;
-          margin: 0 0 12px;
+        @media (max-width: 600px) { h1 { font-size: 24px; } }
+        .updated {
+          font-size: 13px; color: #737373; margin-bottom: 32px;
         }
-        .sub { font-size: 15px; color: #666; line-height: 1.7; }
-        @media (max-width: 600px) { .title { font-size: 24px; } }
-        .content {
-          background: #fff; border: 1px solid #e5e5e5;
-          border-radius: 14px; padding: 32px;
-          line-height: 1.8; color: #333;
+        h2 {
+          font-size: 20px; font-weight: 700; letter-spacing: -0.02em;
+          margin: 36px 0 12px; color: #0a0a0a;
         }
-        .content h2 {
-          font-size: 19px; font-weight: 800;
-          color: #1a1a1a; margin: 28px 0 12px;
+        @media (max-width: 600px) { h2 { font-size: 18px; } }
+        p {
+          font-size: 15px; margin: 0 0 12px; line-height: 1.75;
+          word-break: keep-all;
         }
-        .content h2:first-child { margin-top: 0; }
-        .content h3 {
-          font-size: 15px; font-weight: 700;
-          color: #1a1a1a; margin: 20px 0 8px;
+        ul {
+          margin: 0 0 16px; padding-left: 24px;
         }
-        .content p { margin: 0 0 14px; font-size: 14.5px; }
-        .content ul { padding-left: 24px; margin: 12px 0; }
-        .content li {
-          margin-bottom: 8px; font-size: 14px; color: #555;
-          line-height: 1.7;
+        li {
+          font-size: 15px; margin-bottom: 6px; line-height: 1.7;
+          word-break: keep-all;
         }
-        .content strong { color: #c65f3b; font-weight: 700; }
-        .ctaBtn {
-          display: inline-block; padding: 14px 28px;
-          background: #c65f3b; color: #fff;
-          border-radius: 100px; font-size: 14px; font-weight: 700;
-          text-decoration: none; transition: all 0.2s;
-          margin-top: 20px;
-        }
-        .ctaBtn:hover { background: #a64a2a; }
-        .adArea { margin: 32px 0; }
       `}</style>
 
-      <div className="page">
-        <nav className="breadcrumb">
-          <Link href="/">홈</Link>
-          <span className="sep">/</span>
-          <span>이용약관</span>
-        </nav>
+      <div className="terms-container">
+        <h1>이용약관</h1>
+        <p className="updated">최종 업데이트: 2026년 5월 9일</p>
 
-        <header className="header">
-          
-          <h1 className="title">이용약관</h1>
-          <p className="sub">AlgoMaker 서비스 이용약관입니다</p>
-        </header>
+        <h2>제1조 (목적)</h2>
+        <p>
+          본 약관은 알고파트너스(이하 &apos;운영자&apos;)가 NuTube(nutube.kr, 이하 &apos;본 사이트&apos;)에서
+          제공하는 서비스의 이용 조건 및 절차에 관한 사항을 규정함을 목적으로 합니다.
+        </p>
 
-        <div className="content">
-          <h2>제1조 (목적)</h2>
+        <h2>제2조 (서비스의 내용)</h2>
+        <p>본 사이트는 다음과 같은 서비스를 무료로 제공합니다:</p>
+        <ul>
+          <li>유튜브 채널 운영에 관한 정보 콘텐츠</li>
+          <li>영상 메타데이터 생성 도구</li>
+          <li>알고리즘 분석 자료</li>
+          <li>기타 운영자가 정하는 콘텐츠</li>
+        </ul>
+
+        <h2>제3조 (저작권)</h2>
+        <p>
+          본 사이트에 게시된 모든 콘텐츠(텍스트, 이미지, 디자인 등)의 저작권은 운영자
+          또는 정당한 권리자에게 있습니다.
+        </p>
+        <p>
+          이용자는 운영자의 허락 없이 콘텐츠를 복제, 배포, 전송, 출판, 방송할 수 없습니다.
+          개인적인 학습 목적의 이용은 허용됩니다.
+        </p>
+
+        <h2>제4조 (이용자의 의무)</h2>
+        <p>이용자는 다음 행위를 해서는 안 됩니다:</p>
+        <ul>
+          <li>본 사이트의 정상적인 운영을 방해하는 행위</li>
+          <li>다른 이용자의 권익을 침해하는 행위</li>
+          <li>관계 법령에 위배되는 행위</li>
+          <li>본 사이트의 콘텐츠를 무단으로 복제, 배포하는 행위</li>
+          <li>해킹, 크롤링 등 기술적 침입 시도</li>
+        </ul>
+
+        <h2>제5조 (서비스의 변경 및 중단)</h2>
+        <p>
+          운영자는 서비스 개선, 시스템 점검, 운영상 필요 등의 사유로 서비스 내용을
+          변경하거나 일시 중단할 수 있습니다. 이 경우 사전 공지를 원칙으로 하되,
+          긴급한 경우 사후 공지할 수 있습니다.
+        </p>
+
+        <h2>제6조 (책임의 제한)</h2>
+        <p>
+          본 사이트는 정보 제공을 목적으로 운영되며, 콘텐츠의 정확성에 대해 최선을
+          다하지만 다음 사항에 대해서는 책임지지 않습니다:
+        </p>
+        <ul>
+          <li>이용자가 콘텐츠를 활용한 결과로 발생한 손해</li>
+          <li>제3자 광고 클릭으로 발생한 결과</li>
+          <li>외부 링크의 콘텐츠</li>
+          <li>이용자 간의 분쟁</li>
+        </ul>
+
+        <h2>제7조 (광고)</h2>
+        <p>
+          본 사이트는 운영을 위해 Google AdSense 등 광고를 게재할 수 있습니다.
+          광고 클릭 등으로 인한 결과는 이용자의 책임이며, 운영자는 광고 콘텐츠에
+          대해 책임지지 않습니다.
+        </p>
+
+        <h2>제8조 (개인정보 보호)</h2>
+        <p>
+          본 사이트의 개인정보 처리에 관한 사항은 별도의{' '}
+          <Link href="/privacy" style={{ color: '#c2410c' }}>개인정보 처리방침</Link>에서 정합니다.
+        </p>
+
+        <h2>제9조 (분쟁 해결)</h2>
+        <p>
+          본 약관에 관한 분쟁은 대한민국 법령에 따라 해결합니다.
+        </p>
+
+        <h2>제10조 (약관의 변경)</h2>
+        <p>
+          본 약관은 운영자의 사정에 따라 변경될 수 있으며, 변경 사항은 본 사이트에
+          게시함으로써 효력이 발생합니다. 이용자는 정기적으로 약관을 확인할 의무가
+          있습니다.
+        </p>
+
+        <h2>문의</h2>
+        <p>
+          이용약관에 관한 문의는{' '}
+          <Link href="/contact" style={{ color: '#c2410c' }}>문의하기</Link> 페이지를
+          이용해주세요.
+        </p>
+
+        <div style={{ marginTop: 40, paddingTop: 20, borderTop: '1px solid #e5e5e5', fontSize: 13, color: '#737373' }}>
           <p>
-            본 약관은 알고파트너스(이하 '회사')가 제공하는 AlgoMaker 서비스(이하 '서비스')의 이용 조건 및 절차를 규정함을 목적으로 합니다.
+            본 약관은 2026년 5월 9일부터 시행됩니다.
           </p>
-
-          <h2>제2조 (서비스의 내용)</h2>
-          <p>회사가 제공하는 서비스는 다음과 같습니다.</p>
-          <ul>
-            <li>AI 기반 영상 콘텐츠 제목·태그·대본 추천</li>
-            <li>4개 SNS 플랫폼 (YouTube, Shorts, TikTok, Reels) 메타데이터 생성</li>
-            <li>트렌드 키워드 분석 및 추천</li>
-          </ul>
-
-          <h2>제3조 (이용료)</h2>
-          <p>
-            본 서비스는 <strong>완전 무료</strong>로 제공됩니다.
-            회원가입, 신용카드 등록, 결제가 필요 없습니다.
-            서비스 운영은 광고 수익으로 충당됩니다.
-          </p>
-
-          <h2>제4조 (이용자의 의무)</h2>
-          <ul>
-            <li>본인의 명의로 서비스를 이용할 것</li>
-            <li>타인의 권리를 침해하지 않을 것</li>
-            <li>서비스의 안정적 운영을 방해하지 않을 것</li>
-            <li>관련 법령 및 본 약관을 준수할 것</li>
-          </ul>
-
-          <h2>제5조 (저작권)</h2>
-          <p>
-            본 서비스에서 AI가 생성한 추천 결과(제목, 태그, 대본 등)는
-            사용자가 자유롭게 활용할 수 있습니다.
-            다만 결과물의 사용으로 인한 책임은 사용자에게 있습니다.
-          </p>
-
-          <h2>제6조 (서비스 제공의 중지)</h2>
-          <p>
-            회사는 천재지변, 시스템 점검, 운영상의 필요 등에 따라
-            서비스 제공을 일시적으로 중지할 수 있습니다.
-          </p>
-
-          <h2>제7조 (면책 조항)</h2>
-          <ul>
-            <li>회사는 AI 추천 결과의 정확성을 보장하지 않습니다.</li>
-            <li>실제 영상의 조회수, 구독자 증가 등의 성과는 보장되지 않습니다.</li>
-            <li>서비스 이용으로 발생한 손해에 대해 회사는 책임지지 않습니다.</li>
-          </ul>
-
-          <h2>제8조 (분쟁 해결)</h2>
-          <p>
-            본 약관에 관한 분쟁은 대한민국 법령에 따르며,
-            회사 본사 소재지 관할 법원에서 해결합니다.
-          </p>
-
-          <h2>부칙</h2>
-          <p>본 약관은 2026년 4월 25일부터 시행됩니다.</p>
-        </div>
-
-        <div className="adArea">
-          <AdSlot slot="page-bottom" variant="horizontal" />
         </div>
       </div>
-    </V11Shell>
+    </V18Shell>
   );
 }
