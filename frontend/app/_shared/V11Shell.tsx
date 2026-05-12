@@ -210,6 +210,8 @@ export function V11Shell({ children, currentStep }: { children: ReactNode; curre
   
   // 메인 메뉴 (가이드만 - 도구는 CTA 와 중복이므로 제거)
   const mainMenu = [
+    { icon: '🎬', label: '내 영상', path: '/assets', key: 'assets' },
+    { icon: '📋', label: '메타데이터', path: '/metadata', key: 'metadata' },
     { icon: '📚', label: '가이드', path: '/blog', key: 'blog', badge: '20편' },
   ];
   
