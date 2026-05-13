@@ -118,22 +118,18 @@ function generateSlugFromTitle(title: string): string {
 function validatePost(post: any): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
 
-  // slug 없으면 title에서 자동 생성
-  if (!post.slug && post.title) {
+  // title이 있으면 항상 title에서 한국어 slug 생성
+  // (BlogStudio가 영문 slug를 함께 보내도 무시하고 제목 기반 한국어 URL 사용)
+  if (post.title) {
     post.slug = generateSlugFromTitle(post.title);
   }
 
-  if (!post.slug) errors.push('slug is required (or provide title to auto-generate)');
+  if (!post.slug) errors.push('title is required to auto-generate slug');
   if (!post.title) errors.push('title is required');
   if (!post.category) errors.push('category is required');
   if (!post.content?.body) errors.push('content.body (or body) is required');
   if (!post.publishedAt) {
     post.publishedAt = new Date().toISOString().split('T')[0];
-  }
-
-  // 한국어 포함 슬러그 허용 (애드센스 SEO 최적화)
-  if (post.slug && !/^[\uAC00-\uD7A3\u1100-\u11FF\u3130-\u318Fa-z0-9-]+$/.test(post.slug)) {
-    errors.push('slug format invalid (use Korean, a-z, 0-9, hyphens only)');
   }
 
   if (post.category && !ALLOWED_CATEGORIES.includes(post.category)) {
