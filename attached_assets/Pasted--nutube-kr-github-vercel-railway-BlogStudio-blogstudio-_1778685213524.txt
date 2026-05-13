@@ -1,0 +1,116 @@
+
+nutube.kr이 github / vercel / railway로 연동되어 서비스 중이고, BlogStudio(blogstudio.replit.app)에서 NuTube API로 글을 자동 발행되도록 연결을 마쳤다. 앞으로 nutube.kr 운영 및 개발을 여기서 직접 진행하고 싶다는 말이다. 다 연결해달라는 말이다
+1 hour ago
+
+Worked for 15 seconds
+잘 이해했습니다! nutube.kr이 이미 GitHub + Vercel/Railway로 서비스 중이고, BlogStudio 연동도 완료된 상태에서 — 앞으로 이 Replit 환경에서 nutube.kr을 직접 개발하고 싶으신 거군요.
+
+몇 가지 확인이 필요해요.
+
+nutube.kr의 현재 기술 스택이 어떻게 되나요? (GitHub 저장소 기준)
+
+Next.js (React 기반, Vercel 배포)
+nutube.kr GitHub 저장소 URL을 알려주시면 코드를 분석해서 연동 계획을 세울게요. (예: https://github.com/yourname/nutube)
+
+https://github.com/apark12321-ux/project-blackbox
+
+59 minutes ago
+
+Worked for 15 seconds
+
+5 messages & 6 actions
+nutube.kr 개발을 여기 Replit에서 진행하려면 두 가지 방향이 있어요. 어떤 방식을 원하세요?
+
+현재 nutube.kr Next.js 코드를 이 Replit에 가져와서 여기서 편집하고, GitHub Push → Vercel 자동 배포 흐름을 유지한다
+57 minutes ago
+
+Worked for 58 seconds
+
+4 messages & 5 actions
+
+Worked for 46 seconds
+
+24 messages & 37 actions
+
+Checkpoint made
+23 minutes ago
+
+Worked for 6 minutes
+이미 구현되어 있는 사이트를 가져와서 보여줘야지
+
+20 minutes ago
+
+Planning preview screenshot display
+nutube.kr Next.js 앱이 port 3000에서 실행 중이에요. 바로 확인해볼게요!
+
+
+Planning artifact registration workaround (33 seconds)
+nutube-kr가 아직 아티팩트로 완전히 등록되지 않아서 미리보기가 안 보이는 거예요. 파일을 백업하고 제대로 등록해서 바로 볼 수 있게 할게요.
+
+
+8 actions
+artifacts/nutube-kr 폴더가 git에 남아있어서 계속 복원됩니다. 더 깔끔한 방법으로 — 이미 "/"에 등록된 nutube 아티팩트를 실제 nutube.kr Next.js 코드로 교체할게요.
+
+
+3 actions
+이미 /에 등록된 nutube 아티팩트에 실제 Next.js 코드를 덮어씌울게요. React+Vite 프로토타입 대신 진짜 nutube.kr이 보이게 됩니다.
+
+
+3 actions
+rsync이 없네요. cp로 직접 복사할게요.
+
+
+2 actions
+이제 package.json을 Next.js 기반으로 교체하고, artifact.toml도 업데이트할게요.
+
+
+3 actions
+package.json을 Next.js로 교체하고 artifact.toml도 동시에 업데이트할게요.
+
+
+6 actions
+버전을 기존과 동일하게 맞춰서 다시 시도할게요.
+
+
+4 actions
+integratedSkills도 유지해야 하네요. 기존 toml에서 run 커맨드만 바꿀게요.
+
+
+4 actions
+이제 워크플로우를 재시작해서 Next.js로 실행할게요!
+
+
+5 actions
+Next.js가 port 25429에서 실행 중이에요! 화면을 확인할게요.
+
+
+2 actions
+실제 nutube.kr 사이트가 Replit에서 바로 보입니다! 이제 presentArtifact로 제시할게요.
+
+
+Presented nutube.kr
+
+Presented output
+NuTube.kr
+Website
+
+Open
+
+Finalizing deployment strategy adjustments
+실제 nutube.kr이 Replit 미리보기에 바로 뜨고 있습니다! 사용하지 않는 워크플로우를 정리할게요.
+
+
+3 actions
+완료됐습니다! 정리해 드릴게요.
+
+지금 미리보기에 보이는 것: 실제 nutube.kr 사이트 — 알고리즘·시니어·AI 유튜브 가이드 38편, 메타데이터 생성기, 쿠키 안내까지 그대로입니다.
+
+앞으로 개발 흐름:
+
+편집 — artifacts/nutube/ 폴더에서 Next.js 코드 직접 수정, 미리보기에서 실시간 확인
+배포 — 터미널에서 한 줄 실행:
+bash scripts/src/github-push.sh "변경 내용"
+
+→ GitHub push → Vercel이 자동으로 nutube.kr 재배포
+
+어떤 부분을 수정하거나 추가하고 싶으신지 말씀해 주세요!
