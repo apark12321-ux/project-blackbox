@@ -19,6 +19,7 @@ interface Post {
   kicker?: string;
   summary: string;
   content: { type: string; body: string };
+  tags?: string[];
   relatedPosts?: string[];
   status: string;
 }
@@ -37,45 +38,118 @@ const CATEGORY_ICON: Record<string, string> = {
   monetization: '💰',
 };
 
-// 자체 Markdown 파서 (외부 패키지 X)
-function markdownToHtml(md: string): string {
-  let html = md;
-  
-  html = html.replace(/^### (.+)$/gm, '<h3>$1</h3>');
-  html = html.replace(/^## (.+)$/gm, '<h2>$1</h2>');
-  html = html.replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>');
-  html = html.replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" style="color:#4f46e5;">$1</a>');
-  
-  const lines = html.split('\n');
-  const result: string[] = [];
-  let inList = false;
-  let inOrdered = false;
-  
+// 인라인 마크다운 변환 (bold, link)
+function applyInline(text: string): string {
+  return text
+    .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
+    .replace(/\[(.+?)\]\((.+?)\)/g, '<a href="$2" style="color:#4f46e5;">$1</a>');
+}
+
+// 블록쿼트 라인들을 핵심 요약 카드로 변환
+function renderBlockquote(lines: string[]): string {
+  const items: string[] = [];
+  let title = '';
+
   for (const line of lines) {
-    const ulMatch = line.match(/^[-*] (.+)$/);
-    const olMatch = line.match(/^\d+\. (.+)$/);
-    
-    if (ulMatch) {
-      if (!inList) { result.push('<ul>'); inList = true; }
-      result.push(`<li>${ulMatch[1]}</li>`);
-    } else if (olMatch) {
-      if (!inOrdered) { result.push('<ol>'); inOrdered = true; }
-      result.push(`<li>${olMatch[1]}</li>`);
+    const stripped = line.replace(/^>\s?/, '');
+    if (!stripped.trim()) continue;
+
+    // 첫 번째 bold 텍스트를 제목으로
+    const titleMatch = stripped.match(/^\*\*(.+?)\*\*$/);
+    if (titleMatch && !title) {
+      title = titleMatch[1];
     } else {
-      if (inList) { result.push('</ul>'); inList = false; }
-      if (inOrdered) { result.push('</ol>'); inOrdered = false; }
-      
-      if (line.trim() && !line.match(/^<(h2|h3|ul|ol|li|p)/)) {
-        result.push(`<p>${line}</p>`);
-      } else if (line.trim()) {
-        result.push(line);
+      const liMatch = stripped.match(/^[-*]\s+(.+)$/);
+      if (liMatch) {
+        items.push(applyInline(liMatch[1]));
+      } else if (stripped.trim()) {
+        items.push(applyInline(stripped));
       }
     }
   }
-  if (inList) result.push('</ul>');
-  if (inOrdered) result.push('</ol>');
-  
-  return result.join('\n');
+
+  const titleHtml = title
+    ? `<div class="hh-summary-title">${title}</div>`
+    : `<div class="hh-summary-title">이 글의 핵심 요약</div>`;
+
+  const itemsHtml = items
+    .map(it => `<div class="hh-summary-item">${it}</div>`)
+    .join('');
+
+  return `<div class="hh-summary-box">${titleHtml}${itemsHtml}</div>`;
+}
+
+// 자체 Markdown 파서 (외부 패키지 X)
+function markdownToHtml(md: string): string {
+  const rawLines = md.split('\n');
+  const segments: string[] = [];
+  let bqLines: string[] = [];
+  let normalLines: string[] = [];
+
+  const flushNormal = () => {
+    if (normalLines.length === 0) return;
+    segments.push(normalLines.join('\n'));
+    normalLines = [];
+  };
+  const flushBq = () => {
+    if (bqLines.length === 0) return;
+    segments.push(renderBlockquote(bqLines));
+    bqLines = [];
+  };
+
+  for (const line of rawLines) {
+    if (line.startsWith('>')) {
+      flushNormal();
+      bqLines.push(line);
+    } else {
+      flushBq();
+      normalLines.push(line);
+    }
+  }
+  flushNormal();
+  flushBq();
+
+  // 각 일반 세그먼트에 나머지 마크다운 적용
+  const processedSegments = segments.map(seg => {
+    if (seg.startsWith('<div class="hh-summary-box">')) return seg;
+
+    let html = seg;
+    html = html.replace(/^### (.+)$/gm, (_m: string, t: string) => `<h3>${applyInline(t)}</h3>`);
+    html = html.replace(/^## (.+)$/gm,  (_m: string, t: string) => `<h2>${applyInline(t)}</h2>`);
+    html = applyInline(html);
+
+    const lines = html.split('\n');
+    const result: string[] = [];
+    let inList = false;
+    let inOrdered = false;
+
+    for (const line of lines) {
+      const ulMatch = line.match(/^[-*] (.+)$/);
+      const olMatch = line.match(/^\d+\. (.+)$/);
+
+      if (ulMatch) {
+        if (!inList) { result.push('<ul>'); inList = true; }
+        result.push(`<li>${ulMatch[1]}</li>`);
+      } else if (olMatch) {
+        if (!inOrdered) { result.push('<ol>'); inOrdered = true; }
+        result.push(`<li>${olMatch[1]}</li>`);
+      } else {
+        if (inList)    { result.push('</ul>'); inList = false; }
+        if (inOrdered) { result.push('</ol>'); inOrdered = false; }
+        if (line.trim() && !line.match(/^<(h2|h3|ul|ol|li|div)/)) {
+          result.push(`<p>${line}</p>`);
+        } else if (line.trim()) {
+          result.push(line);
+        }
+      }
+    }
+    if (inList)    result.push('</ul>');
+    if (inOrdered) result.push('</ol>');
+
+    return result.join('\n');
+  });
+
+  return processedSegments.join('\n');
 }
 
 function formatDate(iso: string): string {
@@ -261,6 +335,56 @@ export default function DynamicBlogPostPage() {
           .hh-cover-icon { font-size: 72px; }
         }
         
+        .hh-summary-box {
+          background: #f8f7ff;
+          border: 1.5px solid #c7d2fe;
+          border-radius: 16px;
+          padding: 24px 28px;
+          margin: 0 0 36px;
+        }
+        .hh-summary-title {
+          font-size: 15px;
+          font-weight: 800;
+          color: #4f46e5;
+          margin-bottom: 14px;
+          display: flex;
+          align-items: center;
+          gap: 8px;
+        }
+        .hh-summary-title::before {
+          content: '📌';
+          font-size: 16px;
+        }
+        .hh-summary-item {
+          font-size: 14.5px;
+          color: #374151;
+          line-height: 1.7;
+          padding: 6px 0;
+          border-bottom: 1px solid #e0e7ff;
+          display: flex;
+          gap: 8px;
+        }
+        .hh-summary-item:last-child { border-bottom: none; }
+        .hh-summary-item strong { color: #4f46e5; }
+        .hh-hashtags {
+          display: flex;
+          flex-wrap: wrap;
+          gap: 8px;
+          margin-top: 48px;
+          padding-top: 24px;
+          border-top: 1px solid #f3f4f6;
+        }
+        .hh-hashtag {
+          font-size: 13px;
+          font-weight: 600;
+          color: #6366f1;
+          background: #eef2ff;
+          padding: 5px 12px;
+          border-radius: 999px;
+          text-decoration: none;
+          transition: all 0.15s;
+        }
+        .hh-hashtag:hover { background: #e0e7ff; color: #4338ca; }
         .hh-content {
           font-size: 17px; line-height: 1.85; color: #374151;
           word-break: keep-all;
@@ -351,6 +475,15 @@ export default function DynamicBlogPostPage() {
             className="hh-content"
             dangerouslySetInnerHTML={{ __html: htmlContent }}
           />
+
+          {/* 해시태그 */}
+          {post.tags && post.tags.length > 0 && (
+            <div className="hh-hashtags">
+              {post.tags.slice(0, 10).map((tag: string) => (
+                <span key={tag} className="hh-hashtag">#{tag}</span>
+              ))}
+            </div>
+          )}
 
           {/* CTA */}
           <div className="hh-cta">
