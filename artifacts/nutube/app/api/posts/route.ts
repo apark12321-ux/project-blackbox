@@ -101,10 +101,29 @@ function normalizePost(input: any): any {
   return post;
 }
 
+/**
+ * 제목에서 SEO 최적화 슬러그 자동 생성
+ * 한국어 키워드를 URL에 포함시켜 AdSense/검색엔진 최적화
+ * 예) "AI 자동 더빙으로 한국어 영상 만들기" → "ai-자동-더빙으로-한국어-영상-만들기"
+ */
+function generateSlugFromTitle(title: string): string {
+  return title
+    .toLowerCase()
+    .replace(/[^\uAC00-\uD7A3\u1100-\u11FF\u3130-\u318Fa-z0-9\s-]/g, '') // 한글+영숫자+공백+하이픈만 허용
+    .replace(/\s+/g, '-')      // 공백 → 하이픈
+    .replace(/-+/g, '-')       // 연속 하이픈 제거
+    .replace(/^-|-$/g, '');    // 양끝 하이픈 제거
+}
+
 function validatePost(post: any): { valid: boolean; errors: string[] } {
   const errors: string[] = [];
 
-  if (!post.slug) errors.push('slug is required');
+  // slug 없으면 title에서 자동 생성
+  if (!post.slug && post.title) {
+    post.slug = generateSlugFromTitle(post.title);
+  }
+
+  if (!post.slug) errors.push('slug is required (or provide title to auto-generate)');
   if (!post.title) errors.push('title is required');
   if (!post.category) errors.push('category is required');
   if (!post.content?.body) errors.push('content.body (or body) is required');
@@ -112,8 +131,9 @@ function validatePost(post: any): { valid: boolean; errors: string[] } {
     post.publishedAt = new Date().toISOString().split('T')[0];
   }
 
-  if (post.slug && !/^[a-z0-9-]+$/.test(post.slug)) {
-    errors.push('slug format invalid (use [a-z0-9-]+)');
+  // 한국어 포함 슬러그 허용 (애드센스 SEO 최적화)
+  if (post.slug && !/^[\uAC00-\uD7A3\u1100-\u11FF\u3130-\u318Fa-z0-9-]+$/.test(post.slug)) {
+    errors.push('slug format invalid (use Korean, a-z, 0-9, hyphens only)');
   }
 
   if (post.category && !ALLOWED_CATEGORIES.includes(post.category)) {

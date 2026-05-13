@@ -377,28 +377,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
   return (
     <html lang="ko" suppressHydrationWarning>
       <head>
-        {/* JSON-LD 구조화 데이터 */}
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(webApplicationSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(faqSchema) }}
-        />
-        <script
-          type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(howToSchema) }}
-        />
-
         {/* Pretendard 폰트 (한글 가독성 최적화) */}
         <link
           rel="stylesheet"
@@ -415,6 +393,23 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
       </head>
 
       <body>
+        {/* JSON-LD 구조화 데이터 — body 최상단 배치 (Next.js 14 hydration 호환) */}
+        <Script id="ld-website" type="application/ld+json" strategy="beforeInteractive">
+          {JSON.stringify(websiteSchema)}
+        </Script>
+        <Script id="ld-organization" type="application/ld+json" strategy="beforeInteractive">
+          {JSON.stringify(organizationSchema)}
+        </Script>
+        <Script id="ld-webapp" type="application/ld+json" strategy="beforeInteractive">
+          {JSON.stringify(webApplicationSchema)}
+        </Script>
+        <Script id="ld-faq" type="application/ld+json" strategy="beforeInteractive">
+          {JSON.stringify(faqSchema)}
+        </Script>
+        <Script id="ld-howto" type="application/ld+json" strategy="beforeInteractive">
+          {JSON.stringify(howToSchema)}
+        </Script>
+
         {/* Google Consent Mode V2 (AdSense 필수) - 기본 거부 상태로 시작 */}
         <Script id="consent-default" strategy="beforeInteractive">
           {`
