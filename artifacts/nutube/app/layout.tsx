@@ -164,6 +164,11 @@ export const metadata: Metadata = {
     address: false,
     telephone: false,
   },
+
+  // AdSense 사이트 인증
+  ...(process.env.NEXT_PUBLIC_ADSENSE_CLIENT
+    ? { other: { 'google-adsense-account': process.env.NEXT_PUBLIC_ADSENSE_CLIENT } }
+    : {}),
 };
 
 // ============================================================
@@ -376,22 +381,6 @@ const howToSchema = {
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="ko" suppressHydrationWarning>
-      <head>
-        {/* Pretendard 폰트 (한글 가독성 최적화) */}
-        <link
-          rel="stylesheet"
-          href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css"
-        />
-
-        {/* Preconnect (성능 향상) */}
-        <link rel="preconnect" href="https://cdn.jsdelivr.net" crossOrigin="anonymous" />
-        <link rel="preconnect" href="https://pagead2.googlesyndication.com" crossOrigin="anonymous" />
-        <link rel="dns-prefetch" href="https://image.pollinations.ai" />
-
-        {/* AdSense 사이트 인증 (승인 신청 시 필수) */}
-        {ADSENSE_CLIENT && <meta name="google-adsense-account" content={ADSENSE_CLIENT} />}
-      </head>
-
       <body>
         {/* JSON-LD 구조화 데이터 — body 최상단 배치 (Next.js 14 hydration 호환) */}
         <Script id="ld-website" type="application/ld+json" strategy="beforeInteractive">
