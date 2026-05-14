@@ -1,269 +1,179 @@
+/**
+ * GET  /api/posts  — 목록 조회 (검색·필터·정렬·페이지네이션)
+ * POST /api/posts  — 글 생성 (BlogStudio / mathHWP 호환)
+ */
+
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import {
+  checkAuth, normalizePost, validatePost,
+  listAllPosts, serializePost,
+  POSTS_DIR, ensureDir,
+} from '@/lib/posts-api';
 
-const POSTS_DIR = path.join(process.cwd(), 'data', 'posts');
-const API_KEY = process.env.NUTUBE_API_KEY || '';
-const BASIC_USER = process.env.NUTUBE_BASIC_USER || '';
-const BASIC_PASS = process.env.NUTUBE_BASIC_PASS || '';
-
-const FORBIDDEN_KEYWORDS = [
-  '위영', 'Wiyoung', 'Starlight',
-  '당근팀', 'Carrot Team',
-  '마스터 매뉴얼', '배포용',
-  'GEMS',
-  '알뜰폰', '비행기 모드', '공기계', '중고폰',
-  '길들이기',
-];
-
-const ALLOWED_CATEGORIES = ['algorithm', 'senior', 'aitools', 'monetization'];
-
-function checkAuth(request: NextRequest): { valid: boolean; method: string } {
-  const auth = request.headers.get('authorization') || '';
-  const apiKeyHeader = request.headers.get('x-api-key') || '';
-
-  if (auth.startsWith('Bearer ') && API_KEY) {
-    const token = auth.substring(7);
-    if (token === API_KEY) return { valid: true, method: 'bearer' };
-  }
-
-  if (apiKeyHeader && API_KEY && apiKeyHeader === API_KEY) {
-    return { valid: true, method: 'apikey' };
-  }
-
-  if (auth.startsWith('Basic ') && BASIC_USER && BASIC_PASS) {
-    const decoded = Buffer.from(auth.substring(6), 'base64').toString('utf-8');
-    const [user, pass] = decoded.split(':');
-    if (user === BASIC_USER && pass === BASIC_PASS) {
-      return { valid: true, method: 'basic' };
-    }
-  }
-
-  return { valid: false, method: 'none' };
-}
-
-function htmlToMarkdown(html: string): string {
-  let md = html;
-  md = md.replace(/<h1[^>]*>(.*?)<\/h1>/gi, '# $1\n');
-  md = md.replace(/<h2[^>]*>(.*?)<\/h2>/gi, '## $1\n');
-  md = md.replace(/<h3[^>]*>(.*?)<\/h3>/gi, '### $1\n');
-  md = md.replace(/<strong[^>]*>(.*?)<\/strong>/gi, '**$1**');
-  md = md.replace(/<b[^>]*>(.*?)<\/b>/gi, '**$1**');
-  md = md.replace(/<em[^>]*>(.*?)<\/em>/gi, '*$1*');
-  md = md.replace(/<i[^>]*>(.*?)<\/i>/gi, '*$1*');
-  md = md.replace(/<a[^>]*href=["']([^"']*)["'][^>]*>(.*?)<\/a>/gi, '[$2]($1)');
-  md = md.replace(/<p[^>]*>(.*?)<\/p>/gi, '$1\n\n');
-  md = md.replace(/<br\s*\/?>/gi, '\n');
-  md = md.replace(/<ul[^>]*>([\s\S]*?)<\/ul>/gi, (_match: string, items: string) => {
-    return items.replace(/<li[^>]*>(.*?)<\/li>/gi, '- $1\n');
-  });
-  md = md.replace(/<[^>]+>/g, '');
-  md = md.replace(/\n{3,}/g, '\n\n').trim();
-  return md;
-}
-
-function normalizePost(input: any): any {
-  const post: any = { ...input };
-
-  if (input.body && !input.content) {
-    post.content = {
-      type: 'markdown',
-      body: typeof input.body === 'string' && input.body.includes('<')
-        ? htmlToMarkdown(input.body)
-        : input.body,
-    };
-    delete post.body;
-  }
-
-  if (input.postStatus && !input.status) {
-    post.status = input.postStatus;
-    delete post.postStatus;
-  }
-
-  if (post.status === 'publish') post.status = 'published';
-
-  if (input.seoDescription) {
-    if (!post.seo) post.seo = {};
-    post.seo.metaDescription = input.seoDescription;
-    delete post.seoDescription;
-  }
-
-  if (post.category && !post.categoryLabel) {
-    const labels: Record<string, string> = {
-      algorithm: '알고리즘',
-      senior: '시니어 사연 쇼츠',
-      aitools: 'AI 도구',
-      monetization: '수익화',
-    };
-    post.categoryLabel = labels[post.category] || post.category;
-  }
-
-  return post;
-}
-
-/**
- * 제목에서 SEO 최적화 슬러그 자동 생성
- * 한국어 키워드를 URL에 포함시켜 AdSense/검색엔진 최적화
- * 예) "AI 자동 더빙으로 한국어 영상 만들기" → "ai-자동-더빙으로-한국어-영상-만들기"
- */
-function generateSlugFromTitle(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/[^\uAC00-\uD7A3\u1100-\u11FF\u3130-\u318Fa-z0-9\s-]/g, '') // 한글+영숫자+공백+하이픈만 허용
-    .replace(/\s+/g, '-')      // 공백 → 하이픈
-    .replace(/-+/g, '-')       // 연속 하이픈 제거
-    .replace(/^-|-$/g, '');    // 양끝 하이픈 제거
-}
-
-function validatePost(post: any): { valid: boolean; errors: string[] } {
-  const errors: string[] = [];
-
-  // title이 있으면 항상 title에서 한국어 slug 생성
-  // (BlogStudio가 영문 slug를 함께 보내도 무시하고 제목 기반 한국어 URL 사용)
-  if (post.title) {
-    post.slug = generateSlugFromTitle(post.title);
-  }
-
-  if (!post.slug) errors.push('title is required to auto-generate slug');
-  if (!post.title) errors.push('title is required');
-  if (!post.category) errors.push('category is required');
-  if (!post.content?.body) errors.push('content.body (or body) is required');
-  if (!post.publishedAt) {
-    post.publishedAt = new Date().toISOString().split('T')[0];
-  }
-
-  if (post.category && !ALLOWED_CATEGORIES.includes(post.category)) {
-    errors.push(`category must be one of: ${ALLOWED_CATEGORIES.join(', ')}`);
-  }
-
-  if (post.content?.body && post.content.body.length < 1500) {
-    errors.push('content.body must be at least 1,500 characters');
-  }
-
-  const text = JSON.stringify(post);
-  for (const kw of FORBIDDEN_KEYWORDS) {
-    if (text.includes(kw)) {
-      errors.push('Security violation: forbidden keyword detected');
-      break;
-    }
-  }
-
-  if (text.includes('박예준')) {
-    errors.push('Personal name not allowed');
-  }
-
-  return { valid: errors.length === 0, errors };
-}
-
-function listPosts(filter?: { category?: string }): any[] {
-  if (!fs.existsSync(POSTS_DIR)) return [];
-  const files = fs.readdirSync(POSTS_DIR).filter(f => f.endsWith('.json') && !f.startsWith('_'));
-  let posts = files.map(f => {
-    try {
-      return JSON.parse(fs.readFileSync(path.join(POSTS_DIR, f), 'utf-8'));
-    } catch {
-      return null;
-    }
-  }).filter(p => p && p.status === 'published');
-
-  if (filter?.category) {
-    posts = posts.filter(p => p.category === filter.category);
-  }
-
-  posts.sort((a: any, b: any) => b.publishedAt.localeCompare(a.publishedAt));
-  return posts;
-}
+// ─────────────────────────────────────────────
+// GET /api/posts
+// ─────────────────────────────────────────────
+// Query params:
+//   search=키워드        제목·본문 전체 검색
+//   category=algorithm   카테고리 필터
+//   tags=tag1,tag2       태그 필터 (OR)
+//   status=published     published(기본)|draft|archived|all (all은 인증 필요)
+//   sort=publishedAt     publishedAt(기본)|updatedAt|title|wordCount
+//   order=desc           asc|desc(기본)
+//   limit=20             최대 100
+//   offset=0             오프셋 페이지네이션
+//   cursor=slug          커서 기반 페이지네이션 (offset보다 빠름)
+//   include=content      전체 본문 포함
+//   fields=slug,title    선택 필드만 반환
 
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
+
+  const search   = searchParams.get('search')   || undefined;
   const category = searchParams.get('category') || undefined;
-  const limit = parseInt(searchParams.get('limit') || '50');
-  const offset = parseInt(searchParams.get('offset') || '0');
+  const tagsRaw  = searchParams.get('tags')     || '';
+  const tags     = tagsRaw ? tagsRaw.split(',').map(t => t.trim()).filter(Boolean) : undefined;
+  const sort     = searchParams.get('sort')     || 'publishedAt';
+  const order    = (searchParams.get('order') || 'desc') as 'asc' | 'desc';
+  const limit    = Math.min(parseInt(searchParams.get('limit') || '20'), 100);
+  const offset   = parseInt(searchParams.get('offset') || '0');
+  const cursor   = searchParams.get('cursor')   || undefined;
+  const include  = searchParams.get('include')  || '';
+  const fieldsRaw = searchParams.get('fields')  || '';
+  const fields   = fieldsRaw ? fieldsRaw.split(',').map(f => f.trim()).filter(Boolean) : undefined;
+
+  // 비공개 상태 조회는 인증 필요
+  const requestedStatus = searchParams.get('status') || 'published';
+  let status = requestedStatus;
+  if (status !== 'published') {
+    const auth = checkAuth(request);
+    if (!auth.valid) {
+      return NextResponse.json({
+        success: false,
+        error: 'Unauthorized — status filter requires authentication',
+      }, { status: 401 });
+    }
+  }
 
   try {
-    const allPosts = listPosts({ category });
+    const allPosts = listAllPosts({
+      category, status, search,
+      tags, sort, order,
+      includeContent: include.includes('content'),
+    });
+
     const total = allPosts.length;
-    const posts = allPosts.slice(offset, offset + limit).map((p: any) => ({
-      slug: p.slug,
-      title: p.title,
-      subtitle: p.subtitle,
-      category: p.category,
-      categoryLabel: p.categoryLabel,
-      publishedAt: p.publishedAt,
-      summary: p.summary,
-      url: `https://nutube.kr/blog/${p.slug}`,
+
+    // 커서 페이지네이션: cursor slug 이후부터 반환
+    let startIdx = offset;
+    if (cursor) {
+      const idx = allPosts.findIndex(p => p.slug === cursor);
+      startIdx = idx === -1 ? 0 : idx + 1;
+    }
+
+    const page = allPosts.slice(startIdx, startIdx + limit);
+    const lastItem = page[page.length - 1];
+
+    const posts = page.map(p => serializePost(p, {
+      includeContent: include.includes('content'),
+      fields,
     }));
 
     return NextResponse.json({
       success: true,
-      data: { total, page: Math.floor(offset / limit) + 1, limit, posts },
+      data: {
+        total,
+        count:    posts.length,
+        limit,
+        offset:   startIdx,
+        hasMore:  startIdx + limit < total,
+        nextCursor: lastItem ? lastItem.slug : null,
+        posts,
+      },
     });
   } catch (e: any) {
     return NextResponse.json({ success: false, error: e.message }, { status: 500 });
   }
 }
 
+// ─────────────────────────────────────────────
+// POST /api/posts
+// ─────────────────────────────────────────────
+// Query params:
+//   upsert=true   동일 slug 존재 시 409 대신 업데이트
+
 export async function POST(request: NextRequest) {
   const auth = checkAuth(request);
   if (!auth.valid) {
     return NextResponse.json({
       success: false,
-      error: 'Unauthorized',
-      message: 'Provide Bearer Token, X-API-Key, or Basic Auth',
+      error:   'Unauthorized',
+      message: 'X-API-Key 헤더 또는 Bearer/Basic 인증이 필요합니다',
     }, { status: 401 });
   }
 
+  const upsert = new URL(request.url).searchParams.get('upsert') === 'true';
+
   try {
     const input = await request.json();
-    const post = normalizePost(input);
+    const post  = normalizePost(input);
 
     const { valid, errors } = validatePost(post);
     if (!valid) {
       return NextResponse.json({
         success: false,
-        error: 'Validation failed',
+        error:   'Validation failed',
         details: errors,
       }, { status: 400 });
     }
 
+    ensureDir(POSTS_DIR);
     const filePath = path.join(POSTS_DIR, `${post.slug}.json`);
-    if (fs.existsSync(filePath)) {
+    const exists   = fs.existsSync(filePath);
+
+    if (exists && !upsert) {
       return NextResponse.json({
         success: false,
-        error: 'Slug already exists',
-        slug: post.slug,
+        error:   'Slug already exists — use ?upsert=true to update instead',
+        slug:    post.slug,
+        url:     `https://nutube.kr/blog/${post.slug}`,
       }, { status: 409 });
     }
 
-    if (!fs.existsSync(POSTS_DIR)) {
-      fs.mkdirSync(POSTS_DIR, { recursive: true });
-    }
-
     const now = new Date().toISOString();
-    const newPost = {
+    const existing = exists ? JSON.parse(fs.readFileSync(filePath, 'utf-8')) : {};
+
+    const saved = {
+      ...existing,
       ...post,
-      author: post.author || '알고파트너스',
-      status: post.status || 'published',
-      createdAt: now,
+      author:    post.author    || existing.author    || '알고파트너스',
+      status:    post.status    || existing.status    || 'published',
+      createdAt: existing.createdAt || now,
       updatedAt: now,
     };
 
-    fs.writeFileSync(filePath, JSON.stringify(newPost, null, 2), 'utf-8');
+    fs.writeFileSync(filePath, JSON.stringify(saved, null, 2), 'utf-8');
 
     return NextResponse.json({
       success: true,
+      action:  exists ? 'updated' : 'created',
       data: {
-        slug: post.slug,
-        url: `https://nutube.kr/blog/${post.slug}`,
-        createdAt: now,
-        title: post.title,
-        category: post.category,
+        slug:        saved.slug,
+        url:         `https://nutube.kr/blog/${saved.slug}`,
+        title:       saved.title,
+        category:    saved.category,
+        status:      saved.status,
+        readTime:    saved.readTime,
+        wordCount:   saved.wordCount,
+        publishedAt: saved.publishedAt,
+        createdAt:   saved.createdAt,
+        updatedAt:   saved.updatedAt,
       },
-    }, { status: 201 });
+    }, { status: exists ? 200 : 201 });
+
   } catch (e: any) {
-    return NextResponse.json({
-      success: false,
-      error: e.message,
-    }, { status: 500 });
+    return NextResponse.json({ success: false, error: e.message }, { status: 500 });
   }
 }

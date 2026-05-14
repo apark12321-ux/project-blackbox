@@ -1,7 +1,7 @@
 {
-  "/page": "app/page.js",
   "/api/posts/route": "app/api/posts/route.js",
+  "/api/posts/stats/route": "app/api/posts/stats/route.js",
   "/api/posts/[slug]/route": "app/api/posts/[slug]/route.js",
-  "/blog/page": "app/blog/page.js",
-  "/blog/[slug]/page": "app/blog/[slug]/page.js"
+  "/api/posts/trash/route": "app/api/posts/trash/route.js",
+  "/api/posts/batch/route": "app/api/posts/batch/route.js"
 }
