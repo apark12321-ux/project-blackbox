@@ -1,8 +1,8 @@
-// File: /home/runner/workspace/artifacts/nutube/app/api/posts/[slug]/route.ts
-import * as entry from '../../../../../../app/api/posts/[slug]/route.js'
+// File: /home/runner/workspace/artifacts/nutube/app/api/posts/route.ts
+import * as entry from '../../../../../app/api/posts/route.js'
 import type { NextRequest } from 'next/server.js'
 
-type TEntry = typeof import('../../../../../../app/api/posts/[slug]/route.js')
+type TEntry = typeof import('../../../../../app/api/posts/route.js')
 
 // Check that the entry is a valid entry
 checkFields<Diff<{
