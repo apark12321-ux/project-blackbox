@@ -89,6 +89,19 @@ const CATEGORY_ICON: Record<string, string> = {
   monetization: '💰',
 };
 
+const CATEGORY_PROMPT: Record<string, string> = {
+  algorithm: 'YouTube algorithm analytics dashboard, content growth strategy, modern tech illustration, blue purple colors, clean professional',
+  senior: 'Korean senior elderly person filming YouTube video with smartphone, warm cozy home, soft natural lighting, heartwarming',
+  aitools: 'AI robot helping digital content creator, futuristic technology workspace, glowing screen, modern illustration',
+  monetization: 'YouTube channel revenue growth chart, golden coins, success concept, business illustration, warm gold colors',
+};
+
+function getPollinationsUrl(slug: string, category: string): string {
+  const prompt = CATEGORY_PROMPT[category] || 'YouTube content creation guide, modern clean illustration, professional blog header';
+  const seed = slug.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 9999;
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt + ', no text overlay, photorealistic')}?width=800&height=450&nologo=true&seed=${seed}`;
+}
+
 // 날짜 포맷: ISO 8601 → YYYY.MM.DD
 function formatDate(iso: string): string {
   if (!iso) return '';
@@ -444,10 +457,17 @@ export default function BlogPage() {
                 <Link key={g.slug} href={`/blog/${g.slug}`} className="hh-card">
                   <div
                     className="hh-card-image"
-                    style={{ background: CATEGORY_GRADIENT[g.category] }}
+                    style={{ background: CATEGORY_GRADIENT[g.category], position: 'relative' }}
                   >
-                    <div className="hh-card-icon">{CATEGORY_ICON[g.category]}</div>
-                    <span className="hh-card-category">{g.categoryLabel}</span>
+                    <img
+                      src={getPollinationsUrl(g.slug, g.category)}
+                      alt={g.title}
+                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                      onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+                      loading="lazy"
+                    />
+                    <div className="hh-card-icon" style={{ position: 'relative', zIndex: 1, opacity: 0 }}>{CATEGORY_ICON[g.category]}</div>
+                    <span className="hh-card-category" style={{ position: 'absolute', zIndex: 2, top: 16, left: 16 }}>{g.categoryLabel}</span>
                   </div>
                   <div className="hh-card-body">
                     <div className="hh-card-meta">

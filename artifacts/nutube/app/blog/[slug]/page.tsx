@@ -20,8 +20,23 @@ interface Post {
   summary: string;
   content: { type: string; body: string };
   tags?: string[];
+  imageUrl?: string;
   relatedPosts?: string[];
   status: string;
+}
+
+const CATEGORY_PROMPT: Record<string, string> = {
+  algorithm: 'YouTube algorithm analytics dashboard, content growth strategy, modern tech illustration, blue purple colors, clean professional',
+  senior: 'Korean senior elderly person filming YouTube video with smartphone, warm cozy home, soft natural lighting, heartwarming',
+  aitools: 'AI robot helping digital content creator, futuristic technology workspace, glowing screen, modern illustration',
+  monetization: 'YouTube channel revenue growth chart, golden coins, success concept, business illustration, warm gold colors',
+};
+
+function getPostImageUrl(slug: string, category: string, imageUrl?: string): string {
+  if (imageUrl) return imageUrl;
+  const prompt = CATEGORY_PROMPT[category] || 'YouTube content creation guide, modern clean illustration, professional blog header';
+  const seed = slug.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 9999;
+  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt + ', no text overlay, photorealistic')}?width=1200&height=630&nologo=true&seed=${seed}`;
 }
 
 const CATEGORY_GRADIENT: Record<string, string> = {
@@ -465,9 +480,15 @@ export default function DynamicBlogPostPage() {
             </div>
           </div>
 
-          {/* 그라데이션 커버 */}
+          {/* 커버 이미지 */}
           <div className="hh-cover" style={{ background: gradient }}>
-            <div className="hh-cover-icon">{icon}</div>
+            <img
+              src={getPostImageUrl(post.slug, post.category, post.imageUrl)}
+              alt={post.title}
+              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+              onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
+            />
+            <div className="hh-cover-icon" style={{ position: 'relative', zIndex: 1, opacity: 0 }}>{icon}</div>
           </div>
 
           {/* 본문 */}
