@@ -1,4 +1,5 @@
 # ── Core ──
+# fastapi>=0.116.0 pulls starlette>=0.40.0 (fixes GHSA-2c2j-9gv5-cj73)
 fastapi>=0.116.0
 uvicorn[standard]==0.32.0
 pydantic==2.10.0
@@ -18,7 +19,10 @@ redis==5.2.0
 httpx==0.28.0
 
 # ── Utilities ──
-python-dotenv>=1.1.0
+# python-dotenv>=1.2.2 fixes GHSA-mf9w-mj56-hr94 / CVE-2026-28684 (symlink attack in set_key/unset_key; all <1.2.2 are vulnerable)
+python-dotenv>=1.2.2
+# python-multipart>=0.0.18 fixes GHSA-59g5-xgcq-4qw3, GHSA-pp6c-gr5w-3c5g,
+# GHSA-wp53-j4wj-2cfg, GHSA-mj87-hwqh-73pj
 python-multipart>=0.0.18
 
 # ── TTS ──
@@ -31,4 +35,5 @@ notebooklm-py
 google-generativeai==0.8.3
 
 # ── Dev/Test ──
-pytest>=8.4.0
+# pytest>=9.0.3 fixes GHSA-6w46-j5rx-g56g / CVE-2025-71176 (unsafe /tmp dir handling; all <9.0.3 are vulnerable)
+pytest>=9.0.3
