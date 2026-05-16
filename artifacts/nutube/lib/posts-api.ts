@@ -1,11 +1,40 @@
 /**
  * NuTube Posts API — 공유 유틸리티
- * 모든 /api/posts 라우트가 이 모듈을 사용합니다.
+ * 읽기: 정적 파일(data/posts/) + Redis 병합 (Redis 우선)
+ * 쓰기: Upstash Redis 전용 (Vercel 읽기전용 FS 대응)
  */
 
 import { NextRequest } from 'next/server';
 import fs from 'fs';
 import path from 'path';
+import { Redis } from '@upstash/redis';
+
+// ─────────────────────────────────────────────
+// Redis 클라이언트
+// ─────────────────────────────────────────────
+
+let _redis: Redis | null = null;
+
+export function getRedis(): Redis {
+  if (!_redis) {
+    _redis = new Redis({
+      url:   process.env.KV_REST_API_URL!,
+      token: process.env.KV_REST_API_TOKEN!,
+    });
+  }
+  return _redis;
+}
+
+const RK = {
+  post:        (slug: string) => `nutube:post:${slug}`,
+  trash:       (slug: string) => `nutube:trash:${slug}`,
+  postsIndex:  'nutube:slugs',
+  trashIndex:  'nutube:trash_slugs',
+};
+
+// ─────────────────────────────────────────────
+// 상수
+// ─────────────────────────────────────────────
 
 export const POSTS_DIR = path.join(process.cwd(), 'data', 'posts');
 export const TRASH_DIR  = path.join(process.cwd(), 'data', 'trash');
@@ -115,18 +144,16 @@ export function generateSlugFromTitle(title: string): string {
 }
 
 // ─────────────────────────────────────────────
-// 읽기 시간 / 단어 수 자동 계산
+// 읽기 시간 / 단어 수
 // ─────────────────────────────────────────────
 
 export function calcReadTime(body: string): string {
-  // 한국어 평균 독서 속도: 분당 400자
   const chars = body.replace(/\s+/g, '').length;
   const minutes = Math.ceil(chars / 400);
   return `${Math.max(1, minutes)}분`;
 }
 
 export function countWords(body: string): number {
-  // 한국어: 어절 기준 (공백 구분), 영어: 단어 기준
   return body.trim().split(/\s+/).filter(Boolean).length;
 }
 
@@ -146,7 +173,7 @@ export function checkSecurity(post: any): { valid: boolean; error?: string } {
 }
 
 // ─────────────────────────────────────────────
-// 입력값 정규화 (BlogStudio / mathHWP 모두 지원)
+// 입력값 정규화
 // ─────────────────────────────────────────────
 
 export function normalizePost(input: any): any {
@@ -175,7 +202,6 @@ export function normalizePost(input: any): any {
     post.category = KO_TO_EN[post.category];
   }
 
-  // BlogStudio 영문 slug 무시 — 항상 제목 기반 한국어 URL 생성
   if (post.title) {
     post.slug = generateSlugFromTitle(post.title);
   }
@@ -277,90 +303,10 @@ export function validatePost(post: any): { valid: boolean; errors: string[] } {
 }
 
 // ─────────────────────────────────────────────
-// 데이터 조회
+// 직렬화
 // ─────────────────────────────────────────────
 
-export interface ListOptions {
-  category?: string;
-  status?: string;           // 'published' | 'draft' | 'archived' | 'all'
-  search?: string;           // 제목·내용 키워드
-  tags?: string[];
-  sort?: string;             // 'publishedAt' | 'updatedAt' | 'title' | 'wordCount'
-  order?: 'asc' | 'desc';
-  includeContent?: boolean;
-  fields?: string[];
-}
-
-export function readPost(slug: string): any | null {
-  const filePath = path.join(POSTS_DIR, `${slug}.json`);
-  if (!fs.existsSync(filePath)) return null;
-  try {
-    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-  } catch {
-    return null;
-  }
-}
-
-export function listAllPosts(opts: ListOptions = {}): any[] {
-  if (!fs.existsSync(POSTS_DIR)) return [];
-
-  const files = fs.readdirSync(POSTS_DIR)
-    .filter(f => f.endsWith('.json') && !f.startsWith('_'));
-
-  let posts = files.map(f => {
-    try {
-      return JSON.parse(fs.readFileSync(path.join(POSTS_DIR, f), 'utf-8'));
-    } catch {
-      return null;
-    }
-  }).filter(Boolean);
-
-  // status 필터
-  if (!opts.status || opts.status === 'published') {
-    posts = posts.filter(p => p.status === 'published');
-  } else if (opts.status !== 'all') {
-    posts = posts.filter(p => p.status === opts.status);
-  }
-
-  // category 필터
-  if (opts.category) {
-    posts = posts.filter(p => p.category === opts.category);
-  }
-
-  // tags 필터
-  if (opts.tags && opts.tags.length > 0) {
-    posts = posts.filter(p =>
-      Array.isArray(p.tags) && opts.tags!.some(t => p.tags.includes(t))
-    );
-  }
-
-  // 검색 (제목 + 부제목 + 요약 + 본문)
-  if (opts.search) {
-    const q = opts.search.toLowerCase();
-    posts = posts.filter(p => {
-      const haystack = [
-        p.title, p.subtitle, p.summary,
-        p.content?.body,
-        (p.tags || []).join(' '),
-      ].filter(Boolean).join(' ').toLowerCase();
-      return haystack.includes(q);
-    });
-  }
-
-  // 정렬
-  const sortField = opts.sort || 'publishedAt';
-  const dir = opts.order === 'asc' ? 1 : -1;
-  posts.sort((a: any, b: any) => {
-    const av = a[sortField] || '';
-    const bv = b[sortField] || '';
-    return av < bv ? -dir : av > bv ? dir : 0;
-  });
-
-  return posts;
-}
-
 export function serializePost(p: any, opts: { includeContent?: boolean; fields?: string[] } = {}): any {
-  // 기존 포스트에 readTime/wordCount 없으면 본문에서 실시간 계산
   const body = p.content?.body || '';
   const readTime  = p.readTime  || (body ? calcReadTime(body)  : '0분');
   const wordCount = p.wordCount || (body ? countWords(body)    : 0);
@@ -400,9 +346,191 @@ export function serializePost(p: any, opts: { includeContent?: boolean; fields?:
 }
 
 // ─────────────────────────────────────────────
-// 디렉토리 보장
+// 정적 파일 읽기 (동기, 읽기전용 — Vercel에서도 정상 동작)
 // ─────────────────────────────────────────────
 
-export function ensureDir(dir: string) {
-  if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
+export function readStaticPost(slug: string): any | null {
+  try {
+    const filePath = path.join(POSTS_DIR, `${slug}.json`);
+    if (!fs.existsSync(filePath)) return null;
+    return JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+  } catch {
+    return null;
+  }
+}
+
+export function listStaticPosts(): any[] {
+  try {
+    if (!fs.existsSync(POSTS_DIR)) return [];
+    return fs.readdirSync(POSTS_DIR)
+      .filter(f => f.endsWith('.json') && !f.startsWith('_'))
+      .map(f => {
+        try { return JSON.parse(fs.readFileSync(path.join(POSTS_DIR, f), 'utf-8')); }
+        catch { return null; }
+      })
+      .filter(Boolean);
+  } catch {
+    return [];
+  }
+}
+
+// ─────────────────────────────────────────────
+// Redis 비동기 CRUD
+// ─────────────────────────────────────────────
+
+export async function readPost(slug: string): Promise<any | null> {
+  const redis = getRedis();
+  const cached = await redis.get<any>(RK.post(slug));
+  if (cached) return cached;
+  return readStaticPost(slug);
+}
+
+export async function writePost(post: any): Promise<void> {
+  const redis = getRedis();
+  await Promise.all([
+    redis.set(RK.post(post.slug), post),
+    redis.sadd(RK.postsIndex, post.slug),
+  ]);
+}
+
+export async function removePost(slug: string): Promise<void> {
+  const redis = getRedis();
+  await Promise.all([
+    redis.del(RK.post(slug)),
+    redis.srem(RK.postsIndex, slug),
+  ]);
+}
+
+export async function listAllPosts(opts: ListOptions = {}): Promise<any[]> {
+  const redis = getRedis();
+
+  // 정적 파일 포스트 (읽기전용 FS, Vercel에서도 OK)
+  const staticPosts = listStaticPosts();
+  const staticMap   = new Map<string, any>(staticPosts.map(p => [p.slug, p]));
+
+  // Redis 동적 포스트
+  const slugs = await redis.smembers(RK.postsIndex);
+  const redisPosts: any[] = [];
+  if (slugs.length > 0) {
+    const items = await Promise.all(slugs.map(s => redis.get<any>(RK.post(s))));
+    for (const p of items) { if (p) redisPosts.push(p); }
+  }
+
+  // 병합: Redis 포스트가 같은 slug면 정적 파일 override
+  const merged = new Map(staticMap);
+  for (const p of redisPosts) {
+    if (p) merged.set(p.slug, p);
+  }
+
+  let posts = Array.from(merged.values());
+
+  // status 필터
+  if (!opts.status || opts.status === 'published') {
+    posts = posts.filter(p => p.status === 'published');
+  } else if (opts.status !== 'all') {
+    posts = posts.filter(p => p.status === opts.status);
+  }
+
+  // category 필터
+  if (opts.category) {
+    posts = posts.filter(p => p.category === opts.category);
+  }
+
+  // tags 필터
+  if (opts.tags && opts.tags.length > 0) {
+    posts = posts.filter(p =>
+      Array.isArray(p.tags) && opts.tags!.some(t => p.tags.includes(t))
+    );
+  }
+
+  // 검색
+  if (opts.search) {
+    const q = opts.search.toLowerCase();
+    posts = posts.filter(p => {
+      const haystack = [p.title, p.subtitle, p.summary, p.content?.body, (p.tags || []).join(' ')]
+        .filter(Boolean).join(' ').toLowerCase();
+      return haystack.includes(q);
+    });
+  }
+
+  // 정렬
+  const sortField = opts.sort || 'publishedAt';
+  const dir = opts.order === 'asc' ? 1 : -1;
+  posts.sort((a: any, b: any) => {
+    const av = a[sortField] || '';
+    const bv = b[sortField] || '';
+    return av < bv ? -dir : av > bv ? dir : 0;
+  });
+
+  return posts;
+}
+
+// ─────────────────────────────────────────────
+// 휴지통 Redis CRUD
+// ─────────────────────────────────────────────
+
+export async function readTrashPost(slug: string): Promise<any | null> {
+  return getRedis().get<any>(RK.trash(slug));
+}
+
+export async function writeTrashPost(post: any): Promise<void> {
+  const redis = getRedis();
+  await Promise.all([
+    redis.set(RK.trash(post.slug), post),
+    redis.sadd(RK.trashIndex, post.slug),
+  ]);
+}
+
+export async function removeTrashPost(slug: string): Promise<void> {
+  const redis = getRedis();
+  await Promise.all([
+    redis.del(RK.trash(slug)),
+    redis.srem(RK.trashIndex, slug),
+  ]);
+}
+
+export async function listTrashPosts(): Promise<any[]> {
+  const redis = getRedis();
+  const slugs = await redis.smembers(RK.trashIndex);
+  if (slugs.length === 0) return [];
+  const items = await Promise.all(slugs.map(s => redis.get<any>(RK.trash(s))));
+  return items.filter(Boolean);
+}
+
+export async function emptyTrash(): Promise<number> {
+  const redis = getRedis();
+  const slugs = await redis.smembers(RK.trashIndex);
+  if (slugs.length === 0) return 0;
+  await Promise.all([
+    ...slugs.map(s => redis.del(RK.trash(s))),
+    redis.del(RK.trashIndex),
+  ]);
+  return slugs.length;
+}
+
+export async function trashCount(): Promise<number> {
+  return getRedis().scard(RK.trashIndex);
+}
+
+// ─────────────────────────────────────────────
+// ListOptions 타입
+// ─────────────────────────────────────────────
+
+export interface ListOptions {
+  category?: string;
+  status?: string;
+  search?: string;
+  tags?: string[];
+  sort?: string;
+  order?: 'asc' | 'desc';
+  includeContent?: boolean;
+  fields?: string[];
+}
+
+// ─────────────────────────────────────────────
+// 하위 호환 (더 이상 FS에 쓰지 않음)
+// ─────────────────────────────────────────────
+
+export function ensureDir(_dir: string) {
+  // Vercel 읽기전용 FS — no-op (Redis 사용으로 불필요)
 }
