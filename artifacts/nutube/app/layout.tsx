@@ -165,10 +165,10 @@ export const metadata: Metadata = {
     telephone: false,
   },
 
-  // AdSense 사이트 인증
-  ...(process.env.NEXT_PUBLIC_ADSENSE_CLIENT
-    ? { other: { 'google-adsense-account': process.env.NEXT_PUBLIC_ADSENSE_CLIENT } }
-    : {}),
+  // AdSense 사이트 인증 (pub-ID는 공개 식별자)
+  other: {
+    'google-adsense-account': process.env.NEXT_PUBLIC_ADSENSE_CLIENT || 'ca-pub-9552509372228899',
+  },
 };
 
 // ============================================================

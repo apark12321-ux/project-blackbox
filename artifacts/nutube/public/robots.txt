@@ -1,2 +1,21 @@
 User-agent: *
 Allow: /
+Disallow: /api/
+Disallow: /studio/
+Disallow: /login/
+Disallow: /workflow/
+
+User-agent: Googlebot
+Allow: /
+Disallow: /api/
+Disallow: /studio/
+Disallow: /login/
+Disallow: /workflow/
+
+User-agent: Mediapartners-Google
+Allow: /
+
+User-agent: AdsBot-Google
+Allow: /
+
+Sitemap: https://nutube.kr/sitemap.xml
