@@ -22,8 +22,7 @@
     "allowImportingTsExtensions": true,
     "moduleResolution": "bundler",
     "types": [
-      "node",
-      "vite/client"
+      "node"
     ],
     "paths": {
       "@/*": [
