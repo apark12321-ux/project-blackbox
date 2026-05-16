@@ -3,28 +3,24 @@
  * PUT    /api/posts/[slug]  — 전체 수정
  * PATCH  /api/posts/[slug]  — 부분 수정
  * DELETE /api/posts/[slug]  — 소프트 삭제 (기본) / 영구 삭제 (?permanent=true)
- *
- * Next.js 15: params는 Promise<{ slug: string }> 형식
  */
 
 import { NextRequest, NextResponse } from 'next/server';
 import fs from 'fs';
 import path from 'path';
 import {
-  checkAuth, normalizeUpdates, checkSecurity, validatePost,
+  checkAuth, normalizeUpdates, checkSecurity,
   readPost, serializePost,
   POSTS_DIR, TRASH_DIR, ALLOWED_CATEGORIES, ensureDir,
   calcReadTime, countWords,
 } from '@/lib/posts-api';
 
-// Next.js 15: params는 Promise로 감싸짐
 type Ctx = { params: Promise<{ slug: string }> };
 
 // ─────────────────────────────────────────────
 // GET /api/posts/[slug]
 // ─────────────────────────────────────────────
 // Query params:
-//   include=content       본문 포함 (기본 포함)
 //   related=5             연관 글 N개 포함
 //   allow_draft=true      임시글도 조회 (인증 필요)
 
@@ -104,7 +100,6 @@ async function handleUpdate(request: NextRequest, ctx: Ctx) {
       updatedAt: new Date().toISOString(),
     };
 
-    // 카테고리 유효성
     if (merged.category && !ALLOWED_CATEGORIES.includes(merged.category)) {
       return NextResponse.json({
         success: false,
@@ -112,12 +107,10 @@ async function handleUpdate(request: NextRequest, ctx: Ctx) {
       }, { status: 400 });
     }
 
-    // 본문 최소 길이
     if (merged.content?.body && merged.content.body.length < 1500) {
       return NextResponse.json({ success: false, error: 'content.body must be at least 1,500 characters' }, { status: 400 });
     }
 
-    // 읽기 시간·단어 수 갱신
     if (updates.content?.body) {
       merged.readTime  = calcReadTime(updates.content.body);
       merged.wordCount = countWords(updates.content.body);
@@ -134,12 +127,12 @@ async function handleUpdate(request: NextRequest, ctx: Ctx) {
       success: true,
       data: {
         slug,
-        url:         `https://nutube.kr/blog/${slug}`,
-        title:       merged.title,
-        status:      merged.status,
-        readTime:    merged.readTime,
-        wordCount:   merged.wordCount,
-        updatedAt:   merged.updatedAt,
+        url:       `https://nutube.kr/blog/${slug}`,
+        title:     merged.title,
+        status:    merged.status,
+        readTime:  merged.readTime,
+        wordCount: merged.wordCount,
+        updatedAt: merged.updatedAt,
       },
     });
   } catch (e: any) {
@@ -182,9 +175,8 @@ export async function DELETE(request: NextRequest, ctx: Ctx) {
       });
     }
 
-    // 소프트 삭제: trash 폴더로 이동
     ensureDir(TRASH_DIR);
-    const post = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
+    const post    = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
     const trashed = { ...post, status: 'archived', deletedAt };
     fs.writeFileSync(path.join(TRASH_DIR, `${slug}.json`), JSON.stringify(trashed, null, 2), 'utf-8');
     fs.unlinkSync(filePath);
@@ -195,7 +187,7 @@ export async function DELETE(request: NextRequest, ctx: Ctx) {
       data: {
         slug,
         deletedAt,
-        restore:   `PATCH /api/posts/${slug}/restore`,
+        restore: `POST /api/posts/${slug}/restore`,
       },
     });
   } catch (e: any) {
