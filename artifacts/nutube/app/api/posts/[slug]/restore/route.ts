@@ -3,9 +3,10 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
-import { checkAuth, POSTS_DIR, TRASH_DIR, ensureDir } from '@/lib/posts-api';
+import {
+  checkAuth, readPost, writePost,
+  readTrashPost, removeTrashPost,
+} from '@/lib/posts-api';
 
 type Ctx = { params: Promise<{ slug: string }> };
 
@@ -17,27 +18,29 @@ export async function POST(request: NextRequest, ctx: Ctx) {
   }
 
   try {
-    const trashPath = path.join(TRASH_DIR, `${slug}.json`);
-    const postPath  = path.join(POSTS_DIR,  `${slug}.json`);
+    const [trashed, existing] = await Promise.all([
+      readTrashPost(slug),
+      readPost(slug),
+    ]);
 
-    if (!fs.existsSync(trashPath)) {
+    if (!trashed) {
       return NextResponse.json({ success: false, error: 'Post not in trash' }, { status: 404 });
     }
-    if (fs.existsSync(postPath)) {
+    if (existing) {
       return NextResponse.json({ success: false, error: 'Slug already exists in posts' }, { status: 409 });
     }
 
-    ensureDir(POSTS_DIR);
-    const post     = JSON.parse(fs.readFileSync(trashPath, 'utf-8'));
     const restored = {
-      ...post,
+      ...trashed,
       status:    'published',
       updatedAt: new Date().toISOString(),
     };
     delete restored.deletedAt;
 
-    fs.writeFileSync(postPath, JSON.stringify(restored, null, 2), 'utf-8');
-    fs.unlinkSync(trashPath);
+    await Promise.all([
+      writePost(restored),
+      removeTrashPost(slug),
+    ]);
 
     return NextResponse.json({
       success: true,
