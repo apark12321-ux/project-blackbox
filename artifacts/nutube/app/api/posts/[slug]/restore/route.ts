@@ -7,17 +7,18 @@ import fs from 'fs';
 import path from 'path';
 import { checkAuth, POSTS_DIR, TRASH_DIR, ensureDir } from '@/lib/posts-api';
 
-type Ctx = { params: { slug: string } };
+type Ctx = { params: Promise<{ slug: string }> };
 
-export async function POST(request: NextRequest, { params }: Ctx) {
+export async function POST(request: NextRequest, ctx: Ctx) {
+  const { slug } = await ctx.params;
   const auth = checkAuth(request);
   if (!auth.valid) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const trashPath  = path.join(TRASH_DIR, `${params.slug}.json`);
-    const postPath   = path.join(POSTS_DIR,  `${params.slug}.json`);
+    const trashPath = path.join(TRASH_DIR, `${slug}.json`);
+    const postPath  = path.join(POSTS_DIR,  `${slug}.json`);
 
     if (!fs.existsSync(trashPath)) {
       return NextResponse.json({ success: false, error: 'Post not in trash' }, { status: 404 });
@@ -27,12 +28,11 @@ export async function POST(request: NextRequest, { params }: Ctx) {
     }
 
     ensureDir(POSTS_DIR);
-    const post = JSON.parse(fs.readFileSync(trashPath, 'utf-8'));
+    const post     = JSON.parse(fs.readFileSync(trashPath, 'utf-8'));
     const restored = {
       ...post,
-      status:      'published',
-      updatedAt:   new Date().toISOString(),
-      deletedAt:   undefined,
+      status:    'published',
+      updatedAt: new Date().toISOString(),
     };
     delete restored.deletedAt;
 
@@ -43,9 +43,9 @@ export async function POST(request: NextRequest, { params }: Ctx) {
       success: true,
       action:  'restored',
       data: {
-        slug:      params.slug,
-        url:       `https://nutube.kr/blog/${params.slug}`,
-        title:     restored.title,
+        slug,
+        url:        `https://nutube.kr/blog/${slug}`,
+        title:      restored.title,
         restoredAt: restored.updatedAt,
       },
     });
