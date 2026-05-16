@@ -5,6 +5,7 @@
 // 하우징허브 스타일 디자인 적용
 
 import Link from 'next/link';
+import Image from 'next/image';
 import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import { V18Shell } from '../../_shared/V18Shell';
@@ -25,18 +26,41 @@ interface Post {
   status: string;
 }
 
-const CATEGORY_PROMPT: Record<string, string> = {
-  algorithm: 'YouTube algorithm analytics dashboard, content growth strategy, modern tech illustration, blue purple colors, clean professional',
-  senior: 'Korean senior elderly person filming YouTube video with smartphone, warm cozy home, soft natural lighting, heartwarming',
-  aitools: 'AI robot helping digital content creator, futuristic technology workspace, glowing screen, modern illustration',
-  monetization: 'YouTube channel revenue growth chart, golden coins, success concept, business illustration, warm gold colors',
+// Unsplash 카테고리별 큐레이션 이미지 (CDN 즉시 로딩)
+const CATEGORY_IMAGES: Record<string, string[]> = {
+  algorithm: [
+    '1551288049-bebda4e38f71',
+    '1460925895917-afdab827c52f',
+    '1504868584819-f8e8b4b6d7e3',
+    '1526374965328-7f61d4dc18c5',
+    '1611532736597-de2d4265fba3',
+  ],
+  senior: [
+    '1560250097-0b93528c311a',
+    '1484981138541-3d074aa97716',
+    '1522202176988-66273c2fd55f',
+    '1517694712202-14dd9538aa97',
+    '1573496359142-b8d87734a5a2',
+  ],
+  aitools: [
+    '1488590528505-98d2b5aba04b',
+    '1515378791036-0648a3ef77b2',
+    '1507003211169-0a1dd7228f2d',
+    '1498050108023-c5249f4df085',
+    '1519389950473-47ba0277781c',
+  ],
+  monetization: [
+    '1554224155-6726b3ff858f',
+    '1526304640581-d334cdbbf45e',
+    '1579621970563-ebec7560ff3e',
+    '1611974789855-9c2a0a7236a3',
+    '1565514020179-026b92b2d70b',
+  ],
 };
 
-function getPostImageUrl(slug: string, category: string, imageUrl?: string): string {
+function getPostImageUrl(slug: string, _category: string, imageUrl?: string): string {
   if (imageUrl) return imageUrl;
-  const prompt = CATEGORY_PROMPT[category] || 'YouTube content creation guide, modern clean illustration, professional blog header';
-  const seed = slug.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 9999;
-  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt + ', no text overlay, photorealistic')}?width=1200&height=630&nologo=true&seed=${seed}`;
+  return `/thumbnails/${slug}.svg`;
 }
 
 const CATEGORY_GRADIENT: Record<string, string> = {
@@ -481,11 +505,14 @@ export default function DynamicBlogPostPage() {
           </div>
 
           {/* 커버 이미지 */}
-          <div className="hh-cover" style={{ background: gradient }}>
-            <img
+          <div className="hh-cover" style={{ background: gradient, position: 'relative' }}>
+            <Image
               src={getPostImageUrl(post.slug, post.category, post.imageUrl)}
               alt={post.title}
-              style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+              fill
+              sizes="(max-width: 880px) 100vw, 880px"
+              style={{ objectFit: 'cover' }}
+              priority
               onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
             />
             <div className="hh-cover-icon" style={{ position: 'relative', zIndex: 1, opacity: 0 }}>{icon}</div>
