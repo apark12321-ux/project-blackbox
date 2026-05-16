@@ -6,23 +6,16 @@
  */
 
 import { NextRequest, NextResponse } from 'next/server';
-import fs from 'fs';
-import path from 'path';
 import {
   checkAuth, normalizeUpdates, checkSecurity,
-  readPost, serializePost,
-  POSTS_DIR, TRASH_DIR, ALLOWED_CATEGORIES, ensureDir,
+  readPost, writePost, removePost,
+  writeTrashPost, serializePost,
+  listAllPosts,
+  ALLOWED_CATEGORIES,
   calcReadTime, countWords,
 } from '@/lib/posts-api';
 
 type Ctx = { params: Promise<{ slug: string }> };
-
-// ─────────────────────────────────────────────
-// GET /api/posts/[slug]
-// ─────────────────────────────────────────────
-// Query params:
-//   related=5             연관 글 N개 포함
-//   allow_draft=true      임시글도 조회 (인증 필요)
 
 export async function GET(request: NextRequest, ctx: Ctx) {
   const { slug } = await ctx.params;
@@ -31,7 +24,7 @@ export async function GET(request: NextRequest, ctx: Ctx) {
   const relatedN   = parseInt(searchParams.get('related') || '0');
 
   try {
-    const post = readPost(slug);
+    const post = await readPost(slug);
     if (!post) {
       return NextResponse.json({ success: false, error: 'Post not found', slug }, { status: 404 });
     }
@@ -48,18 +41,13 @@ export async function GET(request: NextRequest, ctx: Ctx) {
 
     const data: any = { ...post, url: `https://nutube.kr/blog/${post.slug}` };
 
-    // 연관 글 (같은 카테고리, 최신 N개, 자기 자신 제외)
     if (relatedN > 0) {
-      const allFiles = fs.existsSync(POSTS_DIR)
-        ? fs.readdirSync(POSTS_DIR).filter(f => f.endsWith('.json') && !f.startsWith('_'))
-        : [];
-      const related = allFiles
-        .map(f => { try { return JSON.parse(fs.readFileSync(path.join(POSTS_DIR, f), 'utf-8')); } catch { return null; } })
-        .filter((p: any) => p && p.status === 'published' && p.slug !== post.slug && p.category === post.category)
+      const all = await listAllPosts({ status: 'published' });
+      data.related = all
+        .filter((p: any) => p.slug !== post.slug && p.category === post.category)
         .sort((a: any, b: any) => b.publishedAt.localeCompare(a.publishedAt))
         .slice(0, relatedN)
         .map((p: any) => serializePost(p));
-      data.related = related;
     }
 
     return NextResponse.json({ success: true, data });
@@ -67,11 +55,6 @@ export async function GET(request: NextRequest, ctx: Ctx) {
     return NextResponse.json({ success: false, error: e.message }, { status: 500 });
   }
 }
-
-// ─────────────────────────────────────────────
-// PUT /api/posts/[slug] — 전체 수정
-// PATCH /api/posts/[slug] — 부분 수정 (동일 동작)
-// ─────────────────────────────────────────────
 
 async function handleUpdate(request: NextRequest, ctx: Ctx) {
   const { slug } = await ctx.params;
@@ -81,13 +64,12 @@ async function handleUpdate(request: NextRequest, ctx: Ctx) {
   }
 
   try {
-    const filePath = path.join(POSTS_DIR, `${slug}.json`);
-    if (!fs.existsSync(filePath)) {
+    const existing = await readPost(slug);
+    if (!existing) {
       return NextResponse.json({ success: false, error: 'Post not found', slug }, { status: 404 });
     }
 
-    const existing = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
-    const updates  = normalizeUpdates(await request.json());
+    const updates = normalizeUpdates(await request.json());
 
     if (updates.slug && updates.slug !== slug) {
       return NextResponse.json({ success: false, error: 'slug 변경은 불가합니다' }, { status: 400 });
@@ -108,7 +90,10 @@ async function handleUpdate(request: NextRequest, ctx: Ctx) {
     }
 
     if (merged.content?.body && merged.content.body.length < 1500) {
-      return NextResponse.json({ success: false, error: 'content.body must be at least 1,500 characters' }, { status: 400 });
+      return NextResponse.json({
+        success: false,
+        error:   'content.body must be at least 1,500 characters',
+      }, { status: 400 });
     }
 
     if (updates.content?.body) {
@@ -121,7 +106,7 @@ async function handleUpdate(request: NextRequest, ctx: Ctx) {
       return NextResponse.json({ success: false, error: security.error }, { status: 400 });
     }
 
-    fs.writeFileSync(filePath, JSON.stringify(merged, null, 2), 'utf-8');
+    await writePost(merged);
 
     return NextResponse.json({
       success: true,
@@ -143,12 +128,6 @@ async function handleUpdate(request: NextRequest, ctx: Ctx) {
 export async function PUT(request: NextRequest, ctx: Ctx)   { return handleUpdate(request, ctx); }
 export async function PATCH(request: NextRequest, ctx: Ctx) { return handleUpdate(request, ctx); }
 
-// ─────────────────────────────────────────────
-// DELETE /api/posts/[slug]
-// ─────────────────────────────────────────────
-// Query params:
-//   permanent=true   파일 영구 삭제 (기본: trash로 이동)
-
 export async function DELETE(request: NextRequest, ctx: Ctx) {
   const { slug } = await ctx.params;
   const auth = checkAuth(request);
@@ -159,15 +138,15 @@ export async function DELETE(request: NextRequest, ctx: Ctx) {
   const permanent = new URL(request.url).searchParams.get('permanent') === 'true';
 
   try {
-    const filePath = path.join(POSTS_DIR, `${slug}.json`);
-    if (!fs.existsSync(filePath)) {
+    const post = await readPost(slug);
+    if (!post) {
       return NextResponse.json({ success: false, error: 'Post not found' }, { status: 404 });
     }
 
     const deletedAt = new Date().toISOString();
 
     if (permanent) {
-      fs.unlinkSync(filePath);
+      await removePost(slug);
       return NextResponse.json({
         success: true,
         action:  'permanently_deleted',
@@ -175,11 +154,11 @@ export async function DELETE(request: NextRequest, ctx: Ctx) {
       });
     }
 
-    ensureDir(TRASH_DIR);
-    const post    = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
     const trashed = { ...post, status: 'archived', deletedAt };
-    fs.writeFileSync(path.join(TRASH_DIR, `${slug}.json`), JSON.stringify(trashed, null, 2), 'utf-8');
-    fs.unlinkSync(filePath);
+    await Promise.all([
+      writeTrashPost(trashed),
+      removePost(slug),
+    ]);
 
     return NextResponse.json({
       success: true,
