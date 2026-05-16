@@ -1,21 +1,25 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
-  
-  // 이미지 최적화 (워드프레스 수준)
+
+  // 이미지 최적화 (Next.js 15: remotePatterns 방식)
   images: {
     formats: ['image/webp', 'image/avif'],
-    domains: ['nutube.kr', 'www.nutube.kr'],
+    remotePatterns: [
+      { protocol: 'https', hostname: 'nutube.kr' },
+      { protocol: 'https', hostname: 'www.nutube.kr' },
+      { protocol: 'https', hostname: 'image.pollinations.ai' },
+    ],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
   },
-  
+
   // 압축
   compress: true,
-  
+
   // 빌드 성능
   poweredByHeader: false,
-  
+
   // 헤더 (보안 + SEO)
   async headers() {
     return [
