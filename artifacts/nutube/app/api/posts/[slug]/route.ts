@@ -3,6 +3,8 @@
  * PUT    /api/posts/[slug]  — 전체 수정
  * PATCH  /api/posts/[slug]  — 부분 수정
  * DELETE /api/posts/[slug]  — 소프트 삭제 (기본) / 영구 삭제 (?permanent=true)
+ *
+ * Next.js 15: params는 Promise<{ slug: string }> 형식
  */
 
 import { NextRequest, NextResponse } from 'next/server';
@@ -15,7 +17,8 @@ import {
   calcReadTime, countWords,
 } from '@/lib/posts-api';
 
-type Ctx = { params: { slug: string } };
+// Next.js 15: params는 Promise로 감싸짐
+type Ctx = { params: Promise<{ slug: string }> };
 
 // ─────────────────────────────────────────────
 // GET /api/posts/[slug]
@@ -25,15 +28,16 @@ type Ctx = { params: { slug: string } };
 //   related=5             연관 글 N개 포함
 //   allow_draft=true      임시글도 조회 (인증 필요)
 
-export async function GET(request: NextRequest, { params }: Ctx) {
+export async function GET(request: NextRequest, ctx: Ctx) {
+  const { slug } = await ctx.params;
   const { searchParams } = new URL(request.url);
   const allowDraft = searchParams.get('allow_draft') === 'true';
   const relatedN   = parseInt(searchParams.get('related') || '0');
 
   try {
-    const post = readPost(params.slug);
+    const post = readPost(slug);
     if (!post) {
-      return NextResponse.json({ success: false, error: 'Post not found', slug: params.slug }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Post not found', slug }, { status: 404 });
     }
 
     if (post.status !== 'published') {
@@ -73,29 +77,30 @@ export async function GET(request: NextRequest, { params }: Ctx) {
 // PATCH /api/posts/[slug] — 부분 수정 (동일 동작)
 // ─────────────────────────────────────────────
 
-async function handleUpdate(request: NextRequest, { params }: Ctx) {
+async function handleUpdate(request: NextRequest, ctx: Ctx) {
+  const { slug } = await ctx.params;
   const auth = checkAuth(request);
   if (!auth.valid) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
   }
 
   try {
-    const filePath = path.join(POSTS_DIR, `${params.slug}.json`);
+    const filePath = path.join(POSTS_DIR, `${slug}.json`);
     if (!fs.existsSync(filePath)) {
-      return NextResponse.json({ success: false, error: 'Post not found', slug: params.slug }, { status: 404 });
+      return NextResponse.json({ success: false, error: 'Post not found', slug }, { status: 404 });
     }
 
     const existing = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
     const updates  = normalizeUpdates(await request.json());
 
-    if (updates.slug && updates.slug !== params.slug) {
+    if (updates.slug && updates.slug !== slug) {
       return NextResponse.json({ success: false, error: 'slug 변경은 불가합니다' }, { status: 400 });
     }
 
     const merged: any = {
       ...existing,
       ...updates,
-      slug:      params.slug,
+      slug,
       updatedAt: new Date().toISOString(),
     };
 
@@ -128,8 +133,8 @@ async function handleUpdate(request: NextRequest, { params }: Ctx) {
     return NextResponse.json({
       success: true,
       data: {
-        slug:        params.slug,
-        url:         `https://nutube.kr/blog/${params.slug}`,
+        slug,
+        url:         `https://nutube.kr/blog/${slug}`,
         title:       merged.title,
         status:      merged.status,
         readTime:    merged.readTime,
@@ -151,7 +156,8 @@ export async function PATCH(request: NextRequest, ctx: Ctx) { return handleUpdat
 // Query params:
 //   permanent=true   파일 영구 삭제 (기본: trash로 이동)
 
-export async function DELETE(request: NextRequest, { params }: Ctx) {
+export async function DELETE(request: NextRequest, ctx: Ctx) {
+  const { slug } = await ctx.params;
   const auth = checkAuth(request);
   if (!auth.valid) {
     return NextResponse.json({ success: false, error: 'Unauthorized' }, { status: 401 });
@@ -160,7 +166,7 @@ export async function DELETE(request: NextRequest, { params }: Ctx) {
   const permanent = new URL(request.url).searchParams.get('permanent') === 'true';
 
   try {
-    const filePath = path.join(POSTS_DIR, `${params.slug}.json`);
+    const filePath = path.join(POSTS_DIR, `${slug}.json`);
     if (!fs.existsSync(filePath)) {
       return NextResponse.json({ success: false, error: 'Post not found' }, { status: 404 });
     }
@@ -172,7 +178,7 @@ export async function DELETE(request: NextRequest, { params }: Ctx) {
       return NextResponse.json({
         success: true,
         action:  'permanently_deleted',
-        data:    { slug: params.slug, deletedAt },
+        data:    { slug, deletedAt },
       });
     }
 
@@ -180,16 +186,16 @@ export async function DELETE(request: NextRequest, { params }: Ctx) {
     ensureDir(TRASH_DIR);
     const post = JSON.parse(fs.readFileSync(filePath, 'utf-8'));
     const trashed = { ...post, status: 'archived', deletedAt };
-    fs.writeFileSync(path.join(TRASH_DIR, `${params.slug}.json`), JSON.stringify(trashed, null, 2), 'utf-8');
+    fs.writeFileSync(path.join(TRASH_DIR, `${slug}.json`), JSON.stringify(trashed, null, 2), 'utf-8');
     fs.unlinkSync(filePath);
 
     return NextResponse.json({
       success: true,
       action:  'moved_to_trash',
       data: {
-        slug:      params.slug,
+        slug,
         deletedAt,
-        restore:   `PATCH /api/posts/${params.slug}/restore`,
+        restore:   `PATCH /api/posts/${slug}/restore`,
       },
     });
   } catch (e: any) {
