@@ -2,6 +2,7 @@
 
 import { useState, useMemo, useEffect } from 'react';
 import Link from 'next/link';
+import Image from 'next/image';
 import { V18Shell } from '../_shared/V18Shell';
 
 interface Guide {
@@ -89,17 +90,40 @@ const CATEGORY_ICON: Record<string, string> = {
   monetization: '💰',
 };
 
-const CATEGORY_PROMPT: Record<string, string> = {
-  algorithm: 'YouTube algorithm analytics dashboard, content growth strategy, modern tech illustration, blue purple colors, clean professional',
-  senior: 'Korean senior elderly person filming YouTube video with smartphone, warm cozy home, soft natural lighting, heartwarming',
-  aitools: 'AI robot helping digital content creator, futuristic technology workspace, glowing screen, modern illustration',
-  monetization: 'YouTube channel revenue growth chart, golden coins, success concept, business illustration, warm gold colors',
+// Unsplash 카테고리별 큐레이션 이미지 (CDN 즉시 로딩)
+const CATEGORY_IMAGES: Record<string, string[]> = {
+  algorithm: [
+    '1551288049-bebda4e38f71', // analytics dashboard
+    '1460925895917-afdab827c52f', // data analytics
+    '1504868584819-f8e8b4b6d7e3', // charts
+    '1526374965328-7f61d4dc18c5', // digital code
+    '1611532736597-de2d4265fba3', // social analytics
+  ],
+  senior: [
+    '1560250097-0b93528c311a', // mature businessman
+    '1484981138541-3d074aa97716', // elderly woman
+    '1522202176988-66273c2fd55f', // people group
+    '1517694712202-14dd9538aa97', // person with laptop
+    '1573496359142-b8d87734a5a2', // business woman
+  ],
+  aitools: [
+    '1488590528505-98d2b5aba04b', // laptop screen
+    '1515378791036-0648a3ef77b2', // dark tech
+    '1507003211169-0a1dd7228f2d', // technology
+    '1498050108023-c5249f4df085', // coding laptop
+    '1519389950473-47ba0277781c', // team tech
+  ],
+  monetization: [
+    '1554224155-6726b3ff858f', // finance
+    '1526304640581-d334cdbbf45e', // financial charts
+    '1579621970563-ebec7560ff3e', // coins
+    '1611974789855-9c2a0a7236a3', // stock market
+    '1565514020179-026b92b2d70b', // business success
+  ],
 };
 
-function getPollinationsUrl(slug: string, category: string): string {
-  const prompt = CATEGORY_PROMPT[category] || 'YouTube content creation guide, modern clean illustration, professional blog header';
-  const seed = slug.split('').reduce((acc, c) => acc + c.charCodeAt(0), 0) % 9999;
-  return `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt + ', no text overlay, photorealistic')}?width=800&height=450&nologo=true&seed=${seed}`;
+function getCategoryImageUrl(slug: string, _category: string): string {
+  return `/thumbnails/${slug}.svg`;
 }
 
 // 날짜 포맷: ISO 8601 → YYYY.MM.DD
@@ -453,18 +477,20 @@ export default function BlogPage() {
           {/* Grid */}
           {filtered.length > 0 ? (
             <div className="hh-grid">
-              {filtered.map(g => (
+              {filtered.map((g, idx) => (
                 <Link key={g.slug} href={`/blog/${g.slug}`} className="hh-card">
                   <div
                     className="hh-card-image"
                     style={{ background: CATEGORY_GRADIENT[g.category], position: 'relative' }}
                   >
-                    <img
-                      src={getPollinationsUrl(g.slug, g.category)}
+                    <Image
+                      src={getCategoryImageUrl(g.slug, g.category)}
                       alt={g.title}
-                      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover' }}
+                      fill
+                      sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      style={{ objectFit: 'cover' }}
+                      priority={idx < 3}
                       onError={(e) => { (e.currentTarget as HTMLImageElement).style.display = 'none'; }}
-                      loading="lazy"
                     />
                     <div className="hh-card-icon" style={{ position: 'relative', zIndex: 1, opacity: 0 }}>{CATEGORY_ICON[g.category]}</div>
                     <span className="hh-card-category" style={{ position: 'absolute', zIndex: 2, top: 16, left: 16 }}>{g.categoryLabel}</span>
