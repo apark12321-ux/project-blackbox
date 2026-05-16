@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#38bdf8"/>
+      <stop offset="100%" stop-color="#0284c7"/>
+    </linearGradient>
+    <filter id="blur">
+      <feGaussianBlur stdDeviation="40"/>
+    </filter>
+  </defs>
+  <!-- 배경 -->
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <!-- 장식 원 -->
+  <circle cx="680" cy="80" r="140" fill="white" fill-opacity="0.06" filter="url(#blur)"/>
+  <circle cx="120" cy="370" r="120" fill="white" fill-opacity="0.06" filter="url(#blur)"/>
+  <!-- 격자 패턴 -->
+  <rect x="0" y="0" width="800" height="450" fill="url(#grid)" opacity="0.04"/>
+  <!-- 아이콘 -->
+  <text x="400" y="145" font-size="64" text-anchor="middle" dominant-baseline="middle">🤖</text>
+  <!-- 제목 -->
+  <text x="400" y="181" font-family="'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="34" font-weight="700" fill="white" text-anchor="middle" dominant-baseline="middle" style="text-shadow:0 2px 8px rgba(0,0,0,0.4)">AI 대본 작성 도구 비교 -</text>
+    <text x="400" y="227" font-family="'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="34" font-weight="700" fill="white" text-anchor="middle" dominant-baseline="middle" style="text-shadow:0 2px 8px rgba(0,0,0,0.4)">ChatGPT vs</text>
+    <text x="400" y="273" font-family="'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="34" font-weight="700" fill="white" text-anchor="middle" dominant-baseline="middle" style="text-shadow:0 2px 8px rgba(0,0,0,0.4)">Claude vs Gemini</text>
+    
+  <!-- 하단 NuTube 태그 -->
+  <rect x="0" y="400" width="800" height="50" fill="black" fill-opacity="0.25"/>
+  <text x="400" y="425" font-family="'Noto Sans KR', Arial, sans-serif" font-size="18" fill="white" fill-opacity="0.85" text-anchor="middle" dominant-baseline="middle">NuTube · 유튜브 채널 운영 가이드</text>
+</svg>
