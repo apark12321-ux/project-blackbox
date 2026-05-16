@@ -4,10 +4,13 @@ const nextConfig = {
 
   // 이미지 최적화 (Next.js 15: remotePatterns 방식)
   images: {
+    dangerouslyAllowSVG: true,
+    contentDispositionType: 'attachment',
     formats: ['image/webp', 'image/avif'],
     remotePatterns: [
       { protocol: 'https', hostname: 'nutube.kr' },
       { protocol: 'https', hostname: 'www.nutube.kr' },
+      { protocol: 'https', hostname: 'images.unsplash.com' },
       { protocol: 'https', hostname: 'image.pollinations.ai' },
     ],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920],
