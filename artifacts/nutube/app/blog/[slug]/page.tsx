@@ -1,3 +1,4 @@
+// [vercel-redeploy]
 'use client';
 
 // NuTube 가이드 동적 페이지 - Upstash Redis 에서 읽음
