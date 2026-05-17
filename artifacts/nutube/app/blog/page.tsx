@@ -123,7 +123,7 @@ const CATEGORY_IMAGES: Record<string, string[]> = {
 };
 
 function getCategoryImageUrl(slug: string, _category: string): string {
-  return `/thumbnails/${slug}.svg`;
+  return `/api/og/${slug}`;
 }
 
 // 날짜 포맷: ISO 8601 → YYYY.MM.DD
