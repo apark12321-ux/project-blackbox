@@ -57,6 +57,14 @@ function calculateReadTime(text: string | undefined | null, wpm = 500): string {
   return `${Math.max(1, Math.ceil(plain.length / wpm))}분`;
 }
 
+function preprocessMarkdown(body: string): string {
+  if (!body) return '';
+  return body
+    .split('\n')
+    .map(line => line.trimStart())
+    .join('\n');
+}
+
 export default function DynamicBlogPostPage() {
   const params = useParams();
   const slug = params?.slug as string;
@@ -218,7 +226,7 @@ export default function DynamicBlogPostPage() {
                 },
               }}
             >
-              {post.content?.body || ''}
+              {preprocessMarkdown(post.content?.body || '')}
             </ReactMarkdown>
           </div>
 
