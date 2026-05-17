@@ -228,7 +228,11 @@ export default function DynamicBlogPostPage() {
                 },
               }}
             >
-              {preprocessMarkdown(post.content?.body || '')}
+              {preprocessMarkdown(
+                typeof post.content === 'string'
+                  ? post.content
+                  : post.content?.body || ''
+              )}
             </ReactMarkdown>
           </div>
 
