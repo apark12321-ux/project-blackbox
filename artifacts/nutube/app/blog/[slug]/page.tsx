@@ -40,7 +40,7 @@ const CATEGORY_ICON: Record<string, string> = {
 
 function getPostImageUrl(slug: string, imageUrl?: string): string {
   if (imageUrl) return imageUrl;
-  return `/thumbnails/${slug}.svg`;
+  return `/api/og/${slug}`;
 }
 
 function formatDate(iso: string): string {
