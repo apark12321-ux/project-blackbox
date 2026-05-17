@@ -1,8 +1,8 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#facc15"/>
-      <stop offset="100%" stop-color="#ca8a04"/>
+      <stop offset="0%" stop-color="#818cf8"/>
+      <stop offset="100%" stop-color="#4f46e5"/>
     </linearGradient>
     <linearGradient id="overlay" x1="0%" y1="100%" x2="0%" y2="0%">
       <stop offset="0%" stop-color="#000000" stop-opacity="0.25"/>
@@ -15,14 +15,14 @@
   
   <!-- 카테고리 배지 -->
   <rect x="80" y="80" width="180" height="44" rx="22" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
-  <text x="170" y="109" font-family="Pretendard, sans-serif" font-size="16" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="2">REVENUE</text>
+  <text x="170" y="109" font-family="Pretendard, sans-serif" font-size="16" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="2">ALGORITHM</text>
   
   <!-- 이모지 (우측) -->
-  <text x="1050" y="380" font-size="220" text-anchor="middle" opacity="0.85">💰</text>
+  <text x="1050" y="380" font-size="220" text-anchor="middle" opacity="0.85">🎯</text>
   
   <!-- 제목 -->
-  <text x="80" y="245" font-family="Pretendard, sans-serif" font-size="52" font-weight="800" fill="#ffffff" letter-spacing="-1.5">유튜브 협찬 단가 책정 - 얼마 받으면</text>
-        <text x="80" y="321" font-family="Pretendard, sans-serif" font-size="52" font-weight="800" fill="#ffffff" letter-spacing="-1.5">적정인가</text>
+  <text x="80" y="245" font-family="Pretendard, sans-serif" font-size="52" font-weight="800" fill="#ffffff" letter-spacing="-1.5">쇼츠와 일반 영상 - 무엇을 먼저</text>
+        <text x="80" y="321" font-family="Pretendard, sans-serif" font-size="52" font-weight="800" fill="#ffffff" letter-spacing="-1.5">시작해야 할까</text>
   
   <!-- 하단 푸터 -->
   <rect x="80" y="530" width="1040" height="2" fill="rgba(255,255,255,0.3)"/>
