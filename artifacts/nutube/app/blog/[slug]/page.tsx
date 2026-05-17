@@ -6,7 +6,6 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
-import rehypeRaw from 'rehype-raw';
 import { V18Shell } from '../../_shared/V18Shell';
 
 interface Post {
@@ -18,11 +17,13 @@ interface Post {
   publishedAt: string;
   kicker?: string;
   summary: string;
-  content: { type: string; body: string };
+  // content는 문자열 또는 {type, body} 객체 두 가지 형태를 모두 지원
+  content?: string | { type?: string; body?: string };
+  body?: string;
   tags?: string[];
   imageUrl?: string;
   relatedPosts?: string[];
-  status: string;
+  status?: string;
 }
 
 const CATEGORY_GRADIENT: Record<string, string> = {
@@ -41,7 +42,7 @@ const CATEGORY_ICON: Record<string, string> = {
 
 function getPostImageUrl(slug: string, imageUrl?: string): string {
   if (imageUrl) return imageUrl;
-  return `/api/og/${slug}`;
+  return `/thumbnails/${slug}.svg`;
 }
 
 function formatDate(iso: string): string {
@@ -52,18 +53,29 @@ function formatDate(iso: string): string {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 }
 
-function calculateReadTime(text: string | undefined | null, wpm = 500): string {
+function calculateReadTime(text: string, wpm = 500): string {
   if (!text) return '1분';
   const plain = String(text).replace(/[#>*_\[\]`]/g, '').replace(/\s+/g, ' ').trim();
   return `${Math.max(1, Math.ceil(plain.length / wpm))}분`;
 }
 
-function preprocessMarkdown(body: string): string {
-  if (!body) return '';
-  return body
-    .split('\n')
-    .map(line => line.trimStart())
-    .join('\n');
+/**
+ * 본문 추출 - content가 문자열이든 객체이든, body 필드가 따로 있든 모두 처리
+ */
+function extractBody(post: Post): string {
+  // 1순위: body 필드 (문자열)
+  if (typeof post.body === 'string' && post.body.length > 0) {
+    return post.body;
+  }
+  // 2순위: content가 문자열
+  if (typeof post.content === 'string' && post.content.length > 0) {
+    return post.content;
+  }
+  // 3순위: content가 객체 {body}
+  if (post.content && typeof post.content === 'object' && typeof post.content.body === 'string') {
+    return post.content.body;
+  }
+  return '';
 }
 
 export default function DynamicBlogPostPage() {
@@ -111,6 +123,7 @@ export default function DynamicBlogPostPage() {
 
   const gradient = CATEGORY_GRADIENT[post.category] || CATEGORY_GRADIENT.algorithm;
   const icon = CATEGORY_ICON[post.category] || '📄';
+  const bodyText = extractBody(post);
 
   return (
     <V18Shell>
@@ -140,7 +153,7 @@ export default function DynamicBlogPostPage() {
 
         /* ── 본문 마크다운 스타일 ── */
         .hh-content { font-size:17px; line-height:1.85; color:#374151; word-break:keep-all; }
-        .hh-content h2 { font-size:26px; font-weight:800; color:#111827; margin:48px 0 16px; letter-spacing:-.02em; }
+        .hh-content h2 { font-size:26px; font-weight:800; color:#111827; margin:48px 0 16px; letter-spacing:-.02em; padding-bottom:10px; border-bottom:2px solid #eef2ff; }
         .hh-content h3 { font-size:19px; font-weight:700; color:#111827; margin:28px 0 12px; }
         .hh-content p { margin:0 0 18px; line-height:1.85; color:#374151; }
         .hh-content strong { color:#4f46e5; font-weight:700; }
@@ -151,7 +164,7 @@ export default function DynamicBlogPostPage() {
         .hh-content a { color:#4f46e5; text-decoration:underline; }
         .hh-content a:hover { color:#4338ca; }
         .hh-content hr { border:none; border-top:1px solid #e5e7eb; margin:32px 0; }
-        .hh-content code { background:#f3f4f6; border-radius:4px; padding:2px 6px; font-size:14px; font-family:monospace; }
+        .hh-content code { background:#f3f4f6; border-radius:4px; padding:2px 6px; font-size:14px; font-family:monospace; color:#dc2626; }
         .hh-content pre { background:#1f2937; color:#f9fafb; border-radius:12px; padding:20px; overflow-x:auto; margin:0 0 24px; }
         .hh-content pre code { background:none; padding:0; color:inherit; }
         @media(max-width:640px){ .hh-content{ font-size:16px; } .hh-content h2{ font-size:22px; margin:36px 0 14px; } .hh-content p{ line-height:1.75; } }
@@ -168,6 +181,19 @@ export default function DynamicBlogPostPage() {
         .hh-content blockquote p { margin:0 0 8px; color:#374151; font-size:14.5px; line-height:1.7; }
         .hh-content blockquote p:last-child { margin:0; }
         .hh-content blockquote strong { color:#4f46e5; }
+        .hh-content blockquote ul { margin:8px 0; }
+        .hh-content blockquote li { font-size:14.5px; color:#374151; margin-bottom:6px; }
+
+        /* ── 본문이 비어있을 때 ── */
+        .hh-empty-body {
+          padding:40px;
+          background:#fef3f2;
+          border:1px solid #fecaca;
+          border-radius:12px;
+          color:#991b1b;
+          text-align:center;
+          font-size:15px;
+        }
 
         /* ── CTA ── */
         .hh-cta { margin-top:60px; padding:36px; background:linear-gradient(135deg,#eef2ff 0%,#f5f3ff 100%); border-radius:24px; text-align:center; }
@@ -194,7 +220,7 @@ export default function DynamicBlogPostPage() {
             <div className="hh-detail-avatar">N</div>
             <div>
               <p className="hh-detail-author">NuTube</p>
-              <p className="hh-detail-date">{formatDate(post.publishedAt)} 발행 · {calculateReadTime(post.content?.body)} 읽기</p>
+              <p className="hh-detail-date">{formatDate(post.publishedAt)} 발행 · {calculateReadTime(bodyText)} 읽기</p>
             </div>
           </div>
 
@@ -212,6 +238,17 @@ export default function DynamicBlogPostPage() {
           </div>
 
           <div className="hh-content">
+<<<<<<< HEAD
+            {bodyText ? (
+              <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {bodyText}
+              </ReactMarkdown>
+            ) : (
+              <div className="hh-empty-body">
+                본문을 불러올 수 없습니다. 잠시 후 다시 시도해 주세요.
+              </div>
+            )}
+=======
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
               rehypePlugins={[rehypeRaw]}
@@ -228,8 +265,13 @@ export default function DynamicBlogPostPage() {
                 },
               }}
             >
-              {preprocessMarkdown(post.content?.body || '')}
+              {preprocessMarkdown(
+                typeof post.content === 'string'
+                  ? post.content
+                  : post.content?.body || ''
+              )}
             </ReactMarkdown>
+>>>>>>> 7e438499282f63571daa0bb40846807403f1b992
           </div>
 
           {post.tags && post.tags.length > 0 && (

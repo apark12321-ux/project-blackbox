@@ -1,30 +1,19 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="630" viewBox="0 0 1200 630">
+<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
   <defs>
     <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
       <stop offset="0%" stop-color="#facc15"/>
       <stop offset="100%" stop-color="#ca8a04"/>
     </linearGradient>
-    <linearGradient id="overlay" x1="0%" y1="100%" x2="0%" y2="0%">
-      <stop offset="0%" stop-color="#000000" stop-opacity="0.25"/>
-      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
-    </linearGradient>
+    <filter id="blur">
+      <feGaussianBlur stdDeviation="40"/>
+    </filter>
   </defs>
-  
-  <rect width="1200" height="630" fill="url(#bg)"/>
-  <rect width="1200" height="630" fill="url(#overlay)"/>
-  
-  <!-- 카테고리 배지 -->
-  <rect x="80" y="80" width="180" height="44" rx="22" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="1"/>
-  <text x="170" y="109" font-family="Pretendard, sans-serif" font-size="16" font-weight="700" fill="#ffffff" text-anchor="middle" letter-spacing="2">REVENUE</text>
-  
-  <!-- 이모지 (우측) -->
-  <text x="1050" y="380" font-size="220" text-anchor="middle" opacity="0.85">💰</text>
-  
-  <!-- 제목 -->
-  <text x="80" y="245" font-family="Pretendard, sans-serif" font-size="52" font-weight="800" fill="#ffffff" letter-spacing="-1.5">쿠팡 파트너스로 유튜브 부수익 만드는</text>
-        <text x="80" y="321" font-family="Pretendard, sans-serif" font-size="52" font-weight="800" fill="#ffffff" letter-spacing="-1.5">법</text>
-  
-  <!-- 하단 푸터 -->
-  <rect x="80" y="530" width="1040" height="2" fill="rgba(255,255,255,0.3)"/>
-  <text x="80" y="575" font-family="Pretendard, sans-serif" font-size="22" font-weight="600" fill="#ffffff" opacity="0.95">NuTube · 유튜브 채널 운영 가이드</text>
+  <rect width="800" height="450" fill="url(#bg)"/>
+  <circle cx="680" cy="80" r="140" fill="white" fill-opacity="0.06" filter="url(#blur)"/>
+  <circle cx="120" cy="370" r="120" fill="white" fill-opacity="0.06" filter="url(#blur)"/>
+  <text x="400" y="145" font-size="64" text-anchor="middle" dominant-baseline="middle">💰</text>
+  <text x="400" y="202" font-family="'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="34" font-weight="700" fill="white" text-anchor="middle" dominant-baseline="middle" style="text-shadow:0 2px 8px rgba(0,0,0,0.4)">쿠팡 파트너스로 유튜브</text>
+  <text x="400" y="248" font-family="'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="34" font-weight="700" fill="white" text-anchor="middle" dominant-baseline="middle" style="text-shadow:0 2px 8px rgba(0,0,0,0.4)">부수익 만드는 법</text>
+  <rect x="0" y="400" width="800" height="50" fill="black" fill-opacity="0.25"/>
+  <text x="400" y="425" font-family="'Noto Sans KR', 'Apple SD Gothic Neo', 'Malgun Gothic', sans-serif" font-size="18" fill="white" fill-opacity="0.85" text-anchor="middle" dominant-baseline="middle">NuTube · 유튜브 채널 운영 가이드</text>
 </svg>
