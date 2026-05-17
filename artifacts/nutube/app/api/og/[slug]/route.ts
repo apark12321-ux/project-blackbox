@@ -77,7 +77,7 @@ function buildSvg(title: string, category: string): string {
   const startY   = centerY - ((lines.length - 1) * lineH) / 2;
 
   const titleSvg = lines.map((l, i) =>
-    `<text x="400" y="${Math.round(startY + i * lineH)}" font-family=${FONT} font-size="34" font-weight="700" fill="white" text-anchor="middle" dominant-baseline="middle" style="text-shadow:0 2px 8px rgba(0,0,0,0.4)">${escXml(l)}</text>`
+    `<text x="400" y="${Math.round(startY + i * lineH)}" font-family="${FONT}" font-size="34" font-weight="700" fill="white" text-anchor="middle" dominant-baseline="middle" style="text-shadow:0 2px 8px rgba(0,0,0,0.4)">${escXml(l)}</text>`
   ).join('\n  ');
 
   return `<svg xmlns="http://www.w3.org/2000/svg" width="800" height="450" viewBox="0 0 800 450">
