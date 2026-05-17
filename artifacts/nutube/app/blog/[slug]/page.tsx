@@ -6,6 +6,7 @@ import { useState, useEffect } from 'react';
 import { useParams } from 'next/navigation';
 import ReactMarkdown from 'react-markdown';
 import remarkGfm from 'remark-gfm';
+import rehypeRaw from 'rehype-raw';
 import { V18Shell } from '../../_shared/V18Shell';
 
 interface Post {
@@ -213,6 +214,7 @@ export default function DynamicBlogPostPage() {
           <div className="hh-content">
             <ReactMarkdown
               remarkPlugins={[remarkGfm]}
+              rehypePlugins={[rehypeRaw]}
               components={{
                 blockquote({ children }) {
                   return (
