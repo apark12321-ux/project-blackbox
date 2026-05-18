@@ -1,6 +1,5 @@
 import type { MetadataRoute } from 'next';
-
-const BASE_URL = 'https://nutube.kr';
+import { SITE } from '@/lib/site';
 
 export default function robots(): MetadataRoute.Robots {
   return {
@@ -8,23 +7,16 @@ export default function robots(): MetadataRoute.Robots {
       {
         userAgent: '*',
         allow: '/',
-        disallow: ['/api/', '/studio/', '/login/', '/workflow/'],
+        disallow: ['/api/', '/publish'],
       },
-      {
-        userAgent: 'Googlebot',
-        allow: '/',
-        disallow: ['/api/', '/studio/', '/login/', '/workflow/'],
-      },
-      {
-        userAgent: 'Mediapartners-Google',
-        allow: '/',
-      },
-      {
-        userAgent: 'AdsBot-Google',
-        allow: '/',
-      },
+      { userAgent: 'Mediapartners-Google', allow: '/' },
+      { userAgent: 'AdsBot-Google', allow: '/' },
+      { userAgent: 'Googlebot', allow: '/' },
+      { userAgent: 'Yeti', allow: '/' },
+      { userAgent: 'Daum', allow: '/' },
+      { userAgent: 'Bingbot', allow: '/' },
     ],
-    sitemap: `${BASE_URL}/sitemap.xml`,
-    host: BASE_URL,
+    sitemap: `${SITE.url}/sitemap.xml`,
+    host: SITE.url,
   };
 }

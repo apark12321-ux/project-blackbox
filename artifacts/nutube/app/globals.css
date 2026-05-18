@@ -1,116 +1,124 @@
-@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.min.css');
+/* ============================================
+   NuTube 전역 스타일 - zip9.kr 패턴 기반
+   ============================================ */
 
-* { box-sizing: border-box; }
+*, *::before, *::after { box-sizing: border-box; }
 
 html, body {
   margin: 0; padding: 0;
-  font-family: 'Pretendard Variable', Pretendard, -apple-system, BlinkMacSystemFont,
-    system-ui, Roboto, 'Helvetica Neue', 'Segoe UI', 
-    'Apple SD Gothic Neo', 'Noto Sans KR', sans-serif;
-  font-size: 15px;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: 16px;
   line-height: 1.6;
-  color: #1a1a1a;
-  background: #fff;
+  color: #111827;
+  background: #ffffff;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  text-rendering: optimizeLegibility;
 }
 
 a { color: inherit; text-decoration: none; }
+a:hover { color: #4f46e5; }
+img, svg { max-width: 100%; height: auto; display: block; }
 button { font-family: inherit; cursor: pointer; }
-input, textarea, select { font-family: inherit; }
 
-h1, h2, h3, h4, h5, h6 {
-  font-weight: 700;
-  letter-spacing: -0.02em;
-  line-height: 1.3;
+.nt-main { min-height: calc(100vh - 200px); }
+
+/* 컨테이너 */
+.nt-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+@media (max-width: 640px) { .nt-container { padding: 0 16px; } }
+
+/* ============================================
+   헤더
+   ============================================ */
+.nt-header {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #f3f4f6;
+}
+.nt-header-inner {
+  max-width: 1200px; margin: 0 auto; padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nt-logo {
+  font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.nt-nav { display: flex; gap: 24px; align-items: center; }
+.nt-nav a { font-size: 14px; font-weight: 600; color: #374151; }
+.nt-nav a:hover { color: #4f46e5; }
+.nt-nav-cta {
+  padding: 8px 16px; background: #4f46e5; color: #fff !important;
+  border-radius: 999px; font-size: 14px; font-weight: 700;
+}
+.nt-nav-cta:hover { background: #4338ca; color: #fff !important; }
+@media (max-width: 640px) {
+  .nt-nav { gap: 12px; }
+  .nt-nav a:not(.nt-nav-cta) { display: none; }
 }
 
-p { line-height: 1.65; }
-
-::-webkit-scrollbar { width: 8px; height: 8px; }
-::-webkit-scrollbar-track { background: #fafafa; }
-::-webkit-scrollbar-thumb { background: #d5d5d5; border-radius: 4px; }
-::-webkit-scrollbar-thumb:hover { background: #b5b5b5; }
-
-/* ==================================================
-   모바일 최적화 (AdSense 승인 핵심)
-   ================================================== */
-
-/* 모든 이미지 모바일 친화 */
-img {
-  max-width: 100%;
-  height: auto;
-  display: block;
+/* ============================================
+   푸터
+   ============================================ */
+.nt-footer {
+  background: #f9fafb; border-top: 1px solid #f3f4f6;
+  padding: 40px 0 32px; margin-top: 80px;
 }
-
-/* 터치 타겟 크기 (44x44 이상 - Apple/Google 권장) */
-button, a, input, select, textarea {
-  min-height: 36px;
-  -webkit-tap-highlight-color: transparent;
-  touch-action: manipulation;
+.nt-footer-inner {
+  max-width: 1200px; margin: 0 auto; padding: 0 20px;
+  display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px;
 }
-
-/* 모바일 가로 스크롤 방지 */
-html, body {
-  overflow-x: hidden;
-  max-width: 100vw;
+@media (max-width: 768px) {
+  .nt-footer-inner { grid-template-columns: 1fr; gap: 24px; }
 }
-
-/* 모바일에서 폰트 크기 자동 조정 방지 (iOS Safari) */
-html {
-  -webkit-text-size-adjust: 100%;
-  -ms-text-size-adjust: 100%;
+.nt-footer-brand h3 {
+  font-size: 18px; font-weight: 800; margin: 0 0 8px;
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
 }
-
-/* 모바일 fold 영역 안전 */
-@supports (padding: env(safe-area-inset-top)) {
-  body {
-    padding-top: env(safe-area-inset-top);
-    padding-bottom: env(safe-area-inset-bottom);
-  }
+.nt-footer-brand p { font-size: 13px; color: #6b7280; margin: 0 0 16px; line-height: 1.6; }
+.nt-footer-section h4 { font-size: 13px; font-weight: 700; color: #111827; margin: 0 0 12px; }
+.nt-footer-section ul { list-style: none; padding: 0; margin: 0; }
+.nt-footer-section li { margin-bottom: 8px; }
+.nt-footer-section a { font-size: 13px; color: #6b7280; }
+.nt-footer-section a:hover { color: #4f46e5; }
+.nt-footer-bottom {
+  max-width: 1200px; margin: 32px auto 0; padding: 24px 20px 0;
+  border-top: 1px solid #e5e7eb;
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  font-size: 12px; color: #9ca3af;
 }
+.nt-footer-operator { line-height: 1.6; }
+.nt-footer-operator strong { color: #4b5563; font-weight: 600; }
 
-/* 모바일 입력창 줌 방지 (iOS) */
-input, textarea, select {
-  font-size: 16px; /* 16px 이상이어야 줌 안 됨 */
+/* ============================================
+   공통 페이지 스타일 (About, Privacy, Terms 등)
+   ============================================ */
+.nt-page {
+  max-width: 880px; margin: 0 auto;
+  padding: 60px 24px 80px;
 }
-
-@media (max-width: 600px) {
-  body { font-size: 14.5px; }
-  
-  /* 작은 화면에서 패딩 축소 */
-  .container, .page {
-    padding-left: 16px !important;
-    padding-right: 16px !important;
-  }
-  
-  /* 작은 화면에서 readability 강화 */
-  p { line-height: 1.7; }
+@media (max-width: 640px) { .nt-page { padding: 32px 16px 60px; } }
+.nt-page h1 {
+  font-size: 36px; font-weight: 800; letter-spacing: -0.025em;
+  color: #111827; margin: 0 0 16px; line-height: 1.2;
 }
-
-/* 접근성 - 스크린리더 전용 */
-.sr-only {
-  position: absolute;
-  width: 1px; height: 1px;
-  padding: 0; margin: -1px;
-  overflow: hidden;
-  clip: rect(0,0,0,0);
-  white-space: nowrap;
-  border-width: 0;
+@media (max-width: 640px) { .nt-page h1 { font-size: 26px; } }
+.nt-page h2 {
+  font-size: 22px; font-weight: 700; color: #111827;
+  margin: 36px 0 12px; padding-bottom: 8px; border-bottom: 2px solid #eef2ff;
 }
-
-/* 포커스 visible (키보드 네비게이션) */
-:focus-visible {
-  outline: 2px solid #c65f3b;
-  outline-offset: 2px;
+.nt-page p { font-size: 16px; line-height: 1.8; color: #374151; margin: 0 0 16px; }
+.nt-page ul { padding-left: 20px; margin: 0 0 16px; }
+.nt-page li { margin-bottom: 6px; line-height: 1.75; color: #374151; }
+.nt-page .nt-lead {
+  font-size: 17px; color: #6b7280; margin-bottom: 32px; line-height: 1.7;
 }
-
-/* prefers-reduced-motion 존중 */
-@media (prefers-reduced-motion: reduce) {
-  *, *::before, *::after {
-    animation-duration: 0.01ms !important;
-    animation-iteration-count: 1 !important;
-    transition-duration: 0.01ms !important;
-  }
+.nt-info-box {
+  background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px;
+  padding: 20px 24px; margin: 24px 0;
 }
+.nt-info-box dl { margin: 0; display: grid; grid-template-columns: 100px 1fr; gap: 8px 16px; }
+.nt-info-box dt { font-size: 13px; color: #9ca3af; font-weight: 600; }
+.nt-info-box dd { font-size: 14px; color: #111827; margin: 0; }
