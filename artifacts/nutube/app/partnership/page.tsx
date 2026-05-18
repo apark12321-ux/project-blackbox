@@ -29,24 +29,29 @@ export default function PartnershipPage() {
         <li>담당자 연락처</li>
       </ul>
 
-      <h2>광고 게재 원칙</h2>
+      <h2>편집 독립성 원칙</h2>
       <p>NuTube는 다음 원칙에 따라 광고와 협력 콘텐츠를 운영합니다.</p>
       <ul>
         <li><strong>표시 의무</strong> - 협력 콘텐츠는 "광고", "협찬", "유료 광고 포함" 등으로 명확히 표시합니다</li>
-        <li><strong>독립성</strong> - 광고주가 편집권을 행사할 수 없습니다. 가이드의 결론은 편집팀이 단독 결정합니다</li>
+        <li><strong>독립성 보장</strong> - 광고주가 편집권을 행사할 수 없습니다. 가이드의 결론은 편집팀이 단독 결정합니다</li>
         <li><strong>주제 적합성</strong> - 유튜브·영상 콘텐츠와 무관한 광고는 게재하지 않습니다</li>
+        <li><strong>비판 가능성</strong> - 협력 제품·서비스의 단점도 균형 있게 안내합니다</li>
       </ul>
 
       <h2>응답 시간</h2>
       <p>제안 메일은 영업일 기준 5일 이내 답변드리는 것을 원칙으로 합니다. 사안에 따라 더 길어질 수 있으니 양해 부탁드립니다.</p>
 
-      <h2>문의 채널</h2>
+      <h2>운영자 정보</h2>
       <div className="nt-info-box">
         <dl>
-          <dt>운영 주체</dt>
+          <dt>상호</dt>
           <dd>{SITE.operator.company}</dd>
-          <dt>담당자</dt>
+          <dt>대표자</dt>
           <dd>{SITE.operator.representative}</dd>
+          <dt>사업자등록번호</dt>
+          <dd>{SITE.operator.taxId}</dd>
+          <dt>사업장 주소</dt>
+          <dd>{SITE.operator.address}</dd>
           <dt>이메일</dt>
           <dd><a href={`mailto:${SITE.operator.email}?subject=[NuTube 제휴 문의]`}>{SITE.operator.email}</a></dd>
         </dl>

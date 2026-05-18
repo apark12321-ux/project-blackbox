@@ -13,11 +13,11 @@ export default function TermsPage() {
       <p className="nt-lead">본 약관은 NuTube({SITE.url})를 이용하는 모든 이용자와 운영자 간의 권리·의무를 규정합니다.</p>
 
       <h2>제1조 (목적)</h2>
-      <p>본 약관은 NuTube가 제공하는 콘텐츠 및 서비스의 이용 조건, 절차, 운영자와 이용자 간의 권리·의무·책임 사항 등을 정함을 목적으로 합니다.</p>
+      <p>본 약관은 {SITE.operator.company}가 제공하는 콘텐츠 및 서비스의 이용 조건, 절차, 운영자와 이용자 간의 권리·의무·책임 사항 등을 정함을 목적으로 합니다.</p>
 
       <h2>제2조 (용어의 정의)</h2>
       <ul>
-        <li><strong>운영자</strong>: {SITE.operator.company}</li>
+        <li><strong>운영자</strong>: {SITE.operator.company} (대표: {SITE.operator.representative}, 사업자등록번호: {SITE.operator.taxId})</li>
         <li><strong>서비스</strong>: NuTube가 제공하는 웹사이트({SITE.url}) 및 부수 서비스</li>
         <li><strong>이용자</strong>: 본 사이트에 접속하여 서비스를 이용하는 모든 사람</li>
         <li><strong>콘텐츠</strong>: 본 사이트에 게시된 모든 글, 이미지, 데이터 등</li>
@@ -63,16 +63,20 @@ export default function TermsPage() {
       <h2>제10조 (운영자 정보)</h2>
       <div className="nt-info-box">
         <dl>
-          <dt>운영 주체</dt>
+          <dt>상호</dt>
           <dd>{SITE.operator.company}</dd>
-          <dt>대표</dt>
+          <dt>대표자</dt>
           <dd>{SITE.operator.representative}</dd>
+          <dt>사업자등록번호</dt>
+          <dd>{SITE.operator.taxId}</dd>
+          <dt>사업장 주소</dt>
+          <dd>{SITE.operator.address}</dd>
           <dt>이메일</dt>
           <dd><a href={`mailto:${SITE.operator.email}`}>{SITE.operator.email}</a></dd>
         </dl>
       </div>
 
-      <p style={{ fontSize: 13, color: '#9ca3af', marginTop: 32 }}>시행일: 2026년 5월 18일</p>
+      <p style={{ fontSize: 13, color: '#9ca3af', marginTop: 32 }}>본 약관 시행일자: 2026년 4월 28일</p>
     </div>
   );
 }

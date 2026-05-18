@@ -66,10 +66,21 @@ export default async function BlogPostPage({ params }: PageProps) {
     publisher: {
       '@type': 'Organization',
       name: SITE.operator.company,
+      url: SITE.url,
+      logo: { '@type': 'ImageObject', url: `${SITE.url}/og-default.jpg` },
       founder: { '@type': 'Person', name: SITE.operator.representative },
+      foundingDate: SITE.operator.foundingDate,
+      taxID: SITE.operator.taxId,
+      address: {
+        '@type': 'PostalAddress',
+        streetAddress: SITE.operator.streetAddress,
+        addressLocality: SITE.operator.addressLocality,
+        addressRegion: SITE.operator.addressRegion,
+        addressCountry: 'KR',
+      },
     },
     datePublished: post.publishedAt,
-    dateModified: post.publishedAt,
+    dateModified: post.updatedAt || post.publishedAt,
     mainEntityOfPage: { '@type': 'WebPage', '@id': `${SITE.url}/blog/${post.slug}` },
     image: post.thumbnail ? `${SITE.url}${post.thumbnail}` : `${SITE.url}${SITE.ogImage}`,
   };
@@ -258,7 +269,12 @@ export default async function BlogPostPage({ params }: PageProps) {
           <div className="nt-post-avatar">N</div>
           <div className="nt-post-meta-text">
             <div className="nt-post-author">NuTube 편집팀</div>
-            <div className="nt-post-date">{formatDate(post.publishedAt)} · {calculateReadTime(post.body)} 읽기</div>
+            <div className="nt-post-date">
+              {formatDate(post.publishedAt)} · {calculateReadTime(post.body)} 읽기
+              {post.updatedAt && post.updatedAt !== post.publishedAt && (
+                <span className="nt-post-updated"> · {formatDate(post.updatedAt)} 업데이트</span>
+              )}
+            </div>
           </div>
         </div>
 

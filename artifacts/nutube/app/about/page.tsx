@@ -34,11 +34,11 @@ export default function AboutPage() {
       </ul>
 
       <h2>편집 검증 프로세스</h2>
-      <p>모든 가이드는 다음 3단계 검증을 거칩니다.</p>
+      <p>모든 가이드는 다음 검증을 거칩니다.</p>
       <ul>
-        <li><strong>1차 자료 확인</strong> - 유튜브 공식 발표, 크리에이터 인사이더, 신뢰할 수 있는 업계 리포트 우선</li>
-        <li><strong>편집팀 검토</strong> - 사실관계 점검 + 가독성 다듬기</li>
-        <li><strong>독자 의견 반영</strong> - 이메일로 받은 정정 요청은 빠르게 반영합니다</li>
+        <li>일차 자료 확인 - 유튜브 공식 발표, 크리에이터 인사이더, 신뢰할 수 있는 업계 리포트 우선 참고</li>
+        <li>편집팀 검토 - 사실관계 점검 + 가독성 다듬기</li>
+        <li>독자 의견 반영 - 이메일로 받은 정정 요청은 신속히 반영</li>
       </ul>
 
       <h2>다루지 않는 주제</h2>
@@ -52,10 +52,18 @@ export default function AboutPage() {
       <h2>운영 정보</h2>
       <div className="nt-info-box">
         <dl>
-          <dt>운영 주체</dt>
+          <dt>상호</dt>
           <dd>{SITE.operator.company}</dd>
-          <dt>대표</dt>
+          <dt>대표자</dt>
           <dd>{SITE.operator.representative}</dd>
+          <dt>사업자등록번호</dt>
+          <dd>{SITE.operator.taxId}</dd>
+          <dt>개업일</dt>
+          <dd>2025년 3월 1일</dd>
+          <dt>업태/종목</dt>
+          <dd>{SITE.operator.businessType}</dd>
+          <dt>사업장 주소</dt>
+          <dd>{SITE.operator.address}</dd>
           <dt>이메일</dt>
           <dd><a href={`mailto:${SITE.operator.email}`}>{SITE.operator.email}</a></dd>
           <dt>웹사이트</dt>

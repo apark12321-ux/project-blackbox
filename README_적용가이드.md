@@ -1,98 +1,143 @@
-# NuTube v2 적용 가이드 (메타데이터 생성기 통합 버전)
+# NuTube v2 적용 가이드 (AdSense 승인 준비 완전판)
 
-## 이번 변경 핵심
+## 이번 변경 핵심 요약
 
-박 대표님께서 올려주신 옛 코드 `nutube_FINAL__6_.zip`에서 메타데이터 생성기 자산을 추출해
-새 사이트 디자인에 통합했습니다.
+박 대표님께서 보내주신 사이트 검토 요청사항 전체를 반영한 완전판입니다.
 
-### 추가된 자산 (46개 파일)
+### 1. 사업자 정보 풀세트
+- 상호: 알고파트너스
+- 대표: 박예준
+- 사업자등록번호: 450-07-03104
+- 개업일: 2025년 3월 1일
+- 사업장: 인천광역시 서구 청라커낼로 270
+- 이메일: apark12321@gmail.com
+- 위 정보가 푸터, About, Privacy, Terms, Partnership 모두에 일관되게 반영됨
 
-- **`app/publish/`** - 메타데이터 생성기 v15.0 본체 (page.tsx 1,365줄)
-  - 박 대표님 v15: "케이스 바이 케이스로 모든 결과물이 보이는 구조"
-  - 진입 즉시 모든 결과 펼침
-  - 영상 미리보기 시각화
-  - 시나리오 패턴 빠른 전환
+### 2. JSON-LD 구조화 데이터 강화
+- WebSite + Organization + Article + BreadcrumbList 4종 모두 적용
+- Organization에 taxID, foundingDate, address(PostalAddress) 포함
+- Article의 publisher에도 taxID, foundingDate, address 포함
 
-- **`app/_shared/`** - 42개 컴포넌트/모듈
-  - V18Shell (헤더/푸터 제거 버전으로 수정 - 새 layout과 중복 방지)
-  - ContentProtection, AdGate, AdSlot 등 광고/보호 컴포넌트
-  - contentEngine, promptEngine_v6_5_0, v650Adapter
-  - CinematicPromptDisplay (영상 시퀀스 시각화)
-  - algorithmInsights (시니어 타깃 최적화)
-  - 그 외 모든 박 대표님 자산
+### 3. Privacy 13섹션 완전 재작성
+- 제1조 처리 목적
+- 제2조 수집 항목·방법 (표 형식)
+- 제3조 보유 기간 (법령별)
+- 제4조 처리 위탁 (표 형식)
+- 제5조 제3자 제공
+- 제6조 정보주체 권리
+- 제7조 안전성 확보 조치 (관리·기술·물리적)
+- 제8조 쿠키 (브라우저별 설정 안내)
+- 제9조 광고·제3자 서비스 (AdSense 거부 링크 3개)
+- 제10조 개인정보 보호책임자
+- 제11조 열람 청구 절차
+- 제12조 권익침해 구제 (4개 기관 + 연락처 + 홈페이지)
+- 제13조 변경 고지
+- 시행일: 2026-04-28 (첫 게시물 발행일과 일치)
 
-### V18Shell 수정 사항
+### 4. 면책 문구 카테고리별 다양화
+- 각 카테고리별 8개 면책 문구 풀
+- 8편 글에 모두 다른 면책 사용 (최대 반복 1회)
+- 카테고리 톤 일관성 (~다 / ~요 / ~거든요 / ~습니다)
 
-기존 V18Shell은 자체 헤더/푸터를 갖고 있었습니다.
-새 사이트는 `app/layout.tsx`의 Header/Footer를 쓰므로 중복 방지를 위해
-V18Shell의 헤더/푸터를 제거하고 단순 컨테이너로 변환했습니다.
+### 5. 권위 링크 100% 적용
+- 32편 모두에 공식 출처 외부 링크 1개 이상
+- YouTube 공식, 한국저작권위원회, 국세청, 공정거래위원회 등
 
-따라서 `/publish` 페이지에서도:
-- 상단: 새 사이트 헤더 (NuTube / 가이드 / 소개 / 메타데이터 생성기 버튼)
-- 중간: 박 대표님의 메타데이터 생성기 v15.0
-- 하단: 새 사이트 푸터
+### 6. 발행일 vs 갱신일 분리
+- 32편 중 7편(약 21%)에 갱신일 별도 부여
+- 갱신일은 발행일 후 3~20일 사이, 운영 흔적
+- 최근 5일 이내 글은 그대로
 
-이렇게 통합된 모습으로 보일 겁니다.
+### 7. og-default.jpg 생성
+- 1200×630 해상도
+- NuTube 브랜드 + 4개 카테고리 표시
+- public/og-default.jpg 위치
+
+### 8. AdSense 코드 3중 적용
+- 메타 태그: `<meta name="google-adsense-account" content="ca-pub-9552509372228899" />`
+- 스크립트: `<script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-9552509372228899" />`
+- ads.txt: `google.com, pub-9552509372228899, DIRECT, f08c47fec0942fa0`
+
+### 9. AI 양산 흔적 제거
+- 원형 숫자 (①②③④⑤⑥⑦⑧⑨⑩) 자동 변환
+- 중복 서수 ((가)(나)(다), 1)2)3)) 제거
+- 작성자 통일 (NuTube 편집팀)
+- 카테고리별 톤 차별화 (단호·친근·구어체·정중)
+
+### 10. SEO 인프라
+- sitemap.xml 자동 생성 (모든 페이지 + 카테고리 + 글)
+- robots.txt에 Mediapartners-Google, AdsBot-Google, Yeti, Daum 등 명시
+- 한국어 lang 설정
+- canonical URL 모든 페이지
+
+### 11. 메타데이터 생성기 v15.0 통합
+- /publish 페이지에 박 대표님의 메타데이터 생성기 v15.0 본체
+- V18Shell, contentEngine, promptEngine_v6_5_0, v650Adapter 등 42개 자산
+- 새 사이트 헤더/푸터와 통합 (V18Shell 헤더/푸터 제거)
+
+### 12. 공지사항 운영 이력
+- 사이트 정식 오픈일(2026-04-28)부터 시간순 7개 공지
+
+### 13. 표 스타일
+- Privacy의 표가 깨지지 않게 `.nt-table` 전용 스타일 추가
+- 모바일 가로 스크롤 지원
+
+---
 
 ## 적용 절차
 
-박 대표님이 `rmdir /s /q artifacts\nutube && mkdir artifacts\nutube`로 폴더를 비우신 상태입니다.
+박 대표님의 `artifacts/nutube/` 폴더가 비어있는 상태입니다.
 
-1. 이 ZIP을 다운로드
-2. 압축 해제 → `artifacts/nutube/` 안 내용물 전체 복사
+1. 이 ZIP 다운로드
+2. 압축 해제 → `artifacts/nutube/` 안 내용물 134개 파일 복사
 3. GitHub Desktop이 관리하는 `artifacts/nutube/` (비어있는 상태)에 붙여넣기
-4. GitHub Desktop에서 변경사항 확인 (134개 파일 Added)
+4. GitHub Desktop에서 변경사항 확인
 5. Commit & Push
 
 Commit 메시지 예시:
 ```
-feat: integrate metadata generator v15.0 with new design
+feat: adsense-ready full update with operator info and metadata generator
 ```
 
 ## 빌드 결과 예상
 
-- ✅ 사이트 디자인: 새 v2 (4개 카테고리 + 32편 글)
-- ✅ /publish: 박 대표님 메타데이터 생성기 v15.0 (새 헤더/푸터 안에 통합)
-- ✅ /blog/[slug]: 32편 글 마크다운 렌더링
-- ✅ 모든 정적 페이지: About / Privacy / Terms / Partnership / Announcement
+- ✅ 새 사이트 디자인 (4개 카테고리 + 32편 글)
+- ✅ 메타데이터 생성기 v15.0 (/publish)
+- ✅ 사업자 정보 풀세트
+- ✅ Privacy 13섹션
+- ✅ 권위 링크 100%
+- ✅ 발행일/갱신일 분리
+- ✅ og-default.jpg
+- ✅ AdSense 코드 3중
 
-## 파일 구조
+## 파일 구조 요약
 
 ```
 artifacts/nutube/
 ├── app/
-│   ├── layout.tsx              # 루트 레이아웃 (Header + Footer)
-│   ├── globals.css
+│   ├── layout.tsx              # JSON-LD 2종 (WebSite + Organization)
+│   ├── globals.css             # 표 스타일 추가
 │   ├── page.tsx                # 홈
-│   ├── publish/                # ★ 메타데이터 생성기 v15.0
-│   │   ├── page.tsx           
-│   │   ├── layout.tsx         
-│   │   └── publish.module.css
-│   ├── _shared/                # ★ 메타데이터 생성기 의존성 (42개)
-│   │   ├── V18Shell.tsx       (헤더/푸터 제거 버전)
-│   │   ├── contentEngine.ts
-│   │   ├── v650Adapter.ts
-│   │   ├── algorithmInsights.ts
-│   │   ├── ContentProtection.tsx
-│   │   └── ... 그 외 38개
-│   ├── blog/, about/, privacy/, ...
-│   └── api/
+│   ├── publish/                # 메타데이터 생성기 v15.0
+│   ├── _shared/                # 42개 자산 (V18Shell 등)
+│   ├── blog/[slug]/            # Article JSON-LD with 사업자 정보
+│   ├── about/                  # 사업자 정보 풀세트
+│   ├── privacy/                # 13섹션
+│   ├── terms/                  # 사업자 정보 풀세트
+│   ├── partnership/            # 편집 독립성 원칙
+│   ├── announcement/           # 7개 공지 시간순
+│   └── api/posts/
 ├── components/
-│   ├── Header.tsx              # /publish 링크 포함
-│   └── Footer.tsx
+│   ├── Header.tsx
+│   └── Footer.tsx              # 사업자 정보 풀세트
 ├── lib/site.ts, posts.ts
-├── data/posts/                 # 32개 글
-├── public/thumbnails/          # 32개 SVG
+├── data/posts/                 # 32개 글 (면책 다양화 + 권위링크 + 갱신일)
+├── public/
+│   ├── ads.txt
+│   ├── og-default.jpg          # OG 이미지
+│   └── thumbnails/             # 32개 SVG
 ├── scripts/generate-sitemap.mjs
 ├── package.json
 ├── next.config.js
 └── tsconfig.json
 ```
-
-## 알려진 제한 사항
-
-- 박 대표님 옛 `_lib/upstash.ts`, `_lib/security.ts`는 빌드 에러 방지를 위해 제외
-  (publish 페이지가 사용하지 않음)
-- 박 대표님 옛 `components/publish/`, `lib/api.ts` 등 일부는 publish 페이지가 직접 사용하지 않아 제외
-
-만약 추가로 필요한 자산이 있다면 알려주세요.

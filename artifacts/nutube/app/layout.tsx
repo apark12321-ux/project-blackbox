@@ -43,17 +43,19 @@ export const metadata: Metadata = {
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
+  // WebSite JSON-LD (홈 검색 액션)
   const websiteJsonLd = {
     '@context': 'https://schema.org',
     '@type': 'WebSite',
     name: SITE.name,
+    alternateName: SITE.fullName,
     url: SITE.url,
     description: SITE.description,
+    inLanguage: 'ko-KR',
     publisher: {
       '@type': 'Organization',
       name: SITE.operator.company,
-      founder: { '@type': 'Person', name: SITE.operator.representative },
-      contactPoint: { '@type': 'ContactPoint', email: SITE.operator.email, contactType: 'customer support' },
+      url: SITE.url,
     },
     potentialAction: {
       '@type': 'SearchAction',
@@ -62,11 +64,43 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     },
   };
 
+  // Organization JSON-LD (사업자 정보 풀세트)
+  const organizationJsonLd = {
+    '@context': 'https://schema.org',
+    '@type': 'Organization',
+    name: SITE.operator.company,
+    alternateName: 'AlgoPartners',
+    url: SITE.url,
+    logo: `${SITE.url}/og-default.jpg`,
+    foundingDate: SITE.operator.foundingDate,
+    taxID: SITE.operator.taxId,
+    vatID: SITE.operator.taxId,
+    founder: {
+      '@type': 'Person',
+      name: SITE.operator.representative,
+    },
+    address: {
+      '@type': 'PostalAddress',
+      streetAddress: SITE.operator.streetAddress,
+      addressLocality: SITE.operator.addressLocality,
+      addressRegion: SITE.operator.addressRegion,
+      addressCountry: 'KR',
+    },
+    contactPoint: {
+      '@type': 'ContactPoint',
+      email: SITE.operator.email,
+      contactType: 'customer support',
+      availableLanguage: ['Korean'],
+    },
+    sameAs: [SITE.url],
+  };
+
   return (
     <html lang="ko">
       <head>
         <link rel="icon" href="/favicon.ico" />
         <link rel="canonical" href={SITE.url} />
+        <meta name="naver-site-verification" content="" />
         <script
           async
           src={`https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=${SITE.adsenseClient}`}
@@ -75,6 +109,10 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+        />
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationJsonLd) }}
         />
       </head>
       <body>

@@ -9,6 +9,7 @@ export interface Post {
   category: string;
   categoryLabel?: string;
   publishedAt: string;
+  updatedAt?: string;
   summary?: string;
   body: string;
   tags?: string[];

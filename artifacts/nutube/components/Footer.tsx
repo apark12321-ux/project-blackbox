@@ -21,7 +21,7 @@ export default function Footer() {
         </div>
 
         <div className="nt-footer-section">
-          <h4>고객지원</h4>
+          <h4>사이트 정보</h4>
           <ul>
             <li><Link href="/about">소개</Link></li>
             <li><Link href="/announcement">공지사항</Link></li>
@@ -34,10 +34,10 @@ export default function Footer() {
 
       <div className="nt-footer-bottom">
         <div className="nt-footer-operator">
-          <strong>운영</strong>: {SITE.operator.company} / <strong>대표</strong>: {SITE.operator.representative}<br/>
-          <strong>이메일</strong>: {SITE.operator.email}
+          {SITE.operator.company} · 대표: {SITE.operator.representative} · 사업자등록번호: {SITE.operator.taxId}<br/>
+          {SITE.operator.address} · 이메일: <a href={`mailto:${SITE.operator.email}`}>{SITE.operator.email}</a>
         </div>
-        <div>© {new Date().getFullYear()} {SITE.name}. All rights reserved.</div>
+        <div className="nt-footer-copyright">© {new Date().getFullYear()} {SITE.name}. All rights reserved.</div>
       </div>
     </footer>
   );
