@@ -70,16 +70,18 @@ export default async function CategoryPage({ params }: { params: Promise<{ key: 
         <div className="nt-blog-grid" style={{ marginTop: 32 }}>
           {posts.map((post) => (
             <Link key={post.slug} href={`/blog/${post.slug}`} className="nt-blog-card">
-              {post.thumbnail && (
-                <div className="nt-blog-card-thumb">
+              <div className="nt-post-thumb" style={{ background: cat.gradient, position: 'relative' }}>
+                {post.thumbnail ? (
                   <img src={post.thumbnail} alt={post.title} loading="lazy" />
-                </div>
-              )}
-              <div className="nt-blog-card-body">
-                <div className="nt-blog-card-cat" style={{ color: cat.color }}>{cat.label}</div>
-                <h3 className="nt-blog-card-title">{post.title}</h3>
-                {post.summary && <p className="nt-blog-card-summary">{post.summary}</p>}
-                <div className="nt-blog-card-date">{formatDate(post.publishedAt)}</div>
+                ) : (
+                  <span style={{ fontSize: 56 }}>{cat.icon}</span>
+                )}
+              </div>
+              <div className="nt-post-body">
+                <span className="nt-post-cat" style={{ background: cat.bgLight, color: cat.color }}>{cat.label}</span>
+                <h3 className="nt-post-title">{post.title}</h3>
+                {post.summary && <p className="nt-post-summary">{post.summary}</p>}
+                <div className="nt-post-meta">{formatDate(post.publishedAt)} · NuTube 편집팀</div>
               </div>
             </Link>
           ))}
@@ -88,18 +90,71 @@ export default async function CategoryPage({ params }: { params: Promise<{ key: 
         <div style={{ marginTop: 48, padding: 24, background: '#f9fafb', borderRadius: 12, textAlign: 'center' }}>
           <p style={{ margin: 0, fontSize: 15, color: '#6b7280' }}>
             다른 카테고리도 확인해보세요:{' '}
-            {CATEGORY_KEYS.filter((k) => k !== key).map((k, i) => {
+            {CATEGORY_KEYS.filter((k) => k !== key).map((k, i, arr) => {
               const c = (CATEGORIES as any)[k];
               return (
                 <span key={k}>
                   <Link href={`/category/${k}`} style={{ color: c.color, fontWeight: 600 }}>{c.label}</Link>
-                  {i < 2 ? ' · ' : ''}
+                  {i < arr.length - 1 ? ' · ' : ''}
                 </span>
               );
             })}
           </p>
         </div>
       </div>
+
+      <style>{`
+        .nt-blog-grid {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+          gap: 24px;
+        }
+        @media (max-width: 1024px) {
+          .nt-blog-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+        }
+        @media (max-width: 640px) {
+          .nt-blog-grid { grid-template-columns: 1fr; gap: 16px; }
+        }
+        .nt-blog-card {
+          background: #fff; border: 1px solid #f3f4f6; border-radius: 16px;
+          overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit;
+          display: block;
+        }
+        .nt-blog-card:hover {
+          transform: translateY(-4px);
+          box-shadow: 0 12px 32px rgba(0,0,0,.08);
+          border-color: #e0e7ff;
+        }
+        .nt-post-thumb {
+          aspect-ratio: 16/9;
+          overflow: hidden;
+          display: flex; align-items: center; justify-content: center;
+          font-size: 56px;
+        }
+        .nt-post-thumb img {
+          width: 100%; height: 100%; object-fit: cover; display: block;
+        }
+        .nt-post-body { padding: 20px; }
+        .nt-post-cat {
+          display: inline-block; padding: 3px 10px; border-radius: 999px;
+          font-size: 11px; font-weight: 700; margin-bottom: 10px;
+        }
+        .nt-post-title {
+          font-size: 16px; font-weight: 800; color: #111827;
+          margin: 0 0 8px; line-height: 1.4;
+          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .nt-post-summary {
+          font-size: 13px; color: #6b7280; line-height: 1.5;
+          margin: 0 0 10px;
+          display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
+          overflow: hidden;
+        }
+        .nt-post-meta {
+          font-size: 12px; color: #9ca3af; font-weight: 500;
+        }
+      `}</style>
     </>
   );
 }

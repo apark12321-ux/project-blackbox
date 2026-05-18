@@ -1,10 +1,41 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fb923c"/>
-      <stop offset="100%" stop-color="#ea580c"/>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#fb923c"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="630" fill="url(#g)"/>
-  <text x="600" y="380" font-size="280" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">👴</text>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+        <!-- 4-블록 그리드 -->
+        <g transform="translate(280, 170)">
+          
+          <g transform="translate(0, 0)">
+            <rect x="0" y="0" width="300" height="100" rx="14" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="3"/>
+            <text x="20" y="38" font-size="22" font-weight="900" fill="#fef3c7">A 블록</text>
+            <text x="20" y="72" font-size="18" font-weight="500" fill="#fff" opacity="0.9">미끼 (10초)</text>
+          </g>
+          
+          <g transform="translate(330, 0)">
+            <rect x="0" y="0" width="300" height="100" rx="14" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="3"/>
+            <text x="20" y="38" font-size="22" font-weight="900" fill="#fef3c7">B 블록</text>
+            <text x="20" y="72" font-size="18" font-weight="500" fill="#fff" opacity="0.9">갈등 (20초)</text>
+          </g>
+          
+          <g transform="translate(0, 120)">
+            <rect x="0" y="0" width="300" height="100" rx="14" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="3"/>
+            <text x="20" y="38" font-size="22" font-weight="900" fill="#fef3c7">C 블록</text>
+            <text x="20" y="72" font-size="18" font-weight="500" fill="#fff" opacity="0.9">전환 (20초)</text>
+          </g>
+          
+          <g transform="translate(330, 120)">
+            <rect x="0" y="0" width="300" height="100" rx="14" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="3"/>
+            <text x="20" y="38" font-size="22" font-weight="900" fill="#fef3c7">D 블록</text>
+            <text x="20" y="72" font-size="18" font-weight="500" fill="#fff" opacity="0.9">여운 (10초)</text>
+          </g>
+          
+        </g>
+        
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">대본 4-block 공식</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">30분 안에 완성</text>
 </svg>

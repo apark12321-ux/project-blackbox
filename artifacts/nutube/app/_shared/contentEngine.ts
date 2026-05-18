@@ -824,19 +824,49 @@ function generateTitlesForDomain(
         title: `${keyword}, ${d.duration} 직접 해본 후기`,
         pattern: '경험담형',
         ctr_estimate: '7~9.5%',
-        reasoning: '경험담은 모든 분야에서 안정적인 클릭률.',
+        reasoning: '경험담은 모든 분야에서 안정적인 클릭률. "직접"이라는 단어가 신뢰 신호.',
       }),
       (d) => ({
         title: `${keyword} 시작 전 알았으면 좋았을 것들`,
         pattern: '후회/교훈형',
         ctr_estimate: '7~9%',
-        reasoning: '경험자의 후회는 입문자에게 강력.',
+        reasoning: '경험자의 후회는 입문자에게 강력한 정보 가치. 같은 실수 회피 욕구 자극.',
       }),
       (d) => ({
         title: `${keyword}, 진짜 핵심만 정리`,
         pattern: '압축 정리형',
         ctr_estimate: '7~9.5%',
-        reasoning: '"진짜 핵심"은 정보 과잉 시대의 가장 큰 약속.',
+        reasoning: '"진짜 핵심"은 정보 과잉 시대의 가장 큰 약속. "정리"가 검색 의도와 일치.',
+      }),
+      (d) => ({
+        title: `${d.audience}${jong(d.audience, "이", "가")} ${keyword} 하면서 깨달은 것`,
+        pattern: '거울 + 깨달음형',
+        ctr_estimate: '8~10%',
+        reasoning: `타깃 시청자(${d.audience})에게 본인 가능성 시각화. "깨달음"은 통찰 약속.`,
+      }),
+      (d) => ({
+        title: `${keyword}, 7일 해보고 느낀 솔직한 결론`,
+        pattern: '단기 실험형',
+        ctr_estimate: '8.5~10.5%',
+        reasoning: '"7일"이라는 짧은 기간이 진입장벽 낮춤. "솔직한 결론"은 광고성 콘텐츠 차별화.',
+      }),
+      (d) => ({
+        title: `${keyword}, 이거 모르면 시간 낭비입니다`,
+        pattern: '위험 회피형',
+        ctr_estimate: '8~10%',
+        reasoning: '시간 낭비 회피 욕구 자극. 부정문이 긍정문보다 30% 높은 CTR.',
+      }),
+      (d) => ({
+        title: `${keyword}, 결국 ${d.primaryNum} 까지 갔습니다`,
+        pattern: '결과 공개형',
+        ctr_estimate: '8~10.5%',
+        reasoning: `구체적 숫자(${d.primaryNum})로 검증 가능한 약속. "결국"이 여정 스토리 신호.`,
+      }),
+      (d) => ({
+        title: `${keyword} ${d.duration}, 처음으로 다시 돌아간다면`,
+        pattern: '회상 가정형',
+        ctr_estimate: '7.5~9.5%',
+        reasoning: '"처음으로 다시"는 경험자만이 줄 수 있는 가치. 초보자가 가장 원하는 정보.',
       }),
     ],
   };
@@ -871,37 +901,59 @@ export function generateDescription(
   const profile = detectDomain(keyword, categoryName);
   const detail = getDetails(profile, rand);
 
+  // 도입부 - 영상 톤별 4종
   const openers = [
-    '안녕하세요. 영상 봐주셔서 감사합니다.',
-    '오랜만에 영상으로 인사드려요.',
-    '많은 분들이 댓글로 물어보셔서 만든 영상입니다.',
-    '오늘은 진짜 진심으로 만든 영상이에요.',
+    `이 영상에서는 ${keyword}에 대해 ${detail.duration} 동안 직접 시도해본 결과를 정리했습니다.`,
+    `${keyword} 관련해서 가장 많이 받은 질문 3가지에 대한 답을 한 영상에 담았습니다.`,
+    `${categoryName} 분야에서 ${keyword}을 검토하시는 분들께 도움이 될 만한 정보를 모았습니다.`,
+    `${keyword}을 시작하기 전 반드시 알아야 할 부분들을 단계별로 정리했습니다.`,
+  ];
+
+  // 본문 - 도메인 적합 디테일
+  const bodies = [
+    `\n${detail.audience}${jong(detail.audience, "이", "가")} ${detail.duration} 동안 시도하면서 직접 확인한 핵심을 정리했습니다.\n${detail.primaryNum}까지 가는 과정에서 ${detail.emphasis} 깨달은 내용이 핵심입니다.`,
+    `\n${keyword}을 다루는 영상들이 많지만, 정작 ${detail.audience}에게 필요한 부분만 압축한 자료는 드뭅니다.\n이 영상은 ${detail.secret}을 중심으로 ${detail.duration} 동안 검증한 결과를 정리한 것입니다.`,
+    `\n${keyword}에 관심 있으신 분이라면 한 번쯤 들었을 정보들 중에서, 실제로 효과 있는 것과 그렇지 않은 것을 구분해 정리했습니다.\n${detail.audience}도 ${detail.duration} 안에 시도 가능한 방법 위주로 구성했습니다.`,
+  ];
+
+  // 영상 구성 표시 - 도메인별 적합 항목
+  const sections = [
+    `📌 영상 구성\n00:00 들어가며 - ${keyword}에 대해\n00:30 시작 전 점검할 것들\n02:00 ${detail.audience}도 적용 가능한 핵심 단계\n04:00 ${detail.secret}\n06:00 시간 낭비를 줄이는 효율적 접근\n08:00 정리 및 마무리`,
+    `📌 영상에서 다루는 내용\n• ${keyword} 시작 전 꼭 알아야 할 기본기\n• ${detail.audience}도 따라할 수 있는 단계별 방법\n• ${detail.secret}\n• ${detail.duration} 시도 후의 솔직한 결과\n• 다른 영상에서는 잘 다루지 않는 디테일`,
+    `📌 영상 핵심 정리\n→ ${keyword}의 본질과 흔한 오해\n→ ${detail.audience}에게 가장 효과적인 접근법\n→ ${detail.secret}\n→ ${detail.primaryNum}까지 가는 실전 노하우\n→ 시청 후 바로 적용 가능한 체크리스트`,
+  ];
+
+  // 추천 대상 안내 - 다양한 변형
+  const targets = [
+    `\n💡 이런 분들께 추천드립니다\n• ${categoryName} 분야에 처음 발 들이시는 ${detail.audience}\n• 시작했지만 방향이 막막하신 분\n• 정보가 너무 많아 핵심을 정리하고 싶으신 분`,
+    `\n💡 이런 고민에 답하는 영상입니다\n• ${keyword}를 시작하긴 했는데 제대로 하고 있는지 모르겠다\n• ${detail.audience}에게 맞는 방법이 따로 있는지 궁금하다\n• 시간을 효율적으로 쓰는 방법을 찾고 있다`,
+    `\n💡 이 영상이 도움이 되는 시점\n• ${keyword} 입문 0~3개월 단계\n• 시행착오를 줄이고 싶은 시점\n• 기본기를 다시 점검하고 싶을 때`,
+  ];
+
+  // 마무리 - 액션 유도 다양화
+  const ctas = [
+    `\n💬 영상 내용에 대한 질문이나 본인 경험은 댓글로 자유롭게 남겨주세요. 다음 영상에 반영하겠습니다.\n🔔 새로운 영상은 매주 업데이트됩니다.`,
+    `\n💬 본인 사례나 추가로 궁금하신 부분이 있다면 댓글로 알려주세요. 답변드리거나 후속 영상으로 다루겠습니다.\n🔔 채널 알림 설정해두시면 새 영상을 가장 먼저 받아보실 수 있습니다.`,
+    `\n💬 도움이 되셨다면 댓글에 한 줄 남겨주시면 큰 힘이 됩니다. 다른 분들에게도 정보가 닿을 수 있도록요.\n🔔 비슷한 주제의 다음 영상도 준비 중입니다.`,
   ];
 
   const opener = pick(openers, rand);
+  const body = pick(bodies, rand);
+  const section = pick(sections, rand);
+  const target = pick(targets, rand);
+  const cta = pick(ctas, rand);
 
   return `${opener}
+${body}
 
-이번 영상에서는 ${k(keyword, 'eul')} ${detail.duration} 직접 해보면서 알게 된 것들을 정리했습니다.
-${detail.primaryNum}이라는 결과까지 가는 동안 ${detail.emphasis} 깨달은 핵심 내용이에요.
+${section}
+${target}
+${cta}
 
-📌 영상에서 다루는 내용
-✅ ${keyword} 시작 전 꼭 알아야 할 것들
-✅ ${detail.audience}도 따라할 수 있는 방법
-✅ ${detail.secret}
-✅ 시간 낭비 줄이는 효율적 접근법
-✅ 실제 적용 가능한 단계별 가이드
-
-특히 ${categoryName} 분야에 처음 발 들이시는 분들, 
-또는 시작했지만 막막함을 느끼시는 분들께 도움이 될 거라 생각합니다.
-
-💬 댓글로 본인 경험도 공유해주시면 다음 영상에 반영하겠습니다.
-🔔 매주 새 영상이 올라오니 구독해주시면 좋겠습니다.
-
-#${keyword.replace(/\s/g, '')} #${categoryName.replace(/\s/g, '')} #실전노하우
+#${keyword.replace(/\s/g, '')} #${categoryName.replace(/\s/g, '')} #${detail.audience.replace(/\s/g, '')}추천 #실전노하우 #${keyword.replace(/\s/g, '')}입문
 
 ---
-※ 이 영상은 개인 경험을 바탕으로 한 정보 공유 목적이며, 결과를 보장하지 않습니다.`;
+※ 본 영상은 운영자의 경험과 검증된 정보를 바탕으로 한 가이드입니다. 개인 상황에 따라 결과가 달라질 수 있으니 참고용으로 활용하시기 바랍니다.`;
 }
 
 // ============================================================
@@ -914,41 +966,64 @@ export function generateTags(
 ): { tag: string; volume: string; competition: string }[] {
   const seed = makeSeed(keyword, 'tags');
   const rand = seededRandom(seed);
+  const profile = detectDomain(keyword, categoryName);
+  const detail = getDetails(profile, rand);
 
+  // 1. 메인 키워드 - 가장 중요한 4개 (YouTube 알고리즘 첫 단어 가중치)
   const main = [
     { tag: keyword, volume: '월 1만+', competition: '높음' },
     { tag: `${keyword} 추천`, volume: '월 5천+', competition: '중간' },
     { tag: `${keyword} 방법`, volume: '월 8천+', competition: '중간' },
-    { tag: `${keyword} 입문`, volume: '월 3천+', competition: '낮음' },
+    { tag: `${keyword} 후기`, volume: '월 4천+', competition: '낮음' },
   ];
 
-  const variants = pickN([
-    { tag: `${keyword} 후기`, volume: '월 4천+', competition: '낮음' },
+  // 2. 검색 의도 다양화 - 정보형/탐색형/비교형/구매형
+  const intents = pickN([
+    { tag: `${keyword} 입문`, volume: '월 3천+', competition: '낮음' },
     { tag: `${keyword} 시작`, volume: '월 6천+', competition: '중간' },
-    { tag: `${keyword} 실전`, volume: '월 2천+', competition: '낮음' },
     { tag: `${keyword} 가이드`, volume: '월 3천+', competition: '낮음' },
-    { tag: `${keyword} 노하우`, volume: '월 4천+', competition: '낮음' },
-    { tag: `${keyword} 비결`, volume: '월 2천+', competition: '낮음' },
-    { tag: `${keyword} 팁`, volume: '월 5천+', competition: '중간' },
-    { tag: `${keyword} 정리`, volume: '월 3천+', competition: '낮음' },
-  ], 4, rand);
-
-  const longTail = pickN([
-    { tag: `40대 ${keyword}`, volume: '월 2천+', competition: '낮음' },
-    { tag: `50대 ${keyword}`, volume: '월 1천+', competition: '낮음' },
-    { tag: `${keyword} 처음`, volume: '월 3천+', competition: '낮음' },
-    { tag: `${keyword} 직장인`, volume: '월 2천+', competition: '낮음' },
-    { tag: `2026 ${keyword}`, volume: '월 4천+', competition: '중간' },
-    { tag: `${keyword} 무료`, volume: '월 5천+', competition: '중간' },
-    { tag: `${keyword} 초보`, volume: '월 3천+', competition: '낮음' },
+    { tag: `${keyword} 비교`, volume: '월 2천+', competition: '낮음' },
+    { tag: `${keyword} 순위`, volume: '월 4천+', competition: '중간' },
+    { tag: `${keyword} 실패`, volume: '월 1천+', competition: '낮음' },
+    { tag: `${keyword} 효과`, volume: '월 3천+', competition: '중간' },
+    { tag: `${keyword} 단계`, volume: '월 2천+', competition: '낮음' },
   ], 3, rand);
 
+  // 3. 타깃 페르소나 롱테일 - 도메인에서 추출
+  const audienceClean = detail.audience.replace(/\s/g, '').replace(/들$/, '');
+  const personas = pickN([
+    { tag: `${audienceClean} ${keyword}`, volume: '월 2천+', competition: '낮음' },
+    { tag: `초보 ${keyword}`, volume: '월 3천+', competition: '낮음' },
+    { tag: `${keyword} 직장인`, volume: '월 2천+', competition: '낮음' },
+    { tag: `${keyword} 무경험`, volume: '월 1천+', competition: '낮음' },
+    { tag: `${keyword} 처음`, volume: '월 3천+', competition: '낮음' },
+  ], 2, rand);
+
+  // 4. 시즌·트렌드 키워드 (YouTube 신선도 신호)
+  const trends = pickN([
+    { tag: `2026 ${keyword}`, volume: '월 4천+', competition: '중간' },
+    { tag: `${keyword} 최신`, volume: '월 3천+', competition: '중간' },
+    { tag: `${keyword} 트렌드`, volume: '월 2천+', competition: '낮음' },
+    { tag: `${keyword} 변화`, volume: '월 2천+', competition: '낮음' },
+  ], 1, rand);
+
+  // 5. 가치 약속 키워드 (감정 트리거)
+  const values = pickN([
+    { tag: `${keyword} 무료`, volume: '월 5천+', competition: '중간' },
+    { tag: `${keyword} 실전`, volume: '월 2천+', competition: '낮음' },
+    { tag: `${keyword} 노하우`, volume: '월 4천+', competition: '낮음' },
+    { tag: `${keyword} 핵심`, volume: '월 2천+', competition: '낮음' },
+    { tag: `${keyword} 솔직`, volume: '월 1천+', competition: '낮음' },
+  ], 2, rand);
+
+  // 6. 카테고리 관련 (브로드 신호)
   const cat = [
     { tag: categoryName, volume: '월 5만+', competition: '높음' },
-    { tag: `${categoryName} 입문`, volume: '월 1만+', competition: '중간' },
+    { tag: `${categoryName} ${detail.audience.replace(/\s/g, '')}`, volume: '월 8천+', competition: '중간' },
   ];
 
-  return [...main, ...variants, ...longTail, ...cat].slice(0, 13);
+  // 총 14개 태그 반환 (YouTube 권장 10-15개 범위)
+  return [...main, ...intents, ...personas, ...trends, ...values, ...cat].slice(0, 14);
 }
 
 // ============================================================

@@ -69,11 +69,11 @@ export default async function HomePage() {
         }
         @media(max-width: 900px){ .nt-post-grid { grid-template-columns: repeat(2, 1fr); } }
         @media(max-width: 600px){ .nt-post-grid { grid-template-columns: 1fr; } }
-        .nt-post-card {
+        .nt-blog-card {
           background: #fff; border: 1px solid #f3f4f6; border-radius: 16px;
           overflow: hidden; transition: all 0.2s;
         }
-        .nt-post-card:hover {
+        .nt-blog-card:hover {
           transform: translateY(-4px);
           box-shadow: 0 12px 32px rgba(0,0,0,.08);
           border-color: #e0e7ff;
@@ -143,8 +143,14 @@ export default async function HomePage() {
               {recentPosts.map((post) => {
                 const cat = CATEGORIES[post.category as keyof typeof CATEGORIES] || CATEGORIES.algorithm;
                 return (
-                  <Link key={post.slug} href={`/blog/${post.slug}`} className="nt-post-card">
-                    <div className="nt-post-thumb" style={{ background: cat.gradient }}>{cat.icon}</div>
+                  <Link key={post.slug} href={`/blog/${post.slug}`} className="nt-blog-card">
+                    <div className="nt-post-thumb" style={{ background: cat.gradient }}>
+                      {post.thumbnail ? (
+                        <img src={post.thumbnail} alt={post.title} loading="lazy" style={{ width: '100%', height: '100%', objectFit: 'cover' }} />
+                      ) : (
+                        <span>{cat.icon}</span>
+                      )}
+                    </div>
                     <div className="nt-post-body">
                       <span className="nt-post-cat" style={{ background: cat.bgLight, color: cat.color }}>{cat.label}</span>
                       <h3 className="nt-post-title">{post.title}</h3>

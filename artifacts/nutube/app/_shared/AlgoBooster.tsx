@@ -2,7 +2,7 @@
 /**
  * 🎯 Algo-Magic Booster
  *
- * 박예준 대표님 + 박 실장 + Claude 공동 설계
+ * 박예준 대표님 + Claude 공동 설계
  *
  * 사용법:
  *   <AlgoBooster

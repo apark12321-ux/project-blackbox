@@ -1,10 +1,33 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fb923c"/>
-      <stop offset="100%" stop-color="#ea580c"/>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#fb923c"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="630" fill="url(#g)"/>
-  <text x="600" y="380" font-size="280" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">👴</text>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+        <!-- 60초 타임라인 -->
+        <g transform="translate(220, 200)">
+          <rect x="0" y="0" width="760" height="50" rx="25" fill="rgba(255,255,255,0.15)"/>
+          
+          <rect x="0" y="0" width="100" height="50" rx="25" fill="#fef3c7" opacity="0.85"/>
+          <text x="50.0" y="32" font-size="24" font-weight="700" fill="#fff" text-anchor="middle">미끼</text>
+          
+          <rect x="100" y="0" width="130" height="50" rx="0" fill="#fcd34d" opacity="0.85"/>
+          <text x="165.0" y="32" font-size="24" font-weight="700" fill="#fff" text-anchor="middle">배경</text>
+          
+          <rect x="230" y="0" width="260" height="50" rx="0" fill="#fbbf24" opacity="0.85"/>
+          <text x="360.0" y="32" font-size="24" font-weight="700" fill="#fff" text-anchor="middle">갈등</text>
+          
+          <rect x="490" y="0" width="170" height="50" rx="0" fill="#f59e0b" opacity="0.85"/>
+          <text x="575.0" y="32" font-size="24" font-weight="700" fill="#fff" text-anchor="middle">전환</text>
+          
+          <rect x="660" y="0" width="100" height="50" rx="25" fill="#fef3c7" opacity="0.85"/>
+          <text x="710.0" y="32" font-size="24" font-weight="700" fill="#fff" text-anchor="middle">여운</text>
+          
+        </g>
+        
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">60초 사연 5단계</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">감정 만드는 구조</text>
 </svg>

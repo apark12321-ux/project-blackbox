@@ -1,10 +1,27 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#818cf8"/>
-      <stop offset="100%" stop-color="#4f46e5"/>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#818cf8"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="630" fill="url(#g)"/>
-  <text x="600" y="380" font-size="280" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">🎯</text>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+        <!-- 쇼츠(세로) → 롱폼(가로) -->
+        <g transform="translate(280, 170)">
+          <!-- 쇼츠 -->
+          <rect x="0" y="40" width="120" height="200" rx="14" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.5)" stroke-width="3"/>
+          <circle cx="60" cy="140" r="20" fill="#fff" opacity="0.6"/>
+          <polygon points="55,130 55,150 75,140" fill="#4f46e5"/>
+          <!-- 화살표 -->
+          <path d="M 170 140 L 360 140" stroke="#fbbf24" stroke-width="6" stroke-linecap="round"/>
+          <polygon points="345,128 365,140 345,152" fill="#fbbf24"/>
+          <!-- 롱폼 -->
+          <rect x="400" y="50" width="280" height="180" rx="14" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.5)" stroke-width="3"/>
+          <circle cx="540" cy="140" r="30" fill="#fff" opacity="0.6"/>
+          <polygon points="532,124 532,156 562,140" fill="#4f46e5"/>
+        </g>
+        
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">쇼츠 → 롱폼 전환</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">시청자 옮기는 4 장치</text>
 </svg>

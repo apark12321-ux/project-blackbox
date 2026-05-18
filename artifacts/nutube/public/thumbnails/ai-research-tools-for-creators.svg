@@ -1,10 +1,25 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#38bdf8"/>
-      <stop offset="100%" stop-color="#0284c7"/>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="630" fill="url(#g)"/>
-  <text x="600" y="380" font-size="280" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">🤖</text>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+        <!-- 전구 + 키워드 거품 -->
+        <g transform="translate(440, 170)" font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">
+          <text x="120" y="180" font-size="160" opacity="0.95">💡</text>
+        </g>
+        <g transform="translate(220, 200)">
+          <circle cx="0" cy="0" r="50" fill="rgba(255,255,255,0.25)"/>
+          <text x="0" y="6" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">트렌드</text>
+        </g>
+        <g transform="translate(920, 220)">
+          <circle cx="0" cy="0" r="60" fill="rgba(255,255,255,0.25)"/>
+          <text x="0" y="6" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">키워드</text>
+        </g>
+        
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">AI 리서치 도구</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">주제 막힐 때 5가지</text>
 </svg>

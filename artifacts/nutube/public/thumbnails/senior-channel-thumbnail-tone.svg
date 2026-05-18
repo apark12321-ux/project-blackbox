@@ -1,10 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fb923c"/>
-      <stop offset="100%" stop-color="#ea580c"/>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#fb923c"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="630" fill="url(#g)"/>
-  <text x="600" y="380" font-size="280" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">👴</text>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+        <!-- 따뜻한 톤 vs 자극적 톤 비교 -->
+        <g transform="translate(280, 160)">
+          <!-- 자극적 (X) -->
+          <rect x="0" y="0" width="280" height="180" rx="14" fill="#7c2d12" stroke="rgba(255,255,255,0.4)" stroke-width="3"/>
+          <text x="140" y="100" font-size="60" text-anchor="middle">😱</text>
+          <text x="140" y="160" font-size="22" font-weight="800" fill="#ef4444" text-anchor="middle">충격!</text>
+          <line x1="20" y1="20" x2="260" y2="160" stroke="#ef4444" stroke-width="6"/>
+          <!-- 따뜻한 (O) -->
+          <rect x="360" y="0" width="280" height="180" rx="14" fill="#fde68a" stroke="rgba(255,255,255,0.6)" stroke-width="3"/>
+          <text x="500" y="100" font-size="60" text-anchor="middle">😊</text>
+          <text x="500" y="160" font-size="22" font-weight="800" fill="#92400e" text-anchor="middle">따뜻한 사연</text>
+          <text x="500" y="-10" font-size="30" text-anchor="middle" fill="#22c55e">✓</text>
+        </g>
+        
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">시니어 썸네일 톤</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">자극보다 신뢰</text>
 </svg>

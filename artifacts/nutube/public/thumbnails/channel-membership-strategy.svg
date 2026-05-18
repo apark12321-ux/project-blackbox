@@ -1,10 +1,26 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#facc15"/>
-      <stop offset="100%" stop-color="#ca8a04"/>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ca8a04"/>
+      <stop offset="100%" stop-color="#facc15"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="630" fill="url(#g)"/>
-  <text x="600" y="380" font-size="280" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">💰</text>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+        <!-- 멤버십 카드 -->
+        <g transform="translate(380, 150)">
+          <rect x="0" y="0" width="440" height="240" rx="20" fill="rgba(255,255,255,0.4)" stroke="#92400e" stroke-width="4"/>
+          <text x="220" y="60" font-size="34" font-weight="900" fill="#92400e" text-anchor="middle">MEMBERSHIP</text>
+          <line x1="40" y1="90" x2="400" y2="90" stroke="#92400e" stroke-width="2" opacity="0.4"/>
+          <!-- 등급 -->
+          <text x="60" y="130" font-size="18" font-weight="700" fill="#1f2937">베이직</text>
+          <text x="380" y="130" font-size="18" font-weight="800" fill="#92400e" text-anchor="end">₩4,990</text>
+          <text x="60" y="170" font-size="18" font-weight="700" fill="#1f2937">프리미엄</text>
+          <text x="380" y="170" font-size="18" font-weight="800" fill="#92400e" text-anchor="end">₩14,900</text>
+          <text x="60" y="210" font-size="18" font-weight="700" fill="#1f2937">VIP</text>
+          <text x="380" y="210" font-size="18" font-weight="800" fill="#92400e" text-anchor="end">₩29,000</text>
+        </g>
+        
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#1f2937" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">채널 멤버십 전략</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#1f2937" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">정기 수익 만들기</text>
 </svg>

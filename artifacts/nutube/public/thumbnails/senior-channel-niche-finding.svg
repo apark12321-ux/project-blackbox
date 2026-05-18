@@ -1,10 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#fb923c"/>
-      <stop offset="100%" stop-color="#ea580c"/>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#fb923c"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="630" fill="url(#g)"/>
-  <text x="600" y="380" font-size="280" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">👴</text>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+        <!-- 가족 아이콘 + 친구 (빈자리) -->
+        <g transform="translate(340, 170)" font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">
+          <text x="0" y="120" font-size="100" opacity="0.5">👪</text>
+          <text x="130" y="120" font-size="100" opacity="0.5">💑</text>
+          <text x="260" y="120" font-size="100" opacity="0.5">👴</text>
+          <!-- 빈자리 (강조) -->
+          <rect x="380" y="35" width="120" height="100" rx="12" fill="rgba(255,255,255,0.3)" stroke="#fef3c7" stroke-width="4" stroke-dasharray="6 6"/>
+          <text x="440" y="100" font-size="50" text-anchor="middle">👫</text>
+        </g>
+        
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">시니어 채널 니치</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">빈자리 찾는 법</text>
 </svg>

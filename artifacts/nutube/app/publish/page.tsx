@@ -221,7 +221,7 @@ function KeywordInputForm() {
             영상 메타데이터 생성기
           </h1>
           <p style={{ fontSize: 16, color: '#525252', lineHeight: 1.7, margin: 0, wordBreak: 'keep-all' }}>
-            영상 키워드를 입력하시면 박 실장 알고리즘 11공식이 자동 적용된
+            영상 키워드를 입력하시면 알고파트너스의 11공식 알고리즘이 자동 적용된
             영상 메타데이터(제목·시나리오·해시태그·SEO 태그)를 5초 안에 만들어드립니다.
           </p>
         </header>

@@ -1,10 +1,24 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#818cf8"/>
-      <stop offset="100%" stop-color="#4f46e5"/>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#818cf8"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="630" fill="url(#g)"/>
-  <text x="600" y="380" font-size="280" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">🎯</text>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+        <!-- 화살표가 위를 향하는 흐름 -->
+        <g transform="translate(220, 180)" opacity="0.9">
+          <path d="M0 200 L150 100 L300 160 L450 60 L600 80 L760 20" 
+                stroke="#fbbf24" stroke-width="6" fill="none" stroke-linecap="round"/>
+          <circle cx="0" cy="200" r="8" fill="#fff"/>
+          <circle cx="150" cy="100" r="8" fill="#fff"/>
+          <circle cx="300" cy="160" r="8" fill="#fff"/>
+          <circle cx="450" cy="60" r="8" fill="#fff"/>
+          <circle cx="600" cy="80" r="8" fill="#fff"/>
+          <circle cx="760" cy="20" r="12" fill="#fbbf24"/>
+        </g>
+        
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">2026 알고리즘</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">추천 시스템 5가지 신호</text>
 </svg>

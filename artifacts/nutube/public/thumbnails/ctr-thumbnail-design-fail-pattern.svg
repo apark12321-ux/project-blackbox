@@ -1,10 +1,59 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#818cf8"/>
-      <stop offset="100%" stop-color="#4f46e5"/>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#818cf8"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="630" fill="url(#g)"/>
-  <text x="600" y="380" font-size="280" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">🎯</text>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+        <!-- 썸네일 격자 (X 표시) -->
+        <g transform="translate(380, 130)">
+          
+          <rect x="0" y="0" width="130" height="80" rx="8" 
+                fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+          <line x1="15" y1="15" x2="115" y2="65" 
+                stroke="#ef4444" stroke-width="4" opacity="0.4"/>
+          <line x1="115" y1="15" x2="15" y2="65" 
+                stroke="#ef4444" stroke-width="4" opacity="0.4"/>
+          
+          <rect x="150" y="0" width="130" height="80" rx="8" 
+                fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+          <line x1="165" y1="15" x2="265" y2="65" 
+                stroke="#ef4444" stroke-width="4" opacity="0.7"/>
+          <line x1="265" y1="15" x2="165" y2="65" 
+                stroke="#ef4444" stroke-width="4" opacity="0.7"/>
+          
+          <rect x="300" y="0" width="130" height="80" rx="8" 
+                fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+          <line x1="315" y1="15" x2="415" y2="65" 
+                stroke="#ef4444" stroke-width="4" opacity="0.4"/>
+          <line x1="415" y1="15" x2="315" y2="65" 
+                stroke="#ef4444" stroke-width="4" opacity="0.4"/>
+          
+          <rect x="0" y="100" width="130" height="80" rx="8" 
+                fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+          <line x1="15" y1="115" x2="115" y2="165" 
+                stroke="#ef4444" stroke-width="4" opacity="0.7"/>
+          <line x1="115" y1="115" x2="15" y2="165" 
+                stroke="#ef4444" stroke-width="4" opacity="0.7"/>
+          
+          <rect x="150" y="100" width="130" height="80" rx="8" 
+                fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+          <line x1="165" y1="115" x2="265" y2="165" 
+                stroke="#ef4444" stroke-width="4" opacity="0.4"/>
+          <line x1="265" y1="115" x2="165" y2="165" 
+                stroke="#ef4444" stroke-width="4" opacity="0.4"/>
+          
+          <rect x="300" y="100" width="130" height="80" rx="8" 
+                fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
+          <line x1="315" y1="115" x2="415" y2="165" 
+                stroke="#ef4444" stroke-width="4" opacity="0.7"/>
+          <line x1="415" y1="115" x2="315" y2="165" 
+                stroke="#ef4444" stroke-width="4" opacity="0.7"/>
+          
+        </g>
+        
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">썸네일 거부 패턴</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">CTR 안 나오는 7가지</text>
 </svg>

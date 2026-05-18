@@ -1,10 +1,57 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#38bdf8"/>
-      <stop offset="100%" stop-color="#0284c7"/>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0284c7"/>
+      <stop offset="100%" stop-color="#38bdf8"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="630" fill="url(#g)"/>
-  <text x="600" y="380" font-size="280" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">🤖</text>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  
+        <!-- 4가지 이미지 카드 (별 효과) -->
+        <g transform="translate(290, 160)">
+          
+          <g transform="translate(0, 0)">
+            <rect x="0" y="0" width="140" height="80" rx="10" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+            <polygon points="70,15 76,32 95,32 80,44 86,62 70,52 54,62 60,44 45,32 64,32" fill="#a5f3fc"/>
+          </g>
+          
+          <g transform="translate(160, 0)">
+            <rect x="0" y="0" width="140" height="80" rx="10" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+            <polygon points="70,15 76,32 95,32 80,44 86,62 70,52 54,62 60,44 45,32 64,32" fill="#a5f3fc"/>
+          </g>
+          
+          <g transform="translate(320, 0)">
+            <rect x="0" y="0" width="140" height="80" rx="10" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+            <polygon points="70,15 76,32 95,32 80,44 86,62 70,52 54,62 60,44 45,32 64,32" fill="#a5f3fc"/>
+          </g>
+          
+          <g transform="translate(480, 0)">
+            <rect x="0" y="0" width="140" height="80" rx="10" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+            <polygon points="70,15 76,32 95,32 80,44 86,62 70,52 54,62 60,44 45,32 64,32" fill="#a5f3fc"/>
+          </g>
+          
+          <g transform="translate(0, 100)">
+            <rect x="0" y="0" width="140" height="80" rx="10" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+            <polygon points="70,15 76,32 95,32 80,44 86,62 70,52 54,62 60,44 45,32 64,32" fill="#a5f3fc"/>
+          </g>
+          
+          <g transform="translate(160, 100)">
+            <rect x="0" y="0" width="140" height="80" rx="10" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+            <polygon points="70,15 76,32 95,32 80,44 86,62 70,52 54,62 60,44 45,32 64,32" fill="#a5f3fc"/>
+          </g>
+          
+          <g transform="translate(320, 100)">
+            <rect x="0" y="0" width="140" height="80" rx="10" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+            <polygon points="70,15 76,32 95,32 80,44 86,62 70,52 54,62 60,44 45,32 64,32" fill="#a5f3fc"/>
+          </g>
+          
+          <g transform="translate(480, 100)">
+            <rect x="0" y="0" width="140" height="80" rx="10" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
+            <polygon points="70,15 76,32 95,32 80,44 86,62 70,52 54,62 60,44 45,32 64,32" fill="#a5f3fc"/>
+          </g>
+          
+        </g>
+        
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">AI 썸네일 4도구</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">Midjourney·DALL-E 등</text>
 </svg>
