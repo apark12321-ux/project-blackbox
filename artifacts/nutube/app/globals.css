@@ -165,3 +165,68 @@ button { font-family: inherit; cursor: pointer; }
   .nt-table { font-size: 13px; }
   .nt-table th, .nt-table td { padding: 10px 8px; }
 }
+
+/* ============================================
+   카테고리 페이지 hero
+   ============================================ */
+.nt-cat-hero {
+  padding: 48px 32px;
+  border-radius: 20px;
+  text-align: center;
+  margin-bottom: 32px;
+}
+.nt-cat-hero-icon {
+  font-size: 64px;
+  margin-bottom: 12px;
+}
+.nt-cat-hero h1 {
+  font-size: 32px;
+  font-weight: 800;
+  margin: 0 0 12px;
+  color: #111827;
+  letter-spacing: -0.02em;
+}
+.nt-cat-hero p {
+  font-size: 16px;
+  color: #374151;
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+.nt-cat-hero-meta {
+  display: inline-block;
+  font-size: 13px;
+  color: #6b7280;
+  background: rgba(255,255,255,0.7);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+@media (max-width: 640px) {
+  .nt-cat-hero { padding: 32px 20px; }
+  .nt-cat-hero-icon { font-size: 48px; }
+  .nt-cat-hero h1 { font-size: 24px; }
+  .nt-cat-hero p { font-size: 14px; }
+}
+
+/* Breadcrumb */
+.nt-breadcrumb {
+  font-size: 13px;
+  color: #6b7280;
+  margin-bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.nt-breadcrumb a {
+  color: #6b7280;
+  text-decoration: none;
+}
+.nt-breadcrumb a:hover {
+  color: #4f46e5;
+  text-decoration: underline;
+}
+.nt-breadcrumb .current {
+  color: #111827;
+  font-weight: 600;
+}

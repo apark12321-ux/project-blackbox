@@ -13,10 +13,10 @@ export default function Footer() {
         <div className="nt-footer-section">
           <h4>카테고리</h4>
           <ul>
-            <li><Link href={`/blog?category=${CATEGORIES.algorithm.key}`}>{CATEGORIES.algorithm.label}</Link></li>
-            <li><Link href={`/blog?category=${CATEGORIES.senior.key}`}>{CATEGORIES.senior.label}</Link></li>
-            <li><Link href={`/blog?category=${CATEGORIES.aitools.key}`}>{CATEGORIES.aitools.label}</Link></li>
-            <li><Link href={`/blog?category=${CATEGORIES.monetization.key}`}>{CATEGORIES.monetization.label}</Link></li>
+            <li><Link href={`/category/${CATEGORIES.algorithm.key}`}>{CATEGORIES.algorithm.label}</Link></li>
+            <li><Link href={`/category/${CATEGORIES.senior.key}`}>{CATEGORIES.senior.label}</Link></li>
+            <li><Link href={`/category/${CATEGORIES.aitools.key}`}>{CATEGORIES.aitools.label}</Link></li>
+            <li><Link href={`/category/${CATEGORIES.monetization.key}`}>{CATEGORIES.monetization.label}</Link></li>
           </ul>
         </div>
 

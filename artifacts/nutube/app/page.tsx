@@ -121,7 +121,7 @@ export default async function HomePage() {
           {CATEGORY_KEYS.map((key) => {
             const cat = CATEGORIES[key];
             return (
-              <Link key={key} href={`/blog?category=${key}`} className="nt-cat-card" style={{ background: cat.gradient }}>
+              <Link key={key} href={`/category/${key}`} className="nt-cat-card" style={{ background: cat.gradient }}>
                 <div className="icon">{cat.icon}</div>
                 <h3>{cat.label}</h3>
                 <p>{cat.description}</p>

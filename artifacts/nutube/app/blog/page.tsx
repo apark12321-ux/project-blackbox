@@ -117,7 +117,7 @@ export default async function BlogListPage({ searchParams }: PageProps) {
           return (
             <Link
               key={key}
-              href={`/blog?category=${key}`}
+              href={`/category/${key}`}
               className={`nt-cat-tab ${selectedCategory === key ? 'active' : ''}`}
             >
               {cat.icon} {cat.label} ({count})

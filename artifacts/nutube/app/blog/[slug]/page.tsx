@@ -90,7 +90,7 @@ export default async function BlogPostPage({ params }: PageProps) {
     '@type': 'BreadcrumbList',
     itemListElement: [
       { '@type': 'ListItem', position: 1, name: '홈', item: SITE.url },
-      { '@type': 'ListItem', position: 2, name: cat.label, item: `${SITE.url}/blog?category=${post.category}` },
+      { '@type': 'ListItem', position: 2, name: cat.label, item: `${SITE.url}/category/${post.category}` },
       { '@type': 'ListItem', position: 3, name: post.title, item: `${SITE.url}/blog/${post.slug}` },
     ],
   };
@@ -253,7 +253,7 @@ export default async function BlogPostPage({ params }: PageProps) {
         <nav className="nt-breadcrumb">
           <Link href="/">홈</Link>
           <span className="sep">›</span>
-          <Link href={`/blog?category=${post.category}`}>{cat.label}</Link>
+          <Link href={`/category/${post.category}`}>{cat.label}</Link>
           <span className="sep">›</span>
           <span style={{ color: '#4b5563' }}>{post.title.length > 30 ? post.title.slice(0, 30) + '…' : post.title}</span>
         </nav>
