@@ -1,2 +1,0 @@
-# Vercel redeploy trigger
-Triggered at: 2026-05-17T14:23:05.035000
