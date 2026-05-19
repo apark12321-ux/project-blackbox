@@ -17,7 +17,7 @@ export default function TermsPage() {
 
       <h2>제2조 (용어의 정의)</h2>
       <ul>
-        <li><strong>운영자</strong>: {SITE.operator.company} (대표: {SITE.operator.representative}, 사업자등록번호: {SITE.operator.taxId})</li>
+        <li><strong>운영자</strong>: {SITE.operator.company} (사업자등록번호: {SITE.operator.taxId})</li>
         <li><strong>서비스</strong>: NuTube가 제공하는 웹사이트({SITE.url}) 및 부수 서비스</li>
         <li><strong>이용자</strong>: 본 사이트에 접속하여 서비스를 이용하는 모든 사람</li>
         <li><strong>콘텐츠</strong>: 본 사이트에 게시된 모든 글, 이미지, 데이터 등</li>
@@ -65,8 +65,6 @@ export default function TermsPage() {
         <dl>
           <dt>상호</dt>
           <dd>{SITE.operator.company}</dd>
-          <dt>대표자</dt>
-          <dd>{SITE.operator.representative}</dd>
           <dt>사업자등록번호</dt>
           <dd>{SITE.operator.taxId}</dd>
           <dt>통신판매업 신고</dt>

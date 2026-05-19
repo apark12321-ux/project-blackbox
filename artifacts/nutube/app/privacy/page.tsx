@@ -187,7 +187,7 @@ export default function PrivacyPage() {
       <div className="nt-info-box">
         <dl>
           <dt>개인정보 보호책임자</dt>
-          <dd>{SITE.operator.representative} ({SITE.operator.company} 대표)</dd>
+          <dd>{SITE.operator.privacyOfficer.name}</dd>
           <dt>연락처</dt>
           <dd>이메일: <a href={`mailto:${SITE.operator.email}`}>{SITE.operator.email}</a></dd>
           <dt>소재지</dt>

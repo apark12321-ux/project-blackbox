@@ -13,7 +13,7 @@ export const metadata: Metadata = {
   description: SITE.description,
   keywords: ['유튜브', '유튜브 알고리즘', '시니어 쇼츠', 'AI 도구', '유튜브 수익화', '채널 운영'],
   authors: [{ name: SITE.operator.company }],
-  creator: SITE.operator.representative,
+  creator: SITE.operator.company,
   publisher: SITE.operator.company,
   openGraph: {
     type: 'website',
@@ -75,10 +75,6 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     foundingDate: SITE.operator.foundingDate,
     taxID: SITE.operator.taxId,
     vatID: SITE.operator.taxId,
-    founder: {
-      '@type': 'Person',
-      name: SITE.operator.representative,
-    },
     address: {
       '@type': 'PostalAddress',
       streetAddress: SITE.operator.streetAddress,

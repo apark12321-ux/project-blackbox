@@ -5,20 +5,25 @@ export const SITE = {
   url: 'https://www.nutube.kr',
   ogImage: '/og-default.jpg',
   adsenseClient: 'ca-pub-9552509372228899',
-  launchDate: '2026-04-28', // 사이트 첫 게시물 발행일
+  launchDate: '2026-04-28',
   operator: {
     company: '상상아트',
-    representative: '황별초',
+    representative: '황별초', // 사업자등록증상 대표자 (내부 데이터, 푸터에 노출 안 함)
     email: 'apark12321@gmail.com',
     taxId: '272-14-01256',
-    foundingDate: '2021-02-16', // 사업 개업일
+    foundingDate: '2021-02-16',
     address: '인천광역시 서구 크리스탈로 100',
     addressRegion: '인천광역시',
     addressLocality: '서구',
     streetAddress: '크리스탈로 100',
     businessType: '정보통신업, 광고대행업, 미디어콘텐츠창작업',
-    // 통신판매업 신고
     mailOrderSalesId: '제 2023-화성동탄-1098 호',
+    // 개인정보 보호책임자 (별도 지정 가능, 「개인정보 보호법」 제31조)
+    privacyOfficer: {
+      name: '박예준',
+      role: '개인정보 보호책임자',
+      email: 'apark12321@gmail.com',
+    },
   },
 } as const;
 

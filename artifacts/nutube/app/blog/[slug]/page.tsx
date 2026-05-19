@@ -68,7 +68,6 @@ export default async function BlogPostPage({ params }: PageProps) {
       name: SITE.operator.company,
       url: SITE.url,
       logo: { '@type': 'ImageObject', url: `${SITE.url}/og-default.jpg` },
-      founder: { '@type': 'Person', name: SITE.operator.representative },
       foundingDate: SITE.operator.foundingDate,
       taxID: SITE.operator.taxId,
       address: {
