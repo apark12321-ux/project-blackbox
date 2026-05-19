@@ -124,10 +124,20 @@ const nextConfig = {
         destination: '/',
         permanent: true,
       },
-      // 옛 글 슬러그 → 홈으로 (새 사이트에서 다루지 않는 주제)
+      // 옛 글 슬러그 → 관련 새 글로 리다이렉트 (SEO 자산 보존)
       {
         source: '/blog/youtube-superthanks',
         destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/blog/shorts-algorithm-mastery',
+        destination: '/blog/youtube-algorithm-2026-recommendation',
+        permanent: true,
+      },
+      {
+        source: '/blog/senior-thumbnail-design',
+        destination: '/blog/senior-channel-thumbnail-tone',
         permanent: true,
       },
     ];
