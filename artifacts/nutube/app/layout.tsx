@@ -69,7 +69,7 @@ export default function RootLayout({ children }: { children: React.ReactNode }) 
     '@context': 'https://schema.org',
     '@type': 'Organization',
     name: SITE.operator.company,
-    alternateName: 'AlgoPartners',
+    alternateName: 'SangsangArt',
     url: SITE.url,
     logo: `${SITE.url}/og-default.jpg`,
     foundingDate: SITE.operator.foundingDate,

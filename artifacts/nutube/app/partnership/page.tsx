@@ -50,6 +50,8 @@ export default function PartnershipPage() {
           <dd>{SITE.operator.representative}</dd>
           <dt>사업자등록번호</dt>
           <dd>{SITE.operator.taxId}</dd>
+          <dt>통신판매업 신고</dt>
+          <dd>{SITE.operator.mailOrderSalesId}</dd>
           <dt>사업장 주소</dt>
           <dd>{SITE.operator.address}</dd>
           <dt>이메일</dt>

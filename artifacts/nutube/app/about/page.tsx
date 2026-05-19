@@ -58,8 +58,10 @@ export default function AboutPage() {
           <dd>{SITE.operator.representative}</dd>
           <dt>사업자등록번호</dt>
           <dd>{SITE.operator.taxId}</dd>
+          <dt>통신판매업 신고</dt>
+          <dd>{SITE.operator.mailOrderSalesId}</dd>
           <dt>개업일</dt>
-          <dd>2025년 3월 1일</dd>
+          <dd>2021년 2월 16일</dd>
           <dt>업태/종목</dt>
           <dd>{SITE.operator.businessType}</dd>
           <dt>사업장 주소</dt>

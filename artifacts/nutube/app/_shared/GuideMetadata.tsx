@@ -33,7 +33,7 @@ interface GuideMetadataProps {
 
 const SITE_URL = 'https://nutube.kr';
 const SITE_NAME = 'NuTube';
-const DEFAULT_AUTHOR = '알고파트너스';
+const DEFAULT_AUTHOR = '상상아트';
 const DEFAULT_IMAGE = `${SITE_URL}/og-image.png`;
 const PUBLISHER_LOGO = `${SITE_URL}/logo.png`;
 
