@@ -34,9 +34,7 @@ export default function Footer() {
 
       <div className="nt-footer-bottom">
         <div className="nt-footer-operator">
-          {SITE.operator.company} · 대표: {SITE.operator.representative} · 사업자등록번호: {SITE.operator.taxId}<br/>
-          통신판매업 신고: {SITE.operator.mailOrderSalesId}<br/>
-          {SITE.operator.address} · 이메일: <a href={`mailto:${SITE.operator.email}`}>{SITE.operator.email}</a>
+          운영: {SITE.operator.company} · 이메일: <a href={`mailto:${SITE.operator.email}`}>{SITE.operator.email}</a>
         </div>
         <div className="nt-footer-copyright">© {new Date().getFullYear()} {SITE.name}. All rights reserved.</div>
       </div>
