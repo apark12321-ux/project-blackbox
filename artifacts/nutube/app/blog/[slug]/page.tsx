@@ -100,8 +100,8 @@ export default async function BlogPostPage({ params }: PageProps) {
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(breadcrumbJsonLd) }} />
 
       <style>{`
-        .nt-post-container { max-width: 760px; margin: 0 auto; padding: 32px 20px 80px; }
-        @media(max-width: 640px){ .nt-post-container { padding: 24px 16px 60px; } }
+        .nt-post-container { max-width: 800px; margin: 40px auto; padding: 48px 56px 64px; background: #fff; border-radius: 20px; color: #111827; }
+        @media(max-width: 640px){ .nt-post-container { padding: 28px 20px 48px; margin: 16px; border-radius: 16px; } }
 
         .nt-breadcrumb {
           display: flex; gap: 8px; align-items: center;

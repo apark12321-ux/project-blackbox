@@ -9,18 +9,18 @@ html, body {
   font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
   font-size: 16px;
   line-height: 1.6;
-  color: #111827;
-  background: #ffffff;
+  color: #e6edf3;
+  background: #0d1117;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
 
 a { color: inherit; text-decoration: none; }
-a:hover { color: #4f46e5; }
+a:hover { color: #84cc16; }
 img, svg { max-width: 100%; height: auto; display: block; }
 button { font-family: inherit; cursor: pointer; }
 
-.nt-main { min-height: calc(100vh - 200px); }
+.nt-main { min-height: calc(100vh - 200px); background: #0d1117; }
 
 /* 컨테이너 */
 .nt-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
@@ -62,8 +62,8 @@ button { font-family: inherit; cursor: pointer; }
    푸터
    ============================================ */
 .nt-footer {
-  background: #f9fafb; border-top: 1px solid #f3f4f6;
-  padding: 40px 0 32px; margin-top: 80px;
+  background: #0a0e13; border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 56px 0 32px; margin-top: 0;
 }
 .nt-footer-inner {
   max-width: 1200px; margin: 0 auto; padding: 0 20px;
@@ -73,33 +73,37 @@ button { font-family: inherit; cursor: pointer; }
   .nt-footer-inner { grid-template-columns: 1fr; gap: 24px; }
 }
 .nt-footer-brand h3 {
-  font-size: 18px; font-weight: 800; margin: 0 0 8px;
-  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  font-size: 20px; font-weight: 900; margin: 0 0 10px;
+  background: linear-gradient(90deg, #fff 0%, #d9f99d 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
 }
-.nt-footer-brand p { font-size: 13px; color: #6b7280; margin: 0 0 16px; line-height: 1.6; }
-.nt-footer-section h4 { font-size: 13px; font-weight: 700; color: #111827; margin: 0 0 12px; }
+.nt-footer-brand p { font-size: 13px; color: rgba(230,237,243,0.5); margin: 0 0 16px; line-height: 1.6; }
+.nt-footer-section h4 { font-size: 13px; font-weight: 700; color: #fff; margin: 0 0 12px; }
 .nt-footer-section ul { list-style: none; padding: 0; margin: 0; }
 .nt-footer-section li { margin-bottom: 8px; }
-.nt-footer-section a { font-size: 13px; color: #6b7280; }
-.nt-footer-section a:hover { color: #4f46e5; }
+.nt-footer-section a { font-size: 13px; color: rgba(230,237,243,0.5); transition: color 0.15s; }
+.nt-footer-section a:hover { color: #84cc16; }
 .nt-footer-bottom {
-  max-width: 1200px; margin: 32px auto 0; padding: 24px 20px 0;
-  border-top: 1px solid #e5e7eb;
+  max-width: 1200px; margin: 36px auto 0; padding: 24px 20px 0;
+  border-top: 1px solid rgba(255,255,255,0.08);
   display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
-  font-size: 12px; color: #9ca3af;
+  font-size: 12px; color: rgba(230,237,243,0.4);
 }
-.nt-footer-operator { line-height: 1.6; }
-.nt-footer-operator strong { color: #4b5563; font-weight: 600; }
+.nt-footer-operator { line-height: 1.7; }
+.nt-footer-operator a { color: rgba(230,237,243,0.6); }
+.nt-footer-operator a:hover { color: #84cc16; }
+.nt-footer-operator strong { color: rgba(230,237,243,0.7); font-weight: 600; }
 
 /* ============================================
    공통 페이지 스타일 (About, Privacy, Terms 등)
    ============================================ */
 .nt-page {
-  max-width: 880px; margin: 0 auto;
-  padding: 60px 24px 80px;
+  max-width: 880px; margin: 40px auto;
+  padding: 56px 48px 64px;
+  background: #fff; border-radius: 20px;
+  color: #111827;
 }
-@media (max-width: 640px) { .nt-page { padding: 32px 16px 60px; } }
+@media (max-width: 640px) { .nt-page { padding: 32px 20px 48px; margin: 16px; border-radius: 16px; } }
 .nt-page h1 {
   font-size: 36px; font-weight: 800; letter-spacing: -0.025em;
   color: #111827; margin: 0 0 16px; line-height: 1.2;
@@ -211,7 +215,7 @@ button { font-family: inherit; cursor: pointer; }
 /* Breadcrumb */
 .nt-breadcrumb {
   font-size: 13px;
-  color: #6b7280;
+  color: rgba(230,237,243,0.5);
   margin-bottom: 16px;
   display: flex;
   flex-wrap: wrap;
@@ -219,15 +223,15 @@ button { font-family: inherit; cursor: pointer; }
   gap: 6px;
 }
 .nt-breadcrumb a {
-  color: #6b7280;
+  color: rgba(230,237,243,0.5);
   text-decoration: none;
 }
 .nt-breadcrumb a:hover {
-  color: #4f46e5;
+  color: #84cc16;
   text-decoration: underline;
 }
 .nt-breadcrumb .current {
-  color: #111827;
+  color: #fff;
   font-weight: 600;
 }
 

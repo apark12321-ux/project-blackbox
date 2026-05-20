@@ -87,8 +87,8 @@ export default async function CategoryPage({ params }: { params: Promise<{ key: 
           ))}
         </div>
 
-        <div style={{ marginTop: 48, padding: 24, background: '#f9fafb', borderRadius: 12, textAlign: 'center' }}>
-          <p style={{ margin: 0, fontSize: 15, color: '#6b7280' }}>
+        <div style={{ marginTop: 48, padding: 24, background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: 12, textAlign: 'center' }}>
+          <p style={{ margin: 0, fontSize: 15, color: 'rgba(230,237,243,0.6)' }}>
             다른 카테고리도 확인해보세요:{' '}
             {CATEGORY_KEYS.filter((k) => k !== key).map((k, i, arr) => {
               const c = (CATEGORIES as any)[k];
@@ -116,14 +116,14 @@ export default async function CategoryPage({ params }: { params: Promise<{ key: 
           .nt-blog-grid { grid-template-columns: 1fr; gap: 16px; }
         }
         .nt-blog-card {
-          background: #fff; border: 1px solid #f3f4f6; border-radius: 16px;
-          overflow: hidden; transition: all 0.2s; text-decoration: none; color: inherit;
+          background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px;
+          overflow: hidden; transition: all 0.25s; text-decoration: none; color: inherit;
           display: block;
         }
         .nt-blog-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 32px rgba(0,0,0,.08);
-          border-color: #e0e7ff;
+          transform: translateY(-6px);
+          box-shadow: 0 16px 40px rgba(0,0,0,.4);
+          border-color: rgba(132,204,22,0.3);
         }
         .nt-post-thumb {
           aspect-ratio: 16/9;
@@ -140,19 +140,19 @@ export default async function CategoryPage({ params }: { params: Promise<{ key: 
           font-size: 11px; font-weight: 700; margin-bottom: 10px;
         }
         .nt-post-title {
-          font-size: 16px; font-weight: 800; color: #111827;
+          font-size: 16px; font-weight: 800; color: #fff;
           margin: 0 0 8px; line-height: 1.4;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
           overflow: hidden;
         }
         .nt-post-summary {
-          font-size: 13px; color: #6b7280; line-height: 1.5;
+          font-size: 13px; color: rgba(230,237,243,0.55); line-height: 1.5;
           margin: 0 0 10px;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
           overflow: hidden;
         }
         .nt-post-meta {
-          font-size: 12px; color: #9ca3af; font-weight: 500;
+          font-size: 12px; color: rgba(230,237,243,0.4); font-weight: 500;
         }
       `}</style>
     </>

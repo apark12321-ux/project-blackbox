@@ -32,11 +32,11 @@ export default async function BlogListPage({ searchParams }: PageProps) {
 
         .nt-blog-header { margin-bottom: 32px; }
         .nt-blog-title {
-          font-size: 36px; font-weight: 800; margin: 0 0 12px;
-          letter-spacing: -0.02em; color: #111827;
+          font-size: 36px; font-weight: 900; margin: 0 0 12px;
+          letter-spacing: -0.025em; color: #fff;
         }
         @media(max-width: 640px){ .nt-blog-title { font-size: 26px; } }
-        .nt-blog-desc { font-size: 16px; color: #6b7280; margin: 0; }
+        .nt-blog-desc { font-size: 16px; color: rgba(230,237,243,0.55); margin: 0; }
 
         .nt-cat-tabs {
           display: flex; gap: 8px; flex-wrap: wrap; margin: 32px 0;
@@ -44,17 +44,18 @@ export default async function BlogListPage({ searchParams }: PageProps) {
         .nt-cat-tab {
           padding: 8px 16px; border-radius: 999px;
           font-size: 14px; font-weight: 600;
-          background: #f3f4f6; color: #4b5563;
+          background: rgba(255,255,255,0.06); color: rgba(230,237,243,0.7);
+          border: 1px solid rgba(255,255,255,0.08);
           transition: all 0.15s;
         }
-        .nt-cat-tab:hover { background: #e5e7eb; color: #111827; }
+        .nt-cat-tab:hover { background: rgba(255,255,255,0.1); color: #fff; }
         .nt-cat-tab.active {
-          background: #4f46e5; color: #fff;
+          background: linear-gradient(135deg, #84cc16, #4ade80); color: #0d1117; border-color: transparent;
         }
-        .nt-cat-tab.active:hover { background: #4338ca; color: #fff; }
+        .nt-cat-tab.active:hover { color: #0d1117; }
 
         .nt-result-count {
-          font-size: 13px; color: #9ca3af; margin-bottom: 24px;
+          font-size: 13px; color: rgba(230,237,243,0.45); margin-bottom: 24px;
         }
 
         .nt-post-grid {
@@ -63,13 +64,13 @@ export default async function BlogListPage({ searchParams }: PageProps) {
         @media(max-width: 900px){ .nt-post-grid { grid-template-columns: repeat(2, 1fr); } }
         @media(max-width: 600px){ .nt-post-grid { grid-template-columns: 1fr; } }
         .nt-blog-card {
-          background: #fff; border: 1px solid #f3f4f6; border-radius: 16px;
-          overflow: hidden; transition: all 0.2s;
+          background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); border-radius: 16px;
+          overflow: hidden; transition: all 0.25s;
         }
         .nt-blog-card:hover {
-          transform: translateY(-4px);
-          box-shadow: 0 12px 32px rgba(0,0,0,.08);
-          border-color: #e0e7ff;
+          transform: translateY(-6px);
+          box-shadow: 0 16px 40px rgba(0,0,0,.4);
+          border-color: rgba(132,204,22,0.3);
         }
         .nt-post-thumb {
           aspect-ratio: 16/9; overflow: hidden;
@@ -82,20 +83,20 @@ export default async function BlogListPage({ searchParams }: PageProps) {
           font-size: 11px; font-weight: 700; margin-bottom: 10px;
         }
         .nt-post-title {
-          font-size: 16px; font-weight: 700; color: #111827; margin: 0 0 8px;
+          font-size: 16px; font-weight: 700; color: #fff; margin: 0 0 8px;
           line-height: 1.4;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
           overflow: hidden;
         }
         .nt-post-summary {
-          font-size: 13px; color: #6b7280; line-height: 1.5;
+          font-size: 13px; color: rgba(230,237,243,0.55); line-height: 1.5;
           display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical;
           overflow: hidden; margin: 0 0 8px;
         }
-        .nt-post-meta { font-size: 12px; color: #9ca3af; }
+        .nt-post-meta { font-size: 12px; color: rgba(230,237,243,0.4); }
 
         .nt-empty {
-          text-align: center; padding: 80px 20px; color: #9ca3af;
+          text-align: center; padding: 80px 20px; color: rgba(230,237,243,0.4);
         }
       `}</style>
 
