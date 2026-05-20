@@ -1,10 +1,22 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
   <defs>
-    <linearGradient id="g" x1="0%" y1="0%" x2="100%" y2="100%">
-      <stop offset="0%" stop-color="#818cf8"/>
-      <stop offset="100%" stop-color="#4f46e5"/>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#4f46e5"/>
+      <stop offset="100%" stop-color="#818cf8"/>
     </linearGradient>
   </defs>
-  <rect width="1200" height="630" fill="url(#g)"/>
-  <text x="600" y="380" font-size="280" text-anchor="middle" font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">🎯</text>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- 알고리즘 노드 네트워크 + 상승 그래프 -->
+  <g transform="translate(420, 130)">
+    <polyline points="0,180 90,150 180,165 270,90 360,40" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="0" cy="180" r="13" fill="#fff" opacity="0.85"/>
+    <circle cx="90" cy="150" r="13" fill="#fff" opacity="0.85"/>
+    <circle cx="180" cy="165" r="13" fill="#fff" opacity="0.85"/>
+    <circle cx="270" cy="90" r="13" fill="#fff" opacity="0.85"/>
+    <circle cx="360" cy="40" r="18" fill="#fff"/>
+    <polygon points="360,18 374,44 346,44" fill="#fff"/>
+  </g>
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">추천 가중치 변화</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">5월 둘째 주 이후 노출 패턴</text>
 </svg>
