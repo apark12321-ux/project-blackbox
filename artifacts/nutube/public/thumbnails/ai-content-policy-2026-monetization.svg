@@ -7,19 +7,32 @@
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
 
-  <!-- AI 칩 + 정책 방패 -->
-  <g transform="translate(440, 150)">
-    <rect x="0" y="40" width="150" height="150" rx="24" fill="rgba(255,255,255,0.18)" stroke="rgba(255,255,255,0.4)" stroke-width="3"/>
-    <circle cx="55" cy="105" r="16" fill="#fff"/>
-    <circle cx="115" cy="105" r="16" fill="#fff"/>
-    <rect x="50" y="150" width="70" height="10" rx="5" fill="#fff" opacity="0.7"/>
-    <line x1="75" y1="0" x2="75" y2="40" stroke="#fff" stroke-width="4"/><circle cx="75" cy="0" r="9" fill="#fff"/>
-    <!-- 방패 -->
-    <g transform="translate(210, 50)">
-      <path d="M70,0 L140,28 L140,90 Q140,150 70,180 Q0,150 0,90 L0,28 Z" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.5)" stroke-width="3"/>
-      <path d="M40,88 L62,112 L104,58" stroke="#fff" stroke-width="9" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+  <!-- ② 일러스트: 주제별 도형 (중앙 상단) -->
+  <g transform="translate(600, 220)">
+      <rect x="-60" y="-60" width="120" height="120" rx="16" fill="none" stroke="#ffffff" stroke-width="6" />
+      <line x1="-90" y1="-30" x2="-60" y2="-30" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="-90" y1="30" x2="-60" y2="30" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="60" y1="-30" x2="90" y2="-30" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="60" y1="30" x2="90" y2="30" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="-30" y1="-90" x2="-30" y2="-60" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="30" y1="-90" x2="30" y2="-60" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="-30" y1="60" x2="-30" y2="90" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="30" y1="60" x2="30" y2="90" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <circle cx="0" cy="0" r="30" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.5" />
+      <circle cx="0" cy="0" r="14" fill="#ffffff" />
+      <circle cx="-90" cy="-30" r="6" fill="#ffffff" />
+      <circle cx="-90" cy="30" r="6" fill="#ffffff" />
+      <circle cx="90" cy="-30" r="6" fill="#ffffff" />
+      <circle cx="90" cy="30" r="6" fill="#ffffff" />
+      <circle cx="-30" cy="-90" r="6" fill="#ffffff" />
+      <circle cx="30" cy="-90" r="6" fill="#ffffff" />
+      <circle cx="-30" cy="90" r="6" fill="#ffffff" />
+      <circle cx="30" cy="90" r="6" fill="#ffffff" />
     </g>
-  </g>
-  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">AI 수익화 정책</text>
-  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">2026년 허용과 금지</text>
+
+  <!-- ③ 텍스트 -->
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">AI 영상 수익 승인</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif">2026 개정 구글 인공지능 수익화 정책</text>
 </svg>

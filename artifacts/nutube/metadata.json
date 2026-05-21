@@ -1,0 +1,6 @@
+{
+  "name": "NuTube",
+  "description": "유튜브 채널 성장 알고리즘 인사이트 및 AI 메타데이터 마스터 생성 플랫폼",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

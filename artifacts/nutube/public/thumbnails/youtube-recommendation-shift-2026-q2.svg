@@ -7,16 +7,21 @@
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
 
-  <!-- 알고리즘 노드 네트워크 + 상승 그래프 -->
-  <g transform="translate(420, 130)">
-    <polyline points="0,180 90,150 180,165 270,90 360,40" fill="none" stroke="rgba(255,255,255,0.5)" stroke-width="5" stroke-linecap="round"/>
-    <circle cx="0" cy="180" r="13" fill="#fff" opacity="0.85"/>
-    <circle cx="90" cy="150" r="13" fill="#fff" opacity="0.85"/>
-    <circle cx="180" cy="165" r="13" fill="#fff" opacity="0.85"/>
-    <circle cx="270" cy="90" r="13" fill="#fff" opacity="0.85"/>
-    <circle cx="360" cy="40" r="18" fill="#fff"/>
-    <polygon points="360,18 374,44 346,44" fill="#fff"/>
-  </g>
-  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">추천 가중치 변화</text>
-  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">5월 둘째 주 이후 노출 패턴</text>
+  <!-- ② 일러스트: 주제별 도형 (중앙 상단) -->
+  <g transform="translate(600, 220)" stroke="#ffffff" stroke-width="6" stroke-linecap="round" stroke-linejoin="round" fill="none">
+      <path d="M -150,80 L -50,60 L 50,-20 L 150,-80" opacity="0.4" stroke-dasharray="10 10"/>
+      <path d="M -150,80 L -70,30 L 10,-30 L 90,-40 L 170,-100" />
+      <circle cx="-150" cy="80" r="10" fill="#ffffff" stroke="none" />
+      <circle cx="-70" cy="30" r="10" fill="#ffffff" stroke="none" />
+      <circle cx="10" cy="-30" r="10" fill="#ffffff" stroke="none" />
+      <circle cx="90" cy="-40" r="10" fill="#ffffff" stroke="none" />
+      <circle cx="170" cy="-100" r="12" fill="#ffffff" stroke="none" />
+      <circle cx="170" cy="-100" r="22" stroke="#ffffff" stroke-width="2" opacity="0.5" />
+    </g>
+
+  <!-- ③ 텍스트 -->
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">추천 가중치 패치</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif">5월 둘째 주 추천 노출 감소 긴급대응</text>
 </svg>

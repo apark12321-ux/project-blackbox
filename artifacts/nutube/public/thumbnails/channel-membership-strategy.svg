@@ -6,21 +6,24 @@
     </linearGradient>
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
-  
-        <!-- 멤버십 카드 -->
-        <g transform="translate(380, 150)">
-          <rect x="0" y="0" width="440" height="240" rx="20" fill="rgba(255,255,255,0.4)" stroke="#92400e" stroke-width="4"/>
-          <text x="220" y="60" font-size="34" font-weight="900" fill="#92400e" text-anchor="middle">MEMBERSHIP</text>
-          <line x1="40" y1="90" x2="400" y2="90" stroke="#92400e" stroke-width="2" opacity="0.4"/>
-          <!-- 등급 -->
-          <text x="60" y="130" font-size="18" font-weight="700" fill="#1f2937">베이직</text>
-          <text x="380" y="130" font-size="18" font-weight="800" fill="#92400e" text-anchor="end">₩4,990</text>
-          <text x="60" y="170" font-size="18" font-weight="700" fill="#1f2937">프리미엄</text>
-          <text x="380" y="170" font-size="18" font-weight="800" fill="#92400e" text-anchor="end">₩14,900</text>
-          <text x="60" y="210" font-size="18" font-weight="700" fill="#1f2937">VIP</text>
-          <text x="380" y="210" font-size="18" font-weight="800" fill="#92400e" text-anchor="end">₩29,000</text>
-        </g>
-        
-  <text x="600" y="490" font-size="56" font-weight="900" fill="#1f2937" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">채널 멤버십 전략</text>
-  <text x="600" y="555" font-size="28" font-weight="400" fill="#1f2937" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">정기 수익 만들기</text>
+
+  <!-- ② 일러스트: 주제별 도형 (중앙 상단) -->
+  <g transform="translate(600, 215)">
+      <rect x="-130" y="30" width="40" height="60" rx="6" fill="#ffffff" opacity="0.4" />
+      <rect x="-70" y="-10" width="40" height="100" rx="6" fill="#ffffff" opacity="0.6" />
+      <rect x="-10" y="-50" width="40" height="140" rx="6" fill="#ffffff" opacity="0.8" />
+      <rect x="50" y="-90" width="40" height="180" rx="6" fill="#ffffff" />
+      <polyline points="-110,40 -50,0 10,-40 70,-80" fill="none" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <circle cx="70" cy="-80" r="12" fill="#ffffff" stroke="#ffffff" stroke-width="2" />
+      <g transform="translate(110, -50) scale(1.5)">
+        <circle cx="0" cy="0" r="22" fill="#ffffff" opacity="0.8" />
+        <text x="0" y="8" font-size="26" font-weight="900" text-anchor="middle" fill="#ea580c" font-family="sans-serif">$</text>
+      </g>
+    </g>
+
+  <!-- ③ 텍스트 -->
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">멤버십 설계 전략</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif">안정적인 고수익 월세 올리기</text>
 </svg>

@@ -6,20 +6,33 @@
     </linearGradient>
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
-  
-        <!-- 전구 + 키워드 거품 -->
-        <g transform="translate(440, 170)" font-family="Apple Color Emoji,Segoe UI Emoji,sans-serif">
-          <text x="120" y="180" font-size="160" opacity="0.95">💡</text>
-        </g>
-        <g transform="translate(220, 200)">
-          <circle cx="0" cy="0" r="50" fill="rgba(255,255,255,0.25)"/>
-          <text x="0" y="6" font-size="18" font-weight="700" fill="#fff" text-anchor="middle">트렌드</text>
-        </g>
-        <g transform="translate(920, 220)">
-          <circle cx="0" cy="0" r="60" fill="rgba(255,255,255,0.25)"/>
-          <text x="0" y="6" font-size="20" font-weight="700" fill="#fff" text-anchor="middle">키워드</text>
-        </g>
-        
-  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">AI 리서치 도구</text>
-  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">주제 막힐 때 5가지</text>
+
+  <!-- ② 일러스트: 주제별 도형 (중앙 상단) -->
+  <g transform="translate(600, 220)">
+      <rect x="-60" y="-60" width="120" height="120" rx="16" fill="none" stroke="#ffffff" stroke-width="6" />
+      <line x1="-90" y1="-30" x2="-60" y2="-30" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="-90" y1="30" x2="-60" y2="30" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="60" y1="-30" x2="90" y2="-30" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="60" y1="30" x2="90" y2="30" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="-30" y1="-90" x2="-30" y2="-60" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="30" y1="-90" x2="30" y2="-60" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="-30" y1="60" x2="-30" y2="90" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="30" y1="60" x2="30" y2="90" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <circle cx="0" cy="0" r="30" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.5" />
+      <circle cx="0" cy="0" r="14" fill="#ffffff" />
+      <circle cx="-90" cy="-30" r="6" fill="#ffffff" />
+      <circle cx="-90" cy="30" r="6" fill="#ffffff" />
+      <circle cx="90" cy="-30" r="6" fill="#ffffff" />
+      <circle cx="90" cy="30" r="6" fill="#ffffff" />
+      <circle cx="-30" cy="-90" r="6" fill="#ffffff" />
+      <circle cx="30" cy="-90" r="6" fill="#ffffff" />
+      <circle cx="-30" cy="90" r="6" fill="#ffffff" />
+      <circle cx="30" cy="90" r="6" fill="#ffffff" />
+    </g>
+
+  <!-- ③ 텍스트 -->
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">소재 고갈 탈출 AI</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif">다음 영상 기획이 쉬워지는 5대 도구</text>
 </svg>

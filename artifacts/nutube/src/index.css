@@ -1,0 +1,112 @@
+@import "tailwindcss";
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css');
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;700&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+@theme {
+  --font-sans: "Pretendard", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --font-display: "Space Grotesk", sans-serif;
+  --font-mono: "JetBrains Mono", monospace;
+  
+  --color-brand-bg: #f5f6f2;
+  --color-brand-dark: #eaede7;
+  --color-brand-card: #ffffff;
+  --color-brand-border: #d0d7cd;
+  
+  --color-neon-lime: #245e3c;
+  --color-neon-lime-hover: #1c492e;
+  --color-neon-coral: #b73e27;
+}
+
+@layer base {
+  body {
+    background-color: var(--color-brand-bg);
+    color: #2d362f;
+    font-family: var(--font-sans);
+    line-height: 1.65;
+    -webkit-font-smoothing: antialiased;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    letter-spacing: -0.015em;
+  }
+}
+
+/* Custom scrollbar to match soothing sage theme */
+::-webkit-scrollbar {
+  width: 9px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-brand-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neon-lime);
+}
+
+/* Eye-soothing gradient text utility */
+.gradient-text-forest {
+  background: linear-gradient(135deg, #1e4d30 0%, #2f6b45 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Soothing Shadow accents */
+.sage-shadow {
+  box-shadow: 0 4px 20px -2px rgba(44, 73, 50, 0.06), 0 2px 8px -1px rgba(0, 0, 0, 0.04);
+}
+
+.glow-filter {
+  filter: drop-shadow(0 0 8px rgba(36, 94, 60, 0.15));
+}
+
+.glow-filter-coral {
+  filter: drop-shadow(0 0 8px rgba(183, 62, 39, 0.15));
+}
+
+/* Enhanced Markdown styling optimized specifically for human reading density */
+.markdown-body h2 {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  color: #1a2a1f;
+  border-bottom: 2px solid var(--color-brand-border);
+  padding-bottom: 0.6rem;
+  margin-top: 2rem;
+  margin-bottom: 1rem;
+  font-size: 1.35rem;
+  letter-spacing: -0.02em;
+}
+
+.markdown-body h3 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  color: #24382a;
+  margin-top: 1.5rem;
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+  letter-spacing: -0.01em;
+}
+
+.markdown-body p {
+  color: #354238;
+  margin-bottom: 1.25rem;
+  line-height: 1.75;
+  font-size: 0.975rem;
+}
+
+.markdown-body ul, .markdown-body ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.25rem;
+}
+
+.markdown-body li {
+  margin-bottom: 0.5rem;
+  color: #354238;
+  line-height: 1.65;
+}
+
+.markdown-body strong {
+  color: #245e3c;
+  font-weight: 700;
+}

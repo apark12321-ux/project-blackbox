@@ -6,36 +6,33 @@
     </linearGradient>
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
-  
-        <!-- 4개 박스 비교 -->
-        <g transform="translate(280, 170)">
-          
-          <g transform="translate(0, 0)">
-            <rect x="0" y="0" width="300" height="100" rx="14" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
-            <text x="20" y="42" font-size="22" font-weight="900" fill="#fff">ChatGPT</text>
-            <g transform="translate(20, 60)"><rect x="0" y="0" width="14" height="20" rx="3" fill="#a5f3fc"/><rect x="20" y="0" width="14" height="20" rx="3" fill="#a5f3fc"/><rect x="40" y="0" width="14" height="20" rx="3" fill="#a5f3fc"/><rect x="60" y="0" width="14" height="20" rx="3" fill="#a5f3fc"/><rect x="80" y="0" width="14" height="20" rx="3" fill="rgba(255,255,255,0.3)"/></g>
-          </g>
-          
-          <g transform="translate(330, 0)">
-            <rect x="0" y="0" width="300" height="100" rx="14" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
-            <text x="20" y="42" font-size="22" font-weight="900" fill="#fff">Claude</text>
-            <g transform="translate(20, 60)"><rect x="0" y="0" width="14" height="20" rx="3" fill="#a5f3fc"/><rect x="20" y="0" width="14" height="20" rx="3" fill="#a5f3fc"/><rect x="40" y="0" width="14" height="20" rx="3" fill="#a5f3fc"/><rect x="60" y="0" width="14" height="20" rx="3" fill="#a5f3fc"/><rect x="80" y="0" width="14" height="20" rx="3" fill="#a5f3fc"/></g>
-          </g>
-          
-          <g transform="translate(0, 120)">
-            <rect x="0" y="0" width="300" height="100" rx="14" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
-            <text x="20" y="42" font-size="22" font-weight="900" fill="#fff">Gemini</text>
-            <g transform="translate(20, 60)"><rect x="0" y="0" width="14" height="20" rx="3" fill="#a5f3fc"/><rect x="20" y="0" width="14" height="20" rx="3" fill="#a5f3fc"/><rect x="40" y="0" width="14" height="20" rx="3" fill="#a5f3fc"/><rect x="60" y="0" width="14" height="20" rx="3" fill="rgba(255,255,255,0.3)"/><rect x="80" y="0" width="14" height="20" rx="3" fill="rgba(255,255,255,0.3)"/></g>
-          </g>
-          
-          <g transform="translate(330, 120)">
-            <rect x="0" y="0" width="300" height="100" rx="14" fill="rgba(255,255,255,0.2)" stroke="rgba(255,255,255,0.4)" stroke-width="2"/>
-            <text x="20" y="42" font-size="22" font-weight="900" fill="#fff">Notion AI</text>
-            <g transform="translate(20, 60)"><rect x="0" y="0" width="14" height="20" rx="3" fill="#a5f3fc"/><rect x="20" y="0" width="14" height="20" rx="3" fill="#a5f3fc"/><rect x="40" y="0" width="14" height="20" rx="3" fill="#a5f3fc"/><rect x="60" y="0" width="14" height="20" rx="3" fill="rgba(255,255,255,0.3)"/><rect x="80" y="0" width="14" height="20" rx="3" fill="rgba(255,255,255,0.3)"/></g>
-          </g>
-          
-        </g>
-        
-  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">대본 AI 4종 비교</text>
-  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">GPT·Claude·Gemini·Notion</text>
+
+  <!-- ② 일러스트: 주제별 도형 (중앙 상단) -->
+  <g transform="translate(600, 220)">
+      <rect x="-60" y="-60" width="120" height="120" rx="16" fill="none" stroke="#ffffff" stroke-width="6" />
+      <line x1="-90" y1="-30" x2="-60" y2="-30" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="-90" y1="30" x2="-60" y2="30" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="60" y1="-30" x2="90" y2="-30" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="60" y1="30" x2="90" y2="30" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="-30" y1="-90" x2="-30" y2="-60" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="30" y1="-90" x2="30" y2="-60" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="-30" y1="60" x2="-30" y2="90" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="30" y1="60" x2="30" y2="90" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <circle cx="0" cy="0" r="30" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.5" />
+      <circle cx="0" cy="0" r="14" fill="#ffffff" />
+      <circle cx="-90" cy="-30" r="6" fill="#ffffff" />
+      <circle cx="-90" cy="30" r="6" fill="#ffffff" />
+      <circle cx="90" cy="-30" r="6" fill="#ffffff" />
+      <circle cx="90" cy="30" r="6" fill="#ffffff" />
+      <circle cx="-30" cy="-90" r="6" fill="#ffffff" />
+      <circle cx="30" cy="-90" r="6" fill="#ffffff" />
+      <circle cx="-30" cy="90" r="6" fill="#ffffff" />
+      <circle cx="30" cy="90" r="6" fill="#ffffff" />
+    </g>
+
+  <!-- ③ 텍스트 -->
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">AI 대본 도구 비교</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif">챗GPT 클로드 제미나이 리얼 비교</text>
 </svg>

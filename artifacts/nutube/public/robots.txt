@@ -1,0 +1,14 @@
+User-agent: *
+Allow: /
+Disallow: /generator
+Disallow: /publish
+
+User-agent: Googlebot
+Allow: /
+Disallow: /generator
+Disallow: /publish
+
+User-agent: Mediapartners-Google
+Allow: /
+
+Sitemap: https://www.nutube.kr/sitemap.xml

@@ -6,52 +6,33 @@
     </linearGradient>
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
-  
-        <!-- 4가지 이미지 카드 (별 효과) -->
-        <g transform="translate(290, 160)">
-          
-          <g transform="translate(0, 0)">
-            <rect x="0" y="0" width="140" height="80" rx="10" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
-            <polygon points="70,15 76,32 95,32 80,44 86,62 70,52 54,62 60,44 45,32 64,32" fill="#a5f3fc"/>
-          </g>
-          
-          <g transform="translate(160, 0)">
-            <rect x="0" y="0" width="140" height="80" rx="10" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
-            <polygon points="70,15 76,32 95,32 80,44 86,62 70,52 54,62 60,44 45,32 64,32" fill="#a5f3fc"/>
-          </g>
-          
-          <g transform="translate(320, 0)">
-            <rect x="0" y="0" width="140" height="80" rx="10" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
-            <polygon points="70,15 76,32 95,32 80,44 86,62 70,52 54,62 60,44 45,32 64,32" fill="#a5f3fc"/>
-          </g>
-          
-          <g transform="translate(480, 0)">
-            <rect x="0" y="0" width="140" height="80" rx="10" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
-            <polygon points="70,15 76,32 95,32 80,44 86,62 70,52 54,62 60,44 45,32 64,32" fill="#a5f3fc"/>
-          </g>
-          
-          <g transform="translate(0, 100)">
-            <rect x="0" y="0" width="140" height="80" rx="10" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
-            <polygon points="70,15 76,32 95,32 80,44 86,62 70,52 54,62 60,44 45,32 64,32" fill="#a5f3fc"/>
-          </g>
-          
-          <g transform="translate(160, 100)">
-            <rect x="0" y="0" width="140" height="80" rx="10" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
-            <polygon points="70,15 76,32 95,32 80,44 86,62 70,52 54,62 60,44 45,32 64,32" fill="#a5f3fc"/>
-          </g>
-          
-          <g transform="translate(320, 100)">
-            <rect x="0" y="0" width="140" height="80" rx="10" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
-            <polygon points="70,15 76,32 95,32 80,44 86,62 70,52 54,62 60,44 45,32 64,32" fill="#a5f3fc"/>
-          </g>
-          
-          <g transform="translate(480, 100)">
-            <rect x="0" y="0" width="140" height="80" rx="10" fill="rgba(255,255,255,0.22)" stroke="rgba(255,255,255,0.5)" stroke-width="2"/>
-            <polygon points="70,15 76,32 95,32 80,44 86,62 70,52 54,62 60,44 45,32 64,32" fill="#a5f3fc"/>
-          </g>
-          
-        </g>
-        
-  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">AI 썸네일 4도구</text>
-  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">Midjourney·DALL-E 등</text>
+
+  <!-- ② 일러스트: 주제별 도형 (중앙 상단) -->
+  <g transform="translate(600, 220)">
+      <rect x="-60" y="-60" width="120" height="120" rx="16" fill="none" stroke="#ffffff" stroke-width="6" />
+      <line x1="-90" y1="-30" x2="-60" y2="-30" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="-90" y1="30" x2="-60" y2="30" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="60" y1="-30" x2="90" y2="-30" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="60" y1="30" x2="90" y2="30" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="-30" y1="-90" x2="-30" y2="-60" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="30" y1="-90" x2="30" y2="-60" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="-30" y1="60" x2="-30" y2="90" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="30" y1="60" x2="30" y2="90" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <circle cx="0" cy="0" r="30" fill="none" stroke="#ffffff" stroke-width="4" opacity="0.5" />
+      <circle cx="0" cy="0" r="14" fill="#ffffff" />
+      <circle cx="-90" cy="-30" r="6" fill="#ffffff" />
+      <circle cx="-90" cy="30" r="6" fill="#ffffff" />
+      <circle cx="90" cy="-30" r="6" fill="#ffffff" />
+      <circle cx="90" cy="30" r="6" fill="#ffffff" />
+      <circle cx="-30" cy="-90" r="6" fill="#ffffff" />
+      <circle cx="30" cy="-90" r="6" fill="#ffffff" />
+      <circle cx="-30" cy="90" r="6" fill="#ffffff" />
+      <circle cx="30" cy="90" r="6" fill="#ffffff" />
+    </g>
+
+  <!-- ③ 텍스트 -->
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">AI 썸네일 도구</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif">미드저니 캔바 파이어플라이 실전</text>
 </svg>

@@ -6,21 +6,21 @@
     </linearGradient>
   </defs>
   <rect width="1200" height="630" fill="url(#bg)"/>
-  
-        <!-- 따뜻한 톤 vs 자극적 톤 비교 -->
-        <g transform="translate(280, 160)">
-          <!-- 자극적 (X) -->
-          <rect x="0" y="0" width="280" height="180" rx="14" fill="#7c2d12" stroke="rgba(255,255,255,0.4)" stroke-width="3"/>
-          <text x="140" y="100" font-size="60" text-anchor="middle">😱</text>
-          <text x="140" y="160" font-size="22" font-weight="800" fill="#ef4444" text-anchor="middle">충격!</text>
-          <line x1="20" y1="20" x2="260" y2="160" stroke="#ef4444" stroke-width="6"/>
-          <!-- 따뜻한 (O) -->
-          <rect x="360" y="0" width="280" height="180" rx="14" fill="#fde68a" stroke="rgba(255,255,255,0.6)" stroke-width="3"/>
-          <text x="500" y="100" font-size="60" text-anchor="middle">😊</text>
-          <text x="500" y="160" font-size="22" font-weight="800" fill="#92400e" text-anchor="middle">따뜻한 사연</text>
-          <text x="500" y="-10" font-size="30" text-anchor="middle" fill="#22c55e">✓</text>
-        </g>
-        
-  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">시니어 썸네일 톤</text>
-  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,-apple-system,sans-serif">자극보다 신뢰</text>
+
+  <!-- ② 일러스트: 주제별 도형 (중앙 상단) -->
+  <g transform="translate(600, 220)">
+      <rect x="-60" y="-100" width="120" height="200" rx="20" ry="20" fill="none" stroke="#ffffff" stroke-width="6" opacity="0.8" />
+      <line x1="-20" y1="-85" x2="20" y2="-85" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+      <polygon points="-10,-20 -10,20 20,0" fill="#ffffff" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" />
+      <path d="M -95,-30 A 100 100 0 0 1 -20,-95" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 8" opacity="0.5" />
+      <path d="M 20,95 A 100 100 0 0 1 95,30" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 8" opacity="0.5" />
+      <polygon points="-20,-100 -20,-90 -10,-95" fill="#ffffff" />
+      <polygon points="95,35 95,25 105,30" fill="#ffffff" />
+    </g>
+
+  <!-- ③ 텍스트 -->
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">자극보다 신뢰감</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif">시니어 클릭 유도하는 다정한 톤앤매너</text>
 </svg>
