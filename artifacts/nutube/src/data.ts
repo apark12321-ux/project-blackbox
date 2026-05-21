@@ -83,4 +83,4 @@ export const INITIAL_POSTS: GuidePost[] = [
   ...POSTS_GROUP_1,
   ...POSTS_GROUP_2,
   ...POSTS_GROUP_3
-];
+].sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''));

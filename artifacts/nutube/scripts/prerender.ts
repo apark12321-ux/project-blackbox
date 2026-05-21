@@ -145,6 +145,7 @@ for (const p of posts) {
       ${p.subtitle ? `<p>${esc(p.subtitle)}</p>` : ''}
       <p>작성자: ${esc(p.author)} · 발행일: ${esc((p.publishedAt || '').slice(0,10))}</p>
       ${mdToHtml(p.content || '')}
+      ${(p.tags && p.tags.length) ? `<p>${p.tags.slice(0, 10).map((t: string) => `#${esc(t)}`).join(' ')}</p>` : ''}
       ${p.authorityUrl ? `<p>참고: <a href="${esc(p.authorityUrl)}" rel="noopener">${esc(p.authorityLabel || '공식 출처')}</a></p>` : ''}
     </article>
   `;

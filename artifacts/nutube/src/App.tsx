@@ -2085,44 +2085,18 @@ function AppContent() {
                 );
               })()}
 
-              {/* Interactive Thumbnail Poster Preview & Utility Block */}
-              <div className="bg-[#fbfcfa] border-b border-brand-border/60 p-5 sm:p-8 flex flex-col items-center justify-center space-y-4">
-                <div className="max-w-md w-full relative group rounded-2xl overflow-hidden border border-brand-border shadow-sm bg-brand-bg select-none">
+              {/* Thumbnail Poster Preview */}
+              <div className="bg-[#fbfcfa] border-b border-brand-border/60 p-5 sm:p-8 flex flex-col items-center justify-center">
+                <div className="max-w-md w-full relative rounded-2xl overflow-hidden border border-brand-border shadow-sm bg-brand-bg select-none">
                   <img 
                     src={`/thumbnails/${selectedPost.slug}.svg`} 
-                    alt="정량 백터 대표 썸네일" 
+                    alt={selectedPost.title}
                     referrerPolicy="no-referrer"
-                    className="w-full h-auto object-cover group-hover:scale-[1.01] transition-transform duration-300"
+                    className="w-full h-auto object-cover"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
                     }}
                   />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-105 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
-                    <span className="text-white text-[10px] sm:text-xs font-bold px-3 py-1.5 bg-brand-dark/90 rounded-xl border border-white/10 shadow-sm leading-none font-mono">
-                      NuTube 디자인 가이드 규격 (1200 × 630 px)
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap items-center justify-center gap-2.5">
-                  <a 
-                    href={`/thumbnails/${selectedPost.slug}.svg`} 
-                    download={`${selectedPost.slug}.svg`}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 rounded-xl text-[11px] sm:text-xs font-bold text-white transition-colors cursor-pointer shadow-sm select-none"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-neon-lime" />
-                    썸네일 SVG 파일 다운로드
-                  </a>
-                  <button 
-                    onClick={() => {
-                      const svgMarkup = renderThumbnailSvg(selectedPost.slug, selectedPost.title, selectedPost.subtitle, selectedPost.category);
-                      navigator.clipboard.writeText(svgMarkup);
-                    }}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white hover:bg-brand-bg border border-brand-border rounded-xl text-[11px] sm:text-xs font-bold text-slate-700 transition-colors cursor-pointer shadow-sm select-none"
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                    SVG 소스 복사
-                  </button>
                 </div>
               </div>
 
@@ -2180,6 +2154,10 @@ function AppContent() {
                     
                     // Bold wrapping inline replacement
                     let text = line;
+                    // 안전장치: 짝이 맞지 않는(홀수 개) ** 는 제거하여 화면 노출 방지
+                    if ((text.match(/\*\*/g) || []).length % 2 === 1) {
+                      text = text.replace(/\*\*/g, '');
+                    }
                     const boldRegex = /\*\*(.*?)\*\*/g;
                     const parts = [];
                     let lastIndex = 0;
@@ -2204,12 +2182,23 @@ function AppContent() {
                   })}
                 </div>
 
+                {/* 해시태그 (본문 하단, 10개 이하) */}
+                {selectedPost.tags && selectedPost.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {selectedPost.tags.slice(0, 10).map((tag, i) => (
+                      <span key={i} className="text-xs font-bold text-neon-lime/90 hover:text-neon-lime transition-colors">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
+
                 {/* External Official Authority Link */}
                 {selectedPost.authorityUrl && (
                   <div className="p-4 rounded-2xl bg-brand-bg border border-brand-border/60 flex items-center justify-between flex-wrap gap-4 text-xs">
                     <div className="space-y-1">
-                      <span className="text-slate-700 font-bold block">✓ 구글 공식 및 신뢰 가이드라인 교차 검증</span>
-                      <p className="text-slate-600 leading-normal break-keep font-medium">본 기사의 법리적 데이터는 공식 소스에서 수립 및 확인되었습니다.</p>
+                      <span className="text-slate-700 font-bold block">✓ 공식 가이드라인 참고</span>
+                      <p className="text-slate-600 leading-normal break-keep font-medium">본 글의 내용은 공식 출처를 참고해 작성·검증했습니다.</p>
                     </div>
                     <a 
                       href={selectedPost.authorityUrl} 
