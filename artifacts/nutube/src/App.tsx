@@ -1724,7 +1724,7 @@ function AppContent() {
                       </ul>
                     </div>
 
-                    <h4 className="font-extrabold text-slate-900 text-sm pt-4 border-t border-brand-border/40">★ 정식 운영 및 등록 정보</h4>
+                    <h4 className="font-extrabold text-slate-900 text-sm pt-4 border-t border-brand-border/40">사업자 등록 정보</h4>
                     <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-xs sm:text-sm bg-brand-dark p-4 rounded-xl border border-brand-border/50 shadow-sm">
                       <div>
                         <dt className="text-slate-600 font-bold block">상호</dt>
@@ -2125,61 +2125,61 @@ function AppContent() {
 
                 {/* Highly readable, structured, customized text parser - perfectly handles the requested line height and clean styling */}
                 <div className="markdown-body transition-all leading-relaxed tracking-normal break-keep select-text text-sm sm:text-base text-slate-700">
-                  {selectedPost.content.split('\n').map((line, idx) => {
-                    const lineTrimmed = line.trim();
-                    if (!lineTrimmed) return <div key={idx} className="h-4" />;
-                    
-                    if (lineTrimmed.startsWith('## ')) {
-                      return <h2 key={idx} className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 mt-8 mb-4 border-b border-brand-border/40 pb-2 flex items-center gap-2"><CornerDownRight className="w-5 h-5 text-neon-lime" /> {lineTrimmed.substring(3)}</h2>;
-                    }
-                    if (lineTrimmed.startsWith('### ')) {
-                      return <h3 key={idx} className="text-base sm:text-lg font-bold text-slate-800 mt-6 mb-2">{lineTrimmed.substring(4)}</h3>;
-                    }
-                    if (lineTrimmed.startsWith('- ')) {
-                      return (
-                        <div key={idx} className="flex items-start gap-2 pl-4 py-0.5 leading-relaxed text-xs sm:text-sm text-slate-700">
-                          <span className="text-neon-lime font-bold select-none">•</span>
-                          <span className="flex-1 font-medium">{lineTrimmed.substring(2)}</span>
-                        </div>
-                      );
-                    }
-                    if (lineTrimmed.startsWith('1. ') || lineTrimmed.startsWith('2. ') || lineTrimmed.startsWith('3. ') || lineTrimmed.startsWith('4. ') || lineTrimmed.startsWith('5. ')) {
-                      return (
-                        <div key={idx} className="flex items-start gap-2 pl-4 py-1.5 leading-relaxed text-xs sm:text-sm text-slate-700 font-mono">
-                          <span className="text-neon-lime font-bold">{lineTrimmed.split(' ')[0]}</span>
-                          <span className="flex-1 text-slate-800 font-sans font-medium">{lineTrimmed.substring(lineTrimmed.indexOf(' ') + 1)}</span>
-                        </div>
-                      );
-                    }
-                    
-                    // Bold wrapping inline replacement
-                    let text = line;
-                    // 안전장치: 짝이 맞지 않는(홀수 개) ** 는 제거하여 화면 노출 방지
-                    if ((text.match(/\*\*/g) || []).length % 2 === 1) {
-                      text = text.replace(/\*\*/g, '');
-                    }
-                    const boldRegex = /\*\*(.*?)\*\*/g;
-                    const parts = [];
-                    let lastIndex = 0;
-                    let match;
-                    
-                    while ((match = boldRegex.exec(text)) !== null) {
-                      if (match.index > lastIndex) {
-                        parts.push(text.substring(lastIndex, match.index));
+                  {(() => {
+                    // 인라인 볼드(**...**) 변환 헬퍼 — 문단/리스트/번호목록 공통 사용
+                    const renderInline = (raw: string, keyPrefix: string) => {
+                      let text = raw;
+                      // 안전장치: 짝이 맞지 않는(홀수 개) ** 제거하여 화면 노출 방지
+                      if ((text.match(/\*\*/g) || []).length % 2 === 1) {
+                        text = text.replace(/\*\*/g, '');
                       }
-                      parts.push(<strong key={match.index} className="text-slate-900 font-extrabold border-b border-neon-lime/30">{match[1]}</strong>);
-                      lastIndex = boldRegex.lastIndex;
-                    }
-                    if (lastIndex < text.length) {
-                      parts.push(text.substring(lastIndex));
-                    }
+                      const boldRegex = /\*\*(.*?)\*\*/g;
+                      const parts: (string | JSX.Element)[] = [];
+                      let lastIndex = 0;
+                      let match;
+                      while ((match = boldRegex.exec(text)) !== null) {
+                        if (match.index > lastIndex) parts.push(text.substring(lastIndex, match.index));
+                        parts.push(<strong key={`${keyPrefix}-b-${match.index}`} className="text-slate-900 font-extrabold border-b border-neon-lime/30">{match[1]}</strong>);
+                        lastIndex = boldRegex.lastIndex;
+                      }
+                      if (lastIndex < text.length) parts.push(text.substring(lastIndex));
+                      return parts.length > 0 ? parts : [text];
+                    };
 
-                    return (
-                      <p key={idx} className="mb-4 leading-relaxed text-xs sm:text-sm text-slate-650 break-keep font-medium">
-                        {parts.length > 0 ? parts : text}
-                      </p>
-                    );
-                  })}
+                    return selectedPost.content.split('\n').map((line, idx) => {
+                      const lineTrimmed = line.trim();
+                      if (!lineTrimmed) return <div key={idx} className="h-4" />;
+
+                      if (lineTrimmed.startsWith('## ')) {
+                        return <h2 key={idx} className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 mt-8 mb-4 border-b border-brand-border/40 pb-2 flex items-center gap-2"><CornerDownRight className="w-5 h-5 text-neon-lime" /> {renderInline(lineTrimmed.substring(3), `h2-${idx}`)}</h2>;
+                      }
+                      if (lineTrimmed.startsWith('### ')) {
+                        return <h3 key={idx} className="text-base sm:text-lg font-bold text-slate-800 mt-6 mb-2">{renderInline(lineTrimmed.substring(4), `h3-${idx}`)}</h3>;
+                      }
+                      if (lineTrimmed.startsWith('- ')) {
+                        return (
+                          <div key={idx} className="flex items-start gap-2 pl-4 py-0.5 leading-relaxed text-xs sm:text-sm text-slate-700">
+                            <span className="text-neon-lime font-bold select-none">•</span>
+                            <span className="flex-1 font-medium">{renderInline(lineTrimmed.substring(2), `li-${idx}`)}</span>
+                          </div>
+                        );
+                      }
+                      if (/^\d+\.\s/.test(lineTrimmed)) {
+                        return (
+                          <div key={idx} className="flex items-start gap-2 pl-4 py-1.5 leading-relaxed text-xs sm:text-sm text-slate-700">
+                            <span className="text-neon-lime font-bold font-mono">{lineTrimmed.split(' ')[0]}</span>
+                            <span className="flex-1 text-slate-800 font-medium">{renderInline(lineTrimmed.substring(lineTrimmed.indexOf(' ') + 1), `ol-${idx}`)}</span>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <p key={idx} className="mb-4 leading-relaxed text-xs sm:text-sm text-slate-650 break-keep font-medium">
+                          {renderInline(line, `p-${idx}`)}
+                        </p>
+                      );
+                    });
+                  })()}
                 </div>
 
                 {/* 해시태그 (본문 하단, 10개 이하) */}
@@ -2264,10 +2264,10 @@ function AppContent() {
           {/* Top row */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pb-6 border-b border-brand-border">
             <div className="space-y-1 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-neon-lime/10 text-neon-lime flex items-center justify-center font-display font-extrabold text-sm shadow animate-pulse">N</div>
+              <div className="w-8 h-8 rounded-lg bg-neon-lime/10 text-neon-lime flex items-center justify-center font-display font-extrabold text-sm shadow">N</div>
               <div>
                 <p className="text-slate-950 font-extrabold font-display">NuTube.kr</p>
-                <p className="text-[10px] text-slate-500 leading-none">유튜브 최적화 크리에이터 오픈소스 아카이브</p>
+                <p className="text-[10px] text-slate-500 leading-none">유튜브 채널 운영 실전 가이드</p>
               </div>
             </div>
 
@@ -2280,20 +2280,16 @@ function AppContent() {
             </div>
           </div>
 
-          {/* Middle/Bottom row - cleaned operator credentials */}
+          {/* Operator credentials */}
           <div className="flex flex-col md:flex-row justify-between gap-6 text-[11px] text-slate-650 font-sans leading-relaxed break-keep">
             <div className="space-y-1 max-w-xl">
-              <p className="font-semibold text-slate-900">NuTube 통합 미디어 연구 아카이브</p>
-              <p>
-                운영: {SITE_OPERATOR.name} · 이메일: {SITE_OPERATOR.email}
-              </p>
+              <p className="font-semibold text-slate-900">{SITE_OPERATOR.projectTitle} · 유튜브 채널 운영 실전 가이드</p>
+              <p>운영: {SITE_OPERATOR.name} · 이메일: {SITE_OPERATOR.email}</p>
+              <p className="text-slate-500">사업자 등록 정보 및 개인정보 처리방침은 하단 소개·약관 페이지에서 확인하실 수 있습니다.</p>
             </div>
 
             <div className="md:text-right space-y-1">
-              <p>© 2026 NuTube. OpenSource Project Contributors.</p>
-              <p className="text-[10px] text-slate-500 font-mono leading-none pt-1">
-                모든 콘텐츠는 불필요한 기계적 노이즈를 방지하기 위해 엄격히 최적화 및 정제 필터링되었습니다.
-              </p>
+              <p>© 2026 {SITE_OPERATOR.name}. All rights reserved.</p>
             </div>
           </div>
 

@@ -124,8 +124,8 @@ let count = 0;
     name: 'NuTube', url: BASE_URL,
   }, {
     '@context': 'https://schema.org', '@type': 'Organization',
-    name: operator?.company || '상상아트', url: BASE_URL,
-    ...(operator?.taxId ? { taxID: operator.taxId } : {}),
+    name: operator?.name || '상상아트', url: BASE_URL,
+    ...(operator?.registrationNum ? { taxID: operator.registrationNum } : {}),
   }];
   writePage('/', buildPage({
     path: '/', title: 'NuTube - 유튜브 채널 운영 실전 가이드',
@@ -157,8 +157,8 @@ for (const p of posts) {
     ...(p.updatedAt ? { dateModified: p.updatedAt } : {}),
     author: { '@type': 'Organization', name: p.author },
     publisher: {
-      '@type': 'Organization', name: operator?.company || '상상아트',
-      ...(operator?.taxId ? { taxID: operator.taxId } : {}),
+      '@type': 'Organization', name: operator?.name || '상상아트',
+      ...(operator?.registrationNum ? { taxID: operator.registrationNum } : {}),
     },
     mainEntityOfPage: `${BASE_URL}/blog/${p.slug}`,
   }, {
@@ -225,9 +225,9 @@ const staticPages: Record<string, { title: string; desc: string; body: string }>
       <p>유튜브 채널을 운영하면서 마주치는 실제 문제들을 검증된 데이터와 실전 경험으로 풀어드리는 미디어입니다.</p>
       <h2>운영 정보</h2>
       <ul>
-        <li>상호: ${esc(operator?.company || '상상아트')}</li>
-        ${operator?.taxId ? `<li>사업자등록번호: ${esc(operator.taxId)}</li>` : ''}
-        ${operator?.mailOrderSalesId ? `<li>통신판매업 신고: ${esc(operator.mailOrderSalesId)}</li>` : ''}
+        <li>상호: ${esc(operator?.name || '상상아트')}</li>
+        ${operator?.registrationNum ? `<li>사업자등록번호: ${esc(operator.registrationNum)}</li>` : ''}
+        ${operator?.mailOrderNum ? `<li>통신판매업 신고: ${esc(operator.mailOrderNum)}</li>` : ''}
         ${operator?.address ? `<li>사업장 주소: ${esc(operator.address)}</li>` : ''}
         ${operator?.email ? `<li>이메일: ${esc(operator.email)}</li>` : ''}
       </ul>`,
@@ -247,7 +247,7 @@ const staticPages: Record<string, { title: string; desc: string; body: string }>
     desc: 'NuTube 이용약관.',
     body: `<h1>이용약관</h1><p>본 약관은 NuTube를 이용하는 모든 이용자에게 적용됩니다.</p>
       <h2>운영자 정보</h2>
-      <ul><li>상호: ${esc(operator?.company || '상상아트')}</li>${operator?.taxId ? `<li>사업자등록번호: ${esc(operator.taxId)}</li>` : ''}</ul>`,
+      <ul><li>상호: ${esc(operator?.name || '상상아트')}</li>${operator?.registrationNum ? `<li>사업자등록번호: ${esc(operator.registrationNum)}</li>` : ''}</ul>`,
   },
   '/partnership': {
     title: '제휴 문의 | NuTube',
