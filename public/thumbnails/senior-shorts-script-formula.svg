@@ -1,0 +1,26 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- ② 일러스트: 주제별 도형 (중앙 상단) -->
+  <g transform="translate(600, 220)">
+      <rect x="-60" y="-100" width="120" height="200" rx="20" ry="20" fill="none" stroke="#ffffff" stroke-width="6" opacity="0.8" />
+      <line x1="-20" y1="-85" x2="20" y2="-85" stroke="#ffffff" stroke-width="4" stroke-linecap="round" opacity="0.6" />
+      <polygon points="-10,-20 -10,20 20,0" fill="#ffffff" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" />
+      <path d="M -95,-30 A 100 100 0 0 1 -20,-95" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 8" opacity="0.5" />
+      <path d="M 20,95 A 100 100 0 0 1 95,30" fill="none" stroke="#ffffff" stroke-width="4" stroke-linecap="round" stroke-dasharray="8 8" opacity="0.5" />
+      <polygon points="-20,-100 -20,-90 -10,-95" fill="#ffffff" />
+      <polygon points="95,35 95,25 105,30" fill="#ffffff" />
+    </g>
+
+  <!-- ③ 텍스트 -->
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">60초 사연 대본</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif">백지 공포 탈출하는 4대 블록 기법</text>
+</svg>

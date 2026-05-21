@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- ② 일러스트: 주제별 도형 (중앙 상단) -->
+  <g transform="translate(600, 220)">
+      <circle cx="0" cy="-30" r="50" fill="none" stroke="#ffffff" stroke-width="6" opacity="0.4" />
+      <circle cx="0" cy="-30" r="65" fill="none" stroke="#ffffff" stroke-width="2" stroke-dasharray="6 6" opacity="0.3" />
+      <rect x="-24" y="-70" width="48" height="85" rx="24" fill="none" stroke="#ffffff" stroke-width="6" />
+      <line x1="-24" y1="-30" x2="24" y2="-30" stroke="#ffffff" stroke-width="4" />
+      <path d="M -16,-62 L -16, -30 M -8,-67 L -8, -30 M 0,-68 L 0, -30 M 8,-67 L 8, -30 M 16,-62 L 16, -30" stroke="#ffffff" stroke-width="2" opacity="0.5" />
+      <path d="M -36, -10 A 36 36 0 0 0 36, -10" fill="none" stroke="#ffffff" stroke-width="5" stroke-linecap="round" />
+      <line x1="0" y1="26" x2="0" y2="70" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+      <line x1="-35" y1="70" x2="35" y2="70" stroke="#ffffff" stroke-width="6" stroke-linecap="round" />
+    </g>
+
+  <!-- ③ 텍스트 -->
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">시니어 감성 BGM</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif">인생 사연 눈물 짜는 사운드 연출</text>
+</svg>

@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#ea580c"/>
+      <stop offset="100%" stop-color="#fb923c"/>
+    </linearGradient>
+  </defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+
+  <!-- ② 일러스트: 주제별 도형 (중앙 상단) -->
+  <g transform="translate(600, 220)">
+      <path d="M -90,-80 h 140 a 20 20 0 0 1 20 20 v 60 a 20 20 0 0 1 -20 20 h -80 l -40 30 v -30 a 20 20 0 0 1 -20 -20 v -60 a 20 20 0 0 1 20 -20 z" fill="#ffffff" opacity="0.3" />
+      <path d="M 30,-20 h 80 a 12 12 0 0 1 12 12 v 40 a 12 12 0 0 1 -12 12 h -50 l -25 20 v -20 a 12 12 0 0 1 -12 -12 v -40 a 12 12 0 0 1 12 -12 z" fill="#ffffff" opacity="0.6" />
+      <path d="M -20,-15 C -30,-30 -50,-30 -50,-10 C -50,10 -20,25 -20,25 C -20,25 10,10 10,-10 C 10,-30 -10,-30 -20,-15 Z" fill="#ffffff" stroke="#ffffff" stroke-width="4" stroke-linejoin="round" />
+    </g>
+
+  <!-- ③ 텍스트 -->
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif" letter-spacing="-0.02em">댓글 소통 증진법</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle"
+        font-family="Pretendard,system-ui,-apple-system,sans-serif">채널 성장에 기폭제가 되는 댓글 유도</text>
+</svg>
