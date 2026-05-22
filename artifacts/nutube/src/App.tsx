@@ -1505,37 +1505,12 @@ function AppContent() {
                                   return (
                                     <div className="space-y-2">
                                       <div 
-                                        className="w-full aspect-[1.91] rounded-lg overflow-hidden border border-brand-border/60 bg-brand-bg select-none shadow-sm"
+                                        className="w-full aspect-[1.91] rounded-lg overflow-hidden border border-brand-border/60 bg-brand-bg select-none shadow-sm [&>svg]:w-full [&>svg]:h-full"
                                         dangerouslySetInnerHTML={{ __html: svgMarkup }}
                                       />
-                                      <div className="flex items-center gap-1.5 justify-end">
-                                        <button
-                                          onClick={() => {
-                                            navigator.clipboard.writeText(svgMarkup);
-                                          }}
-                                          className="px-2 py-1 bg-brand-bg hover:bg-brand-border border border-brand-border rounded text-[10px] font-bold text-slate-700 transition cursor-pointer select-none"
-                                          title="SVG 소스 복사"
-                                        >
-                                          소스 복사
-                                        </button>
-                                        <button
-                                          onClick={() => {
-                                            const blob = new Blob([svgMarkup], { type: 'image/svg+xml;charset=utf-8' });
-                                            const url = URL.createObjectURL(blob);
-                                            const link = document.createElement('a');
-                                            link.href = url;
-                                            link.download = `nutube-thumbnail-${idx+1}.svg`;
-                                            document.body.appendChild(link);
-                                            link.click();
-                                            document.body.removeChild(link);
-                                            URL.revokeObjectURL(url);
-                                          }}
-                                          className="px-2 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded text-[10px] font-bold transition cursor-pointer select-none"
-                                          title="SVG 다운로드"
-                                        >
-                                          다운로드
-                                        </button>
-                                      </div>
+                                      <p className="text-[10px] text-slate-400 text-center leading-snug">
+                                        예시 미리보기입니다. 이 레이아웃을 참고해 Canva 등에서 1200 × 630 px로 제작하세요.
+                                      </p>
                                     </div>
                                   );
                                 })()}
