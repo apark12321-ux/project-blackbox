@@ -283,31 +283,88 @@ console.log(`프리렌더 완료: ${count}개 페이지 생성`);
 
 // ===== sitemap.xml 자동 생성 (전체 글 47편 + 카테고리 + 정적 페이지) =====
 {
-  const urls: { loc: string; priority: string; changefreq: string }[] = [];
-  urls.push({ loc: `${BASE_URL}/`, priority: '1.0', changefreq: 'daily' });
-  urls.push({ loc: `${BASE_URL}/blog`, priority: '0.9', changefreq: 'daily' });
+  const urls: { loc: string; priority: string; changefreq: string; lastmod: string }[] = [];
+  const buildDate = new Date().toISOString().slice(0, 10);
+  // 가장 최근 글 발행일 (홈/목록 lastmod 용)
+  const latestPostDate = posts.length
+    ? posts.map((p: any) => (p.publishedAt || '').slice(0, 10)).sort().reverse()[0]
+    : buildDate;
+
+  urls.push({ loc: `${BASE_URL}/`, priority: '1.0', changefreq: 'daily', lastmod: latestPostDate });
+  urls.push({ loc: `${BASE_URL}/blog`, priority: '0.9', changefreq: 'daily', lastmod: latestPostDate });
   for (const c of categories) {
-    urls.push({ loc: `${BASE_URL}/category/${c.key}`, priority: '0.8', changefreq: 'weekly' });
+    // 카테고리 lastmod = 그 카테고리 최신 글 발행일
+    const catPosts = posts.filter((p: any) => p.category === c.key);
+    const catLatest = catPosts.length
+      ? catPosts.map((p: any) => (p.publishedAt || '').slice(0, 10)).sort().reverse()[0]
+      : latestPostDate;
+    urls.push({ loc: `${BASE_URL}/category/${c.key}`, priority: '0.8', changefreq: 'weekly', lastmod: catLatest });
   }
   for (const p of posts) {
-    urls.push({ loc: `${BASE_URL}/blog/${p.slug}`, priority: '0.7', changefreq: 'weekly' });
+    // 글 lastmod = updatedAt 있으면 그것, 없으면 publishedAt (실제 날짜)
+    const postDate = (p.updatedAt || p.publishedAt || buildDate).slice(0, 10);
+    urls.push({ loc: `${BASE_URL}/blog/${p.slug}`, priority: '0.7', changefreq: 'monthly', lastmod: postDate });
   }
   for (const path of ['/about', '/privacy', '/terms', '/partnership', '/announcement']) {
-    urls.push({ loc: `${BASE_URL}${path}`, priority: '0.5', changefreq: 'monthly' });
+    urls.push({ loc: `${BASE_URL}${path}`, priority: '0.5', changefreq: 'monthly', lastmod: buildDate });
   }
   // publish는 noindex이므로 sitemap 제외
 
-  const lastmod = new Date().toISOString().slice(0, 10);
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url>
     <loc>${u.loc}</loc>
-    <lastmod>${lastmod}</lastmod>
+    <lastmod>${u.lastmod}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority}</priority>
   </url>`).join('\n')}
 </urlset>`;
 
   writeFileSync(join(DIST, 'sitemap.xml'), xml, 'utf-8');
-  console.log(`sitemap.xml 생성: ${urls.length}개 URL (글 ${posts.length}편 포함)`);
+  console.log(`sitemap.xml 생성: ${urls.length}개 URL (글별 실제 발행일 lastmod 적용)`);
+}
+
+// ===== RSS 2.0 피드 자동 생성 (최신 글 순) =====
+{
+  const xmlEsc = (s: string) => (s || '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+
+  // 최신순 정렬 (이미 정렬돼 있지만 안전하게 재정렬)
+  const sorted = [...posts].sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''));
+  const feedPosts = sorted.slice(0, 30); // 최신 30편
+  const buildRfc822 = (iso: string) => {
+    const d = iso ? new Date(iso) : new Date();
+    return d.toUTCString();
+  };
+  const lastBuild = feedPosts.length ? buildRfc822(feedPosts[0].publishedAt) : new Date().toUTCString();
+
+  const items = feedPosts.map((p: any) => {
+    const link = `${BASE_URL}/blog/${p.slug}`;
+    const cat = categories.find((c: any) => c.key === p.category);
+    return `    <item>
+      <title>${xmlEsc(p.title)}</title>
+      <link>${link}</link>
+      <guid isPermaLink="true">${link}</guid>
+      <pubDate>${buildRfc822(p.publishedAt)}</pubDate>
+      <category>${xmlEsc(p.categoryLabel || (cat ? cat.label : ''))}</category>
+      <description>${xmlEsc(p.summary)}</description>
+    </item>`;
+  }).join('\n');
+
+  const rss = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>NuTube - 유튜브 채널 운영 실전 가이드</title>
+    <link>${BASE_URL}/</link>
+    <atom:link href="${BASE_URL}/rss.xml" rel="self" type="application/rss+xml" />
+    <description>유튜브 알고리즘, 시니어 사연 쇼츠, AI 도구, 수익화 노하우를 다루는 실전 가이드</description>
+    <language>ko</language>
+    <lastBuildDate>${lastBuild}</lastBuildDate>
+${items}
+  </channel>
+</rss>`;
+
+  writeFileSync(join(DIST, 'rss.xml'), rss, 'utf-8');
+  console.log(`rss.xml 생성: 최신 ${feedPosts.length}편 피드`);
 }
