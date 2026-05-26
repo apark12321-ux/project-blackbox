@@ -992,8 +992,8 @@ function AppContent() {
                 인사이트 가이드 라이브러리
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 max-w-xl break-keep">
-                유튜브 추천 알고리즘의 동작 방식부터 시니어 맞춤 감성스토리, AI 대본 저작권 가이드라인까지, 
-                NuTube에서 엄선한 최고의 팩트체크 지식 카드 32선이 모두 보관되어 있습니다.
+                유튜브 추천 알고리즘의 동작 방식부터 시니어 맞춤 감성 스토리, AI 대본 저작권 가이드라인까지,
+                NuTube가 정리한 실전 가이드 {posts.length}편을 카테고리별로 모았습니다.
               </p>
             </div>
 
