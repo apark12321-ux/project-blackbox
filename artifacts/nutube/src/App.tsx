@@ -673,7 +673,7 @@ function AppContent() {
               <div className="flex-1 space-y-6 text-center md:text-left">
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#e2eedf] border border-brand-border text-neon-lime text-xs font-bold">
                   <span className="w-2 h-2 rounded-full bg-[#1e4d30] animate-ping" />
-                  실시간 유튜브 로드맵 43편 탑재 완료
+                  유튜브 운영 가이드 {posts.length}편 수록
                 </div>
 
                 <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-snug break-keep">
@@ -722,46 +722,35 @@ function AppContent() {
 
               {/* Graphic Mock Widget / Isometric Dashboard Box */}
               <div className="w-full md:w-80 flex-shrink-0">
-                <div className="p-5 rounded-2xl bg-white border border-brand-border shadow-md space-y-4 font-mono text-xs">
+                <div className="p-5 rounded-2xl bg-white border border-brand-border shadow-md space-y-3 text-xs">
                   <div className="flex items-center justify-between border-b border-brand-border pb-3">
                     <div className="flex items-center gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-neon-lime" />
-                      <span className="font-bold text-slate-800">대시보드 실시간 측정</span>
+                      <div className="w-2.5 h-2.5 rounded-full bg-neon-coral animate-pulse" />
+                      <span className="font-bold text-slate-800 font-display">유튜브 정책·기능 업데이트</span>
                     </div>
-                    <span className="text-[10px] text-slate-500">활성화됨</span>
+                    <span className="text-[10px] text-slate-500">2026</span>
                   </div>
 
                   <div className="space-y-2">
-                    <div className="bg-brand-bg/90 p-2.5 rounded-lg border border-brand-border/45">
-                      <div className="flex justify-between text-[10px] text-slate-600 font-bold">
-                        <span>평균 시청 지속 시간</span>
-                        <span className="text-neon-lime font-bold">67.4%</span>
+                    {[
+                      { date: '5월', text: 'YPP 진입 완화 — 구독 500명·영상 3개·시청 3,000시간', cat: '수익화' },
+                      { date: '5월', text: 'AI 합성 콘텐츠 미표시 시 수익화 영구 제외 가능', cat: 'AI 정책' },
+                      { date: '5월', text: '발행 전 위반 점검 도구 적용 범위 확대', cat: '운영' },
+                      { date: '5월', text: '유튜브 쇼핑 제휴 확대 — 구독 1만부터 상품 태그', cat: '커머스' },
+                    ].map((item, i) => (
+                      <div key={i} className="bg-brand-bg/80 p-2.5 rounded-lg border border-brand-border/45">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-[9px] font-bold text-white bg-neon-coral px-1.5 py-0.5 rounded">{item.cat}</span>
+                          <span className="text-[9px] text-slate-400 font-medium">{item.date}</span>
+                        </div>
+                        <p className="text-[11px] text-slate-700 font-medium leading-snug break-keep">{item.text}</p>
                       </div>
-                      <div className="w-full bg-[#e2e7df] h-1.5 rounded-full mt-1.5 overflow-hidden">
-                        <div className="bg-neon-lime h-full rounded-full" style={{ width: '67.4%' }} />
-                      </div>
-                    </div>
-
-                    <div className="bg-brand-bg/90 p-2.5 rounded-lg border border-brand-border/45">
-                      <div className="flex justify-between text-[10px] text-slate-600 font-bold">
-                        <span>검색 노출 최적화 점수</span>
-                        <span className="text-neon-coral font-bold">94.8%</span>
-                      </div>
-                      <div className="w-full bg-[#f9e2df] h-1.5 rounded-full mt-1.5 overflow-hidden">
-                        <div className="bg-neon-coral h-full rounded-full" style={{ width: '94.8%' }} />
-                      </div>
-                    </div>
+                    ))}
                   </div>
 
-                  {/* Dynamic interactive mock quick generator */}
-                  <div className="pt-1">
-                    <p className="text-[10px] text-slate-500 font-bold mb-1.5">★ 실시간 추천 시퀀스 테스트</p>
-                    <div className="flex gap-1">
-                      <button onClick={() => handleTriggerQuickKeyword('알고리즘')} className="flex-1 py-1 rounded bg-[#eef1eb] hover:bg-neon-lime hover:text-white transition-colors text-[10px] font-bold text-center text-slate-800">알고리즘</button>
-                      <button onClick={() => handleTriggerQuickKeyword('시니어 사연')} className="flex-1 py-1 rounded bg-[#eef1eb] hover:bg-neon-lime hover:text-white transition-colors text-[10px] font-bold text-center text-slate-800">시니어 사연</button>
-                      <button onClick={() => handleTriggerQuickKeyword('수익화')} className="flex-1 py-1 rounded bg-[#eef1eb] hover:bg-neon-lime hover:text-white transition-colors text-[10px] font-bold text-center text-slate-800">수익화</button>
-                    </div>
-                  </div>
+                  <p className="text-[9px] text-slate-400 leading-snug pt-0.5">
+                    유튜브 공식 발표 기준으로 정리한 최신 변경 사항입니다.
+                  </p>
                 </div>
               </div>
             </div>
