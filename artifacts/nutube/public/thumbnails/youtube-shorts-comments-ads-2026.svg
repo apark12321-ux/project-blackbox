@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs><linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#4f46e5"/><stop offset="100%" stop-color="#818cf8"/>
+  </linearGradient></defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <g transform="translate(500,150)">
+    <rect x="0" y="0" width="120" height="200" rx="18" fill="rgba(255,255,255,0.16)" stroke="#fff" stroke-width="4"/>
+    <g transform="translate(130,40)"><path d="M0 20 a20 20 0 0 1 20 -20 h60 a20 20 0 0 1 20 20 v30 a20 20 0 0 1 -20 20 h-40 l-25 22 v-22 h-15 a20 20 0 0 1 -20 -20 z" fill="#fff" opacity="0.9"/></g>
+  </g>
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,sans-serif" letter-spacing="-0.02em">쇼츠 댓글 참여</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.8" text-anchor="middle" font-family="Pretendard,system-ui,sans-serif">새 알고리즘 신호</text>
+</svg>
