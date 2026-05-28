@@ -2122,23 +2122,23 @@ function AppContent() {
                       }
                       if (lineTrimmed.startsWith('- ')) {
                         return (
-                          <div key={idx} className="flex items-start gap-2 pl-4 py-0.5 leading-relaxed text-xs sm:text-sm text-slate-700">
-                            <span className="text-neon-lime font-bold select-none">•</span>
+                          <div key={idx} className="flex items-start gap-2.5 pl-4 py-1 leading-relaxed text-base sm:text-lg text-slate-700">
+                            <span className="text-neon-lime font-bold select-none mt-0.5">•</span>
                             <span className="flex-1 font-medium">{renderInline(lineTrimmed.substring(2), `li-${idx}`)}</span>
                           </div>
                         );
                       }
                       if (/^\d+\.\s/.test(lineTrimmed)) {
                         return (
-                          <div key={idx} className="flex items-start gap-2 pl-4 py-1.5 leading-relaxed text-xs sm:text-sm text-slate-700">
-                            <span className="text-neon-lime font-bold font-mono">{lineTrimmed.split(' ')[0]}</span>
+                          <div key={idx} className="flex items-start gap-2.5 pl-4 py-1.5 leading-relaxed text-base sm:text-lg text-slate-700">
+                            <span className="text-neon-lime font-bold font-mono mt-0.5">{lineTrimmed.split(' ')[0]}</span>
                             <span className="flex-1 text-slate-800 font-medium">{renderInline(lineTrimmed.substring(lineTrimmed.indexOf(' ') + 1), `ol-${idx}`)}</span>
                           </div>
                         );
                       }
 
                       return (
-                        <p key={idx} className="mb-4 leading-relaxed text-xs sm:text-sm text-slate-650 break-keep font-medium">
+                        <p key={idx} className="mb-5 leading-[1.8] text-base sm:text-lg text-slate-700 break-keep font-medium">
                           {renderInline(line, `p-${idx}`)}
                         </p>
                       );
