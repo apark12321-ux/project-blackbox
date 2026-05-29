@@ -171,43 +171,43 @@ function AppContent() {
   // Dynamic SEO & JSON-LD 4종 구조화 데이터 Injection
   useEffect(() => {
     const url = `https://www.nutube.kr${location.pathname === '/' ? '' : location.pathname}`;
-    let title = 'NuTube (뉴튜브) - 유튜브 채널 운영자를 위한 실전 가이드 미디어';
+    let title = 'NuTube (너튜브) - 유튜브 채널 운영자를 위한 실전 가이드 미디어';
     let description = '신뢰할 수 있는 공식 YouTube 정책과 최신 알고리즘 트렌드를 반영한 유튜브 에디팅, 채널 최적화, 메타데이터 생성 및 크리에이터 수익화 전문 가이드 미디어입니다.';
     let ogImage = 'https://www.nutube.kr/og-image.png'; // 기본 OG 이미지 경로
 
     // 주소나 탭에 따라 SEO 정보 최적화
     if (selectedPost) {
-      title = `${selectedPost.title} | NuTube (뉴튜브)`;
+      title = `${selectedPost.title} | NuTube (너튜브)`;
       description = selectedPost.summary || description;
     } else if (currentTab === 'generator') {
-      title = 'AI 유튜브 메타데이터 생성 마스터 | NuTube (뉴튜브)';
+      title = 'AI 유튜브 메타데이터 생성 마스터 | NuTube (너튜브)';
       description = '유튜브 영상용 제목, 설명란 구문, 핵심 해시태그 및 숏폼 시나리오 대본까지 인공지능 기반으로 한 번에 생성해내는 크리에이터용 최적화 툴입니다.';
     } else if (currentTab === 'guides') {
       if (selectedCategory !== 'all') {
         const catSpec = CATEGORIES.find(c => c.key === selectedCategory);
         if (catSpec) {
-          title = `${catSpec.label} 분야 검증 가이드 | NuTube (뉴튜브)`;
+          title = `${catSpec.label} 분야 검증 가이드 | NuTube (너튜브)`;
           description = `${catSpec.description} - NuTube가 정리한 전문 유튜브 운영 비법 목록입니다.`;
         }
       } else {
-        title = '실전 가이드 인사이트 라이브러리 | NuTube (뉴튜브)';
+        title = '실전 가이드 인사이트 라이브러리 | NuTube (너튜브)';
         description = '유튜브 알고리즘 분석, 시니어 사연 쇼츠 채널 설계, AI 제작 도구 활용, 수익화 다각화 등 유튜브 크리에이터를 위한 명쾌한 핵심 가이드 모음입니다.';
       }
     } else if (currentTab === 'legal') {
       if (activeLegalTab === 'about') {
-        title = '상상아트 NuTube 소개 | NuTube (뉴튜브)';
+        title = '상상아트 NuTube 소개 | NuTube (너튜브)';
         description = '유튜브 채널 운영 실전 가이드 미디어 NuTube의 편집 원칙과 상상아트 운영 사업자 정보를 안내합니다.';
       } else if (activeLegalTab === 'privacy') {
-        title = '개인정보처리방침 | NuTube (뉴튜브)';
+        title = '개인정보처리방침 | NuTube (너튜브)';
         description = '상상아트가 서비스하는 NuTube 플랫폼의 개인정보처리방침 및 구글 애드센스(Google AdSense) 제3자 쿠키 사용 안내 문서입니다.';
       } else if (activeLegalTab === 'terms') {
-        title = '이용약관 | NuTube (뉴튜브)';
+        title = '이용약관 | NuTube (너튜브)';
         description = '상상아트 NuTube 서비스의 이용약관 및 크리에이터 이용 수칙 가이드라인입니다.';
       } else if (activeLegalTab === 'partnership') {
-        title = '제휴 및 비즈니스 문의 | NuTube (뉴튜브)';
+        title = '제휴 및 비즈니스 문의 | NuTube (너튜브)';
         description = '유튜브 실전 미디어 NuTube 협업 문의 및 상상아트 공식 비즈니스 파트너십 제안 페이지입니다.';
       } else if (activeLegalTab === 'announcements') {
-        title = '새소식 및 공지사항 | NuTube (뉴튜브)';
+        title = '새소식 및 공지사항 | NuTube (너튜브)';
         description = 'NuTube의 공지사항 및 유튜브 알고리즘 패치 노트 등 중요 변경 및 새소식을 알립니다.';
       }
     }
