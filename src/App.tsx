@@ -673,7 +673,7 @@ function AppContent() {
               <div className="flex-1 space-y-6 text-center md:text-left">
                 <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#e2eedf] border border-brand-border text-neon-lime text-xs font-bold">
                   <span className="w-2 h-2 rounded-full bg-[#1e4d30] animate-ping" />
-                  실시간 유튜브 로드맵 43편 탑재 완료
+                  유튜브 운영 가이드 {posts.length}편 수록
                 </div>
 
                 <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-snug break-keep">
@@ -722,46 +722,35 @@ function AppContent() {
 
               {/* Graphic Mock Widget / Isometric Dashboard Box */}
               <div className="w-full md:w-80 flex-shrink-0">
-                <div className="p-5 rounded-2xl bg-white border border-brand-border shadow-md space-y-4 font-mono text-xs">
+                <div className="p-5 rounded-2xl bg-white border border-brand-border shadow-md space-y-3 text-xs">
                   <div className="flex items-center justify-between border-b border-brand-border pb-3">
                     <div className="flex items-center gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-neon-lime" />
-                      <span className="font-bold text-slate-800">대시보드 실시간 측정</span>
+                      <div className="w-2.5 h-2.5 rounded-full bg-neon-coral animate-pulse" />
+                      <span className="font-bold text-slate-800 font-display">유튜브 정책·기능 업데이트</span>
                     </div>
-                    <span className="text-[10px] text-slate-500">활성화됨</span>
+                    <span className="text-[10px] text-slate-500">2026</span>
                   </div>
 
                   <div className="space-y-2">
-                    <div className="bg-brand-bg/90 p-2.5 rounded-lg border border-brand-border/45">
-                      <div className="flex justify-between text-[10px] text-slate-600 font-bold">
-                        <span>평균 시청 지속 시간</span>
-                        <span className="text-neon-lime font-bold">67.4%</span>
+                    {[
+                      { date: '5월', text: 'YPP 진입 완화 — 구독 500명·영상 3개·시청 3,000시간', cat: '수익화' },
+                      { date: '5월', text: 'AI 합성 콘텐츠 미표시 시 수익화 영구 제외 가능', cat: 'AI 정책' },
+                      { date: '5월', text: '발행 전 위반 점검 도구 적용 범위 확대', cat: '운영' },
+                      { date: '5월', text: '유튜브 쇼핑 제휴 확대 — 구독 1만부터 상품 태그', cat: '커머스' },
+                    ].map((item, i) => (
+                      <div key={i} className="bg-brand-bg/80 p-2.5 rounded-lg border border-brand-border/45">
+                        <div className="flex items-center gap-1.5 mb-1">
+                          <span className="text-[9px] font-bold text-white bg-neon-coral px-1.5 py-0.5 rounded">{item.cat}</span>
+                          <span className="text-[9px] text-slate-400 font-medium">{item.date}</span>
+                        </div>
+                        <p className="text-[11px] text-slate-700 font-medium leading-snug break-keep">{item.text}</p>
                       </div>
-                      <div className="w-full bg-[#e2e7df] h-1.5 rounded-full mt-1.5 overflow-hidden">
-                        <div className="bg-neon-lime h-full rounded-full" style={{ width: '67.4%' }} />
-                      </div>
-                    </div>
-
-                    <div className="bg-brand-bg/90 p-2.5 rounded-lg border border-brand-border/45">
-                      <div className="flex justify-between text-[10px] text-slate-600 font-bold">
-                        <span>검색 노출 최적화 점수</span>
-                        <span className="text-neon-coral font-bold">94.8%</span>
-                      </div>
-                      <div className="w-full bg-[#f9e2df] h-1.5 rounded-full mt-1.5 overflow-hidden">
-                        <div className="bg-neon-coral h-full rounded-full" style={{ width: '94.8%' }} />
-                      </div>
-                    </div>
+                    ))}
                   </div>
 
-                  {/* Dynamic interactive mock quick generator */}
-                  <div className="pt-1">
-                    <p className="text-[10px] text-slate-500 font-bold mb-1.5">★ 실시간 추천 시퀀스 테스트</p>
-                    <div className="flex gap-1">
-                      <button onClick={() => handleTriggerQuickKeyword('알고리즘')} className="flex-1 py-1 rounded bg-[#eef1eb] hover:bg-neon-lime hover:text-white transition-colors text-[10px] font-bold text-center text-slate-800">알고리즘</button>
-                      <button onClick={() => handleTriggerQuickKeyword('시니어 사연')} className="flex-1 py-1 rounded bg-[#eef1eb] hover:bg-neon-lime hover:text-white transition-colors text-[10px] font-bold text-center text-slate-800">시니어 사연</button>
-                      <button onClick={() => handleTriggerQuickKeyword('수익화')} className="flex-1 py-1 rounded bg-[#eef1eb] hover:bg-neon-lime hover:text-white transition-colors text-[10px] font-bold text-center text-slate-800">수익화</button>
-                    </div>
-                  </div>
+                  <p className="text-[9px] text-slate-400 leading-snug pt-0.5">
+                    유튜브 공식 발표 기준으로 정리한 최신 변경 사항입니다.
+                  </p>
                 </div>
               </div>
             </div>
@@ -826,16 +815,16 @@ function AppContent() {
                   <div className="w-8 h-8 rounded-lg bg-neon-lime/10 text-neon-lime flex items-center justify-center font-bold">
                     ★
                   </div>
-                  <h3 className="text-xl font-extrabold text-slate-900 leading-snug break-keep">인사이트 라이브러리 <br />인기 TOP 3 랭킹</h3>
+                  <h3 className="text-xl font-extrabold text-slate-900 leading-snug break-keep">인사이트 라이브러리 <br />인기 가이드</h3>
                   <p className="text-xs text-slate-600 leading-normal break-keep">
-                    독자분들과 시니어 유튜버들 사이에서 가장 뜨겁고 깊은 피드백을 기록한 3대 메인 템플릿입니다. 이 글들만 정독해도 애드센스 심률과 노출량이 급상승합니다.
+                    많은 분들이 찾아본 가이드를 모았습니다. 유튜브 알고리즘, 시니어 사연, 수익화의 핵심을 빠르게 파악할 수 있어요.
                   </p>
                 </div>
                 <button 
                   onClick={() => navigateToTab('guides')}
                   className="font-bold text-xs text-neon-lime flex items-center gap-1.5 hover:underline"
                 >
-                  43개 전체 가이드 목록 가기
+                  {posts.length}개 전체 가이드 목록 가기
                   <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
@@ -925,7 +914,7 @@ function AppContent() {
                   onClick={() => navigateToTab('guides')}
                   className="text-xs font-bold text-neon-lime hover:underline flex items-center gap-1"
                 >
-                  43개 글 모두 보기 <ChevronRight className="w-4 h-4" />
+                  {posts.length}개 글 모두 보기 <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
 
@@ -992,8 +981,8 @@ function AppContent() {
                 인사이트 가이드 라이브러리
               </h2>
               <p className="text-xs sm:text-sm text-slate-600 max-w-xl break-keep">
-                유튜브 추천 알고리즘의 동작 방식부터 시니어 맞춤 감성스토리, AI 대본 저작권 가이드라인까지, 
-                NuTube에서 엄선한 최고의 팩트체크 지식 카드 32선이 모두 보관되어 있습니다.
+                유튜브 추천 알고리즘의 동작 방식부터 시니어 맞춤 감성 스토리, AI 대본 저작권 가이드라인까지,
+                NuTube가 정리한 실전 가이드 {posts.length}편을 카테고리별로 모았습니다.
               </p>
             </div>
 
@@ -1505,37 +1494,12 @@ function AppContent() {
                                   return (
                                     <div className="space-y-2">
                                       <div 
-                                        className="w-full aspect-[1.91] rounded-lg overflow-hidden border border-brand-border/60 bg-brand-bg select-none shadow-sm"
+                                        className="w-full aspect-[1.91] rounded-lg overflow-hidden border border-brand-border/60 bg-brand-bg select-none shadow-sm [&>svg]:w-full [&>svg]:h-full"
                                         dangerouslySetInnerHTML={{ __html: svgMarkup }}
                                       />
-                                      <div className="flex items-center gap-1.5 justify-end">
-                                        <button
-                                          onClick={() => {
-                                            navigator.clipboard.writeText(svgMarkup);
-                                          }}
-                                          className="px-2 py-1 bg-brand-bg hover:bg-brand-border border border-brand-border rounded text-[10px] font-bold text-slate-700 transition cursor-pointer select-none"
-                                          title="SVG 소스 복사"
-                                        >
-                                          소스 복사
-                                        </button>
-                                        <button
-                                          onClick={() => {
-                                            const blob = new Blob([svgMarkup], { type: 'image/svg+xml;charset=utf-8' });
-                                            const url = URL.createObjectURL(blob);
-                                            const link = document.createElement('a');
-                                            link.href = url;
-                                            link.download = `nutube-thumbnail-${idx+1}.svg`;
-                                            document.body.appendChild(link);
-                                            link.click();
-                                            document.body.removeChild(link);
-                                            URL.revokeObjectURL(url);
-                                          }}
-                                          className="px-2 py-1 bg-slate-900 hover:bg-slate-800 text-white rounded text-[10px] font-bold transition cursor-pointer select-none"
-                                          title="SVG 다운로드"
-                                        >
-                                          다운로드
-                                        </button>
-                                      </div>
+                                      <p className="text-[10px] text-slate-400 text-center leading-snug">
+                                        예시 미리보기입니다. 이 레이아웃을 참고해 Canva 등에서 1200 × 630 px로 제작하세요.
+                                      </p>
                                     </div>
                                   );
                                 })()}
@@ -1724,7 +1688,7 @@ function AppContent() {
                       </ul>
                     </div>
 
-                    <h4 className="font-extrabold text-slate-900 text-sm pt-4 border-t border-brand-border/40">★ 정식 운영 및 등록 정보</h4>
+                    <h4 className="font-extrabold text-slate-900 text-sm pt-4 border-t border-brand-border/40">사업자 등록 정보</h4>
                     <dl className="grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-4 text-xs sm:text-sm bg-brand-dark p-4 rounded-xl border border-brand-border/50 shadow-sm">
                       <div>
                         <dt className="text-slate-600 font-bold block">상호</dt>
@@ -2085,44 +2049,18 @@ function AppContent() {
                 );
               })()}
 
-              {/* Interactive Thumbnail Poster Preview & Utility Block */}
-              <div className="bg-[#fbfcfa] border-b border-brand-border/60 p-5 sm:p-8 flex flex-col items-center justify-center space-y-4">
-                <div className="max-w-md w-full relative group rounded-2xl overflow-hidden border border-brand-border shadow-sm bg-brand-bg select-none">
+              {/* Thumbnail Poster Preview */}
+              <div className="bg-[#fbfcfa] border-b border-brand-border/60 p-5 sm:p-8 flex flex-col items-center justify-center">
+                <div className="max-w-md w-full relative rounded-2xl overflow-hidden border border-brand-border shadow-sm bg-brand-bg select-none">
                   <img 
                     src={`/thumbnails/${selectedPost.slug}.svg`} 
-                    alt="정량 백터 대표 썸네일" 
+                    alt={selectedPost.title}
                     referrerPolicy="no-referrer"
-                    className="w-full h-auto object-cover group-hover:scale-[1.01] transition-transform duration-300"
+                    className="w-full h-auto object-cover"
                     onError={(e) => {
                       e.currentTarget.style.display = 'none';
                     }}
                   />
-                  <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-105 transition-opacity duration-300 flex items-center justify-center pointer-events-none">
-                    <span className="text-white text-[10px] sm:text-xs font-bold px-3 py-1.5 bg-brand-dark/90 rounded-xl border border-white/10 shadow-sm leading-none font-mono">
-                      NuTube 디자인 가이드 규격 (1200 × 630 px)
-                    </span>
-                  </div>
-                </div>
-                
-                <div className="flex flex-wrap items-center justify-center gap-2.5">
-                  <a 
-                    href={`/thumbnails/${selectedPost.slug}.svg`} 
-                    download={`${selectedPost.slug}.svg`}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-slate-900 hover:bg-slate-800 border border-slate-700/60 rounded-xl text-[11px] sm:text-xs font-bold text-white transition-colors cursor-pointer shadow-sm select-none"
-                  >
-                    <Sparkles className="w-3.5 h-3.5 text-neon-lime" />
-                    썸네일 SVG 파일 다운로드
-                  </a>
-                  <button 
-                    onClick={() => {
-                      const svgMarkup = renderThumbnailSvg(selectedPost.slug, selectedPost.title, selectedPost.subtitle, selectedPost.category);
-                      navigator.clipboard.writeText(svgMarkup);
-                    }}
-                    className="inline-flex items-center gap-1.5 px-3.5 py-1.5 bg-white hover:bg-brand-bg border border-brand-border rounded-xl text-[11px] sm:text-xs font-bold text-slate-700 transition-colors cursor-pointer shadow-sm select-none"
-                  >
-                    <Copy className="w-3.5 h-3.5" />
-                    SVG 소스 복사
-                  </button>
                 </div>
               </div>
 
@@ -2151,65 +2089,80 @@ function AppContent() {
 
                 {/* Highly readable, structured, customized text parser - perfectly handles the requested line height and clean styling */}
                 <div className="markdown-body transition-all leading-relaxed tracking-normal break-keep select-text text-sm sm:text-base text-slate-700">
-                  {selectedPost.content.split('\n').map((line, idx) => {
-                    const lineTrimmed = line.trim();
-                    if (!lineTrimmed) return <div key={idx} className="h-4" />;
-                    
-                    if (lineTrimmed.startsWith('## ')) {
-                      return <h2 key={idx} className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 mt-8 mb-4 border-b border-brand-border/40 pb-2 flex items-center gap-2"><CornerDownRight className="w-5 h-5 text-neon-lime" /> {lineTrimmed.substring(3)}</h2>;
-                    }
-                    if (lineTrimmed.startsWith('### ')) {
-                      return <h3 key={idx} className="text-base sm:text-lg font-bold text-slate-800 mt-6 mb-2">{lineTrimmed.substring(4)}</h3>;
-                    }
-                    if (lineTrimmed.startsWith('- ')) {
-                      return (
-                        <div key={idx} className="flex items-start gap-2 pl-4 py-0.5 leading-relaxed text-xs sm:text-sm text-slate-700">
-                          <span className="text-neon-lime font-bold select-none">•</span>
-                          <span className="flex-1 font-medium">{lineTrimmed.substring(2)}</span>
-                        </div>
-                      );
-                    }
-                    if (lineTrimmed.startsWith('1. ') || lineTrimmed.startsWith('2. ') || lineTrimmed.startsWith('3. ') || lineTrimmed.startsWith('4. ') || lineTrimmed.startsWith('5. ')) {
-                      return (
-                        <div key={idx} className="flex items-start gap-2 pl-4 py-1.5 leading-relaxed text-xs sm:text-sm text-slate-700 font-mono">
-                          <span className="text-neon-lime font-bold">{lineTrimmed.split(' ')[0]}</span>
-                          <span className="flex-1 text-slate-800 font-sans font-medium">{lineTrimmed.substring(lineTrimmed.indexOf(' ') + 1)}</span>
-                        </div>
-                      );
-                    }
-                    
-                    // Bold wrapping inline replacement
-                    let text = line;
-                    const boldRegex = /\*\*(.*?)\*\*/g;
-                    const parts = [];
-                    let lastIndex = 0;
-                    let match;
-                    
-                    while ((match = boldRegex.exec(text)) !== null) {
-                      if (match.index > lastIndex) {
-                        parts.push(text.substring(lastIndex, match.index));
+                  {(() => {
+                    // 인라인 볼드(**...**) 변환 헬퍼 — 문단/리스트/번호목록 공통 사용
+                    const renderInline = (raw: string, keyPrefix: string) => {
+                      let text = raw;
+                      // 안전장치: 짝이 맞지 않는(홀수 개) ** 제거하여 화면 노출 방지
+                      if ((text.match(/\*\*/g) || []).length % 2 === 1) {
+                        text = text.replace(/\*\*/g, '');
                       }
-                      parts.push(<strong key={match.index} className="text-slate-900 font-extrabold border-b border-neon-lime/30">{match[1]}</strong>);
-                      lastIndex = boldRegex.lastIndex;
-                    }
-                    if (lastIndex < text.length) {
-                      parts.push(text.substring(lastIndex));
-                    }
+                      const boldRegex = /\*\*(.*?)\*\*/g;
+                      const parts: (string | JSX.Element)[] = [];
+                      let lastIndex = 0;
+                      let match;
+                      while ((match = boldRegex.exec(text)) !== null) {
+                        if (match.index > lastIndex) parts.push(text.substring(lastIndex, match.index));
+                        parts.push(<strong key={`${keyPrefix}-b-${match.index}`} className="text-slate-900 font-extrabold border-b border-neon-lime/30">{match[1]}</strong>);
+                        lastIndex = boldRegex.lastIndex;
+                      }
+                      if (lastIndex < text.length) parts.push(text.substring(lastIndex));
+                      return parts.length > 0 ? parts : [text];
+                    };
 
-                    return (
-                      <p key={idx} className="mb-4 leading-relaxed text-xs sm:text-sm text-slate-650 break-keep font-medium">
-                        {parts.length > 0 ? parts : text}
-                      </p>
-                    );
-                  })}
+                    return selectedPost.content.split('\n').map((line, idx) => {
+                      const lineTrimmed = line.trim();
+                      if (!lineTrimmed) return <div key={idx} className="h-4" />;
+
+                      if (lineTrimmed.startsWith('## ')) {
+                        return <h2 key={idx} className="text-xl sm:text-2xl font-black tracking-tight text-slate-900 mt-8 mb-4 border-b border-brand-border/40 pb-2 flex items-center gap-2"><CornerDownRight className="w-5 h-5 text-neon-lime" /> {renderInline(lineTrimmed.substring(3), `h2-${idx}`)}</h2>;
+                      }
+                      if (lineTrimmed.startsWith('### ')) {
+                        return <h3 key={idx} className="text-base sm:text-lg font-bold text-slate-800 mt-6 mb-2">{renderInline(lineTrimmed.substring(4), `h3-${idx}`)}</h3>;
+                      }
+                      if (lineTrimmed.startsWith('- ')) {
+                        return (
+                          <div key={idx} className="flex items-start gap-2.5 pl-4 py-1 leading-relaxed text-base sm:text-lg text-slate-700">
+                            <span className="text-neon-lime font-bold select-none mt-0.5">•</span>
+                            <span className="flex-1 font-medium">{renderInline(lineTrimmed.substring(2), `li-${idx}`)}</span>
+                          </div>
+                        );
+                      }
+                      if (/^\d+\.\s/.test(lineTrimmed)) {
+                        return (
+                          <div key={idx} className="flex items-start gap-2.5 pl-4 py-1.5 leading-relaxed text-base sm:text-lg text-slate-700">
+                            <span className="text-neon-lime font-bold font-mono mt-0.5">{lineTrimmed.split(' ')[0]}</span>
+                            <span className="flex-1 text-slate-800 font-medium">{renderInline(lineTrimmed.substring(lineTrimmed.indexOf(' ') + 1), `ol-${idx}`)}</span>
+                          </div>
+                        );
+                      }
+
+                      return (
+                        <p key={idx} className="mb-5 leading-[1.8] text-base sm:text-lg text-slate-700 break-keep font-medium">
+                          {renderInline(line, `p-${idx}`)}
+                        </p>
+                      );
+                    });
+                  })()}
                 </div>
+
+                {/* 해시태그 (본문 하단, 10개 이하) */}
+                {selectedPost.tags && selectedPost.tags.length > 0 && (
+                  <div className="flex flex-wrap gap-2 pt-2">
+                    {selectedPost.tags.slice(0, 10).map((tag, i) => (
+                      <span key={i} className="text-xs font-bold text-neon-lime/90 hover:text-neon-lime transition-colors">
+                        #{tag}
+                      </span>
+                    ))}
+                  </div>
+                )}
 
                 {/* External Official Authority Link */}
                 {selectedPost.authorityUrl && (
                   <div className="p-4 rounded-2xl bg-brand-bg border border-brand-border/60 flex items-center justify-between flex-wrap gap-4 text-xs">
                     <div className="space-y-1">
-                      <span className="text-slate-700 font-bold block">✓ 구글 공식 및 신뢰 가이드라인 교차 검증</span>
-                      <p className="text-slate-600 leading-normal break-keep font-medium">본 기사의 법리적 데이터는 공식 소스에서 수립 및 확인되었습니다.</p>
+                      <span className="text-slate-700 font-bold block">✓ 공식 가이드라인 참고</span>
+                      <p className="text-slate-600 leading-normal break-keep font-medium">본 글의 내용은 공식 출처를 참고해 작성·검증했습니다.</p>
                     </div>
                     <a 
                       href={selectedPost.authorityUrl} 
@@ -2275,10 +2228,10 @@ function AppContent() {
           {/* Top row */}
           <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pb-6 border-b border-brand-border">
             <div className="space-y-1 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-neon-lime/10 text-neon-lime flex items-center justify-center font-display font-extrabold text-sm shadow animate-pulse">N</div>
+              <div className="w-8 h-8 rounded-lg bg-neon-lime/10 text-neon-lime flex items-center justify-center font-display font-extrabold text-sm shadow">N</div>
               <div>
                 <p className="text-slate-950 font-extrabold font-display">NuTube.kr</p>
-                <p className="text-[10px] text-slate-500 leading-none">유튜브 최적화 크리에이터 오픈소스 아카이브</p>
+                <p className="text-[10px] text-slate-500 leading-none">유튜브 채널 운영 실전 가이드</p>
               </div>
             </div>
 
@@ -2291,20 +2244,16 @@ function AppContent() {
             </div>
           </div>
 
-          {/* Middle/Bottom row - cleaned operator credentials */}
+          {/* Operator credentials */}
           <div className="flex flex-col md:flex-row justify-between gap-6 text-[11px] text-slate-650 font-sans leading-relaxed break-keep">
             <div className="space-y-1 max-w-xl">
-              <p className="font-semibold text-slate-900">NuTube 통합 미디어 연구 아카이브</p>
-              <p>
-                운영: {SITE_OPERATOR.name} · 이메일: {SITE_OPERATOR.email}
-              </p>
+              <p className="font-semibold text-slate-900">{SITE_OPERATOR.projectTitle} · 유튜브 채널 운영 실전 가이드</p>
+              <p>운영: {SITE_OPERATOR.name} · 이메일: {SITE_OPERATOR.email}</p>
+              <p className="text-slate-500">사업자 등록 정보 및 개인정보 처리방침은 하단 소개·약관 페이지에서 확인하실 수 있습니다.</p>
             </div>
 
             <div className="md:text-right space-y-1">
-              <p>© 2026 NuTube. OpenSource Project Contributors.</p>
-              <p className="text-[10px] text-slate-500 font-mono leading-none pt-1">
-                모든 콘텐츠는 불필요한 기계적 노이즈를 방지하기 위해 엄격히 최적화 및 정제 필터링되었습니다.
-              </p>
+              <p>© 2026 {SITE_OPERATOR.name}. All rights reserved.</p>
             </div>
           </div>
 

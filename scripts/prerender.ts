@@ -124,8 +124,8 @@ let count = 0;
     name: 'NuTube', url: BASE_URL,
   }, {
     '@context': 'https://schema.org', '@type': 'Organization',
-    name: operator?.company || '상상아트', url: BASE_URL,
-    ...(operator?.taxId ? { taxID: operator.taxId } : {}),
+    name: operator?.name || '상상아트', url: BASE_URL,
+    ...(operator?.registrationNum ? { taxID: operator.registrationNum } : {}),
   }];
   writePage('/', buildPage({
     path: '/', title: 'NuTube - 유튜브 채널 운영 실전 가이드',
@@ -145,6 +145,7 @@ for (const p of posts) {
       ${p.subtitle ? `<p>${esc(p.subtitle)}</p>` : ''}
       <p>작성자: ${esc(p.author)} · 발행일: ${esc((p.publishedAt || '').slice(0,10))}</p>
       ${mdToHtml(p.content || '')}
+      ${(p.tags && p.tags.length) ? `<p>${p.tags.slice(0, 10).map((t: string) => `#${esc(t)}`).join(' ')}</p>` : ''}
       ${p.authorityUrl ? `<p>참고: <a href="${esc(p.authorityUrl)}" rel="noopener">${esc(p.authorityLabel || '공식 출처')}</a></p>` : ''}
     </article>
   `;
@@ -156,8 +157,8 @@ for (const p of posts) {
     ...(p.updatedAt ? { dateModified: p.updatedAt } : {}),
     author: { '@type': 'Organization', name: p.author },
     publisher: {
-      '@type': 'Organization', name: operator?.company || '상상아트',
-      ...(operator?.taxId ? { taxID: operator.taxId } : {}),
+      '@type': 'Organization', name: operator?.name || '상상아트',
+      ...(operator?.registrationNum ? { taxID: operator.registrationNum } : {}),
     },
     mainEntityOfPage: `${BASE_URL}/blog/${p.slug}`,
   }, {
@@ -224,9 +225,9 @@ const staticPages: Record<string, { title: string; desc: string; body: string }>
       <p>유튜브 채널을 운영하면서 마주치는 실제 문제들을 검증된 데이터와 실전 경험으로 풀어드리는 미디어입니다.</p>
       <h2>운영 정보</h2>
       <ul>
-        <li>상호: ${esc(operator?.company || '상상아트')}</li>
-        ${operator?.taxId ? `<li>사업자등록번호: ${esc(operator.taxId)}</li>` : ''}
-        ${operator?.mailOrderSalesId ? `<li>통신판매업 신고: ${esc(operator.mailOrderSalesId)}</li>` : ''}
+        <li>상호: ${esc(operator?.name || '상상아트')}</li>
+        ${operator?.registrationNum ? `<li>사업자등록번호: ${esc(operator.registrationNum)}</li>` : ''}
+        ${operator?.mailOrderNum ? `<li>통신판매업 신고: ${esc(operator.mailOrderNum)}</li>` : ''}
         ${operator?.address ? `<li>사업장 주소: ${esc(operator.address)}</li>` : ''}
         ${operator?.email ? `<li>이메일: ${esc(operator.email)}</li>` : ''}
       </ul>`,
@@ -246,7 +247,7 @@ const staticPages: Record<string, { title: string; desc: string; body: string }>
     desc: 'NuTube 이용약관.',
     body: `<h1>이용약관</h1><p>본 약관은 NuTube를 이용하는 모든 이용자에게 적용됩니다.</p>
       <h2>운영자 정보</h2>
-      <ul><li>상호: ${esc(operator?.company || '상상아트')}</li>${operator?.taxId ? `<li>사업자등록번호: ${esc(operator.taxId)}</li>` : ''}</ul>`,
+      <ul><li>상호: ${esc(operator?.name || '상상아트')}</li>${operator?.registrationNum ? `<li>사업자등록번호: ${esc(operator.registrationNum)}</li>` : ''}</ul>`,
   },
   '/partnership': {
     title: '제휴 문의 | NuTube',
@@ -282,31 +283,88 @@ console.log(`프리렌더 완료: ${count}개 페이지 생성`);
 
 // ===== sitemap.xml 자동 생성 (전체 글 47편 + 카테고리 + 정적 페이지) =====
 {
-  const urls: { loc: string; priority: string; changefreq: string }[] = [];
-  urls.push({ loc: `${BASE_URL}/`, priority: '1.0', changefreq: 'daily' });
-  urls.push({ loc: `${BASE_URL}/blog`, priority: '0.9', changefreq: 'daily' });
+  const urls: { loc: string; priority: string; changefreq: string; lastmod: string }[] = [];
+  const buildDate = new Date().toISOString().slice(0, 10);
+  // 가장 최근 글 발행일 (홈/목록 lastmod 용)
+  const latestPostDate = posts.length
+    ? posts.map((p: any) => (p.publishedAt || '').slice(0, 10)).sort().reverse()[0]
+    : buildDate;
+
+  urls.push({ loc: `${BASE_URL}/`, priority: '1.0', changefreq: 'daily', lastmod: latestPostDate });
+  urls.push({ loc: `${BASE_URL}/blog`, priority: '0.9', changefreq: 'daily', lastmod: latestPostDate });
   for (const c of categories) {
-    urls.push({ loc: `${BASE_URL}/category/${c.key}`, priority: '0.8', changefreq: 'weekly' });
+    // 카테고리 lastmod = 그 카테고리 최신 글 발행일
+    const catPosts = posts.filter((p: any) => p.category === c.key);
+    const catLatest = catPosts.length
+      ? catPosts.map((p: any) => (p.publishedAt || '').slice(0, 10)).sort().reverse()[0]
+      : latestPostDate;
+    urls.push({ loc: `${BASE_URL}/category/${c.key}`, priority: '0.8', changefreq: 'weekly', lastmod: catLatest });
   }
   for (const p of posts) {
-    urls.push({ loc: `${BASE_URL}/blog/${p.slug}`, priority: '0.7', changefreq: 'weekly' });
+    // 글 lastmod = updatedAt 있으면 그것, 없으면 publishedAt (실제 날짜)
+    const postDate = (p.updatedAt || p.publishedAt || buildDate).slice(0, 10);
+    urls.push({ loc: `${BASE_URL}/blog/${p.slug}`, priority: '0.7', changefreq: 'monthly', lastmod: postDate });
   }
   for (const path of ['/about', '/privacy', '/terms', '/partnership', '/announcement']) {
-    urls.push({ loc: `${BASE_URL}${path}`, priority: '0.5', changefreq: 'monthly' });
+    urls.push({ loc: `${BASE_URL}${path}`, priority: '0.5', changefreq: 'monthly', lastmod: buildDate });
   }
   // publish는 noindex이므로 sitemap 제외
 
-  const lastmod = new Date().toISOString().slice(0, 10);
   const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
 ${urls.map(u => `  <url>
     <loc>${u.loc}</loc>
-    <lastmod>${lastmod}</lastmod>
+    <lastmod>${u.lastmod}</lastmod>
     <changefreq>${u.changefreq}</changefreq>
     <priority>${u.priority}</priority>
   </url>`).join('\n')}
 </urlset>`;
 
   writeFileSync(join(DIST, 'sitemap.xml'), xml, 'utf-8');
-  console.log(`sitemap.xml 생성: ${urls.length}개 URL (글 ${posts.length}편 포함)`);
+  console.log(`sitemap.xml 생성: ${urls.length}개 URL (글별 실제 발행일 lastmod 적용)`);
+}
+
+// ===== RSS 2.0 피드 자동 생성 (최신 글 순) =====
+{
+  const xmlEsc = (s: string) => (s || '')
+    .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;').replace(/'/g, '&apos;');
+
+  // 최신순 정렬 (이미 정렬돼 있지만 안전하게 재정렬)
+  const sorted = [...posts].sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''));
+  const feedPosts = sorted.slice(0, 30); // 최신 30편
+  const buildRfc822 = (iso: string) => {
+    const d = iso ? new Date(iso) : new Date();
+    return d.toUTCString();
+  };
+  const lastBuild = feedPosts.length ? buildRfc822(feedPosts[0].publishedAt) : new Date().toUTCString();
+
+  const items = feedPosts.map((p: any) => {
+    const link = `${BASE_URL}/blog/${p.slug}`;
+    const cat = categories.find((c: any) => c.key === p.category);
+    return `    <item>
+      <title>${xmlEsc(p.title)}</title>
+      <link>${link}</link>
+      <guid isPermaLink="true">${link}</guid>
+      <pubDate>${buildRfc822(p.publishedAt)}</pubDate>
+      <category>${xmlEsc(p.categoryLabel || (cat ? cat.label : ''))}</category>
+      <description>${xmlEsc(p.summary)}</description>
+    </item>`;
+  }).join('\n');
+
+  const rss = `<?xml version="1.0" encoding="UTF-8"?>
+<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">
+  <channel>
+    <title>NuTube - 유튜브 채널 운영 실전 가이드</title>
+    <link>${BASE_URL}/</link>
+    <atom:link href="${BASE_URL}/rss.xml" rel="self" type="application/rss+xml" />
+    <description>유튜브 알고리즘, 시니어 사연 쇼츠, AI 도구, 수익화 노하우를 다루는 실전 가이드</description>
+    <language>ko</language>
+    <lastBuildDate>${lastBuild}</lastBuildDate>
+${items}
+  </channel>
+</rss>`;
+
+  writeFileSync(join(DIST, 'rss.xml'), rss, 'utf-8');
+  console.log(`rss.xml 생성: 최신 ${feedPosts.length}편 피드`);
 }

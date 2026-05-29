@@ -7,7 +7,8 @@
     "dev": "vite --port=3000 --host=0.0.0.0",
     "build": "vite build && npm run prerender",
     "build:spa": "vite build",
-    "prerender": "tsx scripts/extract-data.ts && tsx scripts/prerender.ts",
+    "prerender": "tsx scripts/extract-data.ts && tsx scripts/validate-dates.ts && tsx scripts/prerender.ts",
+    "submit-index": "tsx scripts/extract-data.ts && tsx scripts/submit-indexnow.ts",
     "preview": "vite preview",
     "clean": "rm -rf dist server.js",
     "lint": "tsc --noEmit"

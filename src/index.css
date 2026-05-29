@@ -18,15 +18,25 @@
 }
 
 @layer base {
+  html {
+    /* 기본 폰트 크기: 모바일 16px → 태블릿 17px → PC 18px 로 키워 가독성 향상 */
+    font-size: 16px;
+  }
+  @media (min-width: 640px) {
+    html { font-size: 17px; }
+  }
+  @media (min-width: 1024px) {
+    html { font-size: 18px; }
+  }
   body {
     background-color: var(--color-brand-bg);
     color: #2d362f;
     font-family: var(--font-sans);
-    line-height: 1.65;
+    line-height: 1.7;
     -webkit-font-smoothing: antialiased;
     word-break: keep-all;
     overflow-wrap: break-word;
-    letter-spacing: -0.015em;
+    letter-spacing: -0.01em;
   }
 }
 

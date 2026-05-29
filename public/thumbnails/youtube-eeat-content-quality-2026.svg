@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 630" width="1200" height="630">
+  <defs><linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+    <stop offset="0%" stop-color="#4f46e5"/><stop offset="100%" stop-color="#818cf8"/>
+  </linearGradient></defs>
+  <rect width="1200" height="630" fill="url(#bg)"/>
+  <g transform="translate(420,140)">
+    <rect x="0" y="0" width="80" height="80" rx="14" fill="rgba(255,255,255,0.22)" stroke="#fff" stroke-width="3"/>
+    <text x="40" y="55" font-size="40" font-weight="900" fill="#fff" text-anchor="middle" font-family="sans-serif">E</text>
+    <rect x="95" y="0" width="80" height="80" rx="14" fill="rgba(255,255,255,0.22)" stroke="#fff" stroke-width="3"/>
+    <text x="135" y="55" font-size="40" font-weight="900" fill="#fff" text-anchor="middle" font-family="sans-serif">E</text>
+    <rect x="190" y="0" width="80" height="80" rx="14" fill="rgba(255,255,255,0.22)" stroke="#fff" stroke-width="3"/>
+    <text x="230" y="55" font-size="40" font-weight="900" fill="#fff" text-anchor="middle" font-family="sans-serif">A</text>
+    <rect x="285" y="0" width="80" height="80" rx="14" fill="rgba(255,255,255,0.32)" stroke="#fff" stroke-width="3"/>
+    <text x="325" y="55" font-size="40" font-weight="900" fill="#fff" text-anchor="middle" font-family="sans-serif">T</text>
+  </g>
+  <text x="600" y="490" font-size="56" font-weight="900" fill="#ffffff" text-anchor="middle" font-family="Pretendard,system-ui,sans-serif" letter-spacing="-0.02em">E-E-A-T 정리</text>
+  <text x="600" y="555" font-size="28" font-weight="400" fill="#ffffff" opacity="0.85" text-anchor="middle" font-family="Pretendard,system-ui,sans-serif">구글이 보는 콘텐츠 4기준</text>
+</svg>

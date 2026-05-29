@@ -9,10 +9,10 @@ export const SITE_OPERATOR = {
   mailOrderNum: '제 2023-화성동탄-1098 호',
   address: '인천광역시 서구 크리스탈로 100',
   email: 'apark12321@gmail.com',
-  github: 'https://github.com/apark12321-ux/project-blackbox',
+  privacyOfficer: '박예준',
   projectTitle: 'NuTube',
   openingDate: '2021년 2월 16일',
-  businessType: '정보통신업, 광고대행업, 미디어콘텐츠창작업',
+  businessType: '정보통신업, 미디어콘텐츠 창작업',
   website: 'www.nutube.kr'
 };
 
@@ -83,4 +83,4 @@ export const INITIAL_POSTS: GuidePost[] = [
   ...POSTS_GROUP_1,
   ...POSTS_GROUP_2,
   ...POSTS_GROUP_3
-];
+].sort((a, b) => (b.publishedAt || '').localeCompare(a.publishedAt || ''));
