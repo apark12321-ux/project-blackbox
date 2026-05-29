@@ -815,16 +815,16 @@ function AppContent() {
                   <div className="w-8 h-8 rounded-lg bg-neon-lime/10 text-neon-lime flex items-center justify-center font-bold">
                     ★
                   </div>
-                  <h3 className="text-xl font-extrabold text-slate-900 leading-snug break-keep">인사이트 라이브러리 <br />인기 TOP 3 랭킹</h3>
+                  <h3 className="text-xl font-extrabold text-slate-900 leading-snug break-keep">인사이트 라이브러리 <br />인기 가이드</h3>
                   <p className="text-xs text-slate-600 leading-normal break-keep">
-                    독자분들과 시니어 유튜버들 사이에서 가장 뜨겁고 깊은 피드백을 기록한 3대 메인 템플릿입니다. 이 글들만 정독해도 애드센스 심률과 노출량이 급상승합니다.
+                    많은 분들이 찾아본 가이드를 모았습니다. 유튜브 알고리즘, 시니어 사연, 수익화의 핵심을 빠르게 파악할 수 있어요.
                   </p>
                 </div>
                 <button 
                   onClick={() => navigateToTab('guides')}
                   className="font-bold text-xs text-neon-lime flex items-center gap-1.5 hover:underline"
                 >
-                  43개 전체 가이드 목록 가기
+                  {posts.length}개 전체 가이드 목록 가기
                   <ArrowRight className="w-3 h-3" />
                 </button>
               </div>
@@ -914,7 +914,7 @@ function AppContent() {
                   onClick={() => navigateToTab('guides')}
                   className="text-xs font-bold text-neon-lime hover:underline flex items-center gap-1"
                 >
-                  43개 글 모두 보기 <ChevronRight className="w-4 h-4" />
+                  {posts.length}개 글 모두 보기 <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
 
