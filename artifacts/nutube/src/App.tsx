@@ -2073,7 +2073,7 @@ function AppContent() {
                       N
                     </div>
                     <div>
-                      <p className="font-extrabold text-slate-850 text-xs sm:text-sm">NuTube {selectedPost.author}</p>
+                      <p className="font-extrabold text-slate-850 text-xs sm:text-sm">{selectedPost.author}</p>
                       <p className="text-[11px] text-slate-550 font-mono tracking-tight font-medium">
                         발행일: {formatDate(selectedPost.publishedAt)} 
                         {selectedPost.updatedAt && ` · 최종업데이트: ${formatDate(selectedPost.updatedAt)}`}
