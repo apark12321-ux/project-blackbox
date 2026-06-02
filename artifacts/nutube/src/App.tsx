@@ -7,6 +7,7 @@ import {
   TrendingUp, 
   Share2, 
   Printer, 
+  Eye, 
   Heart, 
   Search, 
   ArrowRight, 
@@ -75,6 +76,7 @@ function AppContent() {
   const [posts, setPosts] = useState<GuidePost[]>(INITIAL_POSTS);
   const [selectedPost, setSelectedPost] = useState<GuidePost | null>(null);
   const [likedPosts, setLikedPosts] = useState<string[]>([]);
+  const [viewCount, setViewCount] = useState<number | null>(null);
   
   // Generator states
   const [generatorKeyword, setGeneratorKeyword] = useState('');
@@ -95,6 +97,22 @@ function AppContent() {
   const [activeLegalTab, setActiveLegalTab] = useState<'about' | 'privacy' | 'terms' | 'partnership' | 'announcements'>('about');
 
   // URL route sync to keep navigation in perfect harmony with state
+  // 조회수 카운터 (글 진입 시 1회 증가, 실제 누적값 표시)
+  useEffect(() => {
+    if (!selectedPost) { setViewCount(null); return; }
+    let cancelled = false;
+    const key = selectedPost.slug.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 60) || 'post';
+    fetch(`https://api.counterapi.dev/v1/nutube-kr/${key}/up`)
+      .then(r => r.ok ? r.json() : null)
+      .then(data => {
+        if (!cancelled && data && typeof data.count === 'number') {
+          setViewCount(data.count);
+        }
+      })
+      .catch(() => { /* 실패 시 조회수 미표시 */ });
+    return () => { cancelled = true; };
+  }, [selectedPost]);
+
   useEffect(() => {
     const path = location.pathname;
     
@@ -2015,9 +2033,17 @@ function AppContent() {
                     </div>
                   </div>
 
-                  <div className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-600 bg-brand-bg px-3 py-1 rounded-full border border-brand-border/60 font-semibold">
-                    <Clock className="w-3.5 h-3.5 text-neon-lime" />
-                    <span>읽는 시간: {getReadTime(selectedPost)}</span>
+                  <div className="flex items-center gap-2">
+                    {viewCount !== null && (
+                      <div className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-600 bg-brand-bg px-3 py-1 rounded-full border border-brand-border/60 font-semibold">
+                        <Eye className="w-3.5 h-3.5 text-neon-lime" />
+                        <span>{viewCount.toLocaleString()}</span>
+                      </div>
+                    )}
+                    <div className="inline-flex items-center gap-1 text-[11px] font-mono text-slate-600 bg-brand-bg px-3 py-1 rounded-full border border-brand-border/60 font-semibold">
+                      <Clock className="w-3.5 h-3.5 text-neon-lime" />
+                      <span>읽는 시간: {getReadTime(selectedPost)}</span>
+                    </div>
                   </div>
                 </div>
 
