@@ -965,6 +965,100 @@ function AppContent() {
               </div>
             </div>
 
+            {/* CATEGORY-WISE PREVIEW (kunja-style) */}
+            <div className="space-y-8">
+              {CATEGORIES.map(cat => {
+                const catPosts = posts.filter(p => p.category === cat.key).slice(0, 4);
+                if (catPosts.length === 0) return null;
+                return (
+                  <div key={cat.key} className="space-y-4">
+                    <div className="flex items-center justify-between border-b-2 border-brand-border pb-3">
+                      <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">
+                        {cat.label}
+                      </h3>
+                      <button
+                        onClick={() => {
+                          setSelectedCategory(cat.key);
+                          navigateToTab('guides');
+                        }}
+                        className="text-xs font-bold text-neon-lime hover:underline flex items-center gap-1"
+                      >
+                        더보기 <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                      {catPosts.map(post => (
+                        <div
+                          key={post.slug}
+                          onClick={() => {
+                            navigate(`/blog/${post.slug}`);
+                            window.scrollTo({ top: 0, behavior: 'smooth' });
+                          }}
+                          className="p-4 rounded-xl bg-white border border-brand-border hover:border-neon-lime cursor-pointer transition-all flex flex-col gap-2 group"
+                        >
+                          <span className="text-[10px] font-mono text-slate-500">{formatDate(post.publishedAt)}</span>
+                          <h4 className="font-bold text-slate-900 text-sm leading-snug break-keep line-clamp-2 group-hover:text-neon-lime transition-colors">
+                            {post.title}
+                          </h4>
+                          <p className="text-[11px] text-slate-600 line-clamp-2 leading-relaxed">
+                            {post.summary}
+                          </p>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* USEFUL EXTERNAL TOOLS (kunja-style quick links) */}
+            <div className="space-y-4">
+              <div className="border-b-2 border-brand-border pb-3">
+                <h3 className="text-lg sm:text-xl font-extrabold text-slate-900 tracking-tight">
+                  유튜브 운영에 자주 쓰는 도구
+                </h3>
+                <p className="text-xs text-slate-600 mt-1">공식 도구 바로가기. 외부 사이트로 이동합니다.</p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
+                <a
+                  href="https://studio.youtube.com"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-4 rounded-xl bg-white border border-brand-border hover:border-neon-lime transition-all flex flex-col gap-1.5"
+                >
+                  <span className="text-base font-extrabold text-slate-900">📊 YouTube 스튜디오</span>
+                  <span className="text-xs text-slate-600">채널 관리·분석·수익화 설정</span>
+                </a>
+                <a
+                  href="https://www.youtube.com/intl/ALL_kr/creators/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-4 rounded-xl bg-white border border-brand-border hover:border-neon-lime transition-all flex flex-col gap-1.5"
+                >
+                  <span className="text-base font-extrabold text-slate-900">🎓 크리에이터 아카데미</span>
+                  <span className="text-xs text-slate-600">YouTube 공식 교육 자료</span>
+                </a>
+                <a
+                  href="https://support.google.com/youtube/answer/72851"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-4 rounded-xl bg-white border border-brand-border hover:border-neon-lime transition-all flex flex-col gap-1.5"
+                >
+                  <span className="text-base font-extrabold text-slate-900">💰 파트너 프로그램</span>
+                  <span className="text-xs text-slate-600">수익화 조건·신청 안내</span>
+                </a>
+                <a
+                  href="https://trends.google.com/trends/?geo=KR"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="p-4 rounded-xl bg-white border border-brand-border hover:border-neon-lime transition-all flex flex-col gap-1.5"
+                >
+                  <span className="text-base font-extrabold text-slate-900">🔍 Google 트렌드</span>
+                  <span className="text-xs text-slate-600">주제·키워드 검색량 확인</span>
+                </a>
+              </div>
+            </div>
+
           </motion.div>
         )}
 
@@ -2241,6 +2335,53 @@ function AppContent() {
               <button onClick={() => { navigate('/terms'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">이용약관</button>
               <button onClick={() => { navigate('/partnership'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">제휴 및 비즈니스 문의</button>
               <button onClick={() => { navigate('/announcement'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">공지사항</button>
+            </div>
+          </div>
+
+          {/* Sitemap grid (kunja-style) */}
+          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 pb-6 border-b border-brand-border">
+            <div className="space-y-2">
+              <h4 className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wide">카테고리</h4>
+              <ul className="space-y-1.5 text-[11px]">
+                {CATEGORIES.map(cat => (
+                  <li key={cat.key}>
+                    <button
+                      onClick={() => { setSelectedCategory(cat.key); navigateToTab('guides'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                      className="hover:text-neon-lime transition-colors text-left"
+                    >
+                      {cat.label}
+                    </button>
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <div className="space-y-2">
+              <h4 className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wide">바로가기</h4>
+              <ul className="space-y-1.5 text-[11px]">
+                <li><button onClick={() => { navigateToTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">홈</button></li>
+                <li><button onClick={() => { navigateToTab('guides'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">가이드 라이브러리</button></li>
+                <li><button onClick={() => { navigateToTab('generator'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">메타데이터 생성기</button></li>
+                <li><a href="/rss.xml" className="hover:text-neon-lime transition-colors">RSS 피드</a></li>
+                <li><a href="/sitemap.xml" className="hover:text-neon-lime transition-colors">사이트맵</a></li>
+              </ul>
+            </div>
+            <div className="space-y-2">
+              <h4 className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wide">외부 도구</h4>
+              <ul className="space-y-1.5 text-[11px]">
+                <li><a href="https://studio.youtube.com" target="_blank" rel="noopener noreferrer" className="hover:text-neon-lime transition-colors">YouTube 스튜디오</a></li>
+                <li><a href="https://www.youtube.com/intl/ALL_kr/creators/" target="_blank" rel="noopener noreferrer" className="hover:text-neon-lime transition-colors">크리에이터 아카데미</a></li>
+                <li><a href="https://support.google.com/youtube/answer/72851" target="_blank" rel="noopener noreferrer" className="hover:text-neon-lime transition-colors">파트너 프로그램</a></li>
+                <li><a href="https://trends.google.com/trends/?geo=KR" target="_blank" rel="noopener noreferrer" className="hover:text-neon-lime transition-colors">Google 트렌드</a></li>
+              </ul>
+            </div>
+            <div className="space-y-2">
+              <h4 className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wide">사이트 안내</h4>
+              <ul className="space-y-1.5 text-[11px]">
+                <li><button onClick={() => { navigate('/about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">사이트 소개</button></li>
+                <li><button onClick={() => { navigate('/partnership'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">제휴·광고 문의</button></li>
+                <li><button onClick={() => { navigate('/privacy'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">개인정보처리방침</button></li>
+                <li><button onClick={() => { navigate('/terms'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">이용약관</button></li>
+              </ul>
             </div>
           </div>
 
