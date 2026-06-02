@@ -7,14 +7,14 @@
   --font-display: "Pretendard Variable", "Pretendard", "Inter", sans-serif;
   --font-mono: "JetBrains Mono", "D2Coding", monospace;
   
-  --color-brand-bg: #f5f6f2;
-  --color-brand-dark: #eaede7;
+  --color-brand-bg: #f4f6fa;
+  --color-brand-dark: #e8edf5;
   --color-brand-card: #ffffff;
-  --color-brand-border: #d0d7cd;
+  --color-brand-border: #dde3ed;
   
-  --color-neon-lime: #245e3c;
-  --color-neon-lime-hover: #1c492e;
-  --color-neon-coral: #b73e27;
+  --color-neon-lime: #2563eb;
+  --color-neon-lime-hover: #1d4fc4;
+  --color-neon-coral: #f97316;
 }
 
 @layer base {

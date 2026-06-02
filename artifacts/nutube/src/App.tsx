@@ -553,8 +553,9 @@ function AppContent() {
         <span className="tracking-tight text-slate-700 font-semibold">NuTube 2026 개정 유튜브 검색 가이드라인 & 크리에이터 최적화 양식 적용 완료</span>
       </div>
 
-      {/* Navigation Header */}
-      <header className="sticky top-0 z-40 bg-brand-bg/95 backdrop-blur-md border-b border-brand-border shadow-sm">
+      {/* Navigation Header (kunja-style: white top + blue menu bar) */}
+      <header className="sticky top-0 z-40 bg-white border-b border-brand-border shadow-sm">
+        {/* Top row: logo + search + login */}
         <div className="max-w-6xl mx-auto px-4 h-16 sm:h-20 flex items-center justify-between gap-4">
           
           {/* Logo Brand */}
@@ -563,65 +564,53 @@ function AppContent() {
             className="flex items-center gap-2.5 cursor-pointer group"
             id="header-logo-container"
           >
-            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-neon-lime to-emerald-700 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-300">
+            <div className="w-10 h-10 sm:w-11 sm:h-11 rounded-xl bg-gradient-to-tr from-neon-lime to-blue-700 flex items-center justify-center shadow-md group-hover:scale-105 transition-transform duration-300">
               <span className="text-white font-display font-extrabold text-lg sm:text-2xl tracking-tighter">N</span>
             </div>
             <div>
-              <div className="flex items-baseline gap-1">
+              <div className="flex items-baseline gap-1.5">
                 <span className="font-display font-extrabold text-slate-900 text-xl sm:text-2xl tracking-tighter group-hover:text-neon-lime transition-colors">NuTube</span>
-                <span className="text-[10px] text-neon-lime font-mono font-bold">v2.5</span>
+                <span className="text-[10px] text-white font-bold px-1.5 py-0.5 bg-neon-lime rounded">NUTUBE</span>
               </div>
-              <p className="text-[9px] sm:text-[10px] text-slate-600 font-sans tracking-tight leading-none break-keep hidden sm:block">크리에이터 지식 아카이브</p>
+              <p className="text-[9px] sm:text-[10px] text-slate-600 font-sans tracking-tight leading-none break-keep hidden sm:block">유튜브 채널 운영 실전 가이드</p>
             </div>
           </div>
 
-          {/* Desktop Navigation Link */}
-          <nav className="hidden md:flex items-center gap-2.5 font-semibold text-sm">
-            <button 
-              onClick={() => navigateToTab('home')}
-              className={`px-4 py-2.5 rounded-xl transition-all ${currentTab === 'home' ? 'text-white bg-neon-lime shadow-md' : 'text-slate-700 hover:text-slate-900 hover:bg-brand-dark'}`}
-            >
-              메인 홈
-            </button>
-            <button 
-              onClick={() => navigateToTab('guides')}
-              className={`px-4 py-2.5 rounded-xl transition-all ${currentTab === 'guides' ? 'text-white bg-neon-lime shadow-md' : 'text-slate-700 hover:text-slate-900 hover:bg-brand-dark'}`}
-            >
-              인사이트 라이브러리
-            </button>
-            <button 
-              onClick={() => navigateToTab('generator')}
-              className={`px-4 py-2.5 rounded-xl transition-all flex items-center gap-1.5 ${currentTab === 'generator' ? 'text-white bg-neon-lime shadow-md' : 'text-neon-lime hover:text-white hover:bg-neon-lime'}`}
-            >
-              <Zap className="w-3.5 h-3.5 fill-current" />
-              AI 메타 생성기
-            </button>
-            <button 
-              onClick={() => navigateToTab('legal')}
-              className={`px-4 py-2.5 rounded-xl transition-all ${currentTab === 'legal' ? 'text-white bg-neon-lime shadow-md' : 'text-slate-700 hover:text-slate-900 hover:bg-brand-dark'}`}
-            >
-              운영 및 정보
-            </button>
-          </nav>
+          {/* Search bar (kunja-style center) */}
+          <div className="hidden md:flex flex-1 max-w-md mx-4">
+            <div className="relative w-full">
+              <input
+                type="text"
+                placeholder="알고리즘, 수익화, AI 도구 검색..."
+                value={searchQuery}
+                onChange={(e) => {
+                  setSearchQuery(e.target.value);
+                  if (currentTab !== 'guides') navigateToTab('guides');
+                }}
+                className="w-full pl-4 pr-12 py-2.5 rounded-lg border border-brand-border bg-white text-sm placeholder:text-slate-400 focus:outline-none focus:border-neon-lime focus:ring-2 focus:ring-neon-lime/20 transition-all"
+              />
+              <button className="absolute right-1 top-1 bottom-1 px-4 rounded-md bg-neon-lime text-white text-xs font-bold hover:bg-neon-lime-hover transition-all">
+                검색
+              </button>
+            </div>
+          </div>
 
-          {/* Mobile and Right Quick Master Buttons */}
+          {/* Right: AI generator + Info */}
           <div className="flex items-center gap-2">
             <button 
               onClick={() => navigateToTab('generator')}
-              className="px-3.5 py-2 rounded-xl bg-neon-lime text-white font-bold text-xs flex items-center gap-1.5 md:hidden shadow-md"
+              className="px-3.5 py-2 rounded-lg bg-neon-coral text-white font-bold text-xs flex items-center gap-1.5 shadow-sm hover:opacity-90 transition-all"
             >
-              <Zap className="w-3.5 h-3.5 fill-current animate-bounce" />
+              <Zap className="w-3.5 h-3.5 fill-current" />
               AI 생성기
             </button>
-            
-            {/* Operator Quick View Info Link */}
             <button
               onClick={() => {
                 navigateToTab('legal');
                 setActiveLegalTab('about');
               }}
-              className="w-10 h-10 rounded-xl border border-brand-border bg-brand-card flex items-center justify-center text-slate-700 hover:text-neon-lime hover:border-slate-400 transition-all shadow-sm"
-              title="운영 정부 보기"
+              className="w-10 h-10 rounded-lg border border-brand-border bg-white flex items-center justify-center text-slate-700 hover:text-neon-lime hover:border-neon-lime transition-all"
+              title="운영 정보"
             >
               <Info className="w-4 h-4" />
             </button>
@@ -629,32 +618,50 @@ function AppContent() {
 
         </div>
 
-        {/* Mobile Navigation Strip */}
-        <div className="grid grid-cols-4 border-t border-brand-border bg-brand-dark md:hidden text-center text-xs font-bold font-sans">
-          <button 
-            onClick={() => navigateToTab('home')}
-            className={`py-3.5 ${currentTab === 'home' ? 'text-neon-lime border-b-2 border-neon-lime bg-white' : 'text-slate-500'}`}
-          >
-            홈
-          </button>
-          <button 
-            onClick={() => navigateToTab('guides')}
-            className={`py-3 ${currentTab === 'guides' ? 'text-neon-lime border-b-2 border-neon-lime bg-brand-card' : 'text-slate-600'}`}
-          >
-            인사이트
-          </button>
-          <button 
-            onClick={() => navigateToTab('generator')}
-            className={`py-3 ${currentTab === 'generator' ? 'text-neon-lime border-b-2 border-neon-lime bg-brand-card' : 'text-slate-600'}`}
-          >
-            생성기
-          </button>
-          <button 
-            onClick={() => navigateToTab('legal')}
-            className={`py-3 ${currentTab === 'legal' ? 'text-neon-lime border-b-2 border-neon-lime bg-brand-card' : 'text-slate-600'}`}
-          >
-            정보
-          </button>
+        {/* Blue menu bar (kunja-style) */}
+        <div className="bg-neon-lime border-b border-blue-800">
+          <div className="max-w-6xl mx-auto px-4 flex items-center gap-1 overflow-x-auto">
+            <button 
+              onClick={() => navigateToTab('home')}
+              className={`px-4 sm:px-6 py-3 text-sm font-bold whitespace-nowrap transition-all ${currentTab === 'home' ? 'bg-neon-coral text-white' : 'text-white/90 hover:bg-white/10'}`}
+            >
+              홈
+            </button>
+            <button 
+              onClick={() => navigateToTab('guides')}
+              className={`px-4 sm:px-6 py-3 text-sm font-bold whitespace-nowrap transition-all ${currentTab === 'guides' && selectedCategory === 'all' ? 'bg-neon-coral text-white' : 'text-white/90 hover:bg-white/10'}`}
+            >
+              전체 가이드
+            </button>
+            {CATEGORIES.map(cat => (
+              <button
+                key={cat.key}
+                onClick={() => { setSelectedCategory(cat.key); navigateToTab('guides'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                className={`px-4 sm:px-6 py-3 text-sm font-bold whitespace-nowrap transition-all ${currentTab === 'guides' && selectedCategory === cat.key ? 'bg-neon-coral text-white' : 'text-white/90 hover:bg-white/10'}`}
+              >
+                {cat.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        {/* Mobile search */}
+        <div className="md:hidden p-3 bg-brand-bg border-b border-brand-border">
+          <div className="relative">
+            <input
+              type="text"
+              placeholder="검색..."
+              value={searchQuery}
+              onChange={(e) => {
+                setSearchQuery(e.target.value);
+                if (currentTab !== 'guides') navigateToTab('guides');
+              }}
+              className="w-full pl-3 pr-12 py-2 rounded-lg border border-brand-border bg-white text-sm focus:outline-none focus:border-neon-lime"
+            />
+            <button className="absolute right-1 top-1 bottom-1 px-3 rounded-md bg-neon-lime text-white text-xs font-bold">
+              검색
+            </button>
+          </div>
         </div>
       </header>
 
@@ -671,14 +678,14 @@ function AppContent() {
               <div className="absolute top-0 right-0 w-80 h-80 bg-neon-lime/5 rounded-full blur-3xl pointer-events-none" />
               
               <div className="flex-1 space-y-6 text-center md:text-left">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-[#e2eedf] border border-brand-border text-neon-lime text-xs font-bold">
-                  <span className="w-2 h-2 rounded-full bg-[#1e4d30] animate-ping" />
+                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-brand-border text-neon-lime text-xs font-bold">
+                  <span className="w-2 h-2 rounded-full bg-blue-700 animate-ping" />
                   유튜브 운영 가이드 {posts.length}편 수록
                 </div>
 
                 <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-snug break-keep">
                   유튜브, 감으로 하지 마세요. <br className="hidden sm:block" />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-lime to-emerald-800">데이터와 신뢰</span>로 키우세요.
+                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-lime to-blue-800">데이터와 신뢰</span>로 키우세요.
                 </h1>
 
                 <p className="text-slate-700 text-sm sm:text-base leading-relaxed max-w-xl break-keep mx-auto md:mx-0 font-medium">
@@ -693,7 +700,7 @@ function AppContent() {
                     <span className="text-slate-600 text-[10px] font-semibold leading-none block break-keep">정량적 분석 검증</span>
                   </div>
                   <div className="p-2.5 rounded-xl bg-white border border-brand-border shadow-sm">
-                    <span className="text-emerald-700 text-sm block mb-1">알고리즘 우선</span>
+                    <span className="text-blue-700 text-sm block mb-1">알고리즘 우선</span>
                     <span className="text-slate-600 text-[10px] font-semibold leading-none block break-keep">구글 만족도 최적화</span>
                   </div>
                   <div className="p-2.5 rounded-xl bg-white border border-brand-border shadow-sm">
@@ -780,7 +787,7 @@ function AppContent() {
                         <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${cat.gradient} flex items-center justify-center text-xl`}>
                           {cat.icon}
                         </div>
-                        <span className="text-[10px] text-neon-lime font-mono font-bold tracking-widest px-2.5 py-1 bg-[#e2eedf] border border-brand-border rounded-full">
+                        <span className="text-[10px] text-neon-lime font-mono font-bold tracking-widest px-2.5 py-1 bg-blue-50 border border-brand-border rounded-full">
                           {cat.count}편 수록
                         </span>
                       </div>
@@ -847,7 +854,7 @@ function AppContent() {
                         <span className="text-3xl font-display font-black text-slate-300 group-hover:text-neon-lime transition-colors">
                           0{idx + 1}
                         </span>
-                        <span className="text-[10px] text-emerald-800 font-mono font-bold px-2 py-0.5 bg-[#e2eedf] rounded">
+                        <span className="text-[10px] text-blue-800 font-mono font-bold px-2 py-0.5 bg-blue-50 rounded">
                           {post.categoryLabel}
                         </span>
                       </div>
@@ -1662,7 +1669,7 @@ function AppContent() {
                           </div>
 
                           <div className="space-y-1">
-                            <span className="text-emerald-700 font-bold uppercase tracking-wider text-[10px] block">03. 결론 및 액션 유도 (50~60초)</span>
+                            <span className="text-blue-700 font-bold uppercase tracking-wider text-[10px] block">03. 결론 및 액션 유도 (50~60초)</span>
                             <p className="p-3 bg-[#f8faf6] text-slate-800 rounded-lg border border-brand-border/40 text-sm leading-relaxed selection:bg-neon-lime selection:text-black">
                               "{generatorResult.shortsScript.cta}"
                             </p>
@@ -1827,7 +1834,7 @@ function AppContent() {
                   <h3 className="text-xl font-extrabold text-slate-800 border-b border-brand-border pb-3">개인정보처리방침</h3>
                   
                   <div className="space-y-5 text-[11px] sm:text-xs text-slate-700 leading-relaxed break-keep font-sans">
-                    <div className="p-4 bg-emerald-50 text-emerald-800 rounded-xl border border-emerald-200/60 font-semibold mb-4 leading-normal">
+                    <div className="p-4 bg-blue-50 text-blue-800 rounded-xl border border-blue-200/60 font-semibold mb-4 leading-normal">
                       💡 정보보호 안내: NuTube는 회원 가입이나 별도의 본인인증이 없는 완전 비회원제 서비스로 운영됩니다. 메타데이터 생성기를 포함한 모든 콘텐츠 도구는 귀하의 로컬 웹 브라우저에서 직접 계산 및 실행되며, 결과물이나 입력 정보가 서버로 전송되거나 축적되지 않기 때문에 안심하고 이용하실 수 있습니다.
                     </div>
 
@@ -2007,8 +2014,8 @@ function AppContent() {
 
                       {/* 2026-05-10 */}
                       <div className="relative">
-                        <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-emerald-500 border-4 border-white shadow-sm" />
-                        <span className="font-mono text-emerald-600 font-bold text-xs">2026-05-10</span>
+                        <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-blue-500 border-4 border-white shadow-sm" />
+                        <span className="font-mono text-blue-600 font-bold text-xs">2026-05-10</span>
                         <h4 className="font-extrabold text-slate-900 mt-1 text-sm sm:text-base">AI 도구 카테고리 확대</h4>
                         <p className="text-xs sm:text-sm text-slate-600 mt-1 leading-relaxed break-keep">
                           AI 음성, 이미지 생성, 영상 편집, 리서치까지 유튜버에게 실제로 도움이 되는 AI 도구 비교 가이드 8편을 추가했습니다. 무료부터 유료까지 가격별로 정리했습니다.
@@ -2315,39 +2322,28 @@ function AppContent() {
 
       </main>
 
-      {/* Structured Eco Cozy Theme Footer */}
-      <footer className="w-full mt-20 border-t border-brand-border bg-white text-xs text-slate-500 font-sans">
-        <div className="max-w-6xl mx-auto px-4 py-8 sm:py-12 space-y-6 sm:space-y-8 select-text">
-          
-          {/* Top row */}
-          <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-6 pb-6 border-b border-brand-border">
-            <div className="space-y-1 flex items-center gap-3">
-              <div className="w-8 h-8 rounded-lg bg-neon-lime/10 text-neon-lime flex items-center justify-center font-display font-extrabold text-sm shadow">N</div>
-              <div>
-                <p className="text-slate-950 font-extrabold font-display">NuTube.kr</p>
-                <p className="text-[10px] text-slate-500 leading-none">유튜브 채널 운영 실전 가이드</p>
-              </div>
-            </div>
+      {/* Footer (kunja-style: dark navy) */}
+      <footer className="w-full mt-20 bg-[#1e2a47] text-xs text-slate-300 font-sans">
+        <div className="max-w-6xl mx-auto px-4 py-10 sm:py-14 space-y-8 select-text">
 
-            <div className="flex flex-wrap items-center gap-4 text-xs font-semibold">
-              <button onClick={() => { navigate('/about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">소개</button>
-              <button onClick={() => { navigate('/privacy'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">개인정보처리방침</button>
-              <button onClick={() => { navigate('/terms'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">이용약관</button>
-              <button onClick={() => { navigate('/partnership'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">제휴 및 비즈니스 문의</button>
-              <button onClick={() => { navigate('/announcement'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">공지사항</button>
+          {/* Sitemap grid (kunja-style 4-column) */}
+          <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+            <div className="space-y-3">
+              <h4 className="text-base font-extrabold text-white">NuTube</h4>
+              <p className="text-[12px] text-slate-400 leading-relaxed break-keep">
+                유튜브 알고리즘, 시니어 사연 쇼츠, AI 도구,<br />
+                수익화 노하우까지 — 채널 운영에 필요한<br />
+                실전 가이드를 한 곳에서 확인하세요.
+              </p>
             </div>
-          </div>
-
-          {/* Sitemap grid (kunja-style) */}
-          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-6 pb-6 border-b border-brand-border">
-            <div className="space-y-2">
-              <h4 className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wide">카테고리</h4>
-              <ul className="space-y-1.5 text-[11px]">
+            <div className="space-y-3">
+              <h4 className="text-sm font-bold text-white">카테고리</h4>
+              <ul className="space-y-2 text-[12px]">
                 {CATEGORIES.map(cat => (
                   <li key={cat.key}>
                     <button
                       onClick={() => { setSelectedCategory(cat.key); navigateToTab('guides'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
-                      className="hover:text-neon-lime transition-colors text-left"
+                      className="text-slate-300 hover:text-white transition-colors text-left"
                     >
                       {cat.label}
                     </button>
@@ -2355,46 +2351,38 @@ function AppContent() {
                 ))}
               </ul>
             </div>
-            <div className="space-y-2">
-              <h4 className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wide">바로가기</h4>
-              <ul className="space-y-1.5 text-[11px]">
-                <li><button onClick={() => { navigateToTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">홈</button></li>
-                <li><button onClick={() => { navigateToTab('guides'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">가이드 라이브러리</button></li>
-                <li><button onClick={() => { navigateToTab('generator'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">메타데이터 생성기</button></li>
-                <li><a href="/rss.xml" className="hover:text-neon-lime transition-colors">RSS 피드</a></li>
-                <li><a href="/sitemap.xml" className="hover:text-neon-lime transition-colors">사이트맵</a></li>
+            <div className="space-y-3">
+              <h4 className="text-sm font-bold text-white">바로가기</h4>
+              <ul className="space-y-2 text-[12px]">
+                <li><button onClick={() => { navigateToTab('home'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="text-slate-300 hover:text-white transition-colors">홈</button></li>
+                <li><button onClick={() => { navigateToTab('guides'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="text-slate-300 hover:text-white transition-colors">가이드 라이브러리</button></li>
+                <li><button onClick={() => { navigateToTab('generator'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="text-slate-300 hover:text-white transition-colors">AI 메타데이터 생성기</button></li>
+                <li><a href="/rss.xml" className="text-slate-300 hover:text-white transition-colors">RSS 피드</a></li>
+                <li><a href="/sitemap.xml" className="text-slate-300 hover:text-white transition-colors">사이트맵</a></li>
               </ul>
             </div>
-            <div className="space-y-2">
-              <h4 className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wide">외부 도구</h4>
-              <ul className="space-y-1.5 text-[11px]">
-                <li><a href="https://studio.youtube.com" target="_blank" rel="noopener noreferrer" className="hover:text-neon-lime transition-colors">YouTube 스튜디오</a></li>
-                <li><a href="https://www.youtube.com/intl/ALL_kr/creators/" target="_blank" rel="noopener noreferrer" className="hover:text-neon-lime transition-colors">크리에이터 아카데미</a></li>
-                <li><a href="https://support.google.com/youtube/answer/72851" target="_blank" rel="noopener noreferrer" className="hover:text-neon-lime transition-colors">파트너 프로그램</a></li>
-                <li><a href="https://trends.google.com/trends/?geo=KR" target="_blank" rel="noopener noreferrer" className="hover:text-neon-lime transition-colors">Google 트렌드</a></li>
-              </ul>
-            </div>
-            <div className="space-y-2">
-              <h4 className="text-[11px] font-extrabold text-slate-900 uppercase tracking-wide">사이트 안내</h4>
-              <ul className="space-y-1.5 text-[11px]">
-                <li><button onClick={() => { navigate('/about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">사이트 소개</button></li>
-                <li><button onClick={() => { navigate('/partnership'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">제휴·광고 문의</button></li>
-                <li><button onClick={() => { navigate('/privacy'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">개인정보처리방침</button></li>
-                <li><button onClick={() => { navigate('/terms'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-neon-lime transition-colors">이용약관</button></li>
+            <div className="space-y-3">
+              <h4 className="text-sm font-bold text-white">사이트 안내</h4>
+              <ul className="space-y-2 text-[12px]">
+                <li><button onClick={() => { navigate('/about'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="text-slate-300 hover:text-white transition-colors">소개</button></li>
+                <li><button onClick={() => { navigate('/partnership'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="text-slate-300 hover:text-white transition-colors">광고 문의</button></li>
+                <li><button onClick={() => { navigate('/partnership'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="text-slate-300 hover:text-white transition-colors">제보하기</button></li>
+                <li><button onClick={() => { navigate('/privacy'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="text-slate-300 hover:text-white transition-colors">개인정보처리방침</button></li>
+                <li><button onClick={() => { navigate('/terms'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="text-slate-300 hover:text-white transition-colors">이용약관</button></li>
               </ul>
             </div>
           </div>
 
-          {/* Operator credentials */}
-          <div className="flex flex-col md:flex-row justify-between gap-6 text-[11px] text-slate-650 font-sans leading-relaxed break-keep">
-            <div className="space-y-1 max-w-xl">
-              <p className="font-semibold text-slate-900">{SITE_OPERATOR.projectTitle} · 유튜브 채널 운영 실전 가이드</p>
-              <p>운영: {SITE_OPERATOR.name} · 이메일: {SITE_OPERATOR.email}</p>
-              <p className="text-slate-500">사업자 등록 정보 및 개인정보 처리방침은 하단 소개·약관 페이지에서 확인하실 수 있습니다.</p>
-            </div>
-
-            <div className="md:text-right space-y-1">
+          {/* Bottom row */}
+          <div className="pt-6 border-t border-white/10 flex flex-col md:flex-row justify-between gap-3 text-[11px] text-slate-400">
+            <div className="space-y-1">
               <p>© 2026 {SITE_OPERATOR.name}. All rights reserved.</p>
+              <p>운영: {SITE_OPERATOR.name} · 이메일: {SITE_OPERATOR.email}</p>
+            </div>
+            <div className="flex flex-wrap gap-3">
+              <button onClick={() => { navigate('/privacy'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-white transition-colors">개인정보처리방침</button>
+              <button onClick={() => { navigate('/partnership'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-white transition-colors">광고 문의</button>
+              <button onClick={() => { navigate('/partnership'); window.scrollTo({ top: 0, behavior: 'smooth' }); }} className="hover:text-white transition-colors">제보하기</button>
             </div>
           </div>
 
