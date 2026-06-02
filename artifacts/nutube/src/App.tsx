@@ -680,303 +680,146 @@ function AppContent() {
             animate={{ opacity: 1 }}
             className="space-y-12"
           >
-            {/* HERO SECTION */}
-            <div className="relative rounded-3xl overflow-hidden bg-gradient-to-br from-white via-brand-bg to-brand-dark p-6 sm:p-12 border border-brand-border shadow-md flex flex-col md:flex-row items-center gap-8 md:gap-12">
-              <div className="absolute top-0 right-0 w-80 h-80 bg-neon-lime/5 rounded-full blur-3xl pointer-events-none" />
-              
-              <div className="flex-1 space-y-6 text-center md:text-left">
-                <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-blue-50 border border-brand-border text-neon-lime text-xs font-bold">
-                  <span className="w-2 h-2 rounded-full bg-blue-700 animate-ping" />
-                  유튜브 운영 가이드 {posts.length}편 수록
-                </div>
+            {/* HERO SECTION (kunja-style: blue solid + centered search + category chips) */}
+            <div className="relative rounded-2xl overflow-hidden bg-gradient-to-b from-neon-lime to-blue-700 px-6 py-12 sm:py-16 text-center">
+              <h1 className="text-2xl sm:text-3xl md:text-4xl font-extrabold text-white tracking-tight leading-snug break-keep">
+                유튜브 알고리즘 · 수익화 · AI 도구
+              </h1>
+              <p className="text-blue-50 text-sm sm:text-base mt-3 font-medium">
+                채널 운영에 필요한 실전 가이드를 한 곳에서
+              </p>
 
-                <h1 className="text-2xl sm:text-3xl md:text-4xl lg:text-4xl font-extrabold text-slate-900 tracking-tight leading-snug break-keep">
-                  유튜브, 감으로 하지 마세요. <br className="hidden sm:block" />
-                  <span className="text-transparent bg-clip-text bg-gradient-to-r from-neon-lime to-blue-800">데이터와 신뢰</span>로 키우세요.
-                </h1>
-
-                <p className="text-slate-700 text-sm sm:text-base leading-relaxed max-w-xl break-keep mx-auto md:mx-0 font-medium">
-                  수많은 유튜버의 카더라 통신에서 비롯된 저품질 양산 패턴을 버리고, 
-                  구글 검색엔진 최적화(SEO)와 오디언스 만족 중심의 검증된 1% 노하우 라이브러리를 살펴보십시오.
-                </p>
-
-                {/* Human-centric value descriptors: 신뢰, 알고리즘, 노하우 */}
-                <div className="grid grid-cols-3 gap-3 max-w-md mx-auto md:mx-0 pt-2 text-center text-xs font-bold">
-                  <div className="p-2.5 rounded-xl bg-white border border-brand-border shadow-sm">
-                    <span className="text-neon-lime text-sm block mb-1">신뢰 100%</span>
-                    <span className="text-slate-600 text-[10px] font-semibold leading-none block break-keep">정량적 분석 검증</span>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-white border border-brand-border shadow-sm">
-                    <span className="text-blue-700 text-sm block mb-1">알고리즘 우선</span>
-                    <span className="text-slate-600 text-[10px] font-semibold leading-none block break-keep">구글 만족도 최적화</span>
-                  </div>
-                  <div className="p-2.5 rounded-xl bg-white border border-brand-border shadow-sm">
-                    <span className="text-neon-coral text-sm block mb-1">실전 노하우</span>
-                    <span className="text-slate-600 text-[10px] font-semibold leading-none block break-keep">대본 작성 및 편집 팁</span>
-                  </div>
-                </div>
-
-                <div className="flex flex-wrap items-center justify-center md:justify-start gap-3 pt-3">
-                  <button 
-                    onClick={() => navigateToTab('guides')}
-                    className="px-6 py-3 rounded-xl bg-neon-lime text-white border border-neon-lime-hover font-extrabold text-sm hover:bg-neon-lime-hover transition-all flex items-center gap-2 shadow-sm"
-                  >
-                    가이드 라이브러리 보기
-                    <ArrowRight className="w-4 h-4" />
-                  </button>
-                  <button 
-                    onClick={() => navigateToTab('generator')}
-                    className="px-6 py-3 rounded-xl bg-white hover:bg-brand-dark text-slate-800 border border-brand-border font-bold text-sm transition-all flex items-center gap-2 shadow-sm"
-                  >
-                    AI 메타생성기 즉시 체험
-                    <Zap className="w-4 h-4 text-neon-lime" />
+              <div className="max-w-xl mx-auto mt-7">
+                <div className="relative">
+                  <input
+                    type="text"
+                    placeholder="알고리즘, 수익화, 쇼츠, AI 도구 검색해보세요"
+                    value={searchQuery}
+                    onChange={(e) => {
+                      setSearchQuery(e.target.value);
+                      if (currentTab !== 'guides') navigateToTab('guides');
+                    }}
+                    className="w-full pl-5 pr-24 py-3.5 rounded-lg border-0 bg-white text-sm placeholder:text-slate-400 focus:outline-none focus:ring-2 focus:ring-neon-coral/40 shadow-lg"
+                  />
+                  <button className="absolute right-1.5 top-1.5 bottom-1.5 px-6 rounded-md bg-neon-coral text-white text-sm font-bold hover:opacity-90 transition-all">
+                    검색
                   </button>
                 </div>
               </div>
 
-              {/* Graphic Mock Widget / Isometric Dashboard Box */}
-              <div className="w-full md:w-80 flex-shrink-0">
-                <div className="p-5 rounded-2xl bg-white border border-brand-border shadow-md space-y-3 text-xs">
-                  <div className="flex items-center justify-between border-b border-brand-border pb-3">
-                    <div className="flex items-center gap-1.5">
-                      <div className="w-2.5 h-2.5 rounded-full bg-neon-coral animate-pulse" />
-                      <span className="font-bold text-slate-800 font-display">유튜브 정책·기능 업데이트</span>
-                    </div>
-                    <span className="text-[10px] text-slate-500">2026</span>
-                  </div>
+              <div className="flex flex-wrap items-center justify-center gap-2 mt-6">
+                {CATEGORIES.map(cat => (
+                  <button
+                    key={cat.key}
+                    onClick={() => { setSelectedCategory(cat.key); navigateToTab('guides'); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                    className="px-4 py-1.5 rounded-full bg-white/15 text-white text-xs font-semibold hover:bg-white/25 transition-all border border-white/20"
+                  >
+                    {cat.label}
+                  </button>
+                ))}
+              </div>
+            </div>
 
-                  <div className="space-y-2">
-                    {[
-                      { date: '5월', text: 'YPP 진입 완화 — 구독 500명·영상 3개·시청 3,000시간', cat: '수익화' },
-                      { date: '5월', text: 'AI 합성 콘텐츠 미표시 시 수익화 영구 제외 가능', cat: 'AI 정책' },
-                      { date: '5월', text: '발행 전 위반 점검 도구 적용 범위 확대', cat: '운영' },
-                      { date: '5월', text: '유튜브 쇼핑 제휴 확대 — 구독 1만부터 상품 태그', cat: '커머스' },
-                    ].map((item, i) => (
-                      <div key={i} className="bg-brand-bg/80 p-2.5 rounded-lg border border-brand-border/45">
-                        <div className="flex items-center gap-1.5 mb-1">
-                          <span className="text-[9px] font-bold text-white bg-neon-coral px-1.5 py-0.5 rounded">{item.cat}</span>
-                          <span className="text-[9px] text-slate-400 font-medium">{item.date}</span>
-                        </div>
-                        <p className="text-[11px] text-slate-700 font-medium leading-snug break-keep">{item.text}</p>
-                      </div>
-                    ))}
-                  </div>
-
-                  <p className="text-[9px] text-slate-400 leading-snug pt-0.5">
-                    유튜브 공식 발표 기준으로 정리한 최신 변경 사항입니다.
-                  </p>
-                </div>
+            {/* LATEST UPDATE STRIP (kunja-style 최신뉴스 ticker row) */}
+            <div className="flex items-center gap-3 bg-white rounded-xl border border-brand-border px-4 py-3 overflow-x-auto">
+              <span className="flex-shrink-0 text-xs font-bold text-white bg-neon-coral px-2.5 py-1 rounded">최신</span>
+              <div className="flex items-center gap-5 text-xs text-slate-700 whitespace-nowrap">
+                {posts.slice(0, 5).map(post => (
+                  <button
+                    key={post.slug}
+                    onClick={() => { navigate(`/blog/${post.slug}`); window.scrollTo({ top: 0, behavior: 'smooth' }); }}
+                    className="hover:text-neon-lime transition-colors font-medium"
+                  >
+                    {post.title}
+                  </button>
+                ))}
               </div>
             </div>
 
             {/* CATEGORIES GRID */}
             <div className="space-y-6">
               <div className="text-center sm:text-left space-y-1">
-                <h2 className="text-xl sm:text-2xl font-bold font-display tracking-tight text-slate-900">
-                  맞춤형 크리에이터 인사이트 카테고리
+                <h2 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 border-l-4 border-neon-lime pl-3">
+                  카테고리
                 </h2>
-                <p className="text-sm text-slate-600 break-keep">
-                  초보 입문부터 정밀 알고리즘 세팅까지, 6대 전문화 카테고리 속에서 나만의 최적화를 설계해보세요.
-                </p>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+              <div className="grid grid-cols-3 sm:grid-cols-6 gap-3">
                 {CATEGORIES.map(cat => (
                   <div 
                     key={cat.key}
                     onClick={() => {
                       navigate(`/category/${cat.key}`);
                     }}
-                    className="p-5 rounded-2xl bg-white border border-brand-border hover:border-neon-lime/40 cursor-pointer shadow-sm group hover:scale-[1.01] hover:shadow-md transition-all duration-300 flex flex-col justify-between"
+                    className="p-4 rounded-xl bg-white border border-brand-border hover:border-neon-lime hover:shadow-md cursor-pointer transition-all flex flex-col items-center text-center gap-2 group"
                   >
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <div className={`w-11 h-11 rounded-xl bg-gradient-to-br ${cat.gradient} flex items-center justify-center text-xl`}>
-                          {cat.icon}
-                        </div>
-                        <span className="text-[10px] text-neon-lime font-mono font-bold tracking-widest px-2.5 py-1 bg-blue-50 border border-brand-border rounded-full">
-                          {cat.count}편 수록
-                        </span>
-                      </div>
-                      
-                      <div className="space-y-1">
-                        <h3 className="font-extrabold text-slate-900 text-base sm:text-lg group-hover:text-neon-lime transition-colors">
-                          {cat.label}
-                        </h3>
-                        <p className="text-xs text-slate-600 leading-normal break-keep">
-                          {cat.description}
-                        </p>
-                      </div>
+                    <div className={`w-12 h-12 rounded-xl bg-gradient-to-br ${cat.gradient} flex items-center justify-center text-2xl`}>
+                      {cat.icon}
                     </div>
-
-                    <div className="pt-4 mt-4 border-t border-brand-border/40 flex items-center justify-between text-[11px] text-slate-500 font-mono">
-                      <span>{cat.persona.split(' ')[0]} 톤</span>
-                      <span className="group-hover:text-neon-lime flex items-center gap-1 transition-colors">
-                        둘러보기 <ChevronRight className="w-3 h-3" />
-                      </span>
-                    </div>
+                    <h3 className="font-bold text-slate-900 text-xs sm:text-sm group-hover:text-neon-lime transition-colors leading-tight break-keep">
+                      {cat.label}
+                    </h3>
+                    <span className="text-[10px] text-slate-500 font-medium">{cat.count}개 글</span>
                   </div>
                 ))}
               </div>
             </div>
 
-            {/* TRENDING GUIDES TOP 3 CARD */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              
-              {/* TOP 3 Left Card Intro */}
-              <div className="lg:col-span-1 rounded-2xl p-6 sm:p-8 bg-gradient-to-br from-white to-brand-bg border border-brand-border flex flex-col justify-between space-y-4 shadow-sm">
-                <div className="space-y-2">
-                  <div className="w-8 h-8 rounded-lg bg-neon-lime/10 text-neon-lime flex items-center justify-center font-bold">
-                    ★
-                  </div>
-                  <h3 className="text-xl font-extrabold text-slate-900 leading-snug break-keep">인사이트 라이브러리 <br />인기 가이드</h3>
-                  <p className="text-xs text-slate-600 leading-normal break-keep">
-                    많은 분들이 찾아본 가이드를 모았습니다. 유튜브 알고리즘, 시니어 사연, 수익화의 핵심을 빠르게 파악할 수 있어요.
-                  </p>
-                </div>
-                <button 
-                  onClick={() => navigateToTab('guides')}
-                  className="font-bold text-xs text-neon-lime flex items-center gap-1.5 hover:underline"
-                >
-                  {posts.length}개 전체 가이드 목록 가기
-                  <ArrowRight className="w-3 h-3" />
-                </button>
-              </div>
-
-              {/* TOP 3 Render Block */}
-              <div className="lg:col-span-2 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {trendingPosts.slice(0, 2).map((post, idx) => (
-                  <div 
-                    key={post.slug}
-                    onClick={() => {
-                      navigate(`/blog/${post.slug}`);
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className="p-5 rounded-2xl bg-white border border-brand-border hover:border-neon-lime/40 cursor-pointer transition-all duration-300 flex flex-col justify-between group relative overflow-hidden shadow-sm"
-                  >
-                    <div className="absolute top-0 right-0 w-24 h-24 bg-gradient-to-bl from-neon-lime/5 to-transparent pointer-events-none" />
-                    
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <span className="text-3xl font-display font-black text-slate-300 group-hover:text-neon-lime transition-colors">
-                          0{idx + 1}
-                        </span>
-                        <span className="text-[10px] text-blue-800 font-mono font-bold px-2 py-0.5 bg-blue-50 rounded">
-                          {post.categoryLabel}
-                        </span>
-                      </div>
-
-                      <div className="space-y-1">
-                        <h4 className="font-extrabold text-slate-900 text-sm sm:text-base group-hover:text-neon-lime transition-colors leading-snug break-keep">
-                          {post.title}
-                        </h4>
-                        <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                          {post.summary}
-                        </p>
-                      </div>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-4 mt-4 border-t border-brand-border/40 text-[10px] text-slate-500 font-mono">
-                      <span>{formatDate(post.publishedAt)}</span>
-                      <span>{getReadTime(post)} 읽기</span>
-                    </div>
-                  </div>
-                ))}
-              </div>
-
-            </div>
-
-            {/* QUICK AI WEB banner block */}
-            <div className="rounded-3xl p-6 sm:p-10 bg-gradient-to-r from-brand-dark via-white to-brand-bg border border-brand-border text-center space-y-4 relative overflow-hidden shadow-md">
-              <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 bg-neon-lime/5 rounded-full blur-3xl pointer-events-none" />
-              <div className="max-w-xl mx-auto space-y-4 relative z-10">
-                <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#fae5e1] border border-brand-border text-neon-coral text-[10px] font-mono uppercase font-bold tracking-wider">
-                  <Sparkles className="w-3.5 h-3.5" />
-                  프리미엄 대화형 AI 도구
-                </span>
-                <h3 className="text-lg sm:text-2xl font-extrabold text-slate-950 tracking-tight leading-snug break-keep">
-                  제목 · 설명 · 태그 및 시나리오 숏폼 대본을 <br />
-                  5초 만에 완벽하게 추출하는 AI 생성 마스터
-                </h3>
-                <p className="text-xs sm:text-sm text-slate-650 font-medium leading-normal break-keep">
-                  어색한 AI 양식이나 수식이 붙어 나오는 패턴을 완전히 해결한 고도화 알고리즘입니다. 
-                  주요 핵심 키워드를 넣으면 고유 CTR과 숏콘텐츠 기획까지 실시간으로 출력합니다.
-                </p>
-                <div className="pt-2">
-                  <button 
-                    onClick={() => navigateToTab('generator')}
-                    className="px-6 py-3 rounded-xl bg-neon-lime hover:bg-neon-lime-hover text-white font-extrabold text-sm transition-all shadow-sm inline-flex items-center gap-2"
-                  >
-                    마스터 도구 바로 시작하기
-                    <Zap className="w-4 h-4 fill-current animate-pulse" />
-                  </button>
-                </div>
-              </div>
-            </div>
-
-            {/* RECENT GUIDES PREVIEW FEED */}
-            <div className="space-y-6">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-brand-border pb-4">
-                <div>
-                  <h3 className="text-lg sm:text-xl font-bold text-slate-900 tracking-tight flex items-center gap-2">
-                    <BookOpen className="w-5 h-5 text-neon-lime" />
-                    최신 크리에이터 가이드북 피드
-                  </h3>
-                  <p className="text-xs text-slate-500 break-keep">최근 5월에 업데이트된 신규 라이브러리 가이드 팩트체크 리스트</p>
-                </div>
+            {/* POPULAR GUIDES (kunja-style 인기글 4-column) */}
+            <div className="space-y-4">
+              <div className="flex items-center justify-between border-b-2 border-brand-border pb-3">
+                <h2 className="text-lg sm:text-xl font-extrabold tracking-tight text-slate-900 border-l-4 border-neon-lime pl-3">
+                  인기 가이드
+                </h2>
                 <button 
                   onClick={() => navigateToTab('guides')}
                   className="text-xs font-bold text-neon-lime hover:underline flex items-center gap-1"
                 >
-                  {posts.length}개 글 모두 보기 <ChevronRight className="w-4 h-4" />
+                  더보기 <ChevronRight className="w-4 h-4" />
                 </button>
               </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                {posts.slice(0, 4).map(post => (
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+                {trendingPosts.slice(0, 4).map(post => (
                   <div 
                     key={post.slug}
                     onClick={() => {
                       navigate(`/blog/${post.slug}`);
                       window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
-                    className="p-5 rounded-2xl bg-white border border-brand-border hover:border-brand-border/80 cursor-pointer transition-all duration-300 flex flex-col justify-between group shadow-sm"
+                    className="rounded-xl bg-white border border-brand-border hover:border-neon-lime hover:shadow-md cursor-pointer transition-all overflow-hidden group flex flex-col"
                   >
-                    <div className="space-y-4">
-                      <div className="flex items-center justify-between text-[11px] font-mono text-slate-500">
-                        <span className="px-2 py-0.5 rounded bg-brand-bg text-slate-800 text-[10px] font-bold">
-                          {post.categoryLabel}
-                        </span>
-                        <span>{formatDate(post.publishedAt)}</span>
-                      </div>
-
-                      <div className="space-y-1">
-                        <h4 className="font-extrabold text-slate-900 text-sm sm:text-base group-hover:text-neon-lime transition-colors leading-snug break-keep">
-                          {post.title}
-                        </h4>
-                        <p className="text-xs text-slate-600 line-clamp-2 leading-relaxed">
-                          {post.summary}
-                        </p>
-                      </div>
-
-                      <div className="flex flex-wrap gap-1">
-                        {post.tags.slice(0, 3).map(t => (
-                          <span key={t} className="text-[10px] text-slate-700 bg-brand-dark px-1.5 py-0.5 rounded">
-                            #{t}
-                          </span>
-                        ))}
-                      </div>
+                    <div className={`h-28 bg-gradient-to-br ${CATEGORIES.find(c => c.key === post.category)?.gradient || 'from-blue-400 to-blue-600'} flex items-center justify-center text-4xl`}>
+                      {CATEGORIES.find(c => c.key === post.category)?.icon || '📺'}
                     </div>
-
-                    <div className="pt-4 mt-4 border-t border-brand-border/40 flex items-center justify-between text-[10px] text-slate-500 font-mono">
-                      <span className="flex items-center gap-1">
-                        <User className="w-3 h-3 text-neon-lime" /> {post.author}
+                    <div className="p-3 flex flex-col gap-1.5 flex-1">
+                      <span className="text-[10px] font-bold text-white bg-neon-lime px-1.5 py-0.5 rounded self-start">
+                        {post.categoryLabel}
                       </span>
-                      <span>{getReadTime(post)}</span>
+                      <h4 className="font-bold text-slate-900 text-sm leading-snug break-keep line-clamp-2 group-hover:text-neon-lime transition-colors">
+                        {post.title}
+                      </h4>
+                      <span className="text-[10px] text-slate-500 font-mono mt-auto">{formatDate(post.publishedAt)}</span>
                     </div>
                   </div>
                 ))}
               </div>
+            </div>
+
+            {/* QUICK AI banner block */}
+            <div className="rounded-2xl p-6 sm:p-8 bg-gradient-to-r from-neon-lime to-blue-700 text-center space-y-3">
+              <h3 className="text-lg sm:text-xl font-extrabold text-white tracking-tight leading-snug break-keep">
+                제목·설명·태그를 5초 만에 — AI 메타데이터 생성기
+              </h3>
+              <p className="text-xs sm:text-sm text-blue-50 leading-normal break-keep max-w-xl mx-auto">
+                핵심 키워드만 넣으면 유튜브 제목·설명·태그·쇼츠 대본까지 자동으로 정리해드려요.
+              </p>
+              <button 
+                onClick={() => navigateToTab('generator')}
+                className="px-6 py-2.5 rounded-lg bg-neon-coral text-white font-bold text-sm transition-all hover:opacity-90 inline-flex items-center gap-2"
+              >
+                바로 시작하기 <Zap className="w-4 h-4 fill-current" />
+              </button>
             </div>
 
             {/* CATEGORY-WISE PREVIEW (kunja-style) */}
