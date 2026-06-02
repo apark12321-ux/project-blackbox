@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { BrowserRouter, useNavigate, useLocation } from 'react-router-dom';
+import { Analytics } from '@vercel/analytics/react';
 import { 
   Sparkles, 
   BookOpen, 
@@ -2395,6 +2396,8 @@ function AppContent() {
 
         </div>
       </footer>
+
+      <Analytics />
 
     </div>
   );
