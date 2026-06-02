@@ -47,6 +47,13 @@ function formatDate(iso: string): string {
   return `${d.getFullYear()}.${String(d.getMonth() + 1).padStart(2, '0')}.${String(d.getDate()).padStart(2, '0')}`;
 }
 
+function formatDateKR(iso: string): string {
+  if (!iso) return '';
+  const d = new Date(iso.length <= 10 ? iso + 'T00:00:00' : iso);
+  if (isNaN(d.getTime())) return iso;
+  return `${d.getFullYear()}년 ${String(d.getMonth() + 1).padStart(2, '0')}월 ${String(d.getDate()).padStart(2, '0')}일`;
+}
+
 export default function App() {
   return (
     <BrowserRouter>
@@ -2176,8 +2183,8 @@ function AppContent() {
                     <div>
                       <p className="font-extrabold text-slate-850 text-xs sm:text-sm">{selectedPost.author}</p>
                       <p className="text-[11px] text-slate-550 font-mono tracking-tight font-medium">
-                        발행일: {formatDate(selectedPost.publishedAt)} 
-                        {selectedPost.updatedAt && ` · 최종업데이트: ${formatDate(selectedPost.updatedAt)}`}
+                        {formatDateKR(selectedPost.publishedAt)} 발행
+                        {selectedPost.updatedAt && ` · ${formatDateKR(selectedPost.updatedAt)} 업데이트`}
                       </p>
                     </div>
                   </div>
