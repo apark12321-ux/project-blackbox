@@ -2146,31 +2146,33 @@ function AppContent() {
                 {/* Related Internal Posts Carousel Recommendations list */}
                 <div className="pt-8 border-t border-brand-border/40 space-y-4">
                   <h4 className="font-extrabold text-slate-800 text-base">
-                    📌 {selectedPost.categoryLabel} 분야 관련 가이드 더 보기
+                    📌 함께 읽으면 좋은 가이드
                   </h4>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    {posts
-                      .filter(p => p.category === selectedPost.category && p.slug !== selectedPost.slug)
-                      .slice(0, 2)
-                      .map(p => (
+                  <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                    {(() => {
+                      // 같은 카테고리 우선, 부족하면 최신 글로 보충 (총 3편)
+                      const sameCat = posts.filter(p => p.category === selectedPost.category && p.slug !== selectedPost.slug);
+                      const others = posts.filter(p => p.category !== selectedPost.category && p.slug !== selectedPost.slug);
+                      const related = [...sameCat, ...others].slice(0, 3);
+                      return related.map(p => (
                         <div 
                           key={p.slug}
                           onClick={() => {
                             navigate(`/blog/${p.slug}`);
                             window.scrollTo({ top: 0, behavior: 'smooth' });
                           }}
-                          className="p-4 rounded-xl bg-white border border-brand-border hover:border-neon-lime/40 cursor-pointer transition-all space-y-2 flex flex-col justify-between shadow-sm hover:scale-[1.01]"
+                          className="p-4 rounded-xl bg-white border border-brand-border hover:border-neon-lime cursor-pointer transition-all space-y-2 flex flex-col justify-between shadow-sm group"
                         >
                           <div className="space-y-1">
-                            <span className="text-[10px] text-neon-lime font-mono font-bold truncate block">{p.categoryLabel}</span>
-                            <h5 className="font-bold text-slate-800 text-xs sm:text-sm line-clamp-1 group-hover:text-neon-lime">{p.title}</h5>
-                            <p className="text-[11px] text-slate-550 font-semibold line-clamp-1 leading-normal">{p.summary}</p>
+                            <span className="text-[10px] text-white bg-neon-lime px-1.5 py-0.5 rounded font-bold self-start inline-block">{p.categoryLabel}</span>
+                            <h5 className="font-bold text-slate-800 text-sm line-clamp-2 group-hover:text-neon-lime transition-colors leading-snug break-keep mt-1">{p.title}</h5>
+                            <p className="text-[11px] text-slate-550 font-medium line-clamp-2 leading-normal break-keep">{p.summary}</p>
                           </div>
-                          <span className="text-[10px] text-slate-600 font-bold italic block mt-2 text-right">정독하기 →</span>
+                          <span className="text-[10px] text-neon-lime font-bold block mt-2 text-right group-hover:underline">읽어보기 →</span>
                         </div>
-                      ))
-                    }
+                      ));
+                    })()}
                   </div>
                 </div>
 

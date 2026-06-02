@@ -138,6 +138,15 @@ let count = 0;
 // ===== 2. 글 상세 47편 =====
 for (const p of posts) {
   const cat = categories.find((c: any) => c.key === p.category);
+  // 관련 글: 같은 카테고리 우선, 부족하면 다른 글로 보충 (총 3편)
+  const sameCat = posts.filter((x: any) => x.category === p.category && x.slug !== p.slug);
+  const others = posts.filter((x: any) => x.category !== p.category && x.slug !== p.slug);
+  const related = [...sameCat, ...others].slice(0, 3);
+  const relatedHtml = related.length ? `
+      <section>
+        <h2>함께 읽으면 좋은 가이드</h2>
+        <ul>${related.map((r: any) => `<li><a href="/blog/${r.slug}">${esc(r.title)}</a> - ${esc(r.summary)}</li>`).join('')}</ul>
+      </section>` : '';
   const body = `
     <article>
       <nav><a href="/">홈</a> › <a href="/category/${p.category}">${esc(p.categoryLabel)}</a> › ${esc(p.title)}</nav>
@@ -147,6 +156,7 @@ for (const p of posts) {
       ${mdToHtml(p.content || '')}
       ${(p.tags && p.tags.length) ? `<p>${p.tags.slice(0, 10).map((t: string) => `#${esc(t)}`).join(' ')}</p>` : ''}
       ${p.authorityUrl ? `<p>참고: <a href="${esc(p.authorityUrl)}" rel="noopener">${esc(p.authorityLabel || '공식 출처')}</a></p>` : ''}
+      ${relatedHtml}
     </article>
   `;
   const jsonLd = [{
