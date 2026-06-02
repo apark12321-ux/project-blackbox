@@ -583,25 +583,6 @@ function AppContent() {
             </div>
           </div>
 
-          {/* Search bar (kunja-style center) */}
-          <div className="hidden md:flex flex-1 max-w-md mx-4">
-            <div className="relative w-full">
-              <input
-                type="text"
-                placeholder="알고리즘, 수익화, AI 도구 검색..."
-                value={searchQuery}
-                onChange={(e) => {
-                  setSearchQuery(e.target.value);
-                  if (currentTab !== 'guides') navigateToTab('guides');
-                }}
-                className="w-full pl-4 pr-12 py-2.5 rounded-lg border border-brand-border bg-white text-sm placeholder:text-slate-400 focus:outline-none focus:border-neon-lime focus:ring-2 focus:ring-neon-lime/20 transition-all"
-              />
-              <button className="absolute right-1 top-1 bottom-1 px-4 rounded-md bg-neon-lime text-white text-xs font-bold hover:bg-neon-lime-hover transition-all">
-                검색
-              </button>
-            </div>
-          </div>
-
           {/* Right: AI generator + Info */}
           <div className="flex items-center gap-2">
             <button 
@@ -652,7 +633,8 @@ function AppContent() {
           </div>
         </div>
 
-        {/* Mobile search */}
+        {/* Mobile search (홈에서는 히어로 검색창이 있어 숨김) */}
+        {currentTab !== 'home' && (
         <div className="md:hidden p-3 bg-brand-bg border-b border-brand-border">
           <div className="relative">
             <input
@@ -670,6 +652,7 @@ function AppContent() {
             </button>
           </div>
         </div>
+        )}
       </header>
 
       <main className="flex-1 max-w-6xl w-full mx-auto px-4 py-8 sm:py-12 space-y-12">
