@@ -43,23 +43,31 @@ async function submitIndexNow() {
     urlList: urls,
   };
 
-  // IndexNow 엔드포인트 (하나에 보내면 참여 검색엔진끼리 공유됨)
-  const endpoint = 'https://api.indexnow.org/indexnow';
-  try {
-    const res = await fetch(endpoint, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json; charset=utf-8' },
-      body: JSON.stringify(payload),
-    });
-    console.log(`IndexNow 제출: ${res.status} ${res.statusText} (${urls.length}개 URL)`);
-    if (res.status === 200 || res.status === 202) {
-      console.log('  ✅ 색인 요청 접수됨 (Bing, Naver, Yandex 등)');
-    } else {
-      const txt = await res.text();
-      console.log(`  응답: ${txt.slice(0, 200)}`);
+  // IndexNow 엔드포인트 목록
+  // - api.indexnow.org: 참여 검색엔진 공유 (Bing, Yandex 등)
+  // - searchadvisor.naver.com: 네이버 전용 직접 제출 (확실한 네이버 반영)
+  const endpoints = [
+    { name: 'IndexNow 공통(Bing·Yandex 등)', url: 'https://api.indexnow.org/indexnow' },
+    { name: 'Naver 서치어드바이저', url: 'https://searchadvisor.naver.com/indexnow' },
+  ];
+
+  for (const ep of endpoints) {
+    try {
+      const res = await fetch(ep.url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json; charset=utf-8' },
+        body: JSON.stringify(payload),
+      });
+      console.log(`[${ep.name}] 제출: ${res.status} ${res.statusText} (${urls.length}개 URL)`);
+      if (res.status === 200 || res.status === 202) {
+        console.log('  ✅ 색인 요청 접수됨');
+      } else {
+        const txt = await res.text();
+        console.log(`  응답: ${txt.slice(0, 200)}`);
+      }
+    } catch (e) {
+      console.error(`  [${ep.name}] 제출 실패:`, (e as Error).message);
     }
-  } catch (e) {
-    console.error('  IndexNow 제출 실패:', (e as Error).message);
   }
 }
 
