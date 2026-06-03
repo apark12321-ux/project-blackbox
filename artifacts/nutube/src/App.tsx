@@ -2096,6 +2096,13 @@ function AppContent() {
                           </div>
                         );
                       }
+                      if (lineTrimmed.startsWith('> ')) {
+                        return (
+                          <div key={idx} className="my-4 rounded-xl bg-blue-50 border-l-4 border-neon-lime px-5 py-4 text-base sm:text-lg text-slate-800 font-medium leading-relaxed break-keep">
+                            {renderInline(lineTrimmed.substring(2), `q-${idx}`)}
+                          </div>
+                        );
+                      }
 
                       return (
                         <p key={idx} className="mb-5 leading-[1.8] text-base sm:text-lg text-slate-700 break-keep font-medium">
