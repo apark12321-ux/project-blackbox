@@ -97,19 +97,39 @@ function AppContent() {
   const [activeLegalTab, setActiveLegalTab] = useState<'about' | 'privacy' | 'terms' | 'partnership' | 'announcements'>('about');
 
   // URL route sync to keep navigation in perfect harmony with state
-  // 조회수 카운터 (글 진입 시 1회 증가, 실제 누적값 표시)
+  // 조회수 카운터 (Upstash 기반 자체 API, 세션당 1회 증가, 미설정 시 숨김)
   useEffect(() => {
     if (!selectedPost) { setViewCount(null); return; }
     let cancelled = false;
-    const key = selectedPost.slug.replace(/[^a-zA-Z0-9_-]/g, '').slice(0, 60) || 'post';
-    fetch(`https://api.counterapi.dev/v1/nutube-kr/${key}/up`)
-      .then(r => r.ok ? r.json() : null)
-      .then(data => {
-        if (!cancelled && data && typeof data.count === 'number') {
-          setViewCount(data.count);
+    const id = selectedPost.slug;
+    const seenKey = `viewed:${id}`;
+    let alreadySeen = false;
+    try { alreadySeen = sessionStorage.getItem(seenKey) === '1'; } catch { /* ignore */ }
+
+    const run = async () => {
+      try {
+        let res;
+        if (alreadySeen) {
+          res = await fetch(`/api/views?id=${encodeURIComponent(id)}`);
+        } else {
+          res = await fetch('/api/views', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ id }),
+          });
+          try { sessionStorage.setItem(seenKey, '1'); } catch { /* ignore */ }
         }
-      })
-      .catch(() => { /* 실패 시 조회수 미표시 */ });
+        const data = await res.json();
+        if (!cancelled && data && data.enabled !== false && typeof data.views === 'number') {
+          setViewCount(data.views);
+        } else if (!cancelled) {
+          setViewCount(null); // 카운터 미설정 시 숨김
+        }
+      } catch {
+        if (!cancelled) setViewCount(null);
+      }
+    };
+    run();
     return () => { cancelled = true; };
   }, [selectedPost]);
 
