@@ -15,7 +15,7 @@ import { dirname, join } from 'path';
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
-const HOST = 'www.nutube.kr';
+const HOST = 'nutube.kr';
 const BASE_URL = `https://${HOST}`;
 const INDEXNOW_KEY = 'f75151a757c095ec118fc7b565e3f4cc';
 
