@@ -1,0 +1,141 @@
+@import "tailwindcss";
+@import url('https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/variable/pretendardvariable-dynamic-subset.css');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap');
+
+@theme {
+  --font-sans: "Pretendard Variable", "Pretendard", "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", system-ui, sans-serif;
+  --font-display: "Pretendard Variable", "Pretendard", "Inter", sans-serif;
+  --font-mono: "JetBrains Mono", "D2Coding", monospace;
+  
+  --color-brand-bg: #f4f6fa;
+  --color-brand-dark: #e8edf5;
+  --color-brand-card: #ffffff;
+  --color-brand-border: #dde3ed;
+  
+  --color-neon-lime: #2563eb;
+  --color-neon-lime-hover: #1d4fc4;
+  --color-neon-coral: #f97316;
+}
+
+@layer base {
+  html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+  }
+  @media (min-width: 640px) {
+    html { font-size: 17px; }
+  }
+  @media (min-width: 1024px) {
+    html { font-size: 18px; }
+  }
+  body {
+    background-color: var(--color-brand-bg);
+    color: #1a1f1c;
+    font-family: var(--font-sans);
+    font-weight: 400;
+    line-height: 1.75;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    text-rendering: optimizeLegibility;
+    word-break: keep-all;
+    overflow-wrap: break-word;
+    letter-spacing: -0.02em;
+    font-feature-settings: "ss03", "cv11";
+  }
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-display);
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1.35;
+    color: #0f1411;
+  }
+  p {
+    color: #2d362f;
+  }
+}
+
+/* Custom scrollbar to match soothing sage theme */
+::-webkit-scrollbar {
+  width: 9px;
+}
+::-webkit-scrollbar-track {
+  background: var(--color-brand-bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-brand-border);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-neon-lime);
+}
+
+/* Eye-soothing gradient text utility */
+.gradient-text-forest {
+  background: linear-gradient(135deg, #1e4d30 0%, #2f6b45 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+
+/* Soothing Shadow accents */
+.sage-shadow {
+  box-shadow: 0 4px 20px -2px rgba(44, 73, 50, 0.06), 0 2px 8px -1px rgba(0, 0, 0, 0.04);
+}
+
+.glow-filter {
+  filter: drop-shadow(0 0 8px rgba(36, 94, 60, 0.15));
+}
+
+.glow-filter-coral {
+  filter: drop-shadow(0 0 8px rgba(183, 62, 39, 0.15));
+}
+
+/* Enhanced Markdown styling optimized specifically for human reading density */
+.markdown-body h2 {
+  font-family: var(--font-sans);
+  font-weight: 800;
+  color: #0f1411;
+  border-bottom: 2px solid var(--color-brand-border);
+  padding-bottom: 0.6rem;
+  margin-top: 2.25rem;
+  margin-bottom: 1.1rem;
+  font-size: 1.55rem;
+  letter-spacing: -0.03em;
+  line-height: 1.4;
+}
+
+.markdown-body h3 {
+  font-family: var(--font-sans);
+  font-weight: 700;
+  color: #18241c;
+  margin-top: 1.75rem;
+  margin-bottom: 0.85rem;
+  font-size: 1.2rem;
+  letter-spacing: -0.025em;
+  line-height: 1.45;
+}
+
+.markdown-body p {
+  color: #1f2922;
+  margin-bottom: 1.35rem;
+  line-height: 1.85;
+  font-size: 1.0625rem;
+  letter-spacing: -0.015em;
+}
+
+.markdown-body ul, .markdown-body ol {
+  padding-left: 1.5rem;
+  margin-bottom: 1.35rem;
+}
+
+.markdown-body li {
+  margin-bottom: 0.6rem;
+  color: #1f2922;
+  line-height: 1.8;
+  font-size: 1.0625rem;
+  letter-spacing: -0.015em;
+}
+
+.markdown-body strong {
+  color: #1c4830;
+  font-weight: 700;
+}

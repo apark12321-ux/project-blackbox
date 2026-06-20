@@ -3,6 +3,7 @@
   "outputDirectory": "dist",
   "installCommand": "npm install",
   "framework": null,
+  "cleanUrls": true,
   "trailingSlash": false,
   "headers": [
     {
@@ -33,7 +34,7 @@
   ],
   "rewrites": [
     {
-      "source": "/((?!api/|assets/|thumbnails/|sitemap\\.xml|rss\\.xml|robots\\.txt|ads\\.txt|.*\\.[a-zA-Z0-9]+$).*)",
+      "source": "/((?!api/|assets/|thumbnails/|.*\\.[a-zA-Z0-9]+$).*)",
       "destination": "/index.html"
     }
   ]

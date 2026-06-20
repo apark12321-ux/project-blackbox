@@ -1,0 +1,327 @@
+/* ============================================
+   NuTube 전역 스타일 - zip9.kr 패턴 기반
+   ============================================ */
+
+*, *::before, *::after { box-sizing: border-box; }
+
+html, body {
+  margin: 0; padding: 0;
+  font-family: 'Pretendard', -apple-system, BlinkMacSystemFont, system-ui, sans-serif;
+  font-size: 16px;
+  line-height: 1.6;
+  color: #e6edf3;
+  background: #0d1117;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+a { color: inherit; text-decoration: none; }
+a:hover { color: #84cc16; }
+img, svg { max-width: 100%; height: auto; display: block; }
+button { font-family: inherit; cursor: pointer; }
+
+.nt-main { min-height: calc(100vh - 200px); background: #0d1117; }
+
+/* 컨테이너 */
+.nt-container { max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+@media (max-width: 640px) { .nt-container { padding: 0 16px; } }
+
+/* ============================================
+   헤더
+   ============================================ */
+.nt-header {
+  position: sticky; top: 0; z-index: 50;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid #f3f4f6;
+}
+.nt-header-inner {
+  max-width: 1200px; margin: 0 auto; padding: 16px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.nt-logo {
+  font-size: 22px; font-weight: 800; letter-spacing: -0.02em;
+  background: linear-gradient(135deg, #4f46e5 0%, #6366f1 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+.nt-nav { display: flex; gap: 24px; align-items: center; }
+.nt-nav a { font-size: 14px; font-weight: 600; color: #374151; }
+.nt-nav a:hover { color: #4f46e5; }
+.nt-nav-cta {
+  padding: 8px 16px; background: #4f46e5; color: #fff !important;
+  border-radius: 999px; font-size: 14px; font-weight: 700;
+}
+.nt-nav-cta:hover { background: #4338ca; color: #fff !important; }
+@media (max-width: 640px) {
+  .nt-nav { gap: 12px; }
+  .nt-nav a:not(.nt-nav-cta) { display: none; }
+}
+
+/* ============================================
+   푸터
+   ============================================ */
+.nt-footer {
+  background: #0a0e13; border-top: 1px solid rgba(255,255,255,0.08);
+  padding: 56px 0 32px; margin-top: 0;
+}
+.nt-footer-inner {
+  max-width: 1200px; margin: 0 auto; padding: 0 20px;
+  display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 40px;
+}
+@media (max-width: 768px) {
+  .nt-footer-inner { grid-template-columns: 1fr; gap: 24px; }
+}
+.nt-footer-brand h3 {
+  font-size: 20px; font-weight: 900; margin: 0 0 10px;
+  background: linear-gradient(90deg, #fff 0%, #d9f99d 100%);
+  -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;
+}
+.nt-footer-brand p { font-size: 13px; color: rgba(230,237,243,0.5); margin: 0 0 16px; line-height: 1.6; }
+.nt-footer-section h4 { font-size: 13px; font-weight: 700; color: #fff; margin: 0 0 12px; }
+.nt-footer-section ul { list-style: none; padding: 0; margin: 0; }
+.nt-footer-section li { margin-bottom: 8px; }
+.nt-footer-section a { font-size: 13px; color: rgba(230,237,243,0.5); transition: color 0.15s; }
+.nt-footer-section a:hover { color: #84cc16; }
+.nt-footer-bottom {
+  max-width: 1200px; margin: 36px auto 0; padding: 24px 20px 0;
+  border-top: 1px solid rgba(255,255,255,0.08);
+  display: flex; justify-content: space-between; flex-wrap: wrap; gap: 12px;
+  font-size: 12px; color: rgba(230,237,243,0.4);
+}
+.nt-footer-operator { line-height: 1.7; }
+.nt-footer-operator a { color: rgba(230,237,243,0.6); }
+.nt-footer-operator a:hover { color: #84cc16; }
+.nt-footer-operator strong { color: rgba(230,237,243,0.7); font-weight: 600; }
+
+/* ============================================
+   공통 페이지 스타일 (About, Privacy, Terms 등)
+   ============================================ */
+.nt-page {
+  max-width: 880px; margin: 40px auto;
+  padding: 56px 48px 64px;
+  background: #fff; border-radius: 20px;
+  color: #111827;
+}
+@media (max-width: 640px) { .nt-page { padding: 32px 20px 48px; margin: 16px; border-radius: 16px; } }
+.nt-page h1 {
+  font-size: 36px; font-weight: 800; letter-spacing: -0.025em;
+  color: #111827; margin: 0 0 16px; line-height: 1.2;
+}
+@media (max-width: 640px) { .nt-page h1 { font-size: 26px; } }
+.nt-page h2 {
+  font-size: 22px; font-weight: 700; color: #111827;
+  margin: 36px 0 12px; padding-bottom: 8px; border-bottom: 2px solid #eef2ff;
+}
+.nt-page p { font-size: 16px; line-height: 1.8; color: #374151; margin: 0 0 16px; }
+.nt-page ul { padding-left: 20px; margin: 0 0 16px; }
+.nt-page li { margin-bottom: 6px; line-height: 1.75; color: #374151; }
+.nt-page .nt-lead {
+  font-size: 17px; color: #6b7280; margin-bottom: 32px; line-height: 1.7;
+}
+.nt-info-box {
+  background: #f9fafb; border: 1px solid #e5e7eb; border-radius: 12px;
+  padding: 20px 24px; margin: 24px 0;
+}
+.nt-info-box dl { margin: 0; display: grid; grid-template-columns: 100px 1fr; gap: 8px 16px; }
+.nt-info-box dt { font-size: 13px; color: #9ca3af; font-weight: 600; }
+.nt-info-box dd { font-size: 14px; color: #111827; margin: 0; }
+
+/* ============================================
+   표 스타일 (Privacy, Terms 등의 표)
+   ============================================ */
+.nt-table-wrap {
+  overflow-x: auto;
+  margin: 16px 0 24px;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+}
+.nt-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 14px;
+  background: #fff;
+}
+.nt-table thead {
+  background: #f9fafb;
+}
+.nt-table th {
+  text-align: left;
+  padding: 12px 14px;
+  font-weight: 700;
+  color: #111827;
+  border-bottom: 2px solid #e5e7eb;
+  white-space: nowrap;
+}
+.nt-table td {
+  padding: 12px 14px;
+  color: #374151;
+  border-top: 1px solid #f3f4f6;
+  line-height: 1.6;
+}
+.nt-table tbody tr:hover { background: #fafbfc; }
+.nt-table a {
+  color: #4f46e5;
+  text-decoration: none;
+}
+.nt-table a:hover { text-decoration: underline; }
+@media (max-width: 640px) {
+  .nt-table { font-size: 13px; }
+  .nt-table th, .nt-table td { padding: 10px 8px; }
+}
+
+/* ============================================
+   카테고리 페이지 hero
+   ============================================ */
+.nt-cat-hero {
+  padding: 48px 32px;
+  border-radius: 20px;
+  text-align: center;
+  margin-bottom: 32px;
+}
+.nt-cat-hero-icon {
+  font-size: 64px;
+  margin-bottom: 12px;
+}
+.nt-cat-hero h1 {
+  font-size: 32px;
+  font-weight: 800;
+  margin: 0 0 12px;
+  color: #111827;
+  letter-spacing: -0.02em;
+}
+.nt-cat-hero p {
+  font-size: 16px;
+  color: #374151;
+  margin: 0 0 16px;
+  line-height: 1.6;
+}
+.nt-cat-hero-meta {
+  display: inline-block;
+  font-size: 13px;
+  color: #6b7280;
+  background: rgba(255,255,255,0.7);
+  padding: 4px 12px;
+  border-radius: 999px;
+  font-weight: 600;
+}
+@media (max-width: 640px) {
+  .nt-cat-hero { padding: 32px 20px; }
+  .nt-cat-hero-icon { font-size: 48px; }
+  .nt-cat-hero h1 { font-size: 24px; }
+  .nt-cat-hero p { font-size: 14px; }
+}
+
+/* Breadcrumb */
+.nt-breadcrumb {
+  font-size: 13px;
+  color: rgba(230,237,243,0.5);
+  margin-bottom: 16px;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+.nt-breadcrumb a {
+  color: rgba(230,237,243,0.5);
+  text-decoration: none;
+}
+.nt-breadcrumb a:hover {
+  color: #84cc16;
+  text-decoration: underline;
+}
+.nt-breadcrumb .current {
+  color: #fff;
+  font-weight: 600;
+}
+
+/* ============================================
+   블로그 카드 그리드 (홈·블로그 목록·카테고리)
+   ============================================ */
+.nt-blog-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+  margin-top: 24px;
+}
+@media (max-width: 1024px) {
+  .nt-blog-grid { grid-template-columns: repeat(2, 1fr); gap: 20px; }
+}
+@media (max-width: 640px) {
+  .nt-blog-grid { grid-template-columns: 1fr; gap: 16px; }
+}
+
+.nt-blog-card {
+  display: block;
+  background: #fff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  overflow: hidden;
+  transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+  text-decoration: none;
+  color: inherit;
+}
+.nt-blog-card:hover {
+  transform: translateY(-2px);
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+  border-color: #d1d5db;
+}
+.nt-blog-card-thumb {
+  width: 100%;
+  aspect-ratio: 16 / 9;     /* 비율 고정 - 이게 핵심 */
+  overflow: hidden;
+  background: #f3f4f6;
+}
+.nt-blog-card-thumb img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+}
+.nt-blog-card-body {
+  padding: 18px 18px 20px;
+}
+.nt-blog-card-cat {
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  margin-bottom: 8px;
+}
+.nt-blog-card-title {
+  font-size: 17px;
+  font-weight: 800;
+  color: #111827;
+  margin: 0 0 8px;
+  line-height: 1.4;
+  letter-spacing: -0.01em;
+  /* 2줄 제한 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.nt-blog-card-summary {
+  font-size: 13.5px;
+  color: #6b7280;
+  margin: 0 0 12px;
+  line-height: 1.5;
+  /* 2줄 제한 */
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.nt-blog-card-date {
+  font-size: 12px;
+  color: #9ca3af;
+  font-weight: 500;
+}
+
+/* 글 본문 안 이미지 (article body img)는 막지 않되, max 제한 */
+.nt-post-body img,
+.nt-page img {
+  max-width: 100%;
+  height: auto;
+  border-radius: 8px;
+}
